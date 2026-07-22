@@ -1,0 +1,22 @@
+{
+  "name": "Da-El World Travelers",
+  "short_name": "Da-El Travel",
+  "description": "Book authentic accommodations with trusted hosts",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F7FA",
+  "theme_color": "#2C5F8D",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/logo-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/logo-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 180" width="750" height="180">
+  <defs>
+    <linearGradient id="dGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00B4D8"/>
+      <stop offset="35%" stop-color="#0077B6"/>
+      <stop offset="70%" stop-color="#023E8A"/>
+      <stop offset="100%" stop-color="#0A1628"/>
+    </linearGradient>
+    <linearGradient id="needleUp" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00B4D8"/>
+      <stop offset="100%" stop-color="#48CAE4"/>
+    </linearGradient>
+    <linearGradient id="needleDown" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0077B6"/>
+      <stop offset="100%" stop-color="#023E8A"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00B4D8"/>
+      <stop offset="50%" stop-color="#0077B6"/>
+      <stop offset="100%" stop-color="#023E8A"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(8, 15) scale(0.35)">
+    <path d="M 100 60 L 300 60 Q 420 60 420 180 Q 420 300 300 300 L 100 300 Z M 250 180 m -100 0 a 100 100 0 1 0 200 0 a 100 100 0 1 0 -200 0" fill="url(#dGrad)" fill-rule="evenodd"/>
+    <polygon points="250,52 242,80 258,80" fill="white"/>
+    <polygon points="250,308 242,280 258,280" fill="white"/>
+    <polygon points="142,180 170,172 170,188" fill="white"/>
+    <polygon points="358,180 330,172 330,188" fill="white"/>
+    <polygon points="250,95 243,180 250,165 257,180" fill="url(#needleUp)"/>
+    <polygon points="250,265 243,180 250,195 257,180" fill="url(#needleDown)"/>
+    <circle cx="250" cy="180" r="6" fill="white"/>
+  </g>
+
+  <text x="170" y="75" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="56" font-weight="800" fill="url(#textGrad)" letter-spacing="2">Da-El</text>
+  <text x="173" y="125" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="28" font-weight="500" fill="#64748B" letter-spacing="6">WORLD TRAVELERS</text>
+</svg>

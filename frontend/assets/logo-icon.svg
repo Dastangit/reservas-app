@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="dGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00B4D8"/>
+      <stop offset="35%" style="stop-color:#0077B6"/>
+      <stop offset="70%" style="stop-color:#023E8A"/>
+      <stop offset="100%" style="stop-color:#0A1628"/>
+    </linearGradient>
+    <linearGradient id="needleUp" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00B4D8"/>
+      <stop offset="100%" style="stop-color:#48CAE4"/>
+    </linearGradient>
+    <linearGradient id="needleDown" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0077B6"/>
+      <stop offset="100%" style="stop-color:#023E8A"/>
+    </linearGradient>
+  </defs>
+
+  <!-- D shape with circular cutout (even-odd fill rule) -->
+  <path d="
+    M 100 60
+    L 300 60
+    Q 420 60 420 180
+    Q 420 300 300 300
+    L 100 300
+    Z
+    M 250 180
+    m -100 0
+    a 100 100 0 1 0 200 0
+    a 100 100 0 1 0 -200 0
+  " fill="url(#dGrad)" fill-rule="evenodd"/>
+
+  <!-- Compass points (N, S, W, E) -->
+  <polygon points="250,52 242,80 258,80" fill="white"/>
+  <polygon points="250,308 242,280 258,280" fill="white"/>
+  <polygon points="142,180 170,172 170,188" fill="white"/>
+  <polygon points="358,180 330,172 330,188" fill="white"/>
+
+  <!-- Compass needle - upper half (cyan) -->
+  <polygon points="250,95 243,180 250,165 257,180" fill="url(#needleUp)"/>
+  <!-- Compass needle - lower half (dark blue) -->
+  <polygon points="250,265 243,180 250,195 257,180" fill="url(#needleDown)"/>
+
+  <!-- Center pivot dot -->
+  <circle cx="250" cy="180" r="6" fill="white"/>
+</svg>

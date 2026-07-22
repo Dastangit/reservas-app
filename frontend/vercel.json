@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://booking-app.containers.snapdeploy.app/api/:path*" }
+  ]
+}

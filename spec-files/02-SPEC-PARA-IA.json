@@ -1,0 +1,301 @@
+{
+  "project": {
+    "name": "Da-El World Travelers",
+    "tagline": "Viaja con confianza",
+    "version": "2.0",
+    "description": "Plataforma de turismo completa y multi-tenant. Núcleo: reservas de alojamientos (Airbnb/Booking style). Módulos futuros: excursiones grupales y red social de viajeros.",
+    "type": "saas-multi-tenant",
+    "market": {
+      "initial": "Cuba",
+      "target_tourists": "Canadienses e internacionales",
+      "scalable_to": "Toda Latinoamérica"
+    },
+    "status": "En desarrollo — MVP Fase 1"
+  },
+
+  "stack": {
+    "frontend": {
+      "type": "PWA",
+      "technologies": ["HTML5", "CSS3", "JavaScript (vanilla)", "Service Worker"],
+      "responsive": true,
+      "installable": true,
+      "languages": ["English", "French", "Spanish"],
+      "i18n": {
+        "strategy": "JSON files per language",
+        "fallback_language": "en"
+      },
+      "theming": {
+        "strategy": "CSS variables centralizadas en theme.css",
+        "config_file": "config.js",
+        "editable_without_code": true
+      }
+    },
+    "backend": {
+      "runtime": "Node.js",
+      "framework": "Express.js",
+      "language": "JavaScript"
+    },
+    "database": {
+      "type": "MongoDB",
+      "architecture": "multi-tenant",
+      "collections_core": [
+        "tenants",
+        "users",
+        "properties",
+        "bookings",
+        "reviews",
+        "feedback",
+        "payments"
+      ],
+      "collections_future_experiences": [
+        "experiences",
+        "experience_bookings",
+        "experience_waitlist"
+      ],
+      "collections_future_community": [
+        "posts",
+        "post_interactions",
+        "post_comments",
+        "follows"
+      ]
+    },
+    "payments": {
+      "primary_pending_confirmation": "NOWPayments",
+      "alternatives": ["BTCPay Server", "CoinGate"],
+      "cryptocurrencies": ["USDT", "BTC", "ETH"],
+      "fiat_bridge": "MoonPay",
+      "trc20_enabled": true,
+      "note": "Gateway final a confirmar según compatibilidad con Cuba"
+    },
+    "authentication": {
+      "method": "JWT",
+      "session_timeout_hours": 24,
+      "password_hashing": "bcrypt",
+      "refresh_tokens": true
+    },
+    "hosting": {
+      "frontend": "Vercel (deployed)",
+      "backend": "Railway.app o Fly.io (recomendado)",
+      "database": "MongoDB Atlas",
+      "media_future": "Cloudinary (para módulo Community)"
+    }
+  },
+
+  "database_schema": {
+    "tenants": {
+      "description": "Admin account and configuration per tenant",
+      "key_fields": ["_id", "name", "domain", "admin_email", "admin_phone", "admin_whatsapp", "api_key", "settings", "subscription_tier", "status", "created_at"]
+    },
+    "users": {
+      "description": "All users (tourists, hosts, organizers, admins)",
+      "key_fields": ["_id", "tenant_id", "email", "phone", "phone_whatsapp", "name", "role", "profile", "password_hash", "status", "created_at"],
+      "roles": ["tourist", "host", "organizer", "admin"],
+      "future_extension": "community field (posts_count, followers, is_blogger)"
+    },
+    "properties": {
+      "description": "Accommodations (casas particulares, hostels)",
+      "key_fields": ["_id", "tenant_id", "host_id", "name", "type", "description", "location", "max_guests", "price_per_night", "amenities", "images", "blocked_dates", "payment_options", "rating", "reviews_count", "status", "created_at"],
+      "types": ["casa_particular", "hostel"]
+    },
+    "bookings": {
+      "description": "Reservations with hold mechanism",
+      "key_fields": ["_id", "tenant_id", "property_id", "tourist_id", "host_id", "check_in", "check_out", "num_nights", "num_guests", "fee_amount", "fee_paid", "fee_transaction_id", "total_amount", "payment_option", "tourist_data", "status", "hold_expires_at", "approved_at", "created_at"],
+      "statuses": ["pending_payment", "pending_approval", "approved", "rejected", "completed", "cancelled"],
+      "hold_duration_hours": 3
+    },
+    "reviews": {
+      "description": "Blind review system (Airbnb-style)",
+      "key_fields": ["_id", "tenant_id", "booking_id", "property_id", "reviewer_id", "reviewer_role", "rating", "text", "submitted_at", "pair_review_id", "both_submitted", "status", "created_at"]
+    },
+    "feedback": {
+      "description": "User suggestions (admin-only visibility)",
+      "key_fields": ["_id", "tenant_id", "user_id", "booking_id", "message", "category", "admin_response", "status", "created_at"]
+    },
+    "experiences_future": {
+      "description": "Excursiones y actividades grupales (Fase 4)",
+      "key_fields": ["_id", "tenant_id", "organizer_id", "title", "description", "category", "location", "date", "duration_hours", "max_participants", "current_participants", "price_per_person", "images", "status", "created_at"]
+    },
+    "posts_future": {
+      "description": "Community posts — muro de viajes (Fase 5)",
+      "key_fields": ["_id", "tenant_id", "author_id", "type", "caption", "body", "media", "location_tag", "property_tag", "experience_tag", "hashtags", "likes_count", "comments_count", "status", "created_at"]
+    }
+  },
+
+  "features": {
+    "core_mvp": {
+      "authentication": { "login": true, "register": true, "logout": true, "jwt_tokens": true },
+      "search": {
+        "basic_filters": ["location", "check_in_date", "check_out_date", "number_of_guests"],
+        "advanced_filters": ["price_range", "property_type", "amenities", "minimum_rating"],
+        "sorting": ["price_asc", "price_desc", "rating_desc", "newest"]
+      },
+      "bookings": {
+        "type": "instant_with_admin_approval",
+        "hold_duration_minutes": 180,
+        "auto_hold_expiration": true,
+        "fee_amount_usd": 10,
+        "fee_refundable": false,
+        "payment_options_in_property": ["full_payment_on_arrival", "daily_payment"]
+      },
+      "reviews": {
+        "type": "blind_review",
+        "both_parties_review": true,
+        "simultaneous_reveal": true
+      },
+      "feedback": {
+        "user_accessible": true,
+        "admin_only_visibility": true,
+        "admin_response_enabled": true
+      },
+      "contact": {
+        "admin_email_visible": true,
+        "admin_whatsapp_visible": true,
+        "host_info_visibility": "after_approval_only"
+      },
+      "notifications": {
+        "email": true,
+        "in_app": true
+      }
+    },
+    "future_experiences_module": {
+      "status": "planned_phase_4",
+      "description": "Excursiones y actividades grupales con reserva de cupos",
+      "key_features": ["experience_listing", "seat_booking", "waitlist", "organizer_panel", "same_payment_flow"]
+    },
+    "future_community_module": {
+      "status": "planned_phase_5",
+      "description": "Red social de viajeros — muro de viajes tipo Instagram",
+      "key_features": ["photo_posts", "travel_stories", "culinary_experiences", "hashtags", "location_tagging", "follow_system", "blogger_monetization"],
+      "requires": ["Cloudinary", "extended_user_profile"]
+    },
+    "future_theming_module": {
+      "status": "planned_phase_2",
+      "description": "Sistema de variables CSS + config.js para diseño editable",
+      "editable_without_deep_code": true,
+      "affects_functionality": false
+    }
+  },
+
+  "api_endpoints": {
+    "auth": [
+      { "method": "POST", "path": "/api/auth/register", "auth": false },
+      { "method": "POST", "path": "/api/auth/login", "auth": false },
+      { "method": "POST", "path": "/api/auth/refresh", "auth": true },
+      { "method": "POST", "path": "/api/auth/logout", "auth": true }
+    ],
+    "properties": [
+      { "method": "GET", "path": "/api/properties", "auth": false },
+      { "method": "GET", "path": "/api/properties/:id", "auth": false },
+      { "method": "POST", "path": "/api/properties", "auth": true, "role": "host" },
+      { "method": "PUT", "path": "/api/properties/:id", "auth": true, "role": "host" },
+      { "method": "PUT", "path": "/api/properties/:id/availability", "auth": true, "role": "host" }
+    ],
+    "search": [
+      { "method": "GET", "path": "/api/search", "auth": false },
+      { "method": "GET", "path": "/api/properties/:id/availability", "auth": false }
+    ],
+    "bookings": [
+      { "method": "POST", "path": "/api/bookings", "auth": true, "role": "tourist" },
+      { "method": "GET", "path": "/api/bookings", "auth": true },
+      { "method": "GET", "path": "/api/bookings/:id", "auth": true },
+      { "method": "PUT", "path": "/api/bookings/:id/cancel", "auth": true, "role": "tourist" },
+      { "method": "POST", "path": "/api/bookings/:id/approve", "auth": true, "role": "admin" },
+      { "method": "POST", "path": "/api/bookings/:id/reject", "auth": true, "role": "admin" }
+    ],
+    "webhooks": [
+      { "method": "POST", "path": "/api/webhooks/nowpayments", "auth": false, "signature_verified": true }
+    ],
+    "reviews": [
+      { "method": "POST", "path": "/api/reviews", "auth": true },
+      { "method": "GET", "path": "/api/reviews/property/:id", "auth": false }
+    ],
+    "feedback": [
+      { "method": "POST", "path": "/api/feedback", "auth": true },
+      { "method": "GET", "path": "/api/feedback", "auth": true, "role": "admin" },
+      { "method": "POST", "path": "/api/feedback/:id/respond", "auth": true, "role": "admin" }
+    ],
+    "admin": [
+      { "method": "GET", "path": "/api/admin/dashboard", "auth": true, "role": "admin" },
+      { "method": "GET", "path": "/api/admin/properties/pending", "auth": true, "role": "admin" },
+      { "method": "POST", "path": "/api/admin/properties/:id/approve", "auth": true, "role": "admin" },
+      { "method": "POST", "path": "/api/admin/tenants", "auth": true, "role": "super_admin" },
+      { "method": "PUT", "path": "/api/admin/settings", "auth": true, "role": "admin" }
+    ],
+    "future_experiences": [
+      { "method": "GET", "path": "/api/experiences", "phase": 4 },
+      { "method": "GET", "path": "/api/experiences/:id", "phase": 4 },
+      { "method": "POST", "path": "/api/experiences", "role": "organizer", "phase": 4 },
+      { "method": "POST", "path": "/api/experiences/:id/book", "role": "tourist", "phase": 4 },
+      { "method": "POST", "path": "/api/experiences/:id/waitlist", "phase": 4 }
+    ],
+    "future_community": [
+      { "method": "GET", "path": "/api/feed", "phase": 5 },
+      { "method": "POST", "path": "/api/posts", "role": "tourist", "phase": 5 },
+      { "method": "POST", "path": "/api/posts/:id/like", "phase": 5 },
+      { "method": "POST", "path": "/api/posts/:id/comments", "phase": 5 },
+      { "method": "POST", "path": "/api/follow/:id", "phase": 5 },
+      { "method": "GET", "path": "/api/profile/:id/posts", "phase": 5 }
+    ]
+  },
+
+  "payment_flow": {
+    "gateway": "NOWPayments (pendiente confirmación Cuba) / BTCPay Server (alternativa)",
+    "fee": { "amount": 10, "currency": "USD", "crypto": "USDT", "refundable": false },
+    "hold_mechanism": { "duration_hours": 3, "auto_expire": true },
+    "remainder_payment": { "where": "on_arrival", "options": ["full_payment_on_arrival", "daily_payment"] }
+  },
+
+  "ui_structure": {
+    "core_pages": {
+      "tourist": ["landing", "search_results", "property_detail", "login_register", "booking_form", "booking_summary", "payment_checkout", "booking_confirmation", "dashboard_my_bookings", "review_form", "feedback_form"],
+      "host": ["login", "dashboard", "publish_property", "manage_properties", "calendar_availability", "my_reservations"],
+      "admin": ["dashboard", "pending_approvals", "all_bookings", "feedback_management", "user_management", "settings"]
+    },
+    "future_pages": {
+      "experiences": ["/experiences", "/experiences/:id", "/experiences/:id/book", "/organizer/dashboard", "/organizer/create"],
+      "community": ["/community", "/community/trending", "/community/create", "/community/post/:id", "/profile/:id", "/profile/:id/posts"]
+    }
+  },
+
+  "business_model": {
+    "model": "SaaS Multi-Tenant",
+    "revenue_streams": {
+      "current": ["$10 fee por reserva de alojamiento"],
+      "phase_4": ["Fee por cupo de excursión", "Comisión sobre precio total excursión"],
+      "phase_5_6": ["Sponsored posts en Community feed", "Blogger monetization revenue share", "Featured listings", "Suscripciones premium B2C"],
+      "b2b": ["Suscripción mensual por tenant (starter/pro/enterprise)"]
+    }
+  },
+
+  "security": {
+    "authentication": { "jwt": true, "refresh_tokens": true, "session_timeout_hours": 24, "password_hashing": "bcrypt" },
+    "multi_tenancy": { "tenant_id_filtering": true, "role_based_access": true },
+    "payments": { "webhook_signature_verification": true, "pci_compliance": "delegated_to_gateway" },
+    "rate_limiting": { "login": "5 attempts / 15 min", "api": "100 req / min" }
+  },
+
+  "deployment": {
+    "frontend": "Vercel (active)",
+    "backend": "Railway.app (recommended) o Fly.io",
+    "database": "MongoDB Atlas",
+    "repository": "GitHub"
+  },
+
+  "roadmap": {
+    "phase_1_mvp": { "weeks": "1-4", "goal": "Reservas funcionales con pagos", "status": "in_progress" },
+    "phase_2_core": { "weeks": "5-8", "goal": "Reviews, feedback, dashboards, emails, PWA" },
+    "phase_3_polish": { "weeks": "9-12", "goal": "UX refinement, multi-idioma, SaaS B2B panel" },
+    "phase_4_experiences": { "months": "4-5", "goal": "Módulo excursiones grupales" },
+    "phase_5_community": { "months": "6-7", "goal": "Módulo Community — muro de viajes" },
+    "phase_6_monetization": { "months": "8+", "goal": "Monetización bloggers, publicidad, escalado" }
+  },
+
+  "important_notes": {
+    "payment_gateway": "NOWPayments en consulta por compatibilidad Cuba — BTCPay Server como alternativa principal si se confirma restricción",
+    "modular_architecture": "Cada módulo nuevo se añade sin modificar el core existente",
+    "no_new_languages": "Todo el stack permanece en HTML/CSS/JS vanilla + Node.js — no se requieren nuevos lenguajes",
+    "design_system": "Variables CSS centralizadas permiten editar diseño sin conocimiento técnico profundo",
+    "feature_flags": "config.js controla qué módulos están activos — fácil de activar por tenant",
+    "multi_tenant_importance": "Diseñado desde día 1 para multi-tenancy — Cuba hoy, Latinoamérica mañana"
+  }
+}
