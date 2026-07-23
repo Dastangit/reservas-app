@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dael-v2';
+const CACHE_NAME = 'dael-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
