@@ -1,6 +1,6 @@
 {
   "rewrites": [
     { "source": "/api/:path*", "destination": "https://booking-platform-f8co.onrender.com/api/:path*" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!api/)(?!.*\\..*).*)", "destination": "/index.html" }
   ]
 }
