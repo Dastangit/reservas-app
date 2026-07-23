@@ -13,6 +13,6 @@ router.get('/profile', protect, getProfile);
 router.put('/profile', protect, updateProfile);
 router.post('/change-password', protect, changePassword);
 router.get('/', protect, authorize('admin'), getUsers);
-router.get('/:id', protect, getUserById);
+router.get('/:id', protect, authorize('admin'), getUserById);
 
 module.exports = router;
