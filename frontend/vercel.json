@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://booking-app.containers.snapdeploy.app/api/:path*" }
+    { "source": "/api/:path*", "destination": "https://booking-platform-f8co.onrender.com/api/:path*" }
   ]
 }
