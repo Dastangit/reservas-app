@@ -13,11 +13,11 @@ const { startHostCommissionCron } = require('./jobs/hostCommissionCron');
 
 const app = express();
 
-// Necesario porque SnapDeploy pone un proxy (Cloudflare) delante del
-// contenedor -- sin esto, express-rate-limit no puede determinar la IP real
-// del usuario a partir de X-Forwarded-For y lanza una excepción que tumba el
-// proceso completo (fue justo lo que causó el 502 "Host Error").
-app.set('trust proxy', true);
+// Confiamos solo en el primer salto de proxy (el de Render) -- "true"
+// confiaba en toda la cadena, lo cual permite falsificar X-Forwarded-For y
+// saltarse el rate limiting de login. "1" es el valor correcto para un
+// servicio detrás de exactamente un proxy inverso.
+app.set('trust proxy', 1);
 
 // Morgan PRIMERO — para capturar TODAS las requests (incluyendo OPTIONS
 // de CORS preflight) antes de que cors/helmet las consuman.

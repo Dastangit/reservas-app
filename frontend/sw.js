@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dael-v3';
+const CACHE_NAME = 'dael-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -44,6 +44,12 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(() =>
+        // Si falla la red, busca en caché esa URL exacta. Si tampoco está
+        // (ej. una ruta de SPA como /host/properties/new, que nunca se
+        // cachea individualmente), sirve index.html como respaldo -- así
+        // siempre se devuelve una Response válida, nunca undefined.
+        caches.match(event.request).then((cached) => cached || caches.match('/index.html'))
+      )
   );
 });
