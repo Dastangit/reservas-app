@@ -7,34 +7,23 @@ cloudinary.config({
   api_secret: env.cloudinary.apiSecret,
 });
 
-const uploadImage = async (file, folder = 'properties') => {
-  try {
-    const result = await cloudinary.uploader.upload(file, {
-      folder,
-      transformation: [
-        { width: 1200, height: 800, crop: 'limit' },
-        { quality: 'auto' },
-      ],
-    });
+// Sube un buffer de imagen (ya en memoria, viene de multer) directo a
+// Cloudinary sin pasar por disco. Devuelve la URL segura (https) final.
+function uploadImageBuffer(buffer, folder = 'reservas-app/properties') {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: 'image' },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      },
+    );
+    stream.end(buffer);
+  });
+}
 
-    return {
-      url: result.secure_url,
-      public_id: result.public_id,
-    };
-  } catch (error) {
-    console.error('Cloudinary upload error:', error.message);
-    throw error;
-  }
-};
+async function deleteImage(publicId) {
+  return cloudinary.uploader.destroy(publicId);
+}
 
-const deleteImage = async (publicId) => {
-  try {
-    await cloudinary.uploader.destroy(publicId);
-    return true;
-  } catch (error) {
-    console.error('Cloudinary delete error:', error.message);
-    return false;
-  }
-};
-
-module.exports = { uploadImage, deleteImage };
+module.exports = { cloudinary, uploadImageBuffer, deleteImage };

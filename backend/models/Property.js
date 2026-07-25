@@ -58,6 +58,7 @@ const propertySchema = new mongoose.Schema({
   amenities: [String],
   images: [{
     url: String,
+    public_id: String,
     title: String,
     order: Number,
     is_primary: { type: Boolean, default: false },

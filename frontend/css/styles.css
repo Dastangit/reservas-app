@@ -445,6 +445,16 @@ p:last-child { margin-bottom: 0; }
   cursor: pointer;
 }
 
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  appearance: auto;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
 .radio-option {
   display: flex;
   align-items: center;
@@ -499,6 +509,26 @@ p:last-child { margin-bottom: 0; }
 .image-url input {
   flex: 1;
 }
+
+.image-upload-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: 6px;
+}
+
+.image-upload-row input[type="file"] {
+  font-size: var(--fs-xs);
+  max-width: 240px;
+}
+
+.image-upload-status {
+  font-size: var(--fs-xs);
+}
+
+.image-upload-status.uploading { color: var(--text-light); }
+.image-upload-status.success { color: var(--success); }
+.image-upload-status.error { color: var(--error); }
 
 /* ===== HERO SECTION ===== */
 .hero {

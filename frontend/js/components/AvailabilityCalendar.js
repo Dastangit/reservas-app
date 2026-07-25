@@ -17,6 +17,15 @@ function toISODate(date) {
 }
 
 function dateOnly(d) {
+  // OJO: si 'd' es un string tipo "2026-07-25" (solo fecha, sin hora),
+  // new Date(d) lo interpreta como medianoche UTC, no medianoche local --
+  // en husos horarios detrás de UTC (como Cuba) eso desplaza la fecha un
+  // día hacia atrás. Por eso parseamos el string manualmente como fecha
+  // local cuando viene en ese formato.
+  if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d)) {
+    const [y, m, day] = d.slice(0, 10).split('-').map(Number);
+    return new Date(y, m - 1, day);
+  }
   const date = new Date(d);
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
@@ -163,7 +172,7 @@ const AvailabilityCalendar = {
           <h3>Fechas bloqueadas manualmente</h3>
           ${manualBlocks.length === 0 ? '<p class="no-results">No hay fechas bloqueadas.</p>' : manualBlocks.map((b) => `
             <div class="avail-block-item">
-              <span>${new Date(b.start_date).toLocaleDateString()} — ${new Date(b.end_date).toLocaleDateString()}
+              <span>${dateOnly(b.start_date).toLocaleDateString()} — ${new Date(dateOnly(b.end_date).getTime() - 86400000).toLocaleDateString()}
                 ${b.reason ? `<em>(${b.reason})</em>` : ''}
                 <small>· bloqueado por ${b.blocked_by === 'admin' ? 'admin' : 'ti'}</small>
               </span>

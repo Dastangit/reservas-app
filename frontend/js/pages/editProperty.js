@@ -171,14 +171,22 @@ const EditPropertyPage = {
         <div class="form-group image-entry">
           <label>Main Image URL *</label>
           <input type="url" class="image-url" required placeholder="https://example.com/photo1.jpg">
+          <div class="image-upload-row">
+            <input type="file" class="image-file-input" accept="image/*">
+            <span class="image-upload-status"></span>
+          </div>
         </div>
       `;
     } else {
       container.innerHTML = images.map((img, i) => `
-        <div class="form-group image-entry" style="display:flex;gap:10px;align-items:end;">
+        <div class="form-group image-entry" style="display:flex;gap:10px;align-items:end;" data-public-id="${img.public_id || ''}">
           <div style="flex:1">
             <label>${i === 0 ? 'Main Image URL *' : 'Image URL'}</label>
             <input type="url" class="image-url" value="${img.url || ''}" ${i === 0 ? 'required' : ''} placeholder="https://example.com/photo.jpg">
+            <div class="image-upload-row">
+              <input type="file" class="image-file-input" accept="image/*">
+              <span class="image-upload-status"></span>
+            </div>
           </div>
           <button type="button" class="btn btn-danger btn-sm remove-image-btn" style="margin-bottom:4px;">X</button>
         </div>
@@ -197,11 +205,55 @@ const EditPropertyPage = {
         <div style="flex:1">
           <label>Image URL</label>
           <input type="url" class="image-url" placeholder="https://example.com/photo.jpg">
+          <div class="image-upload-row">
+            <input type="file" class="image-file-input" accept="image/*">
+            <span class="image-upload-status"></span>
+          </div>
         </div>
         <button type="button" class="btn btn-danger btn-sm remove-image-btn" style="margin-bottom:4px;">X</button>
       `;
       container.appendChild(div);
       div.querySelector('.remove-image-btn').addEventListener('click', () => div.remove());
+      this.attachImageUploadHandlers(div);
+    });
+
+    this.attachImageUploadHandlers(container);
+  },
+
+  attachImageUploadHandlers(scope) {
+    if (!scope) return;
+    scope.querySelectorAll('.image-file-input').forEach((fileInput) => {
+      if (fileInput.dataset.bound) return;
+      fileInput.dataset.bound = '1';
+
+      fileInput.addEventListener('change', async () => {
+        const file = fileInput.files?.[0];
+        if (!file) return;
+
+        const entry = fileInput.closest('.image-entry');
+        const urlInput = entry?.querySelector('.image-url');
+        const statusEl = entry?.querySelector('.image-upload-status');
+
+        if (statusEl) {
+          statusEl.textContent = 'Subiendo...';
+          statusEl.className = 'image-upload-status uploading';
+        }
+
+        try {
+          const response = await api.uploadFile('/uploads/image', file);
+          if (urlInput) urlInput.value = response.data.url;
+          if (entry) entry.dataset.publicId = response.data.public_id || '';
+          if (statusEl) {
+            statusEl.textContent = '✓ Imagen subida';
+            statusEl.className = 'image-upload-status success';
+          }
+        } catch (error) {
+          if (statusEl) {
+            statusEl.textContent = error.message || 'No se pudo subir. Usa el campo de URL.';
+            statusEl.className = 'image-upload-status error';
+          }
+        }
+      });
     });
   },
 
@@ -223,13 +275,17 @@ const EditPropertyPage = {
       ? document.getElementById('amenities').value.split(',').map(a => a.trim())
       : [];
 
-    const imageUrls = Array.from(document.querySelectorAll('.image-url'))
-      .map((input, i) => ({
-        url: input.value,
-        title: `Photo ${i + 1}`,
-        order: i + 1,
-        is_primary: i === 0,
-      }))
+    const imageUrls = Array.from(document.querySelectorAll('.image-entry'))
+      .map((entry, i) => {
+        const urlInput = entry.querySelector('.image-url');
+        return {
+          url: urlInput?.value || '',
+          public_id: entry.dataset.publicId || '',
+          title: `Photo ${i + 1}`,
+          order: i + 1,
+          is_primary: i === 0,
+        };
+      })
       .filter(img => img.url);
 
     const propertyData = {

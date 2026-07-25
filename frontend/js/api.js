@@ -51,6 +51,29 @@ const api = {
   delete(endpoint) {
     return this.request(endpoint, { method: 'DELETE' });
   },
+
+  // Subida de archivos (FormData) -- distinto de request() porque NO debe
+  // forzar Content-Type: application/json; el navegador arma el boundary
+  // correcto de multipart/form-data solo si no se lo pisamos nosotros.
+  async uploadFile(endpoint, file, fieldName = 'image') {
+    const token = localStorage.getItem('token');
+    const formData = new FormData();
+    formData.append(fieldName, file);
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'Upload failed');
+    }
+    return data;
+  },
 };
 
 export default api;

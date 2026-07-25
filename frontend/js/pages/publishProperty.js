@@ -94,12 +94,16 @@ const PublishPropertyPage = {
 
             <div class="form-section">
               <h2>Images</h2>
-              <p style="color:var(--text-light);margin-bottom:15px;font-size:0.9rem;">Add image URLs (use links from Instagram, Google Photos, or any hosting). First image will be the main photo.</p>
+              <p style="color:var(--text-light);margin-bottom:15px;font-size:0.9rem;">Upload a photo from your device, or paste an image URL (Instagram, Google Photos, or any hosting). First image will be the main photo.</p>
               
               <div id="image-inputs">
                 <div class="form-group image-entry">
-                  <label>Main Image URL *</label>
+                  <label>Main Image *</label>
                   <input type="url" class="image-url" required placeholder="https://example.com/photo1.jpg">
+                  <div class="image-upload-row">
+                    <input type="file" class="image-file-input" accept="image/*">
+                    <span class="image-upload-status"></span>
+                  </div>
                 </div>
               </div>
               <button type="button" id="add-image-btn" class="btn btn-outline btn-sm" style="margin-top:10px;">+ Add Another Image</button>
@@ -123,27 +127,73 @@ const PublishPropertyPage = {
       });
     }
 
+    this.attachImageUploadHandlers(document.getElementById('image-inputs'));
+
     const addImageBtn = document.getElementById('add-image-btn');
     if (addImageBtn) {
       addImageBtn.addEventListener('click', () => {
         const container = document.getElementById('image-inputs');
         const div = document.createElement('div');
         div.className = 'form-group image-entry';
-        div.style.display = 'flex';
-        div.style.gap = '10px';
-        div.style.alignItems = 'end';
         div.innerHTML = `
-          <div style="flex:1">
-            <label>Image URL</label>
-            <input type="url" class="image-url" placeholder="https://example.com/photo.jpg">
+          <div style="display:flex;gap:10px;align-items:end;">
+            <div style="flex:1">
+              <label>Image</label>
+              <input type="url" class="image-url" placeholder="https://example.com/photo.jpg">
+            </div>
+            <button type="button" class="btn btn-danger btn-sm remove-image-btn" style="margin-bottom:4px;">X</button>
           </div>
-          <button type="button" class="btn btn-danger btn-sm remove-image-btn" style="margin-bottom:4px;">X</button>
+          <div class="image-upload-row">
+            <input type="file" class="image-file-input" accept="image/*">
+            <span class="image-upload-status"></span>
+          </div>
         `;
         container.appendChild(div);
 
         div.querySelector('.remove-image-btn').addEventListener('click', () => div.remove());
+        this.attachImageUploadHandlers(div);
       });
     }
+  },
+
+  // Sube el archivo elegido a /uploads/image y llena automáticamente el
+  // input de URL correspondiente con el link que devuelve Cloudinary. Si
+  // falla (bloqueo geográfico, límite, etc.), el host siempre puede seguir
+  // usando el campo de URL manualmente -- no se bloquea el formulario.
+  attachImageUploadHandlers(scope) {
+    if (!scope) return;
+    scope.querySelectorAll('.image-file-input').forEach((fileInput) => {
+      if (fileInput.dataset.bound) return;
+      fileInput.dataset.bound = '1';
+
+      fileInput.addEventListener('change', async () => {
+        const file = fileInput.files?.[0];
+        if (!file) return;
+
+        const entry = fileInput.closest('.image-entry');
+        const urlInput = entry?.querySelector('.image-url');
+        const statusEl = entry?.querySelector('.image-upload-status');
+
+        if (statusEl) {
+          statusEl.textContent = 'Subiendo...';
+          statusEl.className = 'image-upload-status uploading';
+        }
+
+        try {
+          const response = await api.uploadFile('/uploads/image', file);
+          if (urlInput) urlInput.value = response.data.url;
+          if (statusEl) {
+            statusEl.textContent = '✓ Imagen subida';
+            statusEl.className = 'image-upload-status success';
+          }
+        } catch (error) {
+          if (statusEl) {
+            statusEl.textContent = error.message || 'No se pudo subir. Usa el campo de URL.';
+            statusEl.className = 'image-upload-status error';
+          }
+        }
+      });
+    });
   },
 
   async handleSubmit() {
