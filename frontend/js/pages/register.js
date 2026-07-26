@@ -88,6 +88,7 @@ const RegisterPage = {
           id: response.data.user_id,
           role: response.data.role,
           name,
+          tourist_onboarding: response.data.tourist_onboarding,
         });
 
         window.location.href = role === 'host' ? '/host/dashboard' : '/dashboard';

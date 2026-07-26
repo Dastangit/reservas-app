@@ -45,6 +45,17 @@ const auth = {
   isAdmin() {
     return this.getRole() === 'admin';
   },
+
+  getOnboarding() {
+    return this.getUser()?.tourist_onboarding || {};
+  },
+
+  setOnboardingFlag(field, value) {
+    const user = this.getUser();
+    if (!user) return;
+    user.tourist_onboarding = { ...user.tourist_onboarding, [field]: value };
+    localStorage.setItem('user', JSON.stringify(user));
+  },
 };
 
 export default auth;

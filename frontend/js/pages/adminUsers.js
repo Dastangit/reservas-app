@@ -102,12 +102,39 @@ const AdminUsersPage = {
 
       list.innerHTML = hosts.map(h => `
         <div class="property-list-item">
-          <div class="property-info">
-            <h3>${h.name}</h3>
-            <p>${h.email} | ${h.phone || 'No phone'}</p>
-            <span class="status-badge ${h.host_status}">${h.host_status}</span>
-            <span class="status-badge ${h.status}" style="margin-left:5px;">${h.status}</span>
+          <div class="property-list-item-summary" onclick="toggleHostDetail('${h._id}')">
+            <div class="property-info">
+              <h3>${h.name}</h3>
+              <p>${h.email} | ${h.phone || 'No phone'}</p>
+              <span class="status-badge ${h.host_status}">${h.host_status}</span>
+              <span class="status-badge ${h.status}" style="margin-left:5px;">${h.status}</span>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm property-detail-toggle">Ver detalle</button>
           </div>
+
+          <div class="property-detail-panel" id="host-detail-${h._id}" style="display:none;">
+            <div class="property-detail-grid">
+              <div>
+                <h4>Contacto</h4>
+                <p>Email: ${h.email}</p>
+                <p>Teléfono: ${h.phone || 'No registrado'}</p>
+                <p>WhatsApp: ${h.whatsapp_phone || (h.phone_whatsapp ? h.phone : 'No registrado')}</p>
+
+                <h4>Bio / Perfil</h4>
+                <p>${h.profile?.bio || '<em>Sin biografía</em>'}</p>
+                <p>Verificado: ${h.profile?.verified ? 'Sí' : 'No'}</p>
+              </div>
+
+              <div>
+                <h4>Cuenta</h4>
+                <p>Región: ${h.host_region || 'N/A'}</p>
+                <p>Miembro desde: ${h.created_at ? new Date(h.created_at).toLocaleDateString() : 'N/A'}</p>
+                <p>Último login: ${h.auth?.last_login ? new Date(h.auth.last_login).toLocaleDateString() : 'Nunca'}</p>
+                ${h.host_status === 'rejected' && h.host_status_reason ? `<h4>Motivo de rechazo</h4><p>${h.host_status_reason}</p>` : ''}
+              </div>
+            </div>
+          </div>
+
           <div class="property-actions">
             ${h.host_status === 'pending' ? `
               <button onclick="approveHost('${h._id}')" class="btn btn-success btn-sm">Approve</button>
@@ -120,6 +147,11 @@ const AdminUsersPage = {
           </div>
         </div>
       `).join('');
+
+      window.toggleHostDetail = (id) => {
+        const panel = document.getElementById(`host-detail-${id}`);
+        if (panel) panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      };
     } catch (error) {
       list.innerHTML = '<p class="error">Error loading hosts</p>';
     }

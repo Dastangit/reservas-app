@@ -42,13 +42,18 @@ const Header = {
         <a href="/admin/dashboard" data-link>${t('admin.dashboard')}</a>
         <a href="/admin/bookings" data-link>${t('nav.myBookings')}</a>
         <a href="/admin/properties" data-link>${t('host.myProperties')}</a>
-        <a href="/admin/availability" data-link>Disponibilidad</a>
-        <a href="/admin/orphaned-payments" data-link>Pagos huérfanos</a>
-        <a href="/admin/host-commissions" data-link>Comisiones hosts</a>
-        <a href="/admin/feedback" data-link>${t('nav.feedback')}</a>
         <a href="/admin/users" data-link>Users</a>
-        <a href="/admin/reports" data-link>${t('nav.reports')}</a>
-        <a href="/admin/settings" data-link>${t('nav.settings')}</a>
+        <div class="nav-dropdown">
+          <button type="button" class="nav-dropdown-toggle" onclick="toggleNavDropdown(event)">Más ▾</button>
+          <div class="nav-dropdown-menu">
+            <a href="/admin/availability" data-link>Disponibilidad</a>
+            <a href="/admin/orphaned-payments" data-link>Pagos huérfanos</a>
+            <a href="/admin/host-commissions" data-link>Comisiones hosts</a>
+            <a href="/admin/feedback" data-link>${t('nav.feedback')}</a>
+            <a href="/admin/reports" data-link>${t('nav.reports')}</a>
+            <a href="/admin/settings" data-link>${t('nav.settings')}</a>
+          </div>
+        </div>
         <button onclick="logout()" class="btn btn-outline">${t('common.logout')}</button>
       `;
     }
@@ -96,6 +101,18 @@ window.changeLang = function (lang) {
   i18n.setLang(lang);
   window.rerenderCurrentPage();
 };
+
+window.toggleNavDropdown = function (event) {
+  event.stopPropagation();
+  const menu = event.currentTarget.nextElementSibling;
+  const wasOpen = menu.classList.contains('open');
+  document.querySelectorAll('.nav-dropdown-menu.open').forEach((m) => m.classList.remove('open'));
+  if (!wasOpen) menu.classList.add('open');
+};
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.nav-dropdown-menu.open').forEach((m) => m.classList.remove('open'));
+});
 
 window.addEventListener('langChanged', () => {
   Header.init();

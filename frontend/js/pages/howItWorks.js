@@ -1,3 +1,5 @@
+import { markTermsViewed } from '../utils/onboarding.js';
+
 const HowItWorksPage = {
   render() {
     return `
@@ -108,7 +110,9 @@ const HowItWorksPage = {
     `;
   },
 
-  init() {}
+  init() {
+    markTermsViewed();
+  }
 };
 
 export default HowItWorksPage;

@@ -74,6 +74,10 @@ const userSchema = new mongoose.Schema({
     secret: { type: String, select: false },
     backup_codes: { type: [String], select: false },
   },
+  tourist_onboarding: {
+    welcome_seen: { type: Boolean, default: false },
+    terms_viewed: { type: Boolean, default: false },
+  },
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 });

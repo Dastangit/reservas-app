@@ -416,7 +416,7 @@ exports.getAllProperties = async (req, res, next) => {
 
     const total = await Property.countDocuments(filter);
     const properties = await Property.find(filter)
-      .populate('host_id', 'name email')
+      .populate('host_id', 'name email phone whatsapp_phone created_at')
       .skip((page - 1) * limit)
       .limit(Number(limit))
       .sort({ created_at: -1 });

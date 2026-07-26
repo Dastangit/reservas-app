@@ -3,6 +3,7 @@ const { body } = require('express-validator');
 const {
   register, login, refreshToken, logout,
   verifyTwoFactor, setupTwoFactor, enableTwoFactor, disableTwoFactor,
+  updateOnboarding,
 } = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/auth');
 const validate = require('../middleware/validate');
@@ -26,6 +27,10 @@ router.post('/refresh', [
 ], validate, refreshToken);
 
 router.post('/logout', protect, logout);
+
+router.post('/onboarding', protect, [
+  body('field').isIn(['welcome_seen', 'terms_viewed']).withMessage('Invalid field'),
+], validate, updateOnboarding);
 
 router.post('/verify-2fa', [
   body('pending_token').notEmpty().withMessage('pending_token is required'),

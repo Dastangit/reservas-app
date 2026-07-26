@@ -2,6 +2,7 @@ import api from '../api.js';
 import { formatCurrency } from '../utils/formatters.js';
 import auth from '../auth.js';
 import { validateInternationalPhone } from '../utils/validators.js';
+import { renderBookingReminderIfNeeded } from '../utils/onboarding.js';
 
 const BookingFormPage = {
   property: null,
@@ -39,6 +40,7 @@ const BookingFormPage = {
       <div class="booking-form-page">
         <div class="container">
           <h1>Complete Your Booking</h1>
+          ${renderBookingReminderIfNeeded()}
           
           <div class="booking-layout">
             <div class="booking-details">

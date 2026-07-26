@@ -69,6 +69,7 @@ const LoginPage = {
     auth.setAuth(data.token, data.refresh_token, {
       id: data.user_id,
       role: data.role,
+      tourist_onboarding: data.tourist_onboarding,
     });
 
     const params = new URLSearchParams(window.location.search);

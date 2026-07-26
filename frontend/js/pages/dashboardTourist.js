@@ -1,6 +1,7 @@
 import api from '../api.js';
 import BookingCard from '../components/BookingCard.js';
 import auth from '../auth.js';
+import { showWelcomeModalIfNeeded } from '../utils/onboarding.js';
 
 const DashboardTouristPage = {
   async render() {
@@ -30,6 +31,8 @@ const DashboardTouristPage = {
 
   async init() {
     if (!auth.isLoggedIn()) return;
+
+    showWelcomeModalIfNeeded();
 
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {

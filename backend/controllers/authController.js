@@ -62,6 +62,7 @@ exports.register = async (req, res, next) => {
         token,
         refresh_token: refreshToken,
         role: user.role,
+        tourist_onboarding: user.tourist_onboarding,
       },
     });
   } catch (error) {
@@ -120,6 +121,7 @@ exports.login = async (req, res, next) => {
         token,
         refresh_token: refreshToken,
         role: user.role,
+        tourist_onboarding: user.tourist_onboarding,
       },
     });
   } catch (error) {
@@ -330,6 +332,28 @@ exports.logout = async (req, res, next) => {
   try {
     await User.findByIdAndUpdate(req.user._id, { refresh_token: null });
     res.json({ success: true, data: {} });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Marca los pasos de onboarding del turista (bienvenida vista / términos
+// vistos) -- se guarda en el servidor para que persista entre dispositivos,
+// no solo en localStorage.
+exports.updateOnboarding = async (req, res, next) => {
+  try {
+    const { field } = req.body;
+    const allowedFields = ['welcome_seen', 'terms_viewed'];
+
+    if (!allowedFields.includes(field)) {
+      return res.status(400).json({ success: false, error: 'Invalid field' });
+    }
+
+    req.user.tourist_onboarding = req.user.tourist_onboarding || {};
+    req.user.tourist_onboarding[field] = true;
+    await req.user.save();
+
+    res.json({ success: true, data: { tourist_onboarding: req.user.tourist_onboarding } });
   } catch (error) {
     next(error);
   }
