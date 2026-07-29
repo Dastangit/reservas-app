@@ -24,5 +24,10 @@ module.exports = {
     ipnSecret: process.env.NOWPAYMENTS_IPN_SECRET,
     apiUrl: process.env.NOWPAYMENTS_API_URL,
   },
+  vapid: {
+    publicKey: process.env.VAPID_PUBLIC_KEY,
+    privateKey: process.env.VAPID_PRIVATE_KEY,
+    subject: process.env.VAPID_SUBJECT || 'mailto:admin@example.com',
+  },
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
 };

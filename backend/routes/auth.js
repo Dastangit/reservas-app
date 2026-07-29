@@ -3,10 +3,11 @@ const { body } = require('express-validator');
 const {
   register, login, refreshToken, logout,
   verifyTwoFactor, setupTwoFactor, enableTwoFactor, disableTwoFactor,
-  updateOnboarding,
+  updateOnboarding, forgotPassword, resetPassword,
 } = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/auth');
 const validate = require('../middleware/validate');
+const { loginLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 
@@ -44,5 +45,16 @@ router.post('/2fa/enable', protect, authorize('admin'), [
 router.post('/2fa/disable', protect, authorize('admin'), [
   body('password').notEmpty().withMessage('password is required'),
 ], validate, disableTwoFactor);
+
+// Mismo limiter que login -- evita que alguien spamee solicitudes de reset
+// para inundar la cola del admin o enumerar emails registrados.
+router.post('/forgot-password', loginLimiter, [
+  body('email').isEmail().withMessage('Valid email is required'),
+], validate, forgotPassword);
+
+router.post('/reset-password', loginLimiter, [
+  body('token').notEmpty().withMessage('token is required'),
+  body('new_password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+], validate, resetPassword);
 
 module.exports = router;

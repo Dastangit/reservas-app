@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
@@ -6,6 +7,7 @@ const User = require('../models/User');
 const Tenant = require('../models/Tenant');
 const env = require('../config/env');
 const { logAdminAction } = require('../utils/auditLog');
+const { notifyAdmins } = require('../utils/pushNotifications');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, env.jwtSecret, { expiresIn: env.jwtExpire });
@@ -354,6 +356,78 @@ exports.updateOnboarding = async (req, res, next) => {
     await req.user.save();
 
     res.json({ success: true, data: { tourist_onboarding: req.user.tourist_onboarding } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Genera un token de reset y lo guarda (hasheado) en el usuario. Como no
+// hay envío automático de email, el link resultante NO se manda solo --
+// queda visible para el admin en /admin/password-resets, quien lo entrega
+// manualmente por WhatsApp/correo (mismo patrón que el resto de la app).
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    // Respuesta genérica siempre, exista o no la cuenta -- no revela qué
+    // emails están registrados.
+    const genericResponse = {
+      success: true,
+      data: { message: 'If that email is registered, our team will reach out with reset instructions shortly.' },
+    };
+
+    if (!user) {
+      return res.json(genericResponse);
+    }
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+
+    user.password_reset_token = hashedToken;
+    user.password_reset_expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+    await user.save();
+
+    notifyAdmins(user.tenant_id, {
+      title: 'Solicitud de restablecimiento de contraseña',
+      body: `${user.name} (${user.email}) solicitó recuperar su contraseña.`,
+      url: '/admin/password-resets',
+    });
+
+    res.json(genericResponse);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Confirma el reset con el token recibido por el link que el admin le mandó
+// manualmente al usuario.
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { token, new_password } = req.body;
+
+    if (!token || !new_password) {
+      return res.status(400).json({ success: false, error: 'Token and new password are required' });
+    }
+
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      password_reset_token: hashedToken,
+      password_reset_expires: { $gt: new Date() },
+    }).select('+password_reset_token +password_reset_expires');
+
+    if (!user) {
+      return res.status(400).json({ success: false, error: 'Invalid or expired reset link. Please request a new one.' });
+    }
+
+    user.password_hash = new_password; // el pre-save hook del modelo lo hashea
+    user.password_reset_token = undefined;
+    user.password_reset_expires = undefined;
+    user.refresh_token = null; // fuerza a re-loguear en todos los dispositivos
+    await user.save();
+
+    res.json({ success: true, data: { message: 'Password updated successfully. You can now log in.' } });
   } catch (error) {
     next(error);
   }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dael-v4';
+const CACHE_NAME = 'dael-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -51,5 +51,47 @@ self.addEventListener('fetch', (event) => {
         // siempre se devuelve una Response válida, nunca undefined.
         caches.match(event.request).then((cached) => cached || caches.match('/index.html'))
       )
+  );
+});
+
+// Notificaciones push para el admin (reservas nuevas, propiedades pendientes,
+// resets de contraseña, pagos huérfanos, comisiones vencidas).
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+
+  let payload;
+  try {
+    payload = event.data.json();
+  } catch (e) {
+    payload = { title: 'Da-El World Travelers', body: event.data.text() };
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(payload.title || 'Da-El World Travelers', {
+      body: payload.body || '',
+      icon: '/assets/logo-icon.png',
+      badge: '/assets/logo-icon.png',
+      data: { url: payload.url || '/admin/dashboard' },
+    })
+  );
+});
+
+// Al tocar la notificación, abre (o enfoca) la app en la sección relevante.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || '/admin/dashboard';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if ('focus' in client) {
+          client.navigate(targetUrl);
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl);
+      }
+    })
   );
 });

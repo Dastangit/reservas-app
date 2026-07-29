@@ -59,6 +59,7 @@ app.use('/api/search', apiLimiter, require('./routes/search'));
 app.use('/api/contact', apiLimiter, require('./routes/contact'));
 app.use('/api/payments', apiLimiter, require('./routes/payments'));
 app.use('/api/uploads', apiLimiter, require('./routes/uploads'));
+app.use('/api/push', apiLimiter, require('./routes/push'));
 app.use('/api/webhooks', require('./routes/webhooks'));
 
 app.use('/api/*', (req, res) => {

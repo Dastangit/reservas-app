@@ -10,6 +10,7 @@ const { buildWhatsAppLink } = require('../utils/whatsapp');
 const { buildMailtoLink } = require('../utils/mailto');
 const { buildTouristMessage } = require('../utils/touristMessages');
 const { logAdminAction } = require('../utils/auditLog');
+const env = require('../config/env');
 
 exports.getDashboard = async (req, res, next) => {
   try {
@@ -835,6 +836,99 @@ exports.getHostCommissionWhatsAppLink = async (req, res, next) => {
     const url = buildWhatsAppLink(commission.host_id.phone, message);
 
     res.json({ success: true, data: { url } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Lista los usuarios con una solicitud de reset de contraseña pendiente
+// (token válido, no expirado, sin usar todavía). El admin entrega el link
+// manualmente -- no hay envío automático de email.
+exports.getPasswordResetRequests = async (req, res, next) => {
+  try {
+    const users = await User.find({
+      tenant_id: req.tenantId,
+      password_reset_token: { $exists: true, $ne: null },
+      password_reset_expires: { $gt: new Date() },
+    }).select('+password_reset_token +password_reset_expires').sort({ password_reset_expires: -1 });
+
+    res.json({
+      success: true,
+      data: {
+        requests: users.map((u) => ({
+          user_id: u._id,
+          name: u.name,
+          email: u.email,
+          phone: u.phone,
+          role: u.role,
+          expires_at: u.password_reset_expires,
+        })),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Arma los links wa.me/mailto con el enlace de reset real, para que el
+// admin se lo mande al usuario con un clic. Regenera el token al momento de
+// la entrega (el guardado está hasheado y no se puede revertir).
+exports.getPasswordResetDeliveryLinks = async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      _id: req.params.id,
+      tenant_id: req.tenantId,
+      password_reset_expires: { $gt: new Date() },
+    }).select('+password_reset_token +password_reset_expires');
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'No pending reset request found (may have expired)' });
+    }
+
+    const crypto = require('crypto');
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    user.password_reset_token = crypto.createHash('sha256').update(rawToken).digest('hex');
+    await user.save();
+
+    const resetLink = `${env.frontendUrl}/reset-password?token=${rawToken}`;
+    const message = `Hola ${user.name}, recibimos tu solicitud para restablecer tu contraseña en Da-El World Travelers. `
+      + `Usa este link para crear una nueva contraseña (válido por 1 hora): ${resetLink}\n\n`
+      + `Si no lo solicitaste, ignora este mensaje.`;
+
+    const whatsapp_url = user.phone ? buildWhatsAppLink(user.phone, message) : null;
+    const mailto_url = user.email ? buildMailtoLink(user.email, 'Restablecer tu contraseña - Da-El World Travelers', message) : null;
+
+    res.json({ success: true, data: { whatsapp_url, mailto_url, reset_link: resetLink } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Conteo de pendientes por categoría -- alimenta la campanita del panel
+// admin. Un solo endpoint liviano en vez de 5 llamadas separadas.
+exports.getPendingCounts = async (req, res, next) => {
+  try {
+    const tenantId = req.tenantId;
+
+    const [bookings, properties, password_resets, orphaned_payments, overdue_commissions] = await Promise.all([
+      Booking.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),
+      Property.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),
+      User.countDocuments({
+        tenant_id: tenantId,
+        password_reset_token: { $exists: true, $ne: null },
+        password_reset_expires: { $gt: new Date() },
+      }),
+      OrphanedPayment.countDocuments({
+        $or: [{ tenant_id: tenantId }, { tenant_id: { $exists: false } }, { tenant_id: null }],
+        reviewed: false,
+      }),
+      HostMonthlyCommission.countDocuments({ tenant_id: tenantId, status: 'overdue' }),
+    ]);
+
+    const counts = { bookings, properties, password_resets, orphaned_payments, overdue_commissions };
+    counts.total = Object.values(counts).reduce((sum, n) => sum + n, 0);
+
+    res.json({ success: true, data: counts });
   } catch (error) {
     next(error);
   }

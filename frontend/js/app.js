@@ -34,11 +34,15 @@ import AdminReportsPage from './pages/adminReports.js';
 import AdminAvailabilityPage from './pages/adminAvailability.js';
 import AdminOrphanedPaymentsPage from './pages/adminOrphanedPayments.js';
 import AdminHostCommissionsPage from './pages/adminHostCommissions.js';
+import AdminPasswordResetsPage from './pages/adminPasswordResets.js';
+import ForgotPasswordPage from './pages/forgotPassword.js';
+import ResetPasswordPage from './pages/resetPassword.js';
 import EditPropertyPage from './pages/editProperty.js';
 import HowItWorksPage from './pages/howItWorks.js';
 import TermsPage from './pages/terms.js';
 import PrivacyPage from './pages/privacy.js';
 import FAQPage from './pages/faq.js';
+import { initPwaInstall } from './utils/pwaInstall.js';
 
 async function renderPage(page) {
   const app = document.getElementById('app');
@@ -84,6 +88,8 @@ router
   .addRoute('/', routeHandler(LandingPage))
   .addRoute('/login', routeHandler(LoginPage))
   .addRoute('/register', routeHandler(RegisterPage))
+  .addRoute('/forgot-password', routeHandler(ForgotPasswordPage))
+  .addRoute('/reset-password', routeHandler(ResetPasswordPage))
   .addRoute('/search', routeHandler(SearchPage))
   .addRoute('/property/:id', routeHandler(PropertyDetailPage))
   .addRoute('/booking/:propertyId', async (params) => {
@@ -212,6 +218,11 @@ router
     AdminHostCommissionsPage._params = params;
     await renderPage(AdminHostCommissionsPage);
   })
+  .addRoute('/admin/password-resets', async (params) => {
+    if (!guard(['admin'])) return;
+    AdminPasswordResetsPage._params = params;
+    await renderPage(AdminPasswordResetsPage);
+  })
   .addRoute('/how-it-works', routeHandler(HowItWorksPage))
   .addRoute('/terms', routeHandler(TermsPage))
   .addRoute('/privacy', routeHandler(PrivacyPage))
@@ -252,3 +263,5 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   });
 }
+
+initPwaInstall();

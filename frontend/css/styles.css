@@ -122,9 +122,6 @@ p:last-child { margin-bottom: 0; }
   align-items: center;
   gap: var(--space-md);
   flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: thin;
-  max-width: 100%;
 }
 
 .nav a,
@@ -263,6 +260,56 @@ p:last-child { margin-bottom: 0; }
 
 .nav-dropdown-menu a:hover {
   background: var(--surface);
+}
+
+.nav-bell {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 8px 6px;
+  line-height: 1;
+}
+
+.notif-badge {
+  position: absolute;
+  top: 2px;
+  right: -2px;
+  background: var(--error);
+  color: var(--background);
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+}
+
+.notif-menu {
+  min-width: 260px;
+}
+
+.notif-enable-btn {
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-top: var(--space-sm);
+  font-size: var(--fs-sm);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.notif-enable-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .mobile-menu-btn {
@@ -642,6 +689,48 @@ p:last-child { margin-bottom: 0; }
   color: #9A3412;
   text-decoration: underline;
   font-weight: 600;
+}
+
+.pwa-install-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--primary);
+  color: var(--background);
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  z-index: 1500;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pwa-install-banner span {
+  flex: 1;
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+}
+
+.pwa-install-dismiss {
+  background: none;
+  border: none;
+  color: var(--background);
+  font-size: var(--fs-lg);
+  cursor: pointer;
+  padding: 4px 8px;
+  opacity: 0.8;
+}
+
+.pwa-install-dismiss:hover {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .pwa-install-banner {
+    flex-wrap: wrap;
+    padding: var(--space-md);
+  }
 }
 
 /* ===== HERO SECTION ===== */

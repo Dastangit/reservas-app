@@ -9,6 +9,8 @@ const {
   getOrphanedPayments, reviewOrphanedPayment,
   getHostCommissions, markHostCommissionPaid, markHostCommissionWaived, getHostCommissionWhatsAppLink,
   getAuditLog,
+  getPasswordResetRequests, getPasswordResetDeliveryLinks,
+  getPendingCounts,
 } = require('../controllers/adminController');
 const { protect, authorize } = require('../middleware/auth');
 const { setTenant } = require('../middleware/tenant');
@@ -45,6 +47,9 @@ router.post('/host-commissions/:id/paid', markHostCommissionPaid);
 router.post('/host-commissions/:id/waive', markHostCommissionWaived);
 router.get('/host-commissions/:id/whatsapp-link', getHostCommissionWhatsAppLink);
 router.get('/audit-log', getAuditLog);
+router.get('/password-resets', getPasswordResetRequests);
+router.get('/password-resets/:id/delivery-links', getPasswordResetDeliveryLinks);
+router.get('/pending-counts', getPendingCounts);
 router.put('/settings', updateSettings);
 
 module.exports = router;

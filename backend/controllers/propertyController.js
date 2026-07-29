@@ -1,5 +1,6 @@
 const Property = require('../models/Property');
 const Booking = require('../models/Booking');
+const { notifyAdmins } = require('../utils/pushNotifications');
 
 exports.getProperties = async (req, res, next) => {
   try {
@@ -89,6 +90,12 @@ exports.createProperty = async (req, res, next) => {
     res.status(201).json({
       success: true,
       data: { property_id: property._id, status: property.status },
+    });
+
+    notifyAdmins(req.tenantId, {
+      title: 'Propiedad nueva pendiente de aprobación',
+      body: `"${property.name}" fue enviada para revisión.`,
+      url: '/admin/properties',
     });
   } catch (error) {
     next(error);

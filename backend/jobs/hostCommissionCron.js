@@ -1,6 +1,7 @@
 const cron = require('node-cron');
 const Booking = require('../models/Booking');
 const HostMonthlyCommission = require('../models/HostMonthlyCommission');
+const { notifyAdmins } = require('../utils/pushNotifications');
 
 // Recalcula (upsert) la comisi\u00f3n del mes en curso por host, sumando las
 // reservas Opci\u00f3n B (pre_booking) ya completadas. Solo el mes actual -- no
@@ -80,7 +81,15 @@ const advanceReminderStatus = async () => {
     const daysSinceClosed = Math.floor((now - c.period_closed_at) / dayMs);
 
     if (daysSinceClosed >= 10) {
+      const wasOverdue = c.status === 'overdue';
       c.status = 'overdue';
+      if (!wasOverdue) {
+        notifyAdmins(c.tenant_id, {
+          title: 'Comisión de host vencida',
+          body: `Una comisión de $${c.commission_amount} USD lleva más de 10 días sin pagarse.`,
+          url: '/admin/host-commissions',
+        });
+      }
     } else if (daysSinceClosed >= 6 && c.status !== 'warned_day6') {
       c.status = 'warned_day6';
       c.warning_sent_at = now;

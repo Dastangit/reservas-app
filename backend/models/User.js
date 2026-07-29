@@ -78,6 +78,14 @@ const userSchema = new mongoose.Schema({
     welcome_seen: { type: Boolean, default: false },
     terms_viewed: { type: Boolean, default: false },
   },
+  password_reset_token: {
+    type: String,
+    select: false,
+  },
+  password_reset_expires: {
+    type: Date,
+    select: false,
+  },
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 });

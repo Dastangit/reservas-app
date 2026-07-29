@@ -2,6 +2,7 @@ const Booking = require('../models/Booking');
 const Payment = require('../models/Payment');
 const OrphanedPayment = require('../models/OrphanedPayment');
 const { verifyIpnSignature } = require('../utils/nowpayments');
+const { notifyAdmins } = require('../utils/pushNotifications');
 
 exports.handleNowPaymentsWebhook = async (req, res, next) => {
   try {
@@ -57,6 +58,12 @@ exports.handleNowPaymentsWebhook = async (req, res, next) => {
                 changed_at: new Date(),
                 changed_by: 'system',
               });
+
+              notifyAdmins(booking.tenant_id, {
+                title: 'Nueva reserva pendiente de aprobación',
+                body: `Reserva ${booking._id.toString().slice(-6)} pagada, lista para revisar.`,
+                url: '/admin/bookings',
+              });
             }
             break;
 
@@ -111,6 +118,12 @@ exports.handleNowPaymentsWebhook = async (req, res, next) => {
           pay_currency,
           reason: 'booking_not_found',
           raw_payload: req.body,
+        }).then(() => {
+          notifyAdmins(null, {
+            title: 'Pago huérfano detectado',
+            body: 'Un pago de NOWPayments no se pudo asociar a ninguna reserva.',
+            url: '/admin/orphaned-payments',
+          });
         }).catch((err) => console.error('[NOWPayments IPN] No se pudo registrar pago huérfano:', err));
       }
     } else {
@@ -125,6 +138,12 @@ exports.handleNowPaymentsWebhook = async (req, res, next) => {
         pay_currency,
         reason: 'missing_order_id',
         raw_payload: req.body,
+      }).then(() => {
+        notifyAdmins(null, {
+          title: 'Pago huérfano detectado',
+          body: 'Un pago de NOWPayments llegó sin order_id válido.',
+          url: '/admin/orphaned-payments',
+        });
       }).catch((err) => console.error('[NOWPayments IPN] No se pudo registrar pago huérfano:', err));
     }
 
