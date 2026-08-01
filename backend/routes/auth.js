@@ -7,7 +7,7 @@ const {
 } = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/auth');
 const validate = require('../middleware/validate');
-const { loginLimiter } = require('../middleware/rateLimiter');
+const { loginLimiter, passwordResetLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ router.post('/register', [
   body('role').optional().isIn(['tourist', 'host']).withMessage('Role must be tourist or host'),
 ], validate, register);
 
-router.post('/login', [
+router.post('/login', loginLimiter, [
   body('email').isEmail().withMessage('Valid email is required'),
   body('password').notEmpty().withMessage('Password is required'),
 ], validate, login);
@@ -46,13 +46,13 @@ router.post('/2fa/disable', protect, authorize('admin'), [
   body('password').notEmpty().withMessage('password is required'),
 ], validate, disableTwoFactor);
 
-// Mismo limiter que login -- evita que alguien spamee solicitudes de reset
-// para inundar la cola del admin o enumerar emails registrados.
-router.post('/forgot-password', loginLimiter, [
+// Bucket propio (passwordResetLimiter), separado del de login -- probar
+// esto varias veces no debe agotar los intentos de login/registro de la IP.
+router.post('/forgot-password', passwordResetLimiter, [
   body('email').isEmail().withMessage('Valid email is required'),
 ], validate, forgotPassword);
 
-router.post('/reset-password', loginLimiter, [
+router.post('/reset-password', passwordResetLimiter, [
   body('token').notEmpty().withMessage('token is required'),
   body('new_password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
 ], validate, resetPassword);

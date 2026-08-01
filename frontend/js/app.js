@@ -258,6 +258,15 @@ window.logout = function () {
   auth.logout();
 };
 
+window.togglePasswordVisibility = function (inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const btn = input.parentElement?.querySelector('.password-toggle-btn');
+  const isHidden = input.type === 'password';
+  input.type = isHidden ? 'text' : 'password';
+  if (btn) btn.textContent = isHidden ? '🙈' : '👁️';
+};
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {});

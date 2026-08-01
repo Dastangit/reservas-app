@@ -174,7 +174,7 @@
       "cancellationDesc": "Les frais de réservation de 7 $ USD sont <strong>non remboursables</strong> si vous annulez ou si votre réservation est rejetée pour non-respect des exigences. <strong>Exception:</strong> si le rejet est dû à une erreur de notre part, vous recevrez un remboursement en cryptomonnaie (USDT, réseau BEP20).",
       "cancellationRejected": "Si votre réservation est rejetée par l'admin, vous serez notifié par email. Si le rejet est dû à une erreur de notre part, nous organiserons un remboursement en USDT (BEP20); sinon, les frais couvrent le service de traitement et d'examen de votre réservation.",
       "dastanName": "Équipe de Support",
-      "dastanEmail": "Email: supportdaelworld@gmail.com"
+      "dastanEmail": "Email: <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a><br>WhatsApp: <a href='https://wa.me/5358648303' target='_blank' rel='noopener'>+53 58648303</a>"
     },
     "terms": {
       "title": "Conditions d'Utilisation",
@@ -245,7 +245,7 @@
       "s12Content": "Nous nous réservons le droit de modifier ces conditions à tout moment. Les changements seront effectifs immédiatement après publication. Votre utilisation continue de la Plateforme constitue l'acceptation des conditions modifiées.",
       "s13Title": "13. Contact",
       "s13Content": "Pour des questions sur ces Conditions d'Utilisation, contactez-nous à:",
-      "s13Email": "Email: supportdaelworld@gmail.com"
+      "s13Email": "Email: <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a> ou WhatsApp <a href='https://wa.me/5358648303' target='_blank' rel='noopener'>+53 58648303</a>"
     },
     "privacy": {
       "title": "Politique de Confidentialité",
@@ -301,14 +301,14 @@
       "s8Deletion": "Suppression: Demander la suppression de vos données personnelles",
       "s8Portability": "Portabilité: Demander vos données dans un format portable",
       "s8Objection": "Opposition: Vous opposer au traitement de vos données personnelles",
-      "s8Contact": "Pour exercer ces droits, contactez-nous à supportdaelworld@gmail.com",
+      "s8Contact": "Pour exercer ces droits, contactez-nous à <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a>",
       "s9Title": "9. Confidentialité des Enfants",
       "s9Content": "Notre plateforme n'est pas destinée aux enfants de moins de 16 ans. Les utilisateurs entre 16 et 18 ans doivent avoir le consentement parental pour utiliser la plateforme. Nous ne collectons pas sciemment d'informations d'enfants de moins de 16 ans.",
       "s10Title": "10. Modifications de Cette Politique",
       "s10Content": "Nous pouvons mettre à jour cette Politique de Confidentialité de temps en temps. Les changements seront publiés sur cette page avec une date de révision mise à jour. L'utilisation continue de la plateforme après les changements constitue l'acceptation de la nouvelle politique.",
       "s11Title": "11. Contact",
       "s11Content": "Pour des questions liées à la confidentialité, contactez-nous à:",
-      "s11Email": "Email: supportdaelworld@gmail.com"
+      "s11Email": "Email: <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a> ou WhatsApp <a href='https://wa.me/5358648303' target='_blank' rel='noopener'>+53 58648303</a>"
     },
     "faq": {
       "title": "Foire aux Questions",
@@ -352,7 +352,7 @@
       "q7Question": "Comment puis-je contacter le support?",
       "q7Answer": "Notre équipe d'administration est disponible pour vous aider:",
       "q7DastanName": "Équipe de Support",
-      "q7DastanEmail": "Email: supportdaelworld@gmail.com",
+      "q7DastanEmail": "Email: <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a><br>WhatsApp: <a href='https://wa.me/5358648303' target='_blank' rel='noopener'>+53 58648303</a>",
       "q7Feedback": "Vous pouvez également utiliser le <a href=\"/feedback\" data-link>formulaire de Commentaires</a> sur la plateforme pour nous envoyer vos commentaires ou suggestions.",
       "q8Question": "Qu'advient-il de mes données personnelles?",
       "q8Answer": "Nous prenons votre vie privée au sérieux:",

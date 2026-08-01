@@ -20,7 +20,10 @@ const LoginPage = {
               
               <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" required placeholder="Enter your password">
+                <div class="password-field">
+                  <input type="password" id="password" required placeholder="Enter your password">
+                  <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password')" aria-label="Mostrar contraseña">👁️</button>
+                </div>
               </div>
 
               <p style="text-align:right;margin-bottom:15px;"><a href="/forgot-password" data-link style="font-size:var(--fs-sm);">¿Olvidaste tu contraseña?</a></p>

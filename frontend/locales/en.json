@@ -174,7 +174,7 @@
       "cancellationDesc": "The $7 USD booking fee is <strong>non-refundable</strong> if you cancel or if your booking is rejected for not meeting requirements. <strong>Exception:</strong> if the rejection is due to our own error, you'll receive a refund in cryptocurrency (USDT, BEP20 network).",
       "cancellationRejected": "If your booking is rejected by the admin, you will be notified by email. If the rejection was due to our own error, we will arrange a refund in USDT (BEP20); otherwise, the fee covers the service of processing and reviewing your reservation.",
       "dastanName": "Support Team",
-      "dastanEmail": "Email: supportdaelworld@gmail.com"
+      "dastanEmail": "Email: <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a><br>WhatsApp: <a href='https://wa.me/5358648303' target='_blank' rel='noopener'>+53 58648303</a>"
     },
     "terms": {
       "title": "Terms of Service",
@@ -245,7 +245,7 @@
       "s12Content": "We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting. Your continued use of the Platform constitutes acceptance of the modified terms.",
       "s13Title": "13. Contact",
       "s13Content": "For questions about these Terms of Service, contact us at:",
-      "s13Email": "Email: supportdaelworld@gmail.com"
+      "s13Email": "Email: <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a> or WhatsApp <a href='https://wa.me/5358648303' target='_blank' rel='noopener'>+53 58648303</a>"
     },
     "privacy": {
       "title": "Privacy Policy",
@@ -301,14 +301,14 @@
       "s8Deletion": "Deletion: Request deletion of your personal data",
       "s8Portability": "Portability: Request your data in a portable format",
       "s8Objection": "Objection: Object to processing of your personal data",
-      "s8Contact": "To exercise these rights, contact us at supportdaelworld@gmail.com",
+      "s8Contact": "To exercise these rights, contact us at <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a>",
       "s9Title": "9. Children's Privacy",
       "s9Content": "Our platform is not intended for children under 16. Users between 16 and 18 must have parental consent to use the platform. We do not knowingly collect information from children under 16.",
       "s10Title": "10. Changes to This Policy",
       "s10Content": "We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated revision date. Continued use of the platform after changes constitutes acceptance of the new policy.",
       "s11Title": "11. Contact",
       "s11Content": "For privacy-related inquiries, contact us at:",
-      "s11Email": "Email: supportdaelworld@gmail.com"
+      "s11Email": "Email: <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a> or WhatsApp <a href='https://wa.me/5358648303' target='_blank' rel='noopener'>+53 58648303</a>"
     },
     "faq": {
       "title": "Frequently Asked Questions",
@@ -352,7 +352,7 @@
       "q7Question": "How do I contact support?",
       "q7Answer": "Our admin team is available to help you:",
       "q7DastanName": "Support Team",
-      "q7DastanEmail": "Email: supportdaelworld@gmail.com",
+      "q7DastanEmail": "Email: <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a><br>WhatsApp: <a href='https://wa.me/5358648303' target='_blank' rel='noopener'>+53 58648303</a>",
       "q7Feedback": "You can also use the <a href=\"/feedback\" data-link>Feedback form</a> on the platform to send us your comments or suggestions.",
       "q8Question": "What happens with my personal data?",
       "q8Answer": "We take your privacy seriously:",

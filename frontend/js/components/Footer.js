@@ -10,8 +10,9 @@ const Footer = {
               </div>
               <p>Viaja con confianza</p>
               <p class="footer-contact">
-                <strong>Contact:</strong><br>
-                Email: supportdaelworld@gmail.com
+                <strong>Contacto:</strong><br>
+                Email: <a href="mailto:supportdaelworld@gmail.com">supportdaelworld@gmail.com</a><br>
+                WhatsApp: <a href="https://wa.me/5358648303" target="_blank" rel="noopener">+53 58648303</a>
               </p>
             </div>
             <div class="footer-links">

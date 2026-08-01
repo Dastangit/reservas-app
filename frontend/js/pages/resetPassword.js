@@ -1,4 +1,5 @@
 import api from '../api.js';
+import { passwordToggleButton } from '../utils/passwordToggle.js';
 
 const ResetPasswordPage = {
   token: null,
@@ -33,11 +34,13 @@ const ResetPasswordPage = {
             <form id="reset-form">
               <div class="form-group">
                 <label for="new-password">Nueva contrase\u00f1a</label>
-                <input type="password" id="new-password" required minlength="6" placeholder="M\u00ednimo 6 caracteres">
+                <div class="password-field-wrapper"><input type="password" id="new-password" required minlength="6" placeholder="M\u00ednimo 6 caracteres">
+                  ${passwordToggleButton('new-password')}</div>
               </div>
               <div class="form-group">
                 <label for="confirm-password">Confirmar contrase\u00f1a</label>
-                <input type="password" id="confirm-password" required minlength="6" placeholder="Repite la contrase\u00f1a">
+                <div class="password-field-wrapper"><input type="password" id="confirm-password" required minlength="6" placeholder="Repite la contrase\u00f1a">
+                  ${passwordToggleButton('confirm-password')}</div>
               </div>
 
               <div id="error-message" class="error-message" style="display:none;"></div>

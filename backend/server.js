@@ -48,7 +48,7 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.use('/api/auth', loginLimiter, require('./routes/auth'));
+app.use('/api/auth', apiLimiter, require('./routes/auth'));
 app.use('/api/properties', apiLimiter, require('./routes/properties'));
 app.use('/api/bookings', apiLimiter, require('./routes/bookings'));
 app.use('/api/reviews', apiLimiter, require('./routes/reviews'));

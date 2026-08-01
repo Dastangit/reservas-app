@@ -1,5 +1,6 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import { passwordToggleButton } from '../utils/passwordToggle.js';
 
 const RegisterPage = {
   render() {
@@ -26,7 +27,10 @@ const RegisterPage = {
               
               <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" required placeholder="Min 6 characters" minlength="6">
+                <div class="password-field-wrapper">
+                  <input type="password" id="password" required placeholder="Min 6 characters" minlength="6">
+                  ${passwordToggleButton('password')}
+                </div>
               </div>
               
               <div class="form-group">

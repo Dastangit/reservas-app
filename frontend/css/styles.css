@@ -518,6 +518,35 @@ p:last-child { margin-bottom: 0; }
   resize: vertical;
 }
 
+.password-field-wrapper,
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-field-wrapper input,
+.password-field input {
+  padding-right: 44px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 6px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+}
+
+.password-toggle-btn:hover {
+  opacity: 1;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

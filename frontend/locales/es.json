@@ -174,7 +174,7 @@
       "cancellationDesc": "La tarifa de reserva de $7 USD es <strong>no reembolsable</strong> si cancelas tú o si tu reserva es rechazada por no cumplir los requisitos. <strong>Excepción:</strong> si el rechazo se debe a un error de nuestra parte, recibirás un reembolso en criptomonedas (USDT, red BEP20).",
       "cancellationRejected": "Si tu reserva es rechazada por el admin, serás notificado por correo electrónico. Si el rechazo se debe a un error nuestro, coordinaremos el reembolso en USDT (BEP20); en los demás casos, la tarifa cubre el servicio de procesar y revisar tu reserva.",
       "dastanName": "Equipo de Soporte",
-      "dastanEmail": "Correo: supportdaelworld@gmail.com"
+      "dastanEmail": "Correo: <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a><br>WhatsApp: <a href='https://wa.me/5358648303' target='_blank' rel='noopener'>+53 58648303</a>"
     },
     "terms": {
       "title": "Términos de Servicio",
@@ -245,7 +245,7 @@
       "s12Content": "Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios serán efectivos inmediatamente después de su publicación. Tu uso continuado de la Plataforma constituye la aceptación de los términos modificados.",
       "s13Title": "13. Contacto",
       "s13Content": "Para preguntas sobre estos Términos de Servicio, contáctanos en:",
-      "s13Email": "Correo: supportdaelworld@gmail.com"
+      "s13Email": "Correo: <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a> o WhatsApp <a href='https://wa.me/5358648303' target='_blank' rel='noopener'>+53 58648303</a>"
     },
     "privacy": {
       "title": "Política de Privacidad",
@@ -301,14 +301,14 @@
       "s8Deletion": "Eliminación: Solicitar la eliminación de tus datos personales",
       "s8Portability": "Portabilidad: Solicitar tus datos en un formato portable",
       "s8Objection": "Objeción: Oponerte al procesamiento de tus datos personales",
-      "s8Contact": "Para ejercer estos derechos, contáctanos en supportdaelworld@gmail.com",
+      "s8Contact": "Para ejercer estos derechos, contáctanos en <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a>",
       "s9Title": "9. Privacidad de Menores",
       "s9Content": "Nuestra plataforma no está dirigida a niños menores de 16 años. Los usuarios entre 16 y 18 años deben tener consentimiento parental para usar la plataforma. No recopilamos conscientemente información de niños menores de 16 años.",
       "s10Title": "10. Cambios en esta Política",
       "s10Content": "Podemos actualizar esta Política de Privacidad de vez en cuando. Los cambios se publicarán en esta página con una fecha de revisión actualizada. El uso continuado de la plataforma después de los cambios constituye la aceptación de la nueva política.",
       "s11Title": "11. Contacto",
       "s11Content": "Para consultas sobre privacidad, contáctanos en:",
-      "s11Email": "Correo: supportdaelworld@gmail.com"
+      "s11Email": "Correo: <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a> o WhatsApp <a href='https://wa.me/5358648303' target='_blank' rel='noopener'>+53 58648303</a>"
     },
     "faq": {
       "title": "Preguntas Frecuentes",
@@ -352,7 +352,7 @@
       "q7Question": "¿Cómo contacto al soporte?",
       "q7Answer": "Nuestro equipo de administración está disponible para ayudarte:",
       "q7DastanName": "Equipo de Soporte",
-      "q7DastanEmail": "Correo: supportdaelworld@gmail.com",
+      "q7DastanEmail": "Correo: <a href='mailto:supportdaelworld@gmail.com'>supportdaelworld@gmail.com</a><br>WhatsApp: <a href='https://wa.me/5358648303' target='_blank' rel='noopener'>+53 58648303</a>",
       "q7Feedback": "También puedes usar el <a href=\"/feedback\" data-link> formulario de Comentarios</a> en la plataforma para enviarnos tus comentarios o sugerencias.",
       "q8Question": "¿Qué pasa con mis datos personales?",
       "q8Answer": "Tomamos tu privacidad en serio:",

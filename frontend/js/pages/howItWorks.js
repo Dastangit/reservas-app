@@ -1,13 +1,19 @@
 import { markTermsViewed } from '../utils/onboarding.js';
+import auth from '../auth.js';
 
 const HowItWorksPage = {
   render() {
+    const role = auth.getRole(); // null si no está logueado -- en ese caso se muestran ambas secciones
+    const showTourist = role !== 'host';
+    const showHost = role !== 'tourist';
+
     return `
       <div class="how-it-works-page">
         <div class="container">
           <h1>${i18n.t('pages.howItWorks.title')}</h1>
           <p class="subtitle">${i18n.t('pages.howItWorks.subtitle')}</p>
 
+          ${showTourist ? `
           <section class="section">
             <h2>${i18n.t('pages.howItWorks.touristsSection')}</h2>
             <div class="steps">
@@ -33,7 +39,9 @@ const HowItWorksPage = {
               </div>
             </div>
           </section>
+          ` : ''}
 
+          ${showHost ? `
           <section class="section">
             <h2>${i18n.t('pages.howItWorks.hostsSection')}</h2>
             <div class="steps">
@@ -59,6 +67,7 @@ const HowItWorksPage = {
               </div>
             </div>
           </section>
+          ` : ''}
 
           <section class="section">
             <h2>${i18n.t('pages.howItWorks.paymentSection')}</h2>
