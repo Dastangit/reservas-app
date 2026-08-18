@@ -42,6 +42,10 @@ const auth = {
     return this.getRole() === 'host';
   },
 
+  isOrganizer() {
+    return this.getRole() === 'organizer';
+  },
+
   isAdmin() {
     return this.getRole() === 'admin';
   },

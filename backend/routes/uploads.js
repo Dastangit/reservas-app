@@ -6,7 +6,7 @@ const { uploadMiddleware, handleImageUpload, handleImageDelete } = require('../c
 
 router.use(setTenant);
 router.use(protect);
-router.use(authorize('host', 'admin'));
+router.use(authorize('host', 'organizer', 'admin'));
 
 router.post('/image', uploadMiddleware, handleImageUpload);
 router.delete('/image/:public_id', handleImageDelete);

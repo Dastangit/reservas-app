@@ -10,6 +10,8 @@ const env = require('./config/env');
 const { loginLimiter, apiLimiter } = require('./middleware/rateLimiter');
 const { startHoldExpiryCron } = require('./jobs/holdExpiry');
 const { startHostCommissionCron } = require('./jobs/hostCommissionCron');
+const { startOrganizerCommissionCron } = require('./jobs/organizerCommissionCron');
+const { startExperienceRecurrenceCron } = require('./jobs/experienceRecurrenceCron');
 
 const app = express();
 
@@ -60,6 +62,9 @@ app.use('/api/contact', apiLimiter, require('./routes/contact'));
 app.use('/api/payments', apiLimiter, require('./routes/payments'));
 app.use('/api/uploads', apiLimiter, require('./routes/uploads'));
 app.use('/api/push', apiLimiter, require('./routes/push'));
+app.use('/api/experiences', apiLimiter, require('./routes/experiences'));
+app.use('/api/experience-bookings', apiLimiter, require('./routes/experienceBookings'));
+app.use('/api/organizer', apiLimiter, require('./routes/organizer'));
 app.use('/api/webhooks', require('./routes/webhooks'));
 
 app.use('/api/*', (req, res) => {
@@ -77,6 +82,8 @@ const startServer = async () => {
     console.log(`Server running in ${env.nodeEnv} mode on port ${PORT}`);
     startHoldExpiryCron();
     startHostCommissionCron();
+    startOrganizerCommissionCron();
+    startExperienceRecurrenceCron();
   });
 };
 

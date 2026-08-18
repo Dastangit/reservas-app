@@ -35,6 +35,24 @@ import AdminAvailabilityPage from './pages/adminAvailability.js';
 import AdminOrphanedPaymentsPage from './pages/adminOrphanedPayments.js';
 import AdminHostCommissionsPage from './pages/adminHostCommissions.js';
 import AdminPasswordResetsPage from './pages/adminPasswordResets.js';
+import AdminAuditLogPage from './pages/adminAuditLog.js';
+import ExperiencesPage from './pages/experiences.js';
+import ExperienceDetailPage from './pages/experienceDetail.js';
+import ExperienceBookingPage from './pages/experienceBooking.js';
+import ExperienceBookingConfirmationPage from './pages/experienceBookingConfirmation.js';
+import ExperienceMyBookingsPage from './pages/experienceMyBookings.js';
+import ExperienceWaitlistJoinPage from './pages/experienceWaitlistJoin.js';
+import ExperienceWaitlistClaimPage from './pages/experienceWaitlistClaim.js';
+import OrganizerDashboardPage from './pages/organizerDashboard.js';
+import OrganizerExperiencesPage from './pages/organizerExperiences.js';
+import CreateExperiencePage from './pages/createExperience.js';
+import CreateRecurrencePage from './pages/createRecurrence.js';
+import OrganizerRecurrencesPage from './pages/organizerRecurrences.js';
+import OrganizerBookingsPage from './pages/organizerBookings.js';
+import AdminExperiencesPage from './pages/adminExperiences.js';
+import AdminOrganizersPage from './pages/adminOrganizers.js';
+import AdminExperienceBookingsPage from './pages/adminExperienceBookings.js';
+import AdminOrganizerCommissionsPage from './pages/adminOrganizerCommissions.js';
 import ForgotPasswordPage from './pages/forgotPassword.js';
 import ResetPasswordPage from './pages/resetPassword.js';
 import EditPropertyPage from './pages/editProperty.js';
@@ -222,6 +240,93 @@ router
     if (!guard(['admin'])) return;
     AdminPasswordResetsPage._params = params;
     await renderPage(AdminPasswordResetsPage);
+  })
+  .addRoute('/admin/audit-log', async (params) => {
+    if (!guard(['admin'])) return;
+    AdminAuditLogPage._params = params;
+    await renderPage(AdminAuditLogPage);
+  })
+  .addRoute('/experiences', routeHandler(ExperiencesPage))
+  .addRoute('/experiences/:id', routeHandler(ExperienceDetailPage))
+  .addRoute('/experiences/:id/book', async (params) => {
+    if (!guard(['tourist'])) return;
+    ExperienceBookingPage._params = params;
+    await renderPage(ExperienceBookingPage);
+  })
+  .addRoute('/experiences/:id/waitlist', async (params) => {
+    if (!guard(['tourist'])) return;
+    ExperienceWaitlistJoinPage._params = params;
+    await renderPage(ExperienceWaitlistJoinPage);
+  })
+  .addRoute('/experiences/:id/waitlist/:waitlistId/claim', async (params) => {
+    if (!guard(['tourist'])) return;
+    ExperienceWaitlistClaimPage._params = params;
+    await renderPage(ExperienceWaitlistClaimPage);
+  })
+  .addRoute('/experience-bookings', async (params) => {
+    if (!guard(['tourist'])) return;
+    ExperienceMyBookingsPage._params = params;
+    await renderPage(ExperienceMyBookingsPage);
+  })
+  .addRoute('/experience-bookings/:bookingId/confirmation', async (params) => {
+    if (!guard(['tourist'])) return;
+    ExperienceBookingConfirmationPage._params = params;
+    await renderPage(ExperienceBookingConfirmationPage);
+  })
+  .addRoute('/organizer/dashboard', async (params) => {
+    if (!guard(['organizer'])) return;
+    OrganizerDashboardPage._params = params;
+    await renderPage(OrganizerDashboardPage);
+  })
+  .addRoute('/organizer/experiences', async (params) => {
+    if (!guard(['organizer'])) return;
+    OrganizerExperiencesPage._params = params;
+    await renderPage(OrganizerExperiencesPage);
+  })
+  .addRoute('/organizer/experiences/new', async (params) => {
+    if (!guard(['organizer'])) return;
+    CreateExperiencePage._params = params;
+    await renderPage(CreateExperiencePage);
+  })
+  .addRoute('/organizer/experiences/:id/edit', async (params) => {
+    if (!guard(['organizer'])) return;
+    CreateExperiencePage._params = params;
+    await renderPage(CreateExperiencePage);
+  })
+  .addRoute('/organizer/recurrences', async (params) => {
+    if (!guard(['organizer'])) return;
+    OrganizerRecurrencesPage._params = params;
+    await renderPage(OrganizerRecurrencesPage);
+  })
+  .addRoute('/organizer/recurrences/new', async (params) => {
+    if (!guard(['organizer'])) return;
+    CreateRecurrencePage._params = params;
+    await renderPage(CreateRecurrencePage);
+  })
+  .addRoute('/organizer/bookings', async (params) => {
+    if (!guard(['organizer'])) return;
+    OrganizerBookingsPage._params = params;
+    await renderPage(OrganizerBookingsPage);
+  })
+  .addRoute('/admin/experiences', async (params) => {
+    if (!guard(['admin'])) return;
+    AdminExperiencesPage._params = params;
+    await renderPage(AdminExperiencesPage);
+  })
+  .addRoute('/admin/organizers', async (params) => {
+    if (!guard(['admin'])) return;
+    AdminOrganizersPage._params = params;
+    await renderPage(AdminOrganizersPage);
+  })
+  .addRoute('/admin/experience-bookings', async (params) => {
+    if (!guard(['admin'])) return;
+    AdminExperienceBookingsPage._params = params;
+    await renderPage(AdminExperienceBookingsPage);
+  })
+  .addRoute('/admin/organizer-commissions', async (params) => {
+    if (!guard(['admin'])) return;
+    AdminOrganizerCommissionsPage._params = params;
+    await renderPage(AdminOrganizerCommissionsPage);
   })
   .addRoute('/how-it-works', routeHandler(HowItWorksPage))
   .addRoute('/terms', routeHandler(TermsPage))

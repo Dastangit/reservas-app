@@ -15,10 +15,13 @@ const Header = {
     ).join('');
 
     let navLinks = '';
+    const experiencesEnabled = window.APP_CONFIG?.features?.experiences_module;
+    const experiencesLink = experiencesEnabled ? '<a href="/experiences" data-link>Excursiones</a>' : '';
 
     if (!isLoggedIn) {
       navLinks = `
         <a href="/" data-link>${t('common.home')}</a>
+        ${experiencesLink}
         <a href="/login" data-link class="btn btn-outline">${t('common.login')}</a>
         <a href="/register" data-link class="btn btn-primary">${t('common.register')}</a>
       `;
@@ -26,6 +29,7 @@ const Header = {
       navLinks = `
         <a href="/" data-link>${t('common.home')}</a>
         <a href="/search" data-link>${t('common.search')}</a>
+        ${experiencesLink}
         <a href="/dashboard" data-link>${t('nav.myBookings')}</a>
         <a href="/profile" data-link class="nav-user">${user?.name || t('common.profile')}</a>
         <button onclick="logout()" class="btn btn-outline">${t('common.logout')}</button>
@@ -37,6 +41,15 @@ const Header = {
         <a href="/host/bookings" data-link>${t('nav.myBookings')}</a>
         <a href="/host/earnings" data-link>${t('host.earnings')}</a>
         <a href="/host/profile" data-link class="nav-user">${user?.name || t('common.profile')}</a>
+        <button onclick="logout()" class="btn btn-outline">${t('common.logout')}</button>
+      `;
+    } else if (role === 'organizer') {
+      navLinks = `
+        <a href="/organizer/dashboard" data-link>Panel</a>
+        <a href="/organizer/experiences" data-link>Mis excursiones</a>
+        <a href="/organizer/recurrences" data-link>Recurrentes</a>
+        <a href="/organizer/bookings" data-link>Reservas</a>
+        <a href="/profile" data-link class="nav-user">${user?.name || t('common.profile')}</a>
         <button onclick="logout()" class="btn btn-outline">${t('common.logout')}</button>
       `;
     } else if (role === 'admin') {
@@ -59,7 +72,14 @@ const Header = {
             <a href="/admin/availability" data-link>Disponibilidad</a>
             <a href="/admin/orphaned-payments" data-link>Pagos huérfanos</a>
             <a href="/admin/host-commissions" data-link>Comisiones hosts</a>
+            ${experiencesEnabled ? `
+              <a href="/admin/organizers" data-link>Organizadores</a>
+              <a href="/admin/experiences" data-link>Excursiones pendientes</a>
+              <a href="/admin/experience-bookings" data-link>Reservas de excursiones</a>
+              <a href="/admin/organizer-commissions" data-link>Comisiones organizadores</a>
+            ` : ''}
             <a href="/admin/password-resets" data-link>Reset contraseñas</a>
+            <a href="/admin/audit-log" data-link>Registro de acciones</a>
             <a href="/admin/feedback" data-link>${t('nav.feedback')}</a>
             <a href="/admin/reports" data-link>${t('nav.reports')}</a>
             <a href="/admin/settings" data-link>${t('nav.settings')}</a>
@@ -135,6 +155,9 @@ const notifLabels = {
   password_resets: { label: 'Resets de contraseña', url: '/admin/password-resets' },
   orphaned_payments: { label: 'Pagos huérfanos', url: '/admin/orphaned-payments' },
   overdue_commissions: { label: 'Comisiones vencidas', url: '/admin/host-commissions' },
+  pending_experiences: { label: 'Excursiones pendientes', url: '/admin/experiences' },
+  pending_experience_bookings: { label: 'Reservas de excursiones pendientes', url: '/admin/experience-bookings' },
+  overdue_organizer_commissions: { label: 'Comisiones de organizadores vencidas', url: '/admin/organizer-commissions' },
 };
 
 async function loadPendingCounts() {

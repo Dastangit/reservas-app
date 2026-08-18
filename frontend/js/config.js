@@ -18,7 +18,7 @@ const APP_CONFIG = {
   },
 
   features: {
-    experiences_module: false,
+    experiences_module: true,
     community_module: false,
     dark_mode: false,
   },

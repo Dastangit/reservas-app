@@ -38,3 +38,13 @@ export const truncateText = (text, maxLength = 100) => {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength) + '...';
 };
+
+// formatCurrency() usa Intl.NumberFormat con style:'currency', que solo
+// acepta codigos ISO 4217 -- USDT no es un codigo ISO valido y rompe con
+// RangeError. Usado en las paginas de excursiones, donde el pricing es
+// multi-moneda (CUP/USD/USDT).
+export const formatExperiencePrice = (amount, currency) => {
+  if (currency === 'USDT') return `${amount} USDT`;
+  if (currency === 'CUP') return `${amount} CUP`;
+  return formatCurrency(amount, currency);
+};

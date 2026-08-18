@@ -34,15 +34,17 @@ const RegisterPage = {
               </div>
               
               <div class="form-group">
-                <label for="phone">Phone (optional)</label>
+                <label for="phone">Teléfono</label>
                 <input type="tel" id="phone" placeholder="+1 234 567 890">
+                <small class="field-hint" id="phone-hint" style="display:none;">Obligatorio para organizadores de excursiones -- incluye el código de país.</small>
               </div>
               
               <div class="form-group">
-                <label for="role">I want to</label>
+                <label for="role">Quiero</label>
                 <select id="role">
-                  <option value="tourist" ${defaultRole === 'tourist' ? 'selected' : ''}>Book accommodations</option>
-                  <option value="host" ${defaultRole === 'host' ? 'selected' : ''}>List my property</option>
+                  <option value="tourist" ${defaultRole === 'tourist' ? 'selected' : ''}>Reservar alojamientos</option>
+                  <option value="host" ${defaultRole === 'host' ? 'selected' : ''}>Publicar mi propiedad</option>
+                  <option value="organizer" ${defaultRole === 'organizer' ? 'selected' : ''}>Organizar excursiones y viajes locales</option>
                 </select>
               </div>
               
@@ -67,6 +69,19 @@ const RegisterPage = {
         e.preventDefault();
         await this.handleRegister();
       });
+    }
+
+    const roleSelect = document.getElementById('role');
+    const phoneInput = document.getElementById('phone');
+    const phoneHint = document.getElementById('phone-hint');
+    const toggleOrganizerPhone = () => {
+      const isOrganizer = roleSelect?.value === 'organizer';
+      if (phoneInput) phoneInput.required = isOrganizer;
+      if (phoneHint) phoneHint.style.display = isOrganizer ? 'block' : 'none';
+    };
+    if (roleSelect) {
+      roleSelect.addEventListener('change', toggleOrganizerPhone);
+      toggleOrganizerPhone();
     }
   },
 
@@ -95,7 +110,7 @@ const RegisterPage = {
           tourist_onboarding: response.data.tourist_onboarding,
         });
 
-        window.location.href = role === 'host' ? '/host/dashboard' : '/dashboard';
+        window.location.href = role === 'host' ? '/host/dashboard' : role === 'organizer' ? '/organizer/dashboard' : '/dashboard';
       }
     } catch (error) {
       errorEl.textContent = error.message || 'Registration failed';

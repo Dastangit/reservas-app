@@ -27,6 +27,10 @@ exports.register = async (req, res, next) => {
   try {
     const { email, password, name, phone, role } = req.body;
 
+    if (role === 'organizer' && !phone) {
+      return res.status(400).json({ success: false, error: 'Phone number is required to register as an organizer' });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ success: false, error: 'Email already registered' });
@@ -91,6 +95,10 @@ exports.login = async (req, res, next) => {
 
     if (user.role === 'host' && user.host_status !== 'approved') {
       return res.status(403).json({ success: false, error: 'Your host account is pending admin approval. You will receive an email when approved.' });
+    }
+
+    if (user.role === 'organizer' && user.organizer_status !== 'approved') {
+      return res.status(403).json({ success: false, error: 'Your organizer account is pending admin approval. You will receive an email when approved.' });
     }
 
     const isMatch = await user.comparePassword(password);

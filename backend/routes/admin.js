@@ -10,6 +10,11 @@ const {
   getHostCommissions, markHostCommissionPaid, markHostCommissionWaived, getHostCommissionWhatsAppLink,
   getAuditLog,
   getPasswordResetRequests, getPasswordResetDeliveryLinks,
+  getOrganizers, approveOrganizer, rejectOrganizer, suspendOrganizer, deleteOrganizer,
+  getPendingExperiences, approveExperience, rejectExperience,
+  getAllExperienceBookings, approveExperienceBooking, rejectExperienceBooking,
+  getExperienceBookingOrganizerWhatsAppLink, getExperienceBookingTouristContactLinks,
+  getOrganizerCommissions, markOrganizerCommissionPaid, markOrganizerCommissionWaived, getOrganizerCommissionWhatsAppLink,
   getPendingCounts,
 } = require('../controllers/adminController');
 const { protect, authorize } = require('../middleware/auth');
@@ -49,6 +54,32 @@ router.get('/host-commissions/:id/whatsapp-link', getHostCommissionWhatsAppLink)
 router.get('/audit-log', getAuditLog);
 router.get('/password-resets', getPasswordResetRequests);
 router.get('/password-resets/:id/delivery-links', getPasswordResetDeliveryLinks);
+
+// Organizadores (excursiones y viajes locales)
+router.get('/organizers', getOrganizers);
+router.post('/organizers/:id/approve', approveOrganizer);
+router.post('/organizers/:id/reject', rejectOrganizer);
+router.post('/organizers/:id/suspend', suspendOrganizer);
+router.delete('/organizers/:id', deleteOrganizer);
+
+// Excursiones (incluye ocurrencias generadas por recurrencia)
+router.get('/experiences/pending', getPendingExperiences);
+router.post('/experiences/:id/approve', approveExperience);
+router.post('/experiences/:id/reject', rejectExperience);
+
+// Reservas de excursiones
+router.get('/experience-bookings', getAllExperienceBookings);
+router.post('/experience-bookings/:id/approve', approveExperienceBooking);
+router.post('/experience-bookings/:id/reject', rejectExperienceBooking);
+router.get('/experience-bookings/:id/organizer-whatsapp-link', getExperienceBookingOrganizerWhatsAppLink);
+router.get('/experience-bookings/:id/tourist-contact-links', getExperienceBookingTouristContactLinks);
+
+// Comisiones mensuales de organizadores
+router.get('/organizer-commissions', getOrganizerCommissions);
+router.post('/organizer-commissions/:id/paid', markOrganizerCommissionPaid);
+router.post('/organizer-commissions/:id/waive', markOrganizerCommissionWaived);
+router.get('/organizer-commissions/:id/whatsapp-link', getOrganizerCommissionWhatsAppLink);
+
 router.get('/pending-counts', getPendingCounts);
 router.put('/settings', updateSettings);
 

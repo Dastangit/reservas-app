@@ -160,3 +160,96 @@ describe('Controllers', () => {
     expect(typeof adminController.rejectProperty).toBe('function');
   });
 });
+
+describe('Experiences module', () => {
+  test('should have Experience model with allows_mixed_audience default false', () => {
+    const Experience = require('../models/Experience');
+    const field = Experience.schema.path('allows_mixed_audience');
+    expect(field.options.default).toBe(false);
+  });
+
+  test('should have ExperienceRecurrence model with generate_horizon_days default 30', () => {
+    const ExperienceRecurrence = require('../models/ExperienceRecurrence');
+    const field = ExperienceRecurrence.schema.path('generate_horizon_days');
+    expect(field.options.default).toBe(30);
+  });
+
+  test('should have ExperienceBooking model without a fee-based pending_payment status', () => {
+    const ExperienceBooking = require('../models/ExperienceBooking');
+    const statusField = ExperienceBooking.schema.path('status');
+    expect(statusField.enumValues).toEqual(
+      expect.arrayContaining(['pending_approval', 'approved', 'rejected', 'expired', 'completed', 'cancelled'])
+    );
+    expect(statusField.enumValues).not.toContain('pending_payment');
+  });
+
+  test('should have ExperienceWaitlist model', () => {
+    const ExperienceWaitlist = require('../models/ExperienceWaitlist');
+    expect(ExperienceWaitlist.schema.path('position')).toBeDefined();
+  });
+
+  test('should have OrganizerMonthlyCommission model with per-currency totals', () => {
+    const OrganizerMonthlyCommission = require('../models/OrganizerMonthlyCommission');
+    expect(OrganizerMonthlyCommission.schema.path('totals')).toBeDefined();
+  });
+
+  test('should have User model with organizer role and conditional phone requirement', () => {
+    const User = require('../models/User');
+    const roleField = User.schema.path('role');
+    expect(roleField.enumValues).toContain('organizer');
+    expect(typeof User.schema.path('phone').options.required).toBe('function');
+  });
+
+  test('should export experienceController functions', () => {
+    const experienceController = require('../controllers/experienceController');
+    expect(typeof experienceController.getExperiences).toBe('function');
+    expect(typeof experienceController.createExperienceBooking).toBe('function');
+    expect(typeof experienceController.joinWaitlist).toBe('function');
+    expect(typeof experienceController.claimWaitlistSpot).toBe('function');
+    expect(typeof experienceController.cancelExperienceBooking).toBe('function');
+  });
+
+  test('should export organizerController functions', () => {
+    const organizerController = require('../controllers/organizerController');
+    expect(typeof organizerController.createExperience).toBe('function');
+    expect(typeof organizerController.createRecurrence).toBe('function');
+    expect(typeof organizerController.completeExperienceBooking).toBe('function');
+  });
+
+  test('should export new adminController functions for organizers/experiences/commissions', () => {
+    const adminController = require('../controllers/adminController');
+    expect(typeof adminController.approveOrganizer).toBe('function');
+    expect(typeof adminController.approveExperience).toBe('function');
+    expect(typeof adminController.approveExperienceBooking).toBe('function');
+    expect(typeof adminController.getOrganizerCommissions).toBe('function');
+  });
+
+  test('should export experiences, experienceBookings and organizer routes', () => {
+    expect(typeof require('../routes/experiences')).toBe('function');
+    expect(typeof require('../routes/experienceBookings')).toBe('function');
+    expect(typeof require('../routes/organizer')).toBe('function');
+  });
+
+  test('should export experience recurrence util (idempotent generation)', () => {
+    const { generateOccurrences } = require('../utils/experienceRecurrence');
+    expect(typeof generateOccurrences).toBe('function');
+  });
+
+  test('should export waitlist promotion util with dynamic claim window', () => {
+    const { computeClaimWindowMs, promoteNextWaitlistEntry } = require('../utils/experienceWaitlist');
+    expect(typeof promoteNextWaitlistEntry).toBe('function');
+    // Menos de 1h para la excursión -> no se promueve automático
+    const soon = new Date(Date.now() + 30 * 60 * 1000);
+    expect(computeClaimWindowMs(soon)).toBeNull();
+    // Sobra tiempo -> nunca más de 2h
+    const farAway = new Date(Date.now() + 10 * 60 * 60 * 1000);
+    expect(computeClaimWindowMs(farAway)).toBeLessThanOrEqual(2 * 60 * 60 * 1000);
+  });
+
+  test('should export organizer and recurrence cron jobs', () => {
+    const { startOrganizerCommissionCron } = require('../jobs/organizerCommissionCron');
+    const { startExperienceRecurrenceCron } = require('../jobs/experienceRecurrenceCron');
+    expect(typeof startOrganizerCommissionCron).toBe('function');
+    expect(typeof startExperienceRecurrenceCron).toBe('function');
+  });
+});

@@ -12,7 +12,11 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Email is required'],
     match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Invalid email'],
   },
-  phone: String,
+  phone: {
+    type: String,
+    // Obligatorio solo para organizadores -- hosts/turistas no lo requieren hoy.
+    required: function () { return this.role === 'organizer'; },
+  },
   phone_whatsapp: {
     type: Boolean,
     default: false,
@@ -25,7 +29,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['tourist', 'host', 'admin'],
+    enum: ['tourist', 'host', 'admin', 'organizer'],
     required: true,
   },
   profile: {
@@ -65,6 +69,16 @@ const userSchema = new mongoose.Schema({
     default: 'cuba',
   },
   host_fee_waived_until: Date,
+  organizer_status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending',
+  },
+  organizer_status_reason: String,
+  organizer_approved_by: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
   refresh_token: {
     type: String,
     select: false,

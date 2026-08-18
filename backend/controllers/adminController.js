@@ -5,6 +5,10 @@ const User = require('../models/User');
 const Payment = require('../models/Payment');
 const OrphanedPayment = require('../models/OrphanedPayment');
 const HostMonthlyCommission = require('../models/HostMonthlyCommission');
+const Experience = require('../models/Experience');
+const ExperienceBooking = require('../models/ExperienceBooking');
+const OrganizerMonthlyCommission = require('../models/OrganizerMonthlyCommission');
+const { promoteNextWaitlistEntry } = require('../utils/experienceWaitlist');
 const { sendEmail } = require('../utils/email');
 const { buildWhatsAppLink } = require('../utils/whatsapp');
 const { buildMailtoLink } = require('../utils/mailto');
@@ -904,13 +908,542 @@ exports.getPasswordResetDeliveryLinks = async (req, res, next) => {
   }
 };
 
+// ===== ORGANIZADORES (excursiones y viajes locales) =====
+// Mismo patrón que getHosts/approveHost/rejectHost/suspendHost/deleteHost,
+// pero para role='organizer' + organizer_status.
+
+exports.getOrganizers = async (req, res, next) => {
+  try {
+    const { organizer_status, page = 1, limit = 20 } = req.query;
+    const filter = { tenant_id: req.tenantId, role: 'organizer' };
+    if (organizer_status) filter.organizer_status = organizer_status;
+
+    const total = await User.countDocuments(filter);
+    const organizers = await User.find(filter)
+      .select('-password_hash')
+      .skip((page - 1) * limit)
+      .limit(Number(limit))
+      .sort({ created_at: -1 });
+
+    res.json({
+      success: true,
+      data: { organizers, total, page: Number(page), pages: Math.ceil(total / limit) },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.approveOrganizer = async (req, res, next) => {
+  try {
+    const organizer = await User.findOne({ _id: req.params.id, tenant_id: req.tenantId, role: 'organizer' });
+    if (!organizer) {
+      return res.status(404).json({ success: false, error: 'Organizer not found' });
+    }
+
+    organizer.organizer_status = 'approved';
+    organizer.organizer_approved_by = req.user._id;
+    await organizer.save();
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'approve_organizer',
+      target_type: 'User',
+      target_id: organizer._id,
+    });
+
+    res.json({ success: true, data: { organizer_id: organizer._id, organizer_status: 'approved' } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.rejectOrganizer = async (req, res, next) => {
+  try {
+    const organizer = await User.findOne({ _id: req.params.id, tenant_id: req.tenantId, role: 'organizer' });
+    if (!organizer) {
+      return res.status(404).json({ success: false, error: 'Organizer not found' });
+    }
+
+    organizer.organizer_status = 'rejected';
+    organizer.organizer_status_reason = req.body.reason;
+    await organizer.save();
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'reject_organizer',
+      target_type: 'User',
+      target_id: organizer._id,
+      metadata: { reason: req.body.reason },
+    });
+
+    res.json({ success: true, data: { organizer_id: organizer._id, organizer_status: 'rejected' } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.suspendOrganizer = async (req, res, next) => {
+  try {
+    const organizer = await User.findOne({ _id: req.params.id, tenant_id: req.tenantId, role: 'organizer' });
+    if (!organizer) {
+      return res.status(404).json({ success: false, error: 'Organizer not found' });
+    }
+
+    organizer.status = 'suspended';
+    await organizer.save();
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'suspend_organizer',
+      target_type: 'User',
+      target_id: organizer._id,
+    });
+
+    res.json({ success: true, data: { organizer_id: organizer._id, status: 'suspended' } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteOrganizer = async (req, res, next) => {
+  try {
+    const organizer = await User.findOne({ _id: req.params.id, tenant_id: req.tenantId, role: 'organizer' });
+    if (!organizer) {
+      return res.status(404).json({ success: false, error: 'Organizer not found' });
+    }
+
+    const activeBookings = await ExperienceBooking.countDocuments({
+      organizer_id: organizer._id,
+      tenant_id: req.tenantId,
+      status: { $in: ['pending_approval', 'approved'] },
+    });
+
+    if (activeBookings > 0) {
+      return res.status(400).json({ success: false, error: 'Cannot delete organizer with active bookings. Cancel or complete their bookings first.' });
+    }
+
+    await Experience.deleteMany({ organizer_id: organizer._id, tenant_id: req.tenantId });
+    await User.findByIdAndDelete(organizer._id);
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'delete_organizer',
+      target_type: 'User',
+      target_id: organizer._id,
+      metadata: { organizer_email: organizer.email, organizer_name: organizer.name },
+    });
+
+    res.json({ success: true, data: {} });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ===== EXCURSIONES =====
+// Incluye tanto excursiones de fecha única como ocurrencias generadas por
+// una plantilla recurrente (recurrence_id != null) -- ambas se aprueban
+// individualmente, mismo endpoint.
+
+exports.getPendingExperiences = async (req, res, next) => {
+  try {
+    const experiences = await Experience.find({
+      tenant_id: req.tenantId,
+      status: 'pending_approval',
+    }).populate('organizer_id', 'name email').sort({ date: 1 });
+
+    res.json({ success: true, data: { experiences } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.approveExperience = async (req, res, next) => {
+  try {
+    const experience = await Experience.findOne({
+      _id: req.params.id,
+      tenant_id: req.tenantId,
+    }).populate('organizer_id', 'name email');
+
+    if (!experience) {
+      return res.status(404).json({ success: false, error: 'Experience not found' });
+    }
+
+    experience.status = 'active';
+    await experience.save();
+
+    res.json({ success: true, data: { experience_id: experience._id, status: 'active' } });
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'approve_experience',
+      target_type: 'Experience',
+      target_id: experience._id,
+    });
+
+    if (experience.organizer_id?.email) {
+      sendEmail({
+        to: experience.organizer_id.email,
+        subject: 'Excursión aprobada - Da-El World Travelers',
+        html: `
+          <h1>¡Excursión aprobada!</h1>
+          <p>Tu excursión <strong>${experience.title}</strong> del ${new Date(experience.date).toLocaleDateString()} fue aprobada y ya está visible para los clientes.</p>
+        `,
+      }).catch(() => {});
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.rejectExperience = async (req, res, next) => {
+  try {
+    const experience = await Experience.findOne({
+      _id: req.params.id,
+      tenant_id: req.tenantId,
+    }).populate('organizer_id', 'name email');
+
+    if (!experience) {
+      return res.status(404).json({ success: false, error: 'Experience not found' });
+    }
+
+    experience.status = 'rejected';
+    experience.rejection_reason = req.body.reason;
+    await experience.save();
+
+    res.json({ success: true, data: { experience_id: experience._id, status: 'rejected' } });
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'reject_experience',
+      target_type: 'Experience',
+      target_id: experience._id,
+      metadata: { reason: req.body.reason },
+    });
+
+    if (experience.organizer_id?.email) {
+      sendEmail({
+        to: experience.organizer_id.email,
+        subject: 'Excursión no aprobada - Da-El World Travelers',
+        html: `
+          <h1>Excursión no aprobada</h1>
+          <p>Tu excursión <strong>${experience.title}</strong> del ${new Date(experience.date).toLocaleDateString()} no fue aprobada.</p>
+          ${req.body.reason ? `<p><strong>Motivo:</strong> ${req.body.reason}</p>` : ''}
+        `,
+      }).catch(() => {});
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ===== RESERVAS DE EXCURSIONES =====
+
+exports.getAllExperienceBookings = async (req, res, next) => {
+  try {
+    const { status, page = 1, limit = 20 } = req.query;
+    const filter = { tenant_id: req.tenantId };
+    if (status) filter.status = status;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const [bookings, total_count] = await Promise.all([
+      ExperienceBooking.find(filter)
+        .sort({ created_at: -1 })
+        .skip(skip)
+        .limit(Number(limit))
+        .populate('experience_id', 'title date')
+        .populate('tourist_id', 'name email')
+        .populate('organizer_id', 'name'),
+      ExperienceBooking.countDocuments(filter),
+    ]);
+
+    res.json({
+      success: true,
+      data: { bookings, total_count, page: Number(page), per_page: Number(limit) },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.approveExperienceBooking = async (req, res, next) => {
+  try {
+    const booking = await ExperienceBooking.findOne({
+      _id: req.params.id,
+      tenant_id: req.tenantId,
+    }).populate('experience_id', 'title date').populate('tourist_id', 'email').populate('organizer_id', 'name email phone');
+
+    if (!booking) {
+      return res.status(404).json({ success: false, error: 'Booking not found' });
+    }
+
+    if (booking.status !== 'pending_approval') {
+      return res.status(400).json({ success: false, error: 'Booking is not pending approval' });
+    }
+
+    booking.status = 'approved';
+    booking.approved_by = req.user._id;
+    booking.approved_at = new Date();
+    if (req.body.notes) booking.admin_notes = req.body.notes;
+    booking.status_history.push({ status: 'approved', changed_at: new Date(), changed_by: req.user._id });
+    await booking.save();
+
+    res.json({ success: true, data: { booking_id: booking._id, status: 'approved' } });
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'approve_experience_booking',
+      target_type: 'ExperienceBooking',
+      target_id: booking._id,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.rejectExperienceBooking = async (req, res, next) => {
+  try {
+    const booking = await ExperienceBooking.findOne({ _id: req.params.id, tenant_id: req.tenantId });
+
+    if (!booking) {
+      return res.status(404).json({ success: false, error: 'Booking not found' });
+    }
+
+    if (booking.status !== 'pending_approval') {
+      return res.status(400).json({ success: false, error: 'Booking is not pending approval' });
+    }
+
+    booking.status = 'rejected';
+    booking.rejection_reason = req.body.reason;
+    booking.status_history.push({ status: 'rejected', changed_at: new Date(), changed_by: req.user._id });
+    await booking.save();
+
+    // Libera los cupos que se habían descontado atómicamente al reservar.
+    await Experience.findOneAndUpdate(
+      { _id: booking.experience_id, tenant_id: req.tenantId },
+      { $inc: { current_participants: -booking.num_spots } }
+    );
+
+    await promoteNextWaitlistEntry(req.tenantId, booking.experience_id);
+
+    res.json({ success: true, data: { booking_id: booking._id, status: 'rejected' } });
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'reject_experience_booking',
+      target_type: 'ExperienceBooking',
+      target_id: booking._id,
+      metadata: { reason: req.body.reason },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Link wa.me pre-llenado para avisarle al organizador de una reserva
+// aprobada -- incluye cuánto cobrar en cada moneda, ya que el pago real
+// lo coordina el organizador directo con el cliente (no pasa por la
+// plataforma).
+exports.getExperienceBookingOrganizerWhatsAppLink = async (req, res, next) => {
+  try {
+    const booking = await ExperienceBooking.findOne({ _id: req.params.id, tenant_id: req.tenantId })
+      .populate('experience_id', 'title date')
+      .populate('organizer_id', 'name phone')
+      .populate('tourist_id', 'name');
+
+    if (!booking) {
+      return res.status(404).json({ success: false, error: 'Booking not found' });
+    }
+    if (!booking.organizer_id?.phone) {
+      return res.status(400).json({ success: false, error: 'Organizer has no phone number on file' });
+    }
+
+    const paymentLines = booking.payment_info
+      .map((p) => `${p.num_spots} x ${p.audience === 'local' ? 'local' : 'turista'} -- ${p.amount} ${p.currency}`)
+      .join('; ');
+
+    const message = `Hola ${booking.organizer_id.name}, tienes una nueva reserva confirmada en "${booking.experience_id.title}" `
+      + `del ${new Date(booking.experience_id.date).toLocaleDateString()}. `
+      + `Cliente: ${booking.tourist_data?.name || booking.tourist_id?.name || 'N/A'}, contacto: ${booking.tourist_data?.phone || 'N/A'}. `
+      + `Cupos: ${booking.num_spots}. A cobrar: ${paymentLines}.`;
+
+    const url = buildWhatsAppLink(booking.organizer_id.phone, message);
+
+    res.json({ success: true, data: { url } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Links wa.me/mailto para avisarle al turista que su reserva de excursión
+// fue aprobada (con contacto del organizador) o rechazada.
+exports.getExperienceBookingTouristContactLinks = async (req, res, next) => {
+  try {
+    const booking = await ExperienceBooking.findOne({ _id: req.params.id, tenant_id: req.tenantId })
+      .populate('experience_id', 'title date')
+      .populate('organizer_id', 'name phone');
+
+    if (!booking) {
+      return res.status(404).json({ success: false, error: 'Booking not found' });
+    }
+
+    const phone = booking.tourist_data?.phone;
+    const email = booking.tourist_data?.email;
+    if (!phone && !email) {
+      return res.status(400).json({ success: false, error: 'Tourist has no phone or email on file' });
+    }
+
+    let message;
+    let subject = `Tu reserva en "${booking.experience_id.title}" - Da-El World Travelers`;
+
+    if (booking.status === 'approved') {
+      message = `Hola ${booking.tourist_data?.name || ''}, tu reserva en "${booking.experience_id.title}" `
+        + `del ${new Date(booking.experience_id.date).toLocaleDateString()} fue confirmada. `
+        + `El organizador ${booking.organizer_id?.name || ''} se pondrá en contacto contigo`
+        + `${booking.organizer_id?.phone ? ` (${booking.organizer_id.phone})` : ''} para coordinar el pago y los detalles.`;
+    } else if (booking.status === 'rejected') {
+      message = `Hola ${booking.tourist_data?.name || ''}, lamentablemente tu reserva en "${booking.experience_id.title}" no pudo confirmarse.`
+        + `${booking.rejection_reason ? ` Motivo: ${booking.rejection_reason}.` : ''}`;
+    } else {
+      return res.status(400).json({ success: false, error: 'Booking must be approved or rejected to contact the tourist' });
+    }
+
+    const whatsapp_url = phone ? buildWhatsAppLink(phone, message) : null;
+    const mailto_url = email ? buildMailtoLink(email, subject, message) : null;
+
+    res.json({ success: true, data: { whatsapp_url, mailto_url } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ===== COMISIONES MENSUALES DE ORGANIZADORES =====
+// Mismo patrón que las comisiones de hosts, pero con desglose por moneda
+// (totals[]) en vez de un total_amount único -- ver plan del módulo,
+// sección 3.4.
+
+exports.getOrganizerCommissions = async (req, res, next) => {
+  try {
+    const { status } = req.query;
+    const filter = { tenant_id: req.tenantId };
+    if (status) filter.status = status;
+
+    const commissions = await OrganizerMonthlyCommission.find(filter)
+      .populate('organizer_id', 'name email phone')
+      .sort({ year: -1, month: -1 });
+
+    res.json({ success: true, data: { commissions } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.markOrganizerCommissionPaid = async (req, res, next) => {
+  try {
+    const commission = await OrganizerMonthlyCommission.findOne({ _id: req.params.id, tenant_id: req.tenantId });
+    if (!commission) {
+      return res.status(404).json({ success: false, error: 'Commission not found' });
+    }
+
+    commission.status = 'paid';
+    commission.paid_at = new Date();
+    commission.paid_method = req.body.method || 'manual';
+    commission.notes = req.body.notes;
+    await commission.save();
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'mark_organizer_commission_paid',
+      target_type: 'OrganizerMonthlyCommission',
+      target_id: commission._id,
+      metadata: { totals: commission.totals, method: req.body.method },
+    });
+
+    res.json({ success: true, data: { commission_id: commission._id, status: 'paid' } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.markOrganizerCommissionWaived = async (req, res, next) => {
+  try {
+    const commission = await OrganizerMonthlyCommission.findOne({ _id: req.params.id, tenant_id: req.tenantId });
+    if (!commission) {
+      return res.status(404).json({ success: false, error: 'Commission not found' });
+    }
+
+    commission.status = 'waived';
+    commission.notes = req.body.reason || 'Waived by admin';
+    await commission.save();
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'waive_organizer_commission',
+      target_type: 'OrganizerMonthlyCommission',
+      target_id: commission._id,
+      metadata: { totals: commission.totals, reason: req.body.reason },
+    });
+
+    res.json({ success: true, data: { commission_id: commission._id, status: 'waived' } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Link wa.me pre-llenado -- lista cada moneda por separado, ej:
+// "debes 1500 CUP + 25 USD", ya que no se convierten entre sí.
+exports.getOrganizerCommissionWhatsAppLink = async (req, res, next) => {
+  try {
+    const commission = await OrganizerMonthlyCommission.findOne({ _id: req.params.id, tenant_id: req.tenantId })
+      .populate('organizer_id', 'name phone');
+
+    if (!commission) {
+      return res.status(404).json({ success: false, error: 'Commission not found' });
+    }
+    if (!commission.organizer_id?.phone) {
+      return res.status(400).json({ success: false, error: 'Organizer has no phone number on file' });
+    }
+
+    const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    const monthLabel = `${monthNames[commission.month - 1]} ${commission.year}`;
+
+    const amountsLine = commission.totals
+      .map((t) => `${t.commission_amount} ${t.currency}`)
+      .join(' + ');
+
+    const message = `Hola ${commission.organizer_id.name}, tienes una comisión pendiente de ${amountsLine} `
+      + `correspondiente a las excursiones de ${monthLabel} (10% sobre lo cobrado a los clientes). `
+      + `Por favor coordina el pago cuando puedas. ¡Gracias!`;
+
+    const url = buildWhatsAppLink(commission.organizer_id.phone, message);
+
+    res.json({ success: true, data: { url } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Conteo de pendientes por categoría -- alimenta la campanita del panel
 // admin. Un solo endpoint liviano en vez de 5 llamadas separadas.
 exports.getPendingCounts = async (req, res, next) => {
   try {
     const tenantId = req.tenantId;
 
-    const [bookings, properties, password_resets, orphaned_payments, overdue_commissions] = await Promise.all([
+    const [
+      bookings, properties, password_resets, orphaned_payments, overdue_commissions,
+      pending_experiences, pending_experience_bookings, overdue_organizer_commissions,
+    ] = await Promise.all([
       Booking.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),
       Property.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),
       User.countDocuments({
@@ -923,9 +1456,21 @@ exports.getPendingCounts = async (req, res, next) => {
         reviewed: false,
       }),
       HostMonthlyCommission.countDocuments({ tenant_id: tenantId, status: 'overdue' }),
+      Experience.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),
+      ExperienceBooking.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),
+      OrganizerMonthlyCommission.countDocuments({ tenant_id: tenantId, status: 'overdue' }),
     ]);
 
-    const counts = { bookings, properties, password_resets, orphaned_payments, overdue_commissions };
+    const counts = {
+      bookings,
+      properties,
+      password_resets,
+      orphaned_payments,
+      overdue_commissions,
+      pending_experiences,
+      pending_experience_bookings,
+      overdue_organizer_commissions,
+    };
     counts.total = Object.values(counts).reduce((sum, n) => sum + n, 0);
 
     res.json({ success: true, data: counts });
