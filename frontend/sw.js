@@ -69,8 +69,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(payload.title || 'Da-El World Travelers', {
       body: payload.body || '',
-      icon: '/assets/logo-icon.png',
-      badge: '/assets/logo-icon.png',
+      icon: '/assets/icons/icon-192.png',
+      badge: '/assets/icons/icon-192.png',
       data: { url: payload.url || '/admin/dashboard' },
     })
   );

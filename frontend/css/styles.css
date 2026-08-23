@@ -100,6 +100,13 @@ p:last-child { margin-bottom: 0; }
   gap: var(--space-md);
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
 .logo {
   display: flex;
   align-items: center;
@@ -2912,11 +2919,17 @@ p:last-child { margin-bottom: 0; }
 
 /* ===== FOOTER ===== */
 .footer {
-  background: var(--surface);
-  color: var(--text);
+  --footer-heading: #FFFFFF;
+  --footer-text: #CBD5E1;
+  --footer-text-dim: #94A3B8;
+  --footer-border: rgba(255, 255, 255, 0.1);
+  --footer-accent: #38BDF8;
+
+  background: var(--primary);
+  color: var(--footer-text);
   padding: 80px var(--section-px) 40px;
   margin-top: auto;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--footer-border);
 }
 
 .footer-grid {
@@ -2927,7 +2940,7 @@ p:last-child { margin-bottom: 0; }
 }
 
 .footer-brand h3 {
-  color: var(--text);
+  color: var(--footer-heading);
   font-size: 18px;
   margin-bottom: var(--space-sm);
 }
@@ -2946,24 +2959,32 @@ p:last-child { margin-bottom: 0; }
 
 .footer-brand p {
   font-size: var(--fs-sm);
-  color: var(--text-light);
+  color: var(--footer-text-dim);
   margin-bottom: var(--space-md);
 }
 
 .footer-contact {
   font-size: var(--fs-sm);
-  color: var(--text-light);
+  color: var(--footer-text-dim);
   line-height: 1.6;
 }
 
 .footer-contact strong {
-  color: var(--text);
+  color: var(--footer-heading);
+}
+
+.footer-contact a {
+  color: var(--footer-accent);
+}
+
+.footer-contact a:hover {
+  color: #7DD3FC;
 }
 
 .footer-links h4,
 .footer-legal h4,
 .footer-social h4 {
-  color: var(--text);
+  color: var(--footer-heading);
   font-size: var(--fs-base);
   margin-bottom: var(--space-lg);
   font-family: var(--font-heading);
@@ -2972,7 +2993,7 @@ p:last-child { margin-bottom: 0; }
 .footer-links a,
 .footer-legal a {
   display: block;
-  color: var(--text-light);
+  color: var(--footer-text-dim);
   margin-bottom: var(--space-sm);
   font-size: var(--fs-sm);
   transition: color var(--transition-fast);
@@ -2980,7 +3001,7 @@ p:last-child { margin-bottom: 0; }
 
 .footer-links a:hover,
 .footer-legal a:hover {
-  color: var(--accent);
+  color: var(--footer-accent);
 }
 
 .social-icons {
@@ -2990,21 +3011,21 @@ p:last-child { margin-bottom: 0; }
 }
 
 .social-icons a {
-  color: var(--text-light);
+  color: var(--footer-text-dim);
   font-size: var(--fs-sm);
   transition: color var(--transition-fast);
 }
 
 .social-icons a:hover {
-  color: var(--accent);
+  color: var(--footer-accent);
 }
 
 .footer-bottom {
   text-align: center;
   padding-top: var(--space-xl);
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--footer-border);
   font-size: var(--fs-sm);
-  color: var(--text-light);
+  color: var(--footer-text-dim);
 }
 
 .footer-legal {

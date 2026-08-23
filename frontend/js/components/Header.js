@@ -92,12 +92,14 @@ const Header = {
     return `
       <header class="header">
         <div class="container">
-          <button type="button" class="nav-back-btn" onclick="history.back()" aria-label="Volver atrás" title="Volver atrás">
-            ←
-          </button>
-          <a href="/" data-link class="logo">
-            <img src="/assets/logo-real.png" alt="Da-El Travels" class="logo-img">
-          </a>
+          <div class="header-left">
+            <button type="button" class="nav-back-btn" onclick="history.back()" aria-label="Volver atrás" title="Volver atrás">
+              ←
+            </button>
+            <a href="/" data-link class="logo">
+              <img src="/assets/logo-real.png" alt="Da-El Travels" class="logo-img">
+            </a>
+          </div>
           <nav class="nav">
             ${navLinks}
             <select class="lang-select" onchange="changeLang(this.value)">
