@@ -96,7 +96,7 @@ const Header = {
             ←
           </button>
           <a href="/" data-link class="logo">
-            <img src="/assets/logo-real.jpeg" alt="Da-El Travels" class="logo-img">
+            <img src="/assets/logo-real.png" alt="Da-El Travels" class="logo-img">
           </a>
           <nav class="nav">
             ${navLinks}

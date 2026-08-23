@@ -1,7 +1,7 @@
 const APP_CONFIG = {
   app_name: 'Da-El Travels',
   app_tagline: 'Viaja con confianza',
-  app_logo: '/assets/logo-real.jpeg',
+  app_logo: '/assets/logo-real.png',
 
   admin_email: 'supportdaelworld@gmail.com',
 
