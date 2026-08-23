@@ -92,8 +92,11 @@ const Header = {
     return `
       <header class="header">
         <div class="container">
+          <button type="button" class="nav-back-btn" onclick="history.back()" aria-label="Volver atrás" title="Volver atrás">
+            ←
+          </button>
           <a href="/" data-link class="logo">
-            <img src="/assets/logo.png" alt="Da-El World Travelers" class="logo-img">
+            <img src="/assets/logo-real.jpeg" alt="Da-El Travels" class="logo-img">
           </a>
           <nav class="nav">
             ${navLinks}

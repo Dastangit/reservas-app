@@ -63,17 +63,6 @@ const FAQPage = {
 
             <div class="faq-item">
               <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
-                <span>${i18n.t('pages.faq.q4bQuestion')}</span>
-                <span class="faq-icon">+</span>
-              </button>
-              <div class="faq-answer">
-                <p>${i18n.t('pages.faq.q4bAnswer')}</p>
-                <p>${i18n.t('pages.faq.q4bNoExperience')}</p>
-              </div>
-            </div>
-
-            <div class="faq-item">
-              <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
                 <span>${i18n.t('pages.faq.q5Question')}</span>
                 <span class="faq-icon">+</span>
               </button>

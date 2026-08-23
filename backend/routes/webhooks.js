@@ -1,8 +1,8 @@
 const express = require('express');
-const { handleNowPaymentsWebhook } = require('../controllers/webhookController');
+const { handleQvaPayWebhook } = require('../controllers/webhookController');
 
 const router = express.Router();
 
-router.post('/nowpayments', handleNowPaymentsWebhook);
+router.post('/qvapay', handleQvaPayWebhook);
 
 module.exports = router;

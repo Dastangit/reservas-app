@@ -86,7 +86,7 @@ const bookingSchema = new mongoose.Schema({
   hold_expires_at: Date,
   payment_stage: {
     type: String,
-    enum: ['awaiting_payment', 'waiting', 'confirming', 'sending', 'partially_paid', 'finished', 'failed', 'expired'],
+    enum: ['awaiting_payment', 'pending', 'paid', 'failed', 'expired'],
     default: 'awaiting_payment',
   },
   payment_needs_review: {

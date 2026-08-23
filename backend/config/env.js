@@ -19,10 +19,10 @@ module.exports = {
     apiKey: process.env.SENDGRID_API_KEY,
     fromEmail: process.env.SENDGRID_FROM_EMAIL,
   },
-  nowpayments: {
-    apiKey: process.env.NOWPAYMENTS_API_KEY,
-    ipnSecret: process.env.NOWPAYMENTS_IPN_SECRET,
-    apiUrl: process.env.NOWPAYMENTS_API_URL,
+  qvapay: {
+    appId: process.env.QVAPAY_APP_ID,
+    appSecret: process.env.QVAPAY_APP_SECRET,
+    apiUrl: process.env.QVAPAY_API_URL || 'https://api.qvapay.com/v2',
   },
   vapid: {
     publicKey: process.env.VAPID_PUBLIC_KEY,

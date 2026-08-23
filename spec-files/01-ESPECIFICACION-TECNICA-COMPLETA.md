@@ -1,10 +1,20 @@
 # ESPECIFICACIÓN TÉCNICA COMPLETA
 ## App Multi-Tenant de Reservas Turísticas
 
-**Versión:** 2.0  
-**Fecha:** Julio 2026  
-**Estado:** Especificación Actualizada — En Desarrollo  
+**Versión:** 2.1
+**Fecha:** Agosto 2026
+**Estado:** Especificación Actualizada — En Desarrollo
 **Autor:** Dats (Emprendedor/Developer)
+
+---
+
+## ACTUALIZACIÓN DE MARCA (v2.1)
+
+- **Nombre confirmado:** Da-El Travels (antes "Da-El World Travelers" / "Da-El World Travelers")
+- **Dominio:** aún no adquirido — se usa por ahora el subdominio de Vercel (`reservas-app-blue.vercel.app`). Pendiente comprar un dominio propio.
+- **SEO / cómo se muestra en Google:** título y meta description genéricos, sin mencionar ninguna región específica (ni "Cuba" ni "Latinoamérica") — la marca se posiciona ampliamente, no geo-limitada en el copy público de búsqueda.
+- **Textos de la interfaz (Términos, FAQ, Cómo Funciona):** se alinean con la visión original de esta sección 1.1 (Latinoamérica y el Caribe) — antes tenían menciones específicas a "Cuba" que no correspondían a esta visión y ya se corrigieron.
+- **Inventario real actual:** hoy los hosts, propiedades y excursiones cargados son de Cuba únicamente. Esto es un tema de datos/carga de contenido, no de arquitectura — el modelo de datos ya soporta cualquier país (`Property.location`, `Experience.location.city` son campos libres, no restringidos a Cuba). La marca y el copy ya se tratan como multi-país desde ahora, aunque el catálogo real tarde en reflejarlo.
 
 ---
 
@@ -29,13 +39,13 @@
 ## 1. VISIÓN GENERAL
 
 ### 1.1 Propósito
-Plataforma de turismo completa diseñada para Cuba, escalable a múltiples países mediante arquitectura multi-tenant SaaS. El núcleo es un sistema de reservas de alojamientos (tipo Booking/Airbnb), expandible con módulos de experiencias grupales, comunidad de viajeros y monetización de contenido.
+Plataforma de turismo completa diseñada para Latinoamerica y el Caribe, escalable a múltiples países mediante arquitectura multi-tenant SaaS. El núcleo es un sistema de reservas de alojamientos (tipo Booking/Airbnb), expandible con módulos de experiencias grupales, comunidad de viajeros y monetización de contenido.
 
 ### 1.2 Tipo de Proyecto
 - **Modelo:** SaaS Multi-Tenant
-- **Mercado inicial:** Cuba → turismo canadiense
+- **Mercado inicial:** Latinoamerica y el Caribe
 - **Modelo de negocio:** Comisión por reserva + suscripción de tenants (versión B2B)
-- **Expansión futura:** Fee por excursiones grupales + publicidad en Community + monetización de bloggers
+- **Expansión futura:** Excursiones
 
 ### 1.3 Stack Tecnológico
 ```
@@ -182,19 +192,18 @@ Paga resto en alojamiento
 
 ```
 1. Turista envía formulario de reserva
-2. Backend genera invoice en NOWPayments API
-3. Widget NOWPayments abre (cripto o MoonPay/tarjeta)
+2. Backend genera invoice en Qvapay API
+3. 
 4. Turista completa pago
 5. Blockchain confirma (1-3 min)
-6. Webhook de NOWPayments → Backend actualiza status
+6. 
 7. Admin recibe notificación
 8. Admin aprueba → Turista recibe email confirmación
 ```
 
 ### 4.5 Liquidación a Admin
-- Fondos llegan a wallet cripto del admin (USDT-TRC20)
+- Fondos llegan a cuenta Qvapay del admin
 - Admin convierte a fiat/CUP según necesidad (vía Binance P2P, exchange local, etc.)
-- NOWPayments no custodia fondos (redirige automáticamente a wallet del admin)
 
 ---
 
@@ -205,9 +214,9 @@ Paga resto en alojamiento
 ```javascript
 {
   _id: ObjectId,
-  name: "Cuba Tourism",
-  domain: "cuba.reservas.app",
-  admin_email: "admin@cuba.com",
+  name: "Latam Tourism",
+  domain: "caribe.reservas.app",
+  admin_email: "",
   admin_phone: "+53 123 456 789",
   admin_whatsapp: "+53 123 456 789",
   api_key: "sk_live_...",
@@ -219,10 +228,7 @@ Paga resto en alojamiento
     timezone: "America/Havana",
     
     payment: {
-      gateway: "nowpayments",
-      nowpayments_api_key: "...",
-      nowpayments_ipn_key: "...",
-      moonpay_enabled: true,
+      gateway: "Qvapay",
       fee_amount: 10,
       fee_currency: "USD"
     },

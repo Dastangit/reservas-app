@@ -1,150 +1,106 @@
 const Booking = require('../models/Booking');
 const Payment = require('../models/Payment');
 const OrphanedPayment = require('../models/OrphanedPayment');
-const { verifyIpnSignature } = require('../utils/nowpayments');
+const { findTransactionByRemoteId } = require('../utils/qvapay');
 const { notifyAdmins } = require('../utils/pushNotifications');
 
-exports.handleNowPaymentsWebhook = async (req, res, next) => {
+// No hay documentacion confiable de que QvaPay firme el payload del webhook
+// (a diferencia de NOWPayments, que usa HMAC-SHA512 con un secreto compartido).
+// Por seguridad, el webhook NUNCA se usa como fuente de verdad por si solo --
+// solo dispara una re-consulta autenticada a la API de QvaPay
+// (findTransactionByRemoteId) usando nuestras propias credenciales, y es esa
+// respuesta la que decide que pasa con la reserva. Asi, alguien que mande un
+// POST falso al webhook no puede aprobar una reserva sin haber pagado de verdad.
+exports.handleQvaPayWebhook = async (req, res, next) => {
   try {
-    const signature = req.headers['x-nowpayments-sig'];
+    const remoteId = req.body.remote_id || req.body.order_id;
 
-    if (!signature) {
-      return res.status(401).json({ success: false, error: 'Missing signature' });
+    if (!remoteId) {
+      return res.status(400).json({ success: false, error: 'Missing remote_id' });
     }
 
-    const isValid = verifyIpnSignature(req.body, signature);
-    if (!isValid) {
-      return res.status(401).json({ success: false, error: 'Invalid signature' });
+    let transaction;
+    try {
+      transaction = await findTransactionByRemoteId(remoteId);
+    } catch (err) {
+      console.error('[QvaPay webhook] No se pudo re-consultar la transaccion:', err.message);
+      return res.status(202).json({ success: true, note: 'Could not verify transaction yet, will retry' });
     }
 
-    const { payment_id, payment_status, order_id, actually_paid, pay_amount, pay_currency, price_amount, price_currency } = req.body;
+    if (!transaction) {
+      // Puede pasar si el webhook llega antes de que la transaccion aparezca
+      // en la lista de QvaPay -- no es un error fatal, solo no se puede
+      // confirmar todavia. No se toca la reserva.
+      return res.status(202).json({ success: true, note: 'Transaction not found yet in QvaPay list' });
+    }
 
-    const payment = await Payment.findOne({ invoice_id: String(req.body.invoice_id) });
+    // TODO: confirmar el string exacto de "pagado" contra una transaccion
+    // real de prueba pagada -- se asume 'paid'/'completed' segun la
+    // documentacion publica disponible, pero QvaPay podria usar otro valor
+    // (por ejemplo 'success', 'complete', etc.). Revisar el campo real que
+    // devuelve /v2/transactions para un item pagado antes de ir a produccion.
+    const status = transaction.status;
+    const isPaid = ['paid', 'completed', 'success', 'complete'].includes(status);
+    const isFailed = ['cancelled', 'canceled', 'expired', 'failed'].includes(status);
+
+    const payment = await Payment.findOne({ order_id: String(remoteId) });
     if (payment) {
-      payment.payment_id = payment_id ? String(payment_id) : payment.payment_id;
-      payment.payment_status = payment_status;
-      if (actually_paid !== undefined) payment.actually_paid = actually_paid;
-      if (pay_amount !== undefined) payment.pay_amount = pay_amount;
-      if (pay_currency !== undefined) payment.pay_currency = pay_currency;
-      payment.raw_response = req.body;
+      payment.payment_status = isPaid ? 'finished' : isFailed ? status : 'waiting';
+      payment.raw_response = transaction;
       await payment.save();
     }
 
-    if (order_id) {
-      const booking = await Booking.findById(order_id);
+    const booking = await Booking.findById(remoteId);
 
-      if (booking) {
-        const oldStatus = booking.status;
+    if (booking) {
+      if (isPaid && booking.status === 'pending_payment') {
+        booking.status = 'pending_approval';
+        booking.payment_stage = 'paid';
+        booking.fee_paid = true;
+        booking.fee_paid_at = new Date();
+        booking.fee_transaction_id = String(transaction.transaction_uuid || transaction.uuid || '');
+        booking.status_history.push({
+          status: 'pending_approval',
+          changed_at: new Date(),
+          changed_by: 'system',
+        });
 
-        // payment_stage se actualiza siempre que el estado sea reconocido, sin
-        // importar si cambia el status principal de la reserva -- así el turista
-        // y el host pueden ver "pago en camino / confirmando" en vez de que la
-        // reserva parezca colgada sin explicación.
-        const recognizedStages = ['waiting', 'confirming', 'sending', 'partially_paid', 'finished', 'failed', 'expired'];
-        if (recognizedStages.includes(payment_status)) {
-          booking.payment_stage = payment_status;
-        }
-
-        switch (payment_status) {
-          case 'finished':
-            if (booking.status === 'pending_payment') {
-              booking.status = 'pending_approval';
-              booking.fee_paid = true;
-              booking.fee_paid_at = new Date();
-              booking.fee_transaction_id = payment_id ? String(payment_id) : undefined;
-              booking.payment_needs_review = false;
-              booking.status_history.push({
-                status: 'pending_approval',
-                changed_at: new Date(),
-                changed_by: 'system',
-              });
-
-              notifyAdmins(booking.tenant_id, {
-                title: 'Nueva reserva pendiente de aprobación',
-                body: `Reserva ${booking._id.toString().slice(-6)} pagada, lista para revisar.`,
-                url: '/admin/bookings',
-              });
-            }
-            break;
-
-          case 'failed':
-          case 'expired':
-            if (booking.status === 'pending_payment') {
-              booking.status = 'cancelled';
-              booking.status_history.push({
-                status: 'cancelled',
-                changed_at: new Date(),
-                changed_by: 'system',
-              });
-            }
-            break;
-
-          case 'partially_paid':
-            // NOWPayments ya tiene configurado un umbral de cobertura para que
-            // faltantes mínimos de red se resuelvan solos como "finished". Si
-            // igual llega partially_paid, es un faltante real -- no se aprueba
-            // automáticamente, se marca para revisión manual del admin.
-            booking.payment_needs_review = true;
-            booking.status_history.push({
-              status: booking.status,
-              changed_at: new Date(),
-              changed_by: 'system',
-            });
-            break;
-
-          case 'waiting':
-          case 'confirming':
-          case 'sending':
-            // Solo actualiza payment_stage (ya hecho arriba). La reserva sigue
-            // en pending_payment -- sin esto el tourist/host no veía ninguna
-            // señal de que el pago ya iba en camino en la blockchain.
-            break;
-        }
-
-        if (booking.isModified()) {
-          await booking.save();
-        }
+        notifyAdmins(booking.tenant_id, {
+          title: 'Nueva reserva pendiente de aprobacion',
+          body: `Reserva ${booking._id.toString().slice(-6)} pagada, lista para revisar.`,
+          url: '/admin/bookings',
+        });
+      } else if (isFailed && booking.status === 'pending_payment') {
+        booking.status = 'cancelled';
+        booking.payment_stage = status;
+        booking.status_history.push({
+          status: 'cancelled',
+          changed_at: new Date(),
+          changed_by: 'system',
+        });
       } else {
-        // order_id presente pero no corresponde a ninguna reserva (borrada,
-        // corrupta, o un IPN falso). Se registra para revisión manual.
-        await OrphanedPayment.create({
-          invoice_id: req.body.invoice_id ? String(req.body.invoice_id) : undefined,
-          payment_id: payment_id ? String(payment_id) : undefined,
-          order_id: String(order_id),
-          payment_status,
-          price_amount,
-          price_currency,
-          actually_paid,
-          pay_currency,
-          reason: 'booking_not_found',
-          raw_payload: req.body,
-        }).then(() => {
-          notifyAdmins(null, {
-            title: 'Pago huérfano detectado',
-            body: 'Un pago de NOWPayments no se pudo asociar a ninguna reserva.',
-            url: '/admin/orphaned-payments',
-          });
-        }).catch((err) => console.error('[NOWPayments IPN] No se pudo registrar pago huérfano:', err));
+        booking.payment_stage = 'pending';
+      }
+
+      if (booking.isModified()) {
+        await booking.save();
       }
     } else {
-      // IPN sin order_id válido -- pago huérfano, no se puede asociar a ninguna reserva.
       await OrphanedPayment.create({
-        invoice_id: req.body.invoice_id ? String(req.body.invoice_id) : undefined,
-        payment_id: payment_id ? String(payment_id) : undefined,
-        payment_status,
-        price_amount,
-        price_currency,
-        actually_paid,
-        pay_currency,
-        reason: 'missing_order_id',
-        raw_payload: req.body,
+        invoice_id: String(transaction.transaction_uuid || transaction.uuid || ''),
+        order_id: String(remoteId),
+        payment_status: status,
+        price_amount: transaction.amount,
+        price_currency: 'USD',
+        reason: 'booking_not_found',
+        raw_payload: transaction,
       }).then(() => {
         notifyAdmins(null, {
-          title: 'Pago huérfano detectado',
-          body: 'Un pago de NOWPayments llegó sin order_id válido.',
+          title: 'Pago huerfano detectado',
+          body: 'Un pago de QvaPay no se pudo asociar a ninguna reserva.',
           url: '/admin/orphaned-payments',
         });
-      }).catch((err) => console.error('[NOWPayments IPN] No se pudo registrar pago huérfano:', err));
+      }).catch((err) => console.error('[QvaPay webhook] No se pudo registrar pago huerfano:', err));
     }
 
     res.status(200).json({ success: true });

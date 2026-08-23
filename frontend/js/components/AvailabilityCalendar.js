@@ -110,8 +110,17 @@ const AvailabilityCalendar = {
 
     for (let d = 1; d <= daysInMonth; d++) {
       const date = new Date(year, month, d);
+
+      // No tiene sentido mostrar días ya pasados como si fueran una celda
+      // más del calendario -- se dejan en blanco, igual que el relleno de
+      // inicio de semana.
+      if (date < today) {
+        cells += '<div class="avail-day avail-day-empty"></div>';
+        continue;
+      }
+
       const iso = toISODate(date);
-      const outOfRange = date < today || date > maxDate;
+      const outOfRange = date > maxDate;
       const { status } = outOfRange ? { status: 'out' } : this.dayStatus(date);
 
       let extraClass = '';

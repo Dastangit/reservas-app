@@ -6,7 +6,7 @@ const Footer = {
           <div class="footer-grid">
             <div class="footer-brand">
               <div class="footer-logo-row">
-                <img src="/assets/logo.png" alt="Da-El World Travelers" class="footer-logo-img">
+                <img src="/assets/logo-real.jpeg" alt="Da-El Travels" class="footer-logo-img">
               </div>
               <p>Viaja con confianza</p>
               <p class="footer-contact">
@@ -36,7 +36,7 @@ const Footer = {
             </div>
           </div>
           <div class="footer-bottom">
-            <p>&copy; ${new Date().getFullYear()} Da-El World Travelers. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} Da-El Travels. All rights reserved.</p>
           </div>
         </div>
       </footer>

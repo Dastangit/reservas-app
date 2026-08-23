@@ -1,6 +1,6 @@
 const Booking = require('../models/Booking');
 const Payment = require('../models/Payment');
-const { createInvoice } = require('../utils/nowpayments');
+const { createInvoice: createQvaPayInvoice } = require('../utils/qvapay');
 const env = require('../config/env');
 
 exports.createInvoice = async (req, res, next) => {
@@ -25,39 +25,36 @@ exports.createInvoice = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Booking is not pending payment' });
     }
 
-    const invoice = await createInvoice({
-      price_amount: booking.fee_amount,
-      price_currency: 'USD',
-      order_id: booking._id.toString(),
-      ipn_callback_url: `${env.apiUrl}/api/webhooks/nowpayments`,
-      success_url: `${env.frontendUrl}/booking/confirmation/${booking._id}`,
-      cancel_url: `${env.frontendUrl}/booking/${booking.property_id}`,
-      is_fee_paid_by_user: false,
-      is_fixed_rate: false,
+    const invoice = await createQvaPayInvoice({
+      amount: booking.fee_amount,
+      description: 'Da-El Travels - Booking Service Fee',
+      remote_id: booking._id.toString(),
+      webhook: `${env.apiUrl}/api/webhooks/qvapay`,
+      expire_at: booking.hold_expires_at ? booking.hold_expires_at.toISOString() : undefined,
     });
 
     const payment = await Payment.create({
       booking_id: booking._id,
       user_id: req.user._id,
       tenant_id: req.tenantId,
-      invoice_id: String(invoice.id),
-      price_amount: invoiceAmount,
+      invoice_id: String(invoice.transaction_uuid),
+      price_amount: booking.fee_amount,
       price_currency: 'USD',
       payment_status: 'waiting',
       order_id: booking._id.toString(),
-      invoice_url: invoice.invoice_url,
+      invoice_url: invoice.url,
       raw_response: invoice,
     });
 
-    booking.invoice_id = String(invoice.id);
-    booking.invoice_url = invoice.invoice_url;
+    booking.invoice_id = String(invoice.transaction_uuid);
+    booking.invoice_url = invoice.url;
     await booking.save();
 
     res.status(201).json({
       success: true,
       data: {
-        invoice_url: invoice.invoice_url,
-        invoice_id: invoice.id,
+        invoice_url: invoice.url,
+        invoice_id: invoice.transaction_uuid,
         payment_id: payment._id,
       },
     });

@@ -14,8 +14,8 @@ const PaymentCheckoutPage = {
     return `
       <div class="checkout-page">
         <div class="container">
-          <h1>Payment Checkout</h1>
-          <p>You will be redirected to NOWPayments to complete your payment.</p>
+          <h1>Pago del fee de reserva</h1>
+          <p>Te vamos a redirigir para completar el pago con tarjeta.</p>
           
           <div class="checkout-info">
             <p>Please wait while we prepare your payment...</p>

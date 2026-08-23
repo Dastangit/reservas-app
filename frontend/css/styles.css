@@ -108,6 +108,28 @@ p:last-child { margin-bottom: 0; }
   flex-shrink: 0;
 }
 
+.nav-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--background);
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.nav-back-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(37, 99, 235, 0.04);
+}
+
 .logo:hover {
   opacity: 0.85;
 }
@@ -1607,6 +1629,48 @@ p:last-child { margin-bottom: 0; }
   font-size: var(--fs-xs);
 }
 
+/* Resumen de la reserva en bookingForm.js -- distinto de .booking-info
+   (grid de 2 columnas, usado en tarjetas de reserva del admin). Mismo
+   nombre de clase, contexto distinto: acá se fuerza a columna única y se
+   le da formato de tarjeta para que no se vea "regado". */
+.booking-details .booking-info {
+  display: block;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: var(--space-lg);
+  margin-top: var(--space-lg);
+  border-top: none;
+}
+
+.booking-details .booking-info .info-row {
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.booking-details .booking-info .info-row:last-child {
+  border-bottom: none;
+}
+
+.booking-details .booking-info .info-row span:first-child {
+  color: var(--text-light);
+}
+
+.booking-details .booking-info .info-row span:last-child {
+  font-weight: 600;
+}
+
+.booking-details .booking-info .info-row.total {
+  border-top: 1.5px solid var(--border);
+  border-bottom: none;
+  margin-top: var(--space-xs);
+  padding-top: var(--space-md);
+}
+
+.booking-details .booking-info .info-row.fee span:last-child {
+  font-weight: 500;
+  color: var(--text-light);
+}
+
 .fee-notice {
   font-size: var(--fs-xs);
   color: var(--text-light);
@@ -2848,10 +2912,11 @@ p:last-child { margin-bottom: 0; }
 
 /* ===== FOOTER ===== */
 .footer {
-  background: var(--primary);
-  color: var(--background);
+  background: var(--surface);
+  color: var(--text);
   padding: 80px var(--section-px) 40px;
   margin-top: auto;
+  border-top: 1px solid var(--border);
 }
 
 .footer-grid {
@@ -2862,7 +2927,7 @@ p:last-child { margin-bottom: 0; }
 }
 
 .footer-brand h3 {
-  color: var(--background);
+  color: var(--text);
   font-size: 18px;
   margin-bottom: var(--space-sm);
 }
@@ -2881,24 +2946,24 @@ p:last-child { margin-bottom: 0; }
 
 .footer-brand p {
   font-size: var(--fs-sm);
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-light);
   margin-bottom: var(--space-md);
 }
 
 .footer-contact {
   font-size: var(--fs-sm);
-  opacity: 0.7;
+  color: var(--text-light);
   line-height: 1.6;
 }
 
 .footer-contact strong {
-  color: var(--background);
+  color: var(--text);
 }
 
 .footer-links h4,
 .footer-legal h4,
 .footer-social h4 {
-  color: var(--background);
+  color: var(--text);
   font-size: var(--fs-base);
   margin-bottom: var(--space-lg);
   font-family: var(--font-heading);
@@ -2907,7 +2972,7 @@ p:last-child { margin-bottom: 0; }
 .footer-links a,
 .footer-legal a {
   display: block;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-light);
   margin-bottom: var(--space-sm);
   font-size: var(--fs-sm);
   transition: color var(--transition-fast);
@@ -2915,7 +2980,7 @@ p:last-child { margin-bottom: 0; }
 
 .footer-links a:hover,
 .footer-legal a:hover {
-  color: var(--background);
+  color: var(--accent);
 }
 
 .social-icons {
@@ -2925,21 +2990,21 @@ p:last-child { margin-bottom: 0; }
 }
 
 .social-icons a {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-light);
   font-size: var(--fs-sm);
   transition: color var(--transition-fast);
 }
 
 .social-icons a:hover {
-  color: var(--background);
+  color: var(--accent);
 }
 
 .footer-bottom {
   text-align: center;
   padding-top: var(--space-xl);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border);
   font-size: var(--fs-sm);
-  opacity: 0.6;
+  color: var(--text-light);
 }
 
 .footer-legal {
@@ -3027,17 +3092,24 @@ p:last-child { margin-bottom: 0; }
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  font-size: var(--fs-xs);
-  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  border: 1.5px solid var(--border);
   background: var(--background);
+  color: var(--text);
   cursor: default;
 }
 
 .avail-day-empty { border: none; background: transparent; cursor: default; }
 .avail-day-out { border: none; background: transparent; color: var(--text-light); opacity: 0.4; cursor: default; }
-.avail-day-free { cursor: pointer; }
-.avail-day-free:hover { border-color: var(--accent); background: var(--surface); }
+.avail-day-free {
+  cursor: pointer;
+  background: #F0FDF4;
+  border-color: #BBF7D0;
+  color: #15803D;
+}
+.avail-day-free:hover { border-color: var(--accent); background: var(--surface); color: var(--accent); }
 .avail-day-blocked-host { background: var(--warning); color: var(--background); border-color: var(--warning); }
 .avail-day-blocked-admin { background: var(--secondary); color: var(--background); border-color: var(--secondary); }
 .avail-day-reserved { background: var(--error); color: var(--background); border-color: var(--error); }
