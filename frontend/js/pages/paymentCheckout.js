@@ -14,33 +14,35 @@ const PaymentCheckoutPage = {
     return `
       <div class="checkout-page">
         <div class="container">
-          <h1>Pago del fee de reserva</h1>
+          <div class="checkout-info">
+            <h1>Pago del fee de reserva</h1>
 
-          <div id="checkout-choice">
-            <p>Elige cómo prefieres pagar el fee de reserva:</p>
-            <div class="checkout-methods">
-              <button id="method-qvapay" class="btn btn-primary">Pagar con QvaPay (tarjeta / saldo)</button>
-              <button id="method-paypal" class="btn btn-outline">Pagar con PayPal (transferencia manual)</button>
+            <div id="checkout-choice">
+              <p>Elige cómo prefieres pagar el fee de reserva:</p>
+              <div class="checkout-methods">
+                <button id="method-qvapay" class="btn btn-primary">Pagar con QvaPay (tarjeta / saldo)</button>
+                <button id="method-paypal" class="btn btn-outline">Pagar con PayPal (transferencia manual)</button>
+              </div>
             </div>
-          </div>
 
-          <div id="checkout-loading" style="display:none;">
-            <p>Preparando tu pago...</p>
-            <div class="loading-spinner"></div>
-          </div>
+            <div id="checkout-loading" style="display:none;">
+              <p>Preparando tu pago...</p>
+              <div class="loading-spinner"></div>
+            </div>
 
-          <div id="checkout-paypal-manual" style="display:none;">
-            <p>Usa este link para pagar el fee por PayPal. Puedes pagar con tarjeta sin necesidad de cuenta de PayPal.</p>
-            <a id="paypal-manual-link" href="#" target="_blank" class="btn btn-primary">Ir a pagar por PayPal</a>
-            <p style="margin-top:1rem;">Cuando termines el pago, presiona el siguiente botón para avisarnos:</p>
-            <button id="paypal-manual-confirm" class="btn btn-success">Ya pagué</button>
-            <p id="paypal-manual-thanks" style="display:none; margin-top:1rem;">
-              ¡Gracias! Le avisamos al equipo, revisarán tu pago y confirmaremos tu reserva pronto.
-            </p>
-          </div>
+            <div id="checkout-paypal-manual" style="display:none;">
+              <p>Usa este link para pagar el fee por PayPal. Puedes pagar con tarjeta sin necesidad de cuenta de PayPal.</p>
+              <a id="paypal-manual-link" href="#" target="_blank" class="btn btn-primary">Ir a pagar por PayPal</a>
+              <p style="margin-top:1rem;">Cuando termines el pago, presiona el siguiente botón para avisarnos:</p>
+              <button id="paypal-manual-confirm" class="btn btn-success">Ya pagué</button>
+              <p id="paypal-manual-thanks" style="display:none; margin-top:1rem;">
+                ¡Gracias! Le avisamos al equipo, revisarán tu pago y confirmaremos tu reserva pronto.
+              </p>
+            </div>
 
-          <div id="checkout-error" class="error-message" style="display:none; margin-top: 1rem;"></div>
-          <a id="checkout-retry" href="#" style="display:none; margin-top: 1rem;" class="btn btn-primary">Retry</a>
+            <div id="checkout-error" class="error-message" style="display:none; margin-top: 1rem;"></div>
+            <a id="checkout-retry" href="#" style="display:none; margin-top: 1rem;" class="btn btn-primary">Retry</a>
+          </div>
         </div>
       </div>
     `;

@@ -163,6 +163,7 @@ const notifLabels = {
   pending_experiences: { label: 'Excursiones pendientes', url: '/admin/experiences' },
   pending_experience_bookings: { label: 'Reservas de excursiones pendientes', url: '/admin/experience-bookings' },
   overdue_organizer_commissions: { label: 'Comisiones de organizadores vencidas', url: '/admin/organizer-commissions' },
+  manual_payments_pending: { label: 'Pagos manuales de PayPal por confirmar', url: '/admin/bookings' },
 };
 
 async function loadPendingCounts() {
