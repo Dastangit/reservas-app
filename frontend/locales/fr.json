@@ -59,7 +59,11 @@
     "new": "Nouveau",
     "viewDetails": "Voir les Détails",
     "reserveNow": "Réserver Maintenant",
-    "loginToBook": "Connectez-vous pour réserver"
+    "loginToBook": "Connectez-vous pour réserver",
+    "notFound": "Propriété non trouvée",
+    "noAmenities": "Aucun équipement listé",
+    "noReviews": "Aucun avis pour le moment",
+    "max": "Max"
   },
   "booking": {
     "checkIn": "Arrivée",
@@ -73,7 +77,29 @@
     "fullPayment": "Paiement complet à l'arrivée",
     "dailyPayment": "Paiement journalier (flexible)",
     "confirm": "Payer 7 $ USD et Réserver",
-    "cancelled": "Réservation annulée avec succès"
+    "cancelled": "Réservation annulée avec succès",
+    "selectDates": "Veuillez sélectionner les dates d'arrivée et de départ"
+  },
+  "search": {
+    "title": "Rechercher des Propriétés",
+    "filters": "Filtres",
+    "city": "Ville",
+    "cityPlaceholder": "ex. La Havane",
+    "priceRange": "Fourchette de Prix",
+    "min": "Min",
+    "max": "Max",
+    "type": "Type",
+    "allTypes": "Tous",
+    "hostel": "Auberge",
+    "sortBy": "Trier par",
+    "newest": "Plus récent",
+    "priceLowHigh": "Prix : croissant",
+    "priceHighLow": "Prix : décroissant",
+    "rating": "Note",
+    "applyFilters": "Appliquer les Filtres",
+    "loadingProperties": "Chargement des propriétés...",
+    "resultsFound": "propriétés trouvées",
+    "errorLoading": "Erreur lors du chargement des propriétés"
   },
   "auth": {
     "loginTitle": "Connexion",

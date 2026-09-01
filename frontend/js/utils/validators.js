@@ -12,11 +12,16 @@ export const validatePhone = (phone) => {
   return re.test(phone);
 };
 
+// Quita espacios y guiones antes de validar/usar el numero -- el usuario
+// suele escribir "+53 5xxxxxxx" (como sugiere el placeholder) pero el
+// formato E.164 que necesita wa.me no lleva espacios.
+export const sanitizePhone = (phone) => (phone || '').replace(/[\s-]/g, '');
+
 // Requiere código de país explícito (+53...). Más estricto que validatePhone,
 // usado específicamente donde el número se usa para wa.me (necesita formato E.164).
 export const validateInternationalPhone = (phone) => {
   const re = /^\+[1-9]\d{7,14}$/;
-  return re.test(phone);
+  return re.test(sanitizePhone(phone));
 };
 
 export const validateRequired = (value) => {

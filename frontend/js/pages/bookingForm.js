@@ -1,7 +1,7 @@
 import api from '../api.js';
 import { formatCurrency } from '../utils/formatters.js';
 import auth from '../auth.js';
-import { validateInternationalPhone } from '../utils/validators.js';
+import { validateInternationalPhone, sanitizePhone } from '../utils/validators.js';
 import { renderBookingReminderIfNeeded } from '../utils/onboarding.js';
 
 const BookingFormPage = {
@@ -156,7 +156,7 @@ const BookingFormPage = {
     const params = new URLSearchParams(window.location.search);
     const errorEl = document.getElementById('error-message');
 
-    const phone = document.getElementById('tourist-phone')?.value?.trim();
+    const phone = sanitizePhone(document.getElementById('tourist-phone')?.value?.trim());
     if (!validateInternationalPhone(phone)) {
       errorEl.textContent = 'Please enter a valid phone number with country code (e.g. +5355512345)';
       errorEl.style.display = 'block';
@@ -184,12 +184,7 @@ const BookingFormPage = {
 
       if (response.success) {
         const bookingId = response.data.booking_id;
-        const invoiceRes = await api.post('/payments/create-invoice', { booking_id: bookingId });
-        if (invoiceRes.success && invoiceRes.data.invoice_url) {
-          window.location.href = invoiceRes.data.invoice_url;
-        } else {
-          window.location.href = `/booking/confirmation/${bookingId}`;
-        }
+        window.location.href = `/payment/checkout?booking_id=${bookingId}`;
       }
     } catch (error) {
       errorEl.textContent = error.message || 'Booking failed';

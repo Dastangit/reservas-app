@@ -1,7 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import { formatExperiencePrice } from '../utils/formatters.js';
-import { validateInternationalPhone } from '../utils/validators.js';
+import { validateInternationalPhone, sanitizePhone } from '../utils/validators.js';
 
 const ExperienceBookingPage = {
   experience: null,
@@ -167,7 +167,7 @@ const ExperienceBookingPage = {
   async handleBooking() {
     const errorEl = document.getElementById('error-message');
 
-    const phone = document.getElementById('tourist-phone')?.value?.trim();
+    const phone = sanitizePhone(document.getElementById('tourist-phone')?.value?.trim());
     if (!validateInternationalPhone(phone)) {
       errorEl.textContent = 'Ingresa un teléfono válido con código de país (ej. +5355512345)';
       errorEl.style.display = 'block';

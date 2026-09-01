@@ -1,22 +1,24 @@
 import api from '../api.js';
 import { formatCurrency, formatDate } from '../utils/formatters.js';
 import auth from '../auth.js';
+import i18n from '../i18n.js';
 
 const PropertyDetailPage = {
   property: null,
 
   async render() {
+    const t = (key) => i18n.t(key);
     const id = this._params?.id || window.location.pathname.split('/').pop();
 
     try {
       const response = await api.get(`/properties/${id}`);
       this.property = response.data?.property;
     } catch (error) {
-      return '<div class="container"><p class="error">Property not found</p></div>';
+      return `<div class="container"><p class="error">${t('property.notFound')}</p></div>`;
     }
 
     if (!this.property) {
-      return '<div class="container"><p class="error">Property not found</p></div>';
+      return `<div class="container"><p class="error">${t('property.notFound')}</p></div>`;
     }
 
     const p = this.property;
@@ -38,26 +40,26 @@ const PropertyDetailPage = {
               
               <div class="property-meta">
                 <span>${p.type === 'casa_particular' ? 'Casa Particular' : 'Hostel'}</span>
-                <span>Max ${p.max_guests} guests</span>
-                <span>${p.bedrooms || 1} bedroom(s)</span>
-                <span>${p.bathrooms || 1} bathroom(s)</span>
+                <span>${t('property.max')} ${p.max_guests} ${t('property.guests')}</span>
+                <span>${p.bedrooms || 1} ${t('property.bedrooms')}</span>
+                <span>${p.bathrooms || 1} ${t('property.bathrooms')}</span>
               </div>
               
               <div class="property-description">
-                <h2>Description</h2>
+                <h2>${t('property.description')}</h2>
                 <p>${p.description}</p>
               </div>
               
               <div class="property-amenities">
-                <h2>Amenities</h2>
+                <h2>${t('property.amenities')}</h2>
                 <div class="amenities-grid">
-                  ${p.amenities?.map(a => `<span class="amenity">${a}</span>`).join('') || '<p>No amenities listed</p>'}
+                  ${p.amenities?.map(a => `<span class="amenity">${a}</span>`).join('') || `<p>${t('property.noAmenities')}</p>`}
                 </div>
               </div>
               
               <div class="property-reviews">
-                <h2>Reviews</h2>
-                <p>${p.rating > 0 ? `&#9733; ${p.rating} (${p.reviews_count} reviews)` : 'No reviews yet'}</p>
+                <h2>${t('property.reviews')}</h2>
+                <p>${p.rating > 0 ? `&#9733; ${p.rating} (${p.reviews_count} ${t('property.reviews').toLowerCase()})` : t('property.noReviews')}</p>
               </div>
             </div>
             
@@ -65,48 +67,48 @@ const PropertyDetailPage = {
               <div class="booking-card">
                 <div class="price">
                   <span class="amount">${formatCurrency(p.price_per_night)}</span>
-                  <span class="period">/night</span>
+                  <span class="period">${t('property.perNight')}</span>
                 </div>
                 
                 <form id="booking-form">
                   <div class="form-row date-range-row">
                     <div class="form-group">
-                      <label>Check-in</label>
+                      <label>${t('booking.checkIn')}</label>
                       <input type="date" id="check-in" required>
                     </div>
                     <div class="form-group">
-                      <label>Check-out</label>
+                      <label>${t('booking.checkOut')}</label>
                       <input type="date" id="check-out" required>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label>Guests</label>
+                    <label>${t('booking.guests')}</label>
                     <input type="number" id="num-guests" min="1" max="${p.max_guests}" value="1" required>
                   </div>
                   
                   <div class="booking-summary" id="booking-summary" style="display:none;">
                     <div class="summary-row">
-                      <span>Nights</span>
+                      <span>${t('booking.nights')}</span>
                       <span id="nights-count">0</span>
                     </div>
                     <div class="summary-row">
-                      <span>Total</span>
+                      <span>${t('booking.total')}</span>
                       <span id="total-amount">$0</span>
                     </div>
                     <div class="summary-row fee">
-                      <span>Booking Fee</span>
+                      <span>${t('booking.fee')}</span>
                       <span>$7 USD</span>
                     </div>
-                    <p class="fee-note">* Fee is non-refundable. Remainder paid at accommodation.</p>
+                    <p class="fee-note">${t('booking.feeNote')}</p>
                   </div>
                   
                   <button type="submit" class="btn btn-primary btn-block" id="book-btn">
-                    ${auth.isLoggedIn() ? 'Reserve Now' : 'Login to Book'}
+                    ${auth.isLoggedIn() ? t('property.reserveNow') : t('property.loginToBook')}
                   </button>
                 </form>
                 
                 <div class="contact-info">
-                  <p><strong>Contact Administrator:</strong></p>
+                  <p><strong>${t('confirmation.contactAdmin')}:</strong></p>
                   <p>Email: supportdaelworld@gmail.com</p>
                 </div>
               </div>
@@ -180,7 +182,7 @@ const PropertyDetailPage = {
     const numGuests = document.getElementById('num-guests')?.value;
 
     if (!checkIn || !checkOut) {
-      alert('Please select check-in and check-out dates');
+      alert(i18n.t('booking.selectDates'));
       return;
     }
 

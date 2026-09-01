@@ -59,7 +59,11 @@
     "new": "Nuevo",
     "viewDetails": "Ver Detalles",
     "reserveNow": "Reservar Ahora",
-    "loginToBook": "Inicia sesión para reservar"
+    "loginToBook": "Inicia sesión para reservar",
+    "notFound": "Propiedad no encontrada",
+    "noAmenities": "Sin comodidades listadas",
+    "noReviews": "Sin reseñas aún",
+    "max": "Máx"
   },
   "booking": {
     "checkIn": "Entrada",
@@ -73,7 +77,29 @@
     "fullPayment": "Pago completo al llegar",
     "dailyPayment": "Pago diario (flexible)",
     "confirm": "Pagar $7 USD y Reservar",
-    "cancelled": "Reserva cancelada exitosamente"
+    "cancelled": "Reserva cancelada exitosamente",
+    "selectDates": "Selecciona las fechas de entrada y salida"
+  },
+  "search": {
+    "title": "Buscar Propiedades",
+    "filters": "Filtros",
+    "city": "Ciudad",
+    "cityPlaceholder": "ej. Habana",
+    "priceRange": "Rango de Precio",
+    "min": "Mín",
+    "max": "Máx",
+    "type": "Tipo",
+    "allTypes": "Todos",
+    "hostel": "Hostal",
+    "sortBy": "Ordenar por",
+    "newest": "Más recientes",
+    "priceLowHigh": "Precio: Menor a Mayor",
+    "priceHighLow": "Precio: Mayor a Menor",
+    "rating": "Calificación",
+    "applyFilters": "Aplicar Filtros",
+    "loadingProperties": "Cargando propiedades...",
+    "resultsFound": "propiedades encontradas",
+    "errorLoading": "Error al cargar propiedades"
   },
   "auth": {
     "loginTitle": "Iniciar Sesión",

@@ -582,6 +582,10 @@ p:last-child { margin-bottom: 0; }
   gap: var(--space-md);
 }
 
+.form-row .form-group {
+  min-width: 0;
+}
+
 .form-section {
   margin-bottom: var(--space-2xl);
   padding-bottom: var(--space-2xl);
@@ -937,14 +941,29 @@ p:last-child { margin-bottom: 0; }
 .hero-carousel__slide {
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center 30%;
   opacity: 0;
   transition: opacity 1.2s ease;
 }
 
 .hero-carousel__slide.is-active {
   opacity: 1;
+}
+
+.hero-carousel__slide-blur {
+  position: absolute;
+  inset: -20px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(30px) brightness(0.75);
+  transform: scale(1.15);
+}
+
+.hero-carousel__slide-img {
+  position: absolute;
+  inset: 0;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .hero-overlay {
@@ -2068,7 +2087,8 @@ p:last-child { margin-bottom: 0; }
 .host-dashboard h1,
 .host-reservations-page h1,
 .earnings-page h1,
-.calendar-page h1 {
+.calendar-page h1,
+.booking-form-page h1 {
   font-size: 26px;
   line-height: 1.35;
   margin-bottom: var(--space-xl);
@@ -3711,7 +3731,8 @@ p:last-child { margin-bottom: 0; }
   .host-dashboard h1,
   .host-reservations-page h1,
   .earnings-page h1,
-  .calendar-page h1 {
+  .calendar-page h1,
+  .booking-form-page h1 {
     font-size: 21px;
   }
 

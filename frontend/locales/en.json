@@ -59,7 +59,11 @@
     "new": "New",
     "viewDetails": "View Details",
     "reserveNow": "Reserve Now",
-    "loginToBook": "Login to Book"
+    "loginToBook": "Login to Book",
+    "notFound": "Property not found",
+    "noAmenities": "No amenities listed",
+    "noReviews": "No reviews yet",
+    "max": "Max"
   },
   "booking": {
     "checkIn": "Check-in",
@@ -73,7 +77,29 @@
     "fullPayment": "Full payment on arrival",
     "dailyPayment": "Daily payment (flexible)",
     "confirm": "Pay $7 USD Fee & Book",
-    "cancelled": "Booking cancelled successfully"
+    "cancelled": "Booking cancelled successfully",
+    "selectDates": "Please select check-in and check-out dates"
+  },
+  "search": {
+    "title": "Search Properties",
+    "filters": "Filters",
+    "city": "City",
+    "cityPlaceholder": "e.g., Habana",
+    "priceRange": "Price Range",
+    "min": "Min",
+    "max": "Max",
+    "type": "Type",
+    "allTypes": "All",
+    "hostel": "Hostel",
+    "sortBy": "Sort By",
+    "newest": "Newest",
+    "priceLowHigh": "Price: Low to High",
+    "priceHighLow": "Price: High to Low",
+    "rating": "Rating",
+    "applyFilters": "Apply Filters",
+    "loadingProperties": "Loading properties...",
+    "resultsFound": "properties found",
+    "errorLoading": "Error loading properties"
   },
   "auth": {
     "loginTitle": "Login",
