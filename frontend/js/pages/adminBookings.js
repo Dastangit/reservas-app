@@ -15,6 +15,7 @@ const AdminBookingsPage = {
           
           <div class="dashboard-tabs">
             <button class="tab-btn active" data-tab="all">All</button>
+            <button class="tab-btn" data-tab="pending_payment">Pago pendiente</button>
             <button class="tab-btn" data-tab="pending_approval">Pending</button>
             <button class="tab-btn" data-tab="approved">Approved</button>
             <button class="tab-btn" data-tab="completed">Completed</button>
@@ -114,6 +115,17 @@ const AdminBookingsPage = {
         } else {
           alert('El turista no tiene un correo registrado.');
         }
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    };
+
+    window.confirmManualPayment = async (id) => {
+      const reference = prompt('Referencia u observación del pago (opcional):') || undefined;
+      try {
+        await api.post(`/admin/bookings/${id}/confirm-manual-payment`, { reference });
+        alert('Pago confirmado, la reserva pasó a revisión de aprobación.');
+        this.loadBookings(document.querySelector('.tab-btn.active')?.dataset.tab || 'all');
       } catch (error) {
         alert('Error: ' + error.message);
       }

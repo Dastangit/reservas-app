@@ -194,6 +194,61 @@ exports.getAllBookings = async (req, res, next) => {
   }
 };
 
+// Confirma a mano un pago del metodo 'paypal_manual' (link a la cuenta de
+// un tercero fuera de Cuba -- no hay API ni webhook posible para este metodo,
+// ver decision del 31-ago-2026). El admin revisa el deposito por fuera del
+// sistema y despues llama esto; produce el mismo efecto que el webhook de
+// QvaPay cuando confirma un pago (pasa a pending_approval para revision normal).
+exports.confirmManualPayment = async (req, res, next) => {
+  try {
+    const booking = await Booking.findOne({
+      _id: req.params.id,
+      tenant_id: req.tenantId,
+      payment_method: 'paypal_manual',
+    });
+
+    if (!booking) {
+      return res.status(404).json({ success: false, error: 'Booking not found or not using manual PayPal' });
+    }
+
+    if (booking.status !== 'pending_payment') {
+      return res.status(400).json({ success: false, error: 'Booking is not pending payment' });
+    }
+
+    booking.status = 'pending_approval';
+    booking.payment_stage = 'paid';
+    booking.fee_paid = true;
+    booking.fee_paid_at = new Date();
+    booking.fee_transaction_id = req.body.reference || 'manual-paypal';
+    booking.payment_needs_review = false;
+    booking.status_history.push({
+      status: 'pending_approval',
+      changed_at: new Date(),
+      changed_by: req.user._id,
+    });
+    await booking.save();
+
+    await Payment.findOneAndUpdate(
+      { booking_id: booking._id, method: 'paypal_manual' },
+      { payment_status: 'finished' },
+      { sort: { created_at: -1 } }
+    );
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'confirm_manual_paypal_payment',
+      target_type: 'Booking',
+      target_id: booking._id,
+      metadata: { reference: req.body.reference },
+    });
+
+    res.json({ success: true, data: { booking_id: booking._id, status: 'pending_approval' } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getHostPayouts = async (req, res, next) => {
   try {
     const { year, month } = req.query;
@@ -1443,6 +1498,7 @@ exports.getPendingCounts = async (req, res, next) => {
     const [
       bookings, properties, password_resets, orphaned_payments, overdue_commissions,
       pending_experiences, pending_experience_bookings, overdue_organizer_commissions,
+      manual_payments_pending,
     ] = await Promise.all([
       Booking.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),
       Property.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),
@@ -1459,6 +1515,12 @@ exports.getPendingCounts = async (req, res, next) => {
       Experience.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),
       ExperienceBooking.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),
       OrganizerMonthlyCommission.countDocuments({ tenant_id: tenantId, status: 'overdue' }),
+      Booking.countDocuments({
+        tenant_id: tenantId,
+        payment_method: 'paypal_manual',
+        status: 'pending_payment',
+        payment_needs_review: true,
+      }),
     ]);
 
     const counts = {
@@ -1470,6 +1532,7 @@ exports.getPendingCounts = async (req, res, next) => {
       pending_experiences,
       pending_experience_bookings,
       overdue_organizer_commissions,
+      manual_payments_pending,
     };
     counts.total = Object.values(counts).reduce((sum, n) => sum + n, 0);
 

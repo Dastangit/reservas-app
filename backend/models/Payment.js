@@ -19,6 +19,14 @@ const paymentSchema = new mongoose.Schema({
   invoice_id: {
     type: String,
   },
+  // 'qvapay' (default, checkout automatico con webhook) o 'paypal_manual'
+  // (link de paypal.me a la cuenta de un tercero fuera de Cuba, confirmado
+  // a mano por el admin -- no hay API ni webhook para este metodo).
+  method: {
+    type: String,
+    enum: ['qvapay', 'paypal_manual'],
+    default: 'qvapay',
+  },
   payment_id: {
     type: String,
   },

@@ -926,6 +926,40 @@ p:last-child { margin-bottom: 0; }
   gap: 6px;
 }
 
+/* ===== HERO DESTINATIONS CAROUSEL ===== */
+.hero-carousel {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.hero-carousel__slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 30%;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.hero-carousel__slide.is-active {
+  opacity: 1;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(135deg, rgba(29, 78, 216, 0.45) 0%, rgba(14, 165, 233, 0.45) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-carousel__slide {
+    transition: none;
+  }
+}
+
 /* ===== PAYMENT INFO / HOW IT WORKS ===== */
 .hero-how-it-works-btn {
   display: inline-block;

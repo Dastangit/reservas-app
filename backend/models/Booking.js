@@ -99,6 +99,13 @@ const bookingSchema = new mongoose.Schema({
   invoice_url: {
     type: String,
   },
+  // Que metodo eligio el turista -- se usa para decidir que boton mostrarle
+  // al admin en el panel (QvaPay se confirma solo por webhook, paypal_manual
+  // necesita que el admin lo confirme a mano tras revisar el deposito).
+  payment_method: {
+    type: String,
+    enum: ['qvapay', 'paypal_manual'],
+  },
   status: {
     type: String,
     enum: ['pending_payment', 'pending_approval', 'approved', 'rejected', 'completed', 'cancelled'],

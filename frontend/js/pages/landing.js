@@ -1,5 +1,6 @@
 import api from '../api.js';
 import PropertyCard from '../components/PropertyCard.js';
+import HeroCarousel from '../components/HeroCarousel.js';
 import i18n from '../i18n.js';
 
 const LandingPage = {
@@ -14,8 +15,11 @@ const LandingPage = {
       console.error('Error loading featured properties:', error);
     }
 
+    const destinations = await HeroCarousel.fetchDestinations();
+
     return `
       <section class="hero">
+        ${HeroCarousel.render(destinations)}
         <div class="container">
           <h2>${t('hero.title')}</h2>
           <p>${t('hero.subtitle')}</p>
@@ -58,6 +62,8 @@ const LandingPage = {
   },
 
   init() {
+    HeroCarousel.init();
+
     window.handleSearch = () => {
       const city = document.getElementById('search-city')?.value;
       const checkIn = document.getElementById('check-in')?.value;

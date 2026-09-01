@@ -1,3 +1,4 @@
+require('./instrument');
 console.log('[Server] Starting...');
 
 const express = require('express');

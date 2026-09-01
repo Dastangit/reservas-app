@@ -6,7 +6,7 @@ const {
   getAllProperties, adminEditProperty, adminDeleteProperty,
   adminBlockDates, adminUnblockDates, adminGetAvailabilityCalendar,
   getBookingWhatsAppLink, getHostPayouts, getBookingTouristContactLinks,
-  getOrphanedPayments, reviewOrphanedPayment,
+  getOrphanedPayments, reviewOrphanedPayment, confirmManualPayment,
   getHostCommissions, markHostCommissionPaid, markHostCommissionWaived, getHostCommissionWhatsAppLink,
   getAuditLog,
   getPasswordResetRequests, getPasswordResetDeliveryLinks,
@@ -45,6 +45,7 @@ router.get('/bookings', getAllBookings);
 router.get('/host-payouts', getHostPayouts);
 router.get('/bookings/:id/whatsapp-link', getBookingWhatsAppLink);
 router.get('/bookings/:id/tourist-contact-links', getBookingTouristContactLinks);
+router.post('/bookings/:id/confirm-manual-payment', confirmManualPayment);
 router.get('/orphaned-payments', getOrphanedPayments);
 router.post('/orphaned-payments/:id/review', reviewOrphanedPayment);
 router.get('/host-commissions', getHostCommissions);

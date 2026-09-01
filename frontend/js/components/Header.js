@@ -1,7 +1,7 @@
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import api from '../api.js';
-import { subscribeAdminToPush, isAdminPushSubscribed } from '../utils/adminPush.js';
+import { subscribeAdminToPush, syncAdminPushSubscription } from '../utils/adminPush.js';
 
 const Header = {
   render() {
@@ -186,7 +186,8 @@ async function loadPendingCounts() {
       .map(([key, meta]) => `<a href="${meta.url}" data-link>${meta.label} <strong>(${counts[key]})</strong></a>`)
       .join('');
 
-    const subscribeRow = !isAdminPushSubscribed()
+    const { subscribed } = await syncAdminPushSubscription();
+    const subscribeRow = !subscribed
       ? '<button type="button" class="notif-enable-btn" onclick="enableAdminPush()">🔔 Activar notificaciones push</button>'
       : '';
 

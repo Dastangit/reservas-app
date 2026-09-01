@@ -15,14 +15,16 @@ module.exports = {
     apiKey: process.env.CLOUDINARY_API_KEY,
     apiSecret: process.env.CLOUDINARY_API_SECRET,
   },
-  sendgrid: {
-    apiKey: process.env.SENDGRID_API_KEY,
-    fromEmail: process.env.SENDGRID_FROM_EMAIL,
-  },
   qvapay: {
     appId: process.env.QVAPAY_APP_ID,
     appSecret: process.env.QVAPAY_APP_SECRET,
     apiUrl: process.env.QVAPAY_API_URL || 'https://api.qvapay.com/v2',
+  },
+  // Metodo manual: link de paypal.me a una cuenta de un tercero fuera de
+  // Cuba (ver decision del 31-ago-2026). No hay API/webhook -- el admin
+  // confirma el pago a mano despues de revisar el deposito.
+  paypalManual: {
+    username: process.env.PAYPAL_MANUAL_USERNAME,
   },
   vapid: {
     publicKey: process.env.VAPID_PUBLIC_KEY,

@@ -42,6 +42,9 @@ const BookingCard = {
         </div>
         ${isAdmin ? `
           <div class="booking-card-actions">
+            ${booking.status === 'pending_payment' && booking.payment_method === 'paypal_manual' ? `
+              <button onclick="confirmManualPayment('${booking._id}')" class="btn btn-success btn-sm">Confirmar pago manual (PayPal)</button>
+            ` : ''}
             ${booking.status === 'pending_approval' ? `
               <button onclick="approveBooking('${booking._id}')" class="btn btn-success btn-sm">Approve</button>
               <button onclick="rejectBooking('${booking._id}')" class="btn btn-danger btn-sm">Reject</button>
