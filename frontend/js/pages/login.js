@@ -1,50 +1,52 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import i18n from '../i18n.js';
 
 const LoginPage = {
   pendingToken: null,
 
   render() {
+    const t = (key) => i18n.t(key);
     return `
       <div class="auth-page">
         <div class="auth-container">
           <div class="auth-card">
-            <h1>Login</h1>
-            <p class="auth-subtitle">Welcome back to Da-El World Travelers</p>
+            <h1>${t('auth.loginTitle')}</h1>
+            <p class="auth-subtitle">${t('auth.loginSubtitle')}</p>
             
             <form id="login-form">
               <div class="form-group">
-                <label for="email">Email</label>
+                <label for="email">${t('auth.email')}</label>
                 <input type="email" id="email" required placeholder="your@email.com">
               </div>
               
               <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password">${t('auth.password')}</label>
                 <div class="password-field">
                   <input type="password" id="password" required placeholder="Enter your password">
-                  <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password')" aria-label="Mostrar contraseña">👁️</button>
+                  <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password')" aria-label="${t('auth.showPassword')}">👁️</button>
                 </div>
               </div>
 
-              <p style="text-align:right;margin-bottom:15px;"><a href="/forgot-password" data-link style="font-size:var(--fs-sm);">¿Olvidaste tu contraseña?</a></p>
+              <p style="text-align:right;margin-bottom:15px;"><a href="/forgot-password" data-link style="font-size:var(--fs-sm);">${t('auth.forgotPassword')}</a></p>
               
               <div id="error-message" class="error-message" style="display:none;"></div>
               
-              <button type="submit" class="btn btn-primary btn-block">Login</button>
+              <button type="submit" class="btn btn-primary btn-block">${t('auth.loginTitle')}</button>
             </form>
 
             <form id="twofa-form" style="display:none;">
-              <p>Ingresa el código de 6 dígitos de tu app de autenticación (o un código de respaldo).</p>
+              <p>${t('auth.twoFactorPrompt')}</p>
               <div class="form-group">
-                <label for="twofa-code">Código</label>
+                <label for="twofa-code">${t('auth.code')}</label>
                 <input type="text" id="twofa-code" required placeholder="123456" autocomplete="one-time-code">
               </div>
               <div id="twofa-error-message" class="error-message" style="display:none;"></div>
-              <button type="submit" class="btn btn-primary btn-block">Verificar</button>
+              <button type="submit" class="btn btn-primary btn-block">${t('auth.verify')}</button>
             </form>
             
             <div class="auth-links">
-              <p>Don't have an account? <a href="/register" data-link>Sign up</a></p>
+              <p>${t('auth.noAccount')} <a href="/register" data-link>${t('common.register')}</a></p>
             </div>
           </div>
         </div>
@@ -102,7 +104,7 @@ const LoginPage = {
         this.completeLogin(response.data);
       }
     } catch (error) {
-      errorEl.textContent = error.message || 'Login failed';
+      errorEl.textContent = error.message || i18n.t('auth.loginFailed');
       errorEl.style.display = 'block';
     }
   },
@@ -121,7 +123,7 @@ const LoginPage = {
         this.completeLogin(response.data);
       }
     } catch (error) {
-      errorEl.textContent = error.message || 'Invalid code';
+      errorEl.textContent = error.message || i18n.t('auth.invalidCode');
       errorEl.style.display = 'block';
     }
   }

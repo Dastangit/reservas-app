@@ -2,13 +2,16 @@ import api from '../api.js';
 import auth from '../auth.js';
 import { formatExperiencePrice } from '../utils/formatters.js';
 import { validateInternationalPhone, sanitizePhone } from '../utils/validators.js';
+import i18n from '../i18n.js';
 
 const ExperienceBookingPage = {
   experience: null,
 
   async render() {
+    const t = (key) => i18n.t(key);
+
     if (!auth.isLoggedIn()) {
-      return '<div class="container"><p>Por favor <a href="/login" data-link>inicia sesión</a> para reservar.</p></div>';
+      return `<div class="container"><p>${t('experience.loginRequired')}</p></div>`;
     }
 
     const id = this._params?.id || window.location.pathname.split('/')[2];
@@ -18,22 +21,22 @@ const ExperienceBookingPage = {
       this.experience = response.data?.experience;
       this.spotsAvailable = response.data?.spots_available ?? 0;
     } catch (error) {
-      return '<div class="container"><p class="error">Excursión no encontrada</p></div>';
+      return `<div class="container"><p class="error">${t('experience.notFound')}</p></div>`;
     }
 
     if (!this.experience) {
-      return '<div class="container"><p class="error">Excursión no encontrada</p></div>';
+      return `<div class="container"><p class="error">${t('experience.notFound')}</p></div>`;
     }
 
     const exp = this.experience;
     const pricingOptions = (exp.pricing || []).map((p) =>
-      `<option value="${p.audience}|${p.currency}">${p.audience === 'local' ? 'Residente en Cuba' : 'Turista'} -- ${formatExperiencePrice(p.amount, p.currency)}/cupo</option>`
+      `<option value="${p.audience}|${p.currency}">${p.audience === 'local' ? t('experience.local') : t('experience.tourist')} -- ${formatExperiencePrice(p.amount, p.currency)}${t('experience.perSpot')}</option>`
     ).join('');
 
     return `
       <div class="booking-form-page">
         <div class="container">
-          <h1>Reservar: ${exp.title}</h1>
+          <h1>${t('experience.book')}: ${exp.title}</h1>
 
           <div class="booking-layout">
             <div class="booking-details">
@@ -46,20 +49,20 @@ const ExperienceBookingPage = {
               </div>
 
               <p style="margin:15px 0;color:var(--text-light);">
-                ${this.spotsAvailable} cupos disponibles.
-                ${exp.allows_mixed_audience ? ' Esta excursión admite grupos con locales y turistas juntos.' : ''}
+                ${this.spotsAvailable} ${t('experience.spotsAvailable')}
+                ${exp.allows_mixed_audience ? ` ${t('experience.mixedAudienceNote')}` : ''}
               </p>
 
               <div id="spots-rows">
                 <div class="form-group spots-row" style="display:flex;gap:10px;align-items:end;">
                   <div style="flex:2;">
-                    <label>Tipo de cupo</label>
+                    <label>${t('experience.spotType')}</label>
                     <select class="spots-audience-currency" required>
                       ${pricingOptions}
                     </select>
                   </div>
                   <div style="flex:1;">
-                    <label>Cantidad</label>
+                    <label>${t('experience.quantity')}</label>
                     <input type="number" class="spots-count" min="1" value="1" required>
                   </div>
                   ${exp.allows_mixed_audience ? '<button type="button" class="btn btn-danger btn-sm remove-spots-row" style="display:none;">X</button>' : ''}
@@ -67,45 +70,44 @@ const ExperienceBookingPage = {
               </div>
 
               ${exp.allows_mixed_audience ? `
-                <button type="button" id="add-spots-row-btn" class="btn btn-outline btn-sm" style="margin-top:10px;">+ Agregar otro tipo de cupo</button>
+                <button type="button" id="add-spots-row-btn" class="btn btn-outline btn-sm" style="margin-top:10px;">${t('experience.addAnotherType')}</button>
               ` : ''}
             </div>
 
             <div class="booking-form-sidebar">
               <form id="experience-booking-form">
-                <h3>Tu información</h3>
+                <h3>${t('booking.yourInformation')}</h3>
 
                 <div class="form-group">
-                  <label>Nombre</label>
+                  <label>${t('auth.name')}</label>
                   <input type="text" id="tourist-name" value="${auth.getUser()?.name || ''}" required>
                 </div>
 
                 <div class="form-group">
-                  <label>Email</label>
+                  <label>${t('auth.email')}</label>
                   <input type="email" id="tourist-email" required>
                 </div>
 
                 <div class="form-group">
-                  <label>Teléfono (WhatsApp) *</label>
+                  <label>${t('booking.phoneLabel')}</label>
                   <input type="tel" id="tourist-phone" placeholder="+53 5xxxxxxx" required>
-                  <small class="field-hint">Incluye el código de país, ej. +53, +1, +34</small>
+                  <small class="field-hint">${t('booking.phoneHint')}</small>
                 </div>
 
                 <div class="form-group">
-                  <label>Contacto preferido</label>
+                  <label>${t('booking.preferredContact')}</label>
                   <select id="contact-method">
                     <option value="whatsapp">WhatsApp</option>
-                    <option value="email">Email</option>
+                    <option value="email">${t('auth.email')}</option>
                   </select>
                 </div>
 
                 <div id="error-message" class="error-message" style="display:none;"></div>
 
-                <button type="submit" class="btn btn-primary btn-block">Reservar cupos</button>
+                <button type="submit" class="btn btn-primary btn-block">${t('experience.reserveSpots')}</button>
 
                 <p class="fee-notice">
-                  * No se cobra nada por reservar. El pago del servicio se coordina directo con el organizador.
-                  Tu reserva queda pendiente de aprobación del admin (hasta 24h).
+                  ${t('experience.feeNotice')}
                 </p>
               </form>
             </div>
@@ -133,9 +135,10 @@ const ExperienceBookingPage = {
   },
 
   addSpotsRow() {
+    const t = (key) => i18n.t(key);
     const container = document.getElementById('spots-rows');
     const pricingOptions = (this.experience.pricing || []).map((p) =>
-      `<option value="${p.audience}|${p.currency}">${p.audience === 'local' ? 'Residente en Cuba' : 'Turista'}</option>`
+      `<option value="${p.audience}|${p.currency}">${p.audience === 'local' ? t('experience.local') : t('experience.tourist')}</option>`
     ).join('');
 
     const div = document.createElement('div');
@@ -143,11 +146,11 @@ const ExperienceBookingPage = {
     div.style.cssText = 'display:flex;gap:10px;align-items:end;';
     div.innerHTML = `
       <div style="flex:2;">
-        <label>Tipo de cupo</label>
+        <label>${t('experience.spotType')}</label>
         <select class="spots-audience-currency" required>${pricingOptions}</select>
       </div>
       <div style="flex:1;">
-        <label>Cantidad</label>
+        <label>${t('experience.quantity')}</label>
         <input type="number" class="spots-count" min="1" value="1" required>
       </div>
       <button type="button" class="btn btn-danger btn-sm remove-spots-row">X</button>
@@ -169,7 +172,7 @@ const ExperienceBookingPage = {
 
     const phone = sanitizePhone(document.getElementById('tourist-phone')?.value?.trim());
     if (!validateInternationalPhone(phone)) {
-      errorEl.textContent = 'Ingresa un teléfono válido con código de país (ej. +5355512345)';
+      errorEl.textContent = i18n.t('booking.invalidPhone');
       errorEl.style.display = 'block';
       return;
     }
@@ -181,7 +184,7 @@ const ExperienceBookingPage = {
     });
 
     if (payment_info.length === 0 || payment_info.some((p) => !p.num_spots || p.num_spots < 1)) {
-      errorEl.textContent = 'Revisa la cantidad de cupos';
+      errorEl.textContent = i18n.t('experience.checkSpots');
       errorEl.style.display = 'block';
       return;
     }
@@ -205,9 +208,9 @@ const ExperienceBookingPage = {
       }
     } catch (error) {
       if (error.message === 'NOT_ENOUGH_SPOTS' || /cupos/i.test(error.message || '')) {
-        errorEl.innerHTML = `No hay suficientes cupos disponibles. <a href="/experiences/${this.experience._id}" data-link>Volver a la excursión</a> para unirte a la lista de espera.`;
+        errorEl.innerHTML = `${i18n.t('experience.notEnoughSpots')} <a href="/experiences/${this.experience._id}" data-link>${i18n.t('experience.backToExperience')}</a>`;
       } else {
-        errorEl.textContent = error.message || 'No se pudo completar la reserva';
+        errorEl.textContent = error.message || i18n.t('experience.bookingFailed');
       }
       errorEl.style.display = 'block';
     }

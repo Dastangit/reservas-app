@@ -78,7 +78,36 @@
     "dailyPayment": "Daily payment (flexible)",
     "confirm": "Pay $7 USD Fee & Book",
     "cancelled": "Booking cancelled successfully",
-    "selectDates": "Please select check-in and check-out dates"
+    "selectDates": "Please select check-in and check-out dates",
+    "loginRequired": "Please <a href=\"/login\" data-link>login</a> to make a booking.",
+    "pricePerNight": "Price per night",
+    "yourInformation": "Your Information",
+    "phoneLabel": "Phone (WhatsApp) *",
+    "phoneHint": "Include country code, e.g. +53, +1, +34",
+    "preferredContact": "Preferred Contact",
+    "feeNotice": "* The $7 USD fee is non-refundable and secures your reservation.",
+    "invalidPhone": "Please enter a valid phone number with country code (e.g. +5355512345)",
+    "failed": "Booking failed",
+    "completeYourBooking": "Complete Your Booking"
+  },
+  "experience": {
+    "loginRequired": "Please <a href=\"/login\" data-link>login</a> to book.",
+    "notFound": "Experience not found",
+    "book": "Book",
+    "spotsAvailable": "spots available.",
+    "mixedAudienceNote": "This experience allows groups with locals and tourists together.",
+    "spotType": "Spot type",
+    "quantity": "Quantity",
+    "addAnotherType": "+ Add another spot type",
+    "reserveSpots": "Reserve Spots",
+    "feeNotice": "* No fee is charged to book. Payment for the service is coordinated directly with the organizer. Your booking is pending admin approval (up to 24h).",
+    "checkSpots": "Please check the number of spots",
+    "notEnoughSpots": "Not enough spots available.",
+    "backToExperience": "Back to experience",
+    "bookingFailed": "Could not complete the booking",
+    "local": "Local Resident",
+    "tourist": "Tourist",
+    "perSpot": "/spot"
   },
   "search": {
     "title": "Search Properties",
@@ -115,7 +144,13 @@
     "listProperty": "List my property",
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
-    "forgotPassword": "Forgot password?"
+    "forgotPassword": "Forgot password?",
+    "twoFactorPrompt": "Enter the 6-digit code from your authenticator app (or a backup code).",
+    "code": "Code",
+    "verify": "Verify",
+    "loginFailed": "Login failed",
+    "invalidCode": "Invalid code",
+    "showPassword": "Show password"
   },
   "dashboard": {
     "myBookings": "My Bookings",

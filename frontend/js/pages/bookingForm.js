@@ -3,13 +3,16 @@ import { formatCurrency } from '../utils/formatters.js';
 import auth from '../auth.js';
 import { validateInternationalPhone, sanitizePhone } from '../utils/validators.js';
 import { renderBookingReminderIfNeeded } from '../utils/onboarding.js';
+import i18n from '../i18n.js';
 
 const BookingFormPage = {
   property: null,
 
   async render() {
+    const t = (key) => i18n.t(key);
+
     if (!auth.isLoggedIn()) {
-      return '<div class="container"><p>Please <a href="/login" data-link>login</a> to make a booking.</p></div>';
+      return `<div class="container"><p>${t('booking.loginRequired')}</p></div>`;
     }
 
     const propertyId = this._params?.propertyId;
@@ -23,11 +26,11 @@ const BookingFormPage = {
       const response = await api.get(`/properties/${propertyId}`);
       this.property = response.data?.property;
     } catch (error) {
-      return '<div class="container"><p class="error">Property not found</p></div>';
+      return `<div class="container"><p class="error">${t('property.notFound')}</p></div>`;
     }
 
     if (!this.property) {
-      return '<div class="container"><p class="error">Property not found</p></div>';
+      return `<div class="container"><p class="error">${t('property.notFound')}</p></div>`;
     }
 
     const p = this.property;
@@ -39,7 +42,7 @@ const BookingFormPage = {
     return `
       <div class="booking-form-page">
         <div class="container">
-          <h1>Complete Your Booking</h1>
+          <h1>${t('booking.completeYourBooking')}</h1>
           ${renderBookingReminderIfNeeded()}
           
           <div class="booking-layout">
@@ -54,72 +57,72 @@ const BookingFormPage = {
               
               <div class="booking-info">
                 <div class="info-row">
-                  <span>Check-in:</span>
+                  <span>${t('booking.checkIn')}:</span>
                   <span>${checkIn}</span>
                 </div>
                 <div class="info-row">
-                  <span>Check-out:</span>
+                  <span>${t('booking.checkOut')}:</span>
                   <span>${checkOut}</span>
                 </div>
                 <div class="info-row">
-                  <span>Nights:</span>
+                  <span>${t('booking.nights')}:</span>
                   <span>${nights}</span>
                 </div>
                 <div class="info-row">
-                  <span>Guests:</span>
+                  <span>${t('booking.guests')}:</span>
                   <span>${numGuests}</span>
                 </div>
                 <div class="info-row">
-                  <span>Price per night:</span>
+                  <span>${t('booking.pricePerNight')}:</span>
                   <span>${formatCurrency(p.price_per_night)}</span>
                 </div>
                 <div class="info-row total">
-                  <span>Total:</span>
+                  <span>${t('booking.total')}:</span>
                   <span>${formatCurrency(total)}</span>
                 </div>
                 <div class="info-row fee">
-                  <span>Booking Fee:</span>
+                  <span>${t('booking.fee')}:</span>
                   <span>${formatCurrency(7)}</span>
                 </div>
               </div>
               
               <div id="payment-options-section" class="payment-options">
-                <h3>Payment at Accommodation</h3>
+                <h3>${t('booking.paymentOptions')}</h3>
                 <label class="radio-option">
                   <input type="radio" name="payment_option" value="full_payment" checked>
-                  <span>Full payment on arrival</span>
+                  <span>${t('booking.fullPayment')}</span>
                 </label>
                 <label class="radio-option">
                   <input type="radio" name="payment_option" value="daily_payment">
-                  <span>Daily payment (flexible)</span>
+                  <span>${t('booking.dailyPayment')}</span>
                 </label>
               </div>
             </div>
             
             <div class="booking-form-sidebar">
               <form id="booking-confirm-form">
-                <h3>Your Information</h3>
+                <h3>${t('booking.yourInformation')}</h3>
                 
                 <div class="form-group">
-                  <label>Name</label>
+                  <label>${t('auth.name')}</label>
                   <input type="text" id="tourist-name" value="${auth.getUser()?.name || ''}" required>
                 </div>
                 
                 <div class="form-group">
-                  <label>Email</label>
+                  <label>${t('auth.email')}</label>
                   <input type="email" id="tourist-email" required>
                 </div>
                 
                 <div class="form-group">
-                  <label>Phone (WhatsApp) *</label>
+                  <label>${t('booking.phoneLabel')}</label>
                   <input type="tel" id="tourist-phone" placeholder="+53 5xxxxxxx" required>
-                  <small class="field-hint">Include country code, e.g. +53, +1, +34</small>
+                  <small class="field-hint">${t('booking.phoneHint')}</small>
                 </div>
                 
                 <div class="form-group">
-                  <label>Preferred Contact</label>
+                  <label>${t('booking.preferredContact')}</label>
                   <select id="contact-method">
-                    <option value="email">Email</option>
+                    <option value="email">${t('auth.email')}</option>
                     <option value="whatsapp">WhatsApp</option>
                   </select>
                 </div>
@@ -127,11 +130,11 @@ const BookingFormPage = {
                 <div id="error-message" class="error-message" style="display:none;"></div>
                 
                 <button type="submit" class="btn btn-primary btn-block">
-                  Pay $7 Fee & Book
+                  ${t('booking.confirm')}
                 </button>
                 
                 <p class="fee-notice" id="fee-notice">
-                   * The $7 USD fee is non-refundable and secures your reservation.
+                   ${t('booking.feeNotice')}
                 </p>
               </form>
             </div>
@@ -158,7 +161,7 @@ const BookingFormPage = {
 
     const phone = sanitizePhone(document.getElementById('tourist-phone')?.value?.trim());
     if (!validateInternationalPhone(phone)) {
-      errorEl.textContent = 'Please enter a valid phone number with country code (e.g. +5355512345)';
+      errorEl.textContent = i18n.t('booking.invalidPhone');
       errorEl.style.display = 'block';
       return;
     }
@@ -187,7 +190,7 @@ const BookingFormPage = {
         window.location.href = `/payment/checkout?booking_id=${bookingId}`;
       }
     } catch (error) {
-      errorEl.textContent = error.message || 'Booking failed';
+      errorEl.textContent = error.message || i18n.t('booking.failed');
       errorEl.style.display = 'block';
     }
   }

@@ -78,7 +78,36 @@
     "dailyPayment": "Paiement journalier (flexible)",
     "confirm": "Payer 7 $ USD et Réserver",
     "cancelled": "Réservation annulée avec succès",
-    "selectDates": "Veuillez sélectionner les dates d'arrivée et de départ"
+    "selectDates": "Veuillez sélectionner les dates d'arrivée et de départ",
+    "loginRequired": "Veuillez vous <a href=\"/login\" data-link>connecter</a> pour effectuer une réservation.",
+    "pricePerNight": "Prix par nuit",
+    "yourInformation": "Vos Informations",
+    "phoneLabel": "Téléphone (WhatsApp) *",
+    "phoneHint": "Inclure l'indicatif du pays, ex. +53, +1, +34",
+    "preferredContact": "Contact Préféré",
+    "feeNotice": "* Les frais de 7 $ USD ne sont pas remboursables et sécurisent votre réservation.",
+    "invalidPhone": "Veuillez entrer un numéro de téléphone valide avec l'indicatif du pays (ex. +5355512345)",
+    "failed": "Échec de la réservation",
+    "completeYourBooking": "Finalisez votre Réservation"
+  },
+  "experience": {
+    "loginRequired": "Veuillez vous <a href=\"/login\" data-link>connecter</a> pour réserver.",
+    "notFound": "Excursion non trouvée",
+    "book": "Réserver",
+    "spotsAvailable": "places disponibles.",
+    "mixedAudienceNote": "Cette excursion accepte des groupes mixtes locaux et touristes.",
+    "spotType": "Type de place",
+    "quantity": "Quantité",
+    "addAnotherType": "+ Ajouter un autre type de place",
+    "reserveSpots": "Réserver les places",
+    "feeNotice": "* Aucun frais n'est facturé pour réserver. Le paiement du service est coordonné directement avec l'organisateur. Votre réservation est en attente d'approbation par l'administrateur (jusqu'à 24h).",
+    "checkSpots": "Veuillez vérifier le nombre de places",
+    "notEnoughSpots": "Pas assez de places disponibles.",
+    "backToExperience": "Retour à l'excursion",
+    "bookingFailed": "Impossible de finaliser la réservation",
+    "local": "Résident Local",
+    "tourist": "Touriste",
+    "perSpot": "/place"
   },
   "search": {
     "title": "Rechercher des Propriétés",
@@ -115,7 +144,13 @@
     "listProperty": "Publier ma propriété",
     "noAccount": "Vous n'avez pas de compte?",
     "hasAccount": "Vous avez déjà un compte?",
-    "forgotPassword": "Mot de passe oublié?"
+    "forgotPassword": "Mot de passe oublié?",
+    "twoFactorPrompt": "Entrez le code à 6 chiffres de votre application d'authentification (ou un code de secours).",
+    "code": "Code",
+    "verify": "Vérifier",
+    "loginFailed": "Échec de la connexion",
+    "invalidCode": "Code invalide",
+    "showPassword": "Afficher le mot de passe"
   },
   "dashboard": {
     "myBookings": "Mes Réservations",

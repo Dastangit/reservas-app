@@ -1,10 +1,12 @@
 import api from '../api.js';
 import PropertyCard from '../components/PropertyCard.js';
+import i18n from '../i18n.js';
 
 const SearchPage = {
   currentFilters: {},
 
   async render() {
+    const t = (key) => i18n.t(key);
     const params = new URLSearchParams(window.location.search);
     this.currentFilters = {
       city: params.get('city') || '',
@@ -20,64 +22,64 @@ const SearchPage = {
       <div class="search-page">
         <div class="container">
           <div class="search-header">
-            <h1>Search Properties</h1>
+            <h1>${t('search.title')}</h1>
           </div>
           
           <div class="search-layout">
             <aside class="search-filters">
-              <h3>Filters</h3>
+              <h3>${t('search.filters')}</h3>
               <form id="filter-form">
                 <div class="filter-group">
-                  <label>City</label>
-                  <input type="text" id="filter-city" value="${this.currentFilters.city}" placeholder="e.g., Habana">
+                  <label>${t('search.city')}</label>
+                  <input type="text" id="filter-city" value="${this.currentFilters.city}" placeholder="${t('search.cityPlaceholder')}">
                 </div>
                 
                 <div class="filter-group">
-                  <label>Check-in</label>
+                  <label>${t('booking.checkIn')}</label>
                   <input type="date" id="filter-checkin" value="${this.currentFilters.check_in}">
                 </div>
                 
                 <div class="filter-group">
-                  <label>Check-out</label>
+                  <label>${t('booking.checkOut')}</label>
                   <input type="date" id="filter-checkout" value="${this.currentFilters.check_out}">
                 </div>
                 
                 <div class="filter-group">
-                  <label>Price Range</label>
+                  <label>${t('search.priceRange')}</label>
                   <div class="price-range">
-                    <input type="number" id="filter-min-price" value="${this.currentFilters.min_price}" placeholder="Min">
+                    <input type="number" id="filter-min-price" value="${this.currentFilters.min_price}" placeholder="${t('search.min')}">
                     <span>-</span>
-                    <input type="number" id="filter-max-price" value="${this.currentFilters.max_price}" placeholder="Max">
+                    <input type="number" id="filter-max-price" value="${this.currentFilters.max_price}" placeholder="${t('search.max')}">
                   </div>
                 </div>
                 
                 <div class="filter-group">
-                  <label>Type</label>
+                  <label>${t('search.type')}</label>
                   <select id="filter-type">
-                    <option value="">All</option>
+                    <option value="">${t('search.allTypes')}</option>
                     <option value="casa_particular" ${this.currentFilters.type === 'casa_particular' ? 'selected' : ''}>Casa Particular</option>
-                    <option value="hostel" ${this.currentFilters.type === 'hostel' ? 'selected' : ''}>Hostel</option>
+                    <option value="hostel" ${this.currentFilters.type === 'hostel' ? 'selected' : ''}>${t('search.hostel')}</option>
                   </select>
                 </div>
                 
                 <div class="filter-group">
-                  <label>Sort By</label>
+                  <label>${t('search.sortBy')}</label>
                   <select id="filter-sort">
-                    <option value="newest" ${this.currentFilters.sort_by === 'newest' ? 'selected' : ''}>Newest</option>
-                    <option value="price_asc" ${this.currentFilters.sort_by === 'price_asc' ? 'selected' : ''}>Price: Low to High</option>
-                    <option value="price_desc" ${this.currentFilters.sort_by === 'price_desc' ? 'selected' : ''}>Price: High to Low</option>
-                    <option value="rating_desc" ${this.currentFilters.sort_by === 'rating_desc' ? 'selected' : ''}>Rating</option>
+                    <option value="newest" ${this.currentFilters.sort_by === 'newest' ? 'selected' : ''}>${t('search.newest')}</option>
+                    <option value="price_asc" ${this.currentFilters.sort_by === 'price_asc' ? 'selected' : ''}>${t('search.priceLowHigh')}</option>
+                    <option value="price_desc" ${this.currentFilters.sort_by === 'price_desc' ? 'selected' : ''}>${t('search.priceHighLow')}</option>
+                    <option value="rating_desc" ${this.currentFilters.sort_by === 'rating_desc' ? 'selected' : ''}>${t('search.rating')}</option>
                   </select>
                 </div>
                 
-                <button type="submit" class="btn btn-primary btn-block">Apply Filters</button>
+                <button type="submit" class="btn btn-primary btn-block">${t('search.applyFilters')}</button>
               </form>
             </aside>
             
             <main class="search-results">
               <div id="results-count" class="results-count"></div>
               <div id="properties-grid" class="properties-grid">
-                <p class="loading">Loading properties...</p>
+                <p class="loading">${t('search.loadingProperties')}</p>
               </div>
             </main>
           </div>
@@ -123,7 +125,7 @@ const SearchPage = {
     const countEl = document.getElementById('results-count');
     if (!grid) return;
 
-    grid.innerHTML = '<p class="loading">Loading...</p>';
+    grid.innerHTML = `<p class="loading">${i18n.t('common.loading')}</p>`;
 
     try {
       const params = new URLSearchParams(window.location.search);
@@ -131,10 +133,10 @@ const SearchPage = {
       const properties = response.data?.results || [];
       const total = response.data?.total_count || 0;
 
-      countEl.textContent = `${total} properties found`;
+      countEl.textContent = `${total} ${i18n.t('search.resultsFound')}`;
       grid.innerHTML = PropertyCard.renderGrid(properties);
     } catch (error) {
-      grid.innerHTML = '<p class="error">Error loading properties</p>';
+      grid.innerHTML = `<p class="error">${i18n.t('search.errorLoading')}</p>`;
     }
   }
 };

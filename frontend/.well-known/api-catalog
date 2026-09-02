@@ -1,0 +1,24 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://reservas-app-blue.vercel.app/",
+      "service-doc": [
+        { "href": "https://reservas-app-blue.vercel.app/how-it-works" },
+        { "href": "https://reservas-app-blue.vercel.app/faq" }
+      ],
+      "status": [
+        { "href": "https://reservas-app-blue.vercel.app/health" }
+      ],
+      "item": [
+        {
+          "href": "https://reservas-app-blue.vercel.app/api/properties",
+          "title": "Public read-only listing of vacation rental properties in Latin America and the Caribbean"
+        },
+        {
+          "href": "https://reservas-app-blue.vercel.app/api/experiences",
+          "title": "Public read-only listing of local experiences and activities in Latin America and the Caribbean"
+        }
+      ]
+    }
+  ]
+}

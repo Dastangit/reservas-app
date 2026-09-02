@@ -78,7 +78,36 @@
     "dailyPayment": "Pago diario (flexible)",
     "confirm": "Pagar $7 USD y Reservar",
     "cancelled": "Reserva cancelada exitosamente",
-    "selectDates": "Selecciona las fechas de entrada y salida"
+    "selectDates": "Selecciona las fechas de entrada y salida",
+    "loginRequired": "Por favor <a href=\"/login\" data-link>inicia sesión</a> para hacer una reserva.",
+    "pricePerNight": "Precio por noche",
+    "yourInformation": "Tu Información",
+    "phoneLabel": "Teléfono (WhatsApp) *",
+    "phoneHint": "Incluye el código de país, ej. +53, +1, +34",
+    "preferredContact": "Contacto Preferido",
+    "feeNotice": "* La tarifa de $7 USD no es reembolsable y asegura tu reserva.",
+    "invalidPhone": "Ingresa un número de teléfono válido con código de país (ej. +5355512345)",
+    "failed": "La reserva falló",
+    "completeYourBooking": "Completa tu Reserva"
+  },
+  "experience": {
+    "loginRequired": "Por favor <a href=\"/login\" data-link>inicia sesión</a> para reservar.",
+    "notFound": "Excursión no encontrada",
+    "book": "Reservar",
+    "spotsAvailable": "cupos disponibles.",
+    "mixedAudienceNote": "Esta excursión admite grupos con locales y turistas juntos.",
+    "spotType": "Tipo de cupo",
+    "quantity": "Cantidad",
+    "addAnotherType": "+ Agregar otro tipo de cupo",
+    "reserveSpots": "Reservar cupos",
+    "feeNotice": "* No se cobra nada por reservar. El pago del servicio se coordina directo con el organizador. Tu reserva queda pendiente de aprobación del admin (hasta 24h).",
+    "checkSpots": "Revisa la cantidad de cupos",
+    "notEnoughSpots": "No hay suficientes cupos disponibles.",
+    "backToExperience": "Volver a la excursión",
+    "bookingFailed": "No se pudo completar la reserva",
+    "local": "Residente Local",
+    "tourist": "Turista",
+    "perSpot": "/cupo"
   },
   "search": {
     "title": "Buscar Propiedades",
@@ -115,7 +144,13 @@
     "listProperty": "Publicar mi propiedad",
     "noAccount": "¿No tienes cuenta?",
     "hasAccount": "¿Ya tienes cuenta?",
-    "forgotPassword": "¿Olvidaste tu contraseña?"
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "twoFactorPrompt": "Ingresa el código de 6 dígitos de tu app de autenticación (o un código de respaldo).",
+    "code": "Código",
+    "verify": "Verificar",
+    "loginFailed": "Error al iniciar sesión",
+    "invalidCode": "Código inválido",
+    "showPassword": "Mostrar contraseña"
   },
   "dashboard": {
     "myBookings": "Mis Reservas",
