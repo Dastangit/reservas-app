@@ -12,7 +12,7 @@ const Footer = {
               <p class="footer-contact">
                 <strong>Contacto:</strong><br>
                 Email: <a href="mailto:supportdaelworld@gmail.com">supportdaelworld@gmail.com</a><br>
-                WhatsApp: <a href="https://wa.me/5358648303" target="_blank" rel="noopener">+53 58648303</a>
+                WhatsApp: <a href="https://wa.me/16055003653" target="_blank" rel="noopener">+1 6055003653</a>
               </p>
             </div>
             <div class="footer-links">

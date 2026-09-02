@@ -51,10 +51,11 @@ const BookingCard = {
             ` : ''}
             ${booking.status === 'approved' ? `
               <button onclick="completeBooking('${booking._id}')" class="btn btn-primary btn-sm">Mark Complete</button>
-              <button onclick="notifyHostWhatsApp('${booking._id}')" class="btn btn-outline btn-sm">Notificar por WhatsApp</button>
+              <button onclick="notifyHostWhatsApp('${booking._id}')" class="btn btn-outline btn-sm">WhatsApp anfitrión</button>
             ` : ''}
           </div>
           <div class="tourist-contact-actions">
+            <span class="contact-actions-label">Notificar al turista:</span>
             <select id="tourist-msg-type-${booking._id}" class="tourist-msg-select">
               <option value="payment_received">Pago recibido</option>
               <option value="payment_reminder">Recordatorio de pago</option>

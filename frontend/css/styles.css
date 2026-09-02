@@ -1588,6 +1588,44 @@ p:last-child { margin-bottom: 0; }
   border-top: 1px solid var(--border-light);
 }
 
+/* Acciones de contacto manual (WhatsApp/correo) hacia el turista, en el
+   panel admin -- separado de .booking-card-actions (que son acciones sobre
+   el estado de la reserva en si: aprobar, rechazar, confirmar pago, etc). */
+.tourist-contact-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--surface);
+  border-top: 1px solid var(--border-light);
+}
+
+.contact-actions-label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.tourist-msg-select {
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  color: var(--text);
+  background: var(--background);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.tourist-msg-select:focus {
+  border-color: var(--accent);
+}
+
 .bookings-list {
   display: flex;
   flex-direction: column;
@@ -3667,6 +3705,20 @@ p:last-child { margin-bottom: 0; }
   }
 
   .booking-card-actions .btn {
+    width: 100%;
+  }
+
+  .tourist-contact-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tourist-contact-actions .contact-actions-label {
+    text-align: center;
+  }
+
+  .tourist-contact-actions .tourist-msg-select,
+  .tourist-contact-actions .btn {
     width: 100%;
   }
 
