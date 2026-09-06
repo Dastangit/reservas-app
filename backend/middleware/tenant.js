@@ -11,7 +11,7 @@ const setTenant = async (req, res, next) => {
       if (tenant) {
         tenantId = tenant._id;
       } else {
-        const defaultTenant = await Tenant.findOne({ domain: 'daelworldtravelers.com' });
+        const defaultTenant = await Tenant.findOne({ domain: 'elysioexperiences.com' });
         tenantId = defaultTenant?._id;
       }
     }

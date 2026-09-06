@@ -11,17 +11,17 @@ const seed = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('MongoDB connected for seeding properties');
 
-    const tenant = await Tenant.findOne({ domain: 'daelworldtravelers.com' });
+    const tenant = await Tenant.findOne({ domain: 'elysioexperiences.com' });
     if (!tenant) {
       console.error('Tenant not found. Run seed.js first.');
       process.exit(1);
     }
 
-    let host = await User.findOne({ email: 'host@daelworldtravelers.com' });
+    let host = await User.findOne({ email: 'host@elysioexperiences.com' });
     if (!host) {
       host = await User.create({
         tenant_id: tenant._id,
-        email: 'host@daelworldtravelers.com',
+        email: 'host@elysioexperiences.com',
         password_hash: 'Host123!',
         name: 'Maria Rodriguez',
         role: 'host',
@@ -110,7 +110,7 @@ const seed = async () => {
         host_id: host._id,
         name: 'Finca Rural Viñales',
         type: 'casa_particular',
-        description: 'Rustic countryside house surrounded by tobacco fields and mountains. Authentic Cuban rural experience with home-cooked meals available.',
+        description: 'Rustic countryside house surrounded by tobacco fields and mountains. Authentic rural experience with home-cooked meals available.',
         location: { city: 'Viñales', neighborhood: 'Valle', address: 'Carretera a Viñales km 5' },
         max_guests: 3,
         bedrooms: 1,
@@ -141,7 +141,7 @@ const seed = async () => {
     }
 
     console.log('\n--- Credenciales Host ---');
-    console.log('Email:    host@daelworldtravelers.com');
+    console.log('Email:    host@elysioexperiences.com');
     console.log('Password: Host123!');
     console.log('--------------------------\n');
 

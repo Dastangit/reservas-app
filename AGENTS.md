@@ -1,4 +1,4 @@
-# AGENTS.md — Da-El World Travelers
+# AGENTS.md — Elysio Experiences
 
 ## Architecture
 

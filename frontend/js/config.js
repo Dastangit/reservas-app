@@ -1,9 +1,9 @@
 const APP_CONFIG = {
-  app_name: 'Da-El Travels',
+  app_name: 'Elysio Experiences',
   app_tagline: 'Viaja con confianza',
   app_logo: '/assets/logo-real.png',
 
-  admin_email: 'supportdaelworld@gmail.com',
+  admin_email: 'elysio.support@gmail.com',
 
   social: {
     instagram: 'https://instagram.com/daelworldtravelers',

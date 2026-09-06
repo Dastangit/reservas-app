@@ -10,7 +10,7 @@
 
 ## ACTUALIZACIÓN DE MARCA (v2.1)
 
-- **Nombre confirmado:** Da-El Travels (antes "Da-El World Travelers" / "Da-El World Travelers")
+- **Nombre confirmado:** Elysio Experiences (nombre final de marca; nombres anteriores durante el desarrollo: "Vagari Experiences", "Da-El Travels", "Da-El World Travelers")
 - **Dominio:** aún no adquirido — se usa por ahora el subdominio de Vercel (`reservas-app-blue.vercel.app`). Pendiente comprar un dominio propio.
 - **SEO / cómo se muestra en Google:** título y meta description genéricos, sin mencionar ninguna región específica (ni "Cuba" ni "Latinoamérica") — la marca se posiciona ampliamente, no geo-limitada en el copy público de búsqueda.
 - **Textos de la interfaz (Términos, FAQ, Cómo Funciona):** se alinean con la visión original de esta sección 1.1 (Latinoamérica y el Caribe) — antes tenían menciones específicas a "Cuba" que no correspondían a esta visión y ya se corrigieron.
@@ -1071,12 +1071,12 @@ Nivel 5: Suscripción premium para turistas (contenido exclusivo)
 ```javascript
 const APP_CONFIG = {
   // Branding
-  app_name:        "Da-El World Travelers",
+  app_name:        "Elysio Experiences",
   app_tagline:     "Viaja con confianza",
   app_logo:        "/assets/logo.svg",
 
   // Contacto admin
-  admin_email:     "admin@da-elworldtravelers.com",
+  admin_email:     "admin@elysioexperiences.com",
   admin_whatsapp:  "+53 ...",
 
   // Redes sociales
@@ -1174,7 +1174,7 @@ const APP_CONFIG = {
 
 ## CONCLUSIÓN
 
-Da-El World Travelers está diseñada como una plataforma de turismo completa y escalable. El MVP resuelve el problema inmediato (reservas de alojamientos en Cuba para turistas internacionales). Los módulos futuros — Excursiones y Community — convierten la plataforma en un ecosistema completo que genera engagement, contenido orgánico y múltiples fuentes de ingreso.
+Elysio Experiences está diseñada como una plataforma de turismo completa y escalable. El MVP resuelve el problema inmediato de reservas de alojamientos en Latinoamérica y el Caribe para turistas internacionales, sin atarse a un único país de lanzamiento. Los módulos futuros — Excursiones y Community — convierten la plataforma en un ecosistema completo que genera engagement, contenido orgánico y múltiples fuentes de ingreso.
 
 La arquitectura modular garantiza que cada nueva función se añade sin romper lo existente, y el diseño multi-tenant desde el día 1 permite escalar a toda Latinoamérica sin reescribir código.
 
@@ -1183,4 +1183,4 @@ La arquitectura modular garantiza que cada nueva función se añade sin romper l
 ---
 
 *Documento de referencia — Versión 2.0 — Julio 2026*
-*Da-El World Travelers — "Viaja con confianza"*
+*Elysio Experiences*

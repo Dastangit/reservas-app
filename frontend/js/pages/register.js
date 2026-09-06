@@ -1,9 +1,11 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import i18n from '../i18n.js';
 import { passwordToggleButton } from '../utils/passwordToggle.js';
 
 const RegisterPage = {
   render() {
+    const t = (key) => i18n.t(key);
     const params = new URLSearchParams(window.location.search);
     const defaultRole = params.get('role') || 'tourist';
 
@@ -11,50 +13,50 @@ const RegisterPage = {
       <div class="auth-page">
         <div class="auth-container">
           <div class="auth-card">
-            <h1>Create Account</h1>
-            <p class="auth-subtitle">Join Da-El World Travelers</p>
-            
+            <h1>${t('auth.registerTitle')}</h1>
+            <p class="auth-subtitle">${t('auth.registerSubtitle')}</p>
+
             <form id="register-form">
               <div class="form-group">
-                <label for="name">Full Name</label>
+                <label for="name">${t('auth.name')}</label>
                 <input type="text" id="name" required placeholder="John Doe">
               </div>
-              
+
               <div class="form-group">
-                <label for="email">Email</label>
+                <label for="email">${t('auth.email')}</label>
                 <input type="email" id="email" required placeholder="your@email.com">
               </div>
-              
+
               <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password">${t('auth.password')}</label>
                 <div class="password-field-wrapper">
                   <input type="password" id="password" required placeholder="Min 6 characters" minlength="6">
                   ${passwordToggleButton('password')}
                 </div>
               </div>
-              
+
               <div class="form-group">
-                <label for="phone">Teléfono</label>
+                <label for="phone">${t('auth.phone')}</label>
                 <input type="tel" id="phone" placeholder="+1 234 567 890">
-                <small class="field-hint" id="phone-hint" style="display:none;">Obligatorio para organizadores de excursiones -- incluye el código de país.</small>
+                <small class="field-hint" id="phone-hint" style="display:none;">${t('auth.phoneHint')}</small>
               </div>
-              
+
               <div class="form-group">
-                <label for="role">Quiero</label>
+                <label for="role">${t('auth.role')}</label>
                 <select id="role">
-                  <option value="tourist" ${defaultRole === 'tourist' ? 'selected' : ''}>Reservar alojamientos</option>
-                  <option value="host" ${defaultRole === 'host' ? 'selected' : ''}>Publicar mi propiedad</option>
-                  <option value="organizer" ${defaultRole === 'organizer' ? 'selected' : ''}>Organizar excursiones y viajes locales</option>
+                  <option value="tourist" ${defaultRole === 'tourist' ? 'selected' : ''}>${t('auth.bookAccommodations')}</option>
+                  <option value="host" ${defaultRole === 'host' ? 'selected' : ''}>${t('auth.listProperty')}</option>
+                  <option value="organizer" ${defaultRole === 'organizer' ? 'selected' : ''}>${t('auth.organizeExcursions')}</option>
                 </select>
               </div>
-              
+
               <div id="error-message" class="error-message" style="display:none;"></div>
-              
-              <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+
+              <button type="submit" class="btn btn-primary btn-block">${t('auth.registerTitle')}</button>
             </form>
-            
+
             <div class="auth-links">
-              <p>Already have an account? <a href="/login" data-link>Login</a></p>
+              <p>${t('auth.hasAccount')} <a href="/login" data-link>${t('common.login')}</a></p>
             </div>
           </div>
         </div>
@@ -113,7 +115,7 @@ const RegisterPage = {
         window.location.href = role === 'host' ? '/host/dashboard' : role === 'organizer' ? '/organizer/dashboard' : '/dashboard';
       }
     } catch (error) {
-      errorEl.textContent = error.message || 'Registration failed';
+      errorEl.textContent = error.message || i18n.t('auth.registrationFailed');
       errorEl.style.display = 'block';
     }
   }

@@ -14,13 +14,13 @@ const seed = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('MongoDB connected for seeding destination demo properties');
 
-    const tenant = await Tenant.findOne({ domain: 'daelworldtravelers.com' });
+    const tenant = await Tenant.findOne({ domain: 'elysioexperiences.com' });
     if (!tenant) {
       console.error('Tenant not found. Run seed.js first.');
       process.exit(1);
     }
 
-    let host = await User.findOne({ email: 'host@daelworldtravelers.com' });
+    let host = await User.findOne({ email: 'host@elysioexperiences.com' });
     if (!host) {
       console.error('Host de prueba no encontrado. Corre seedProperties.js primero.');
       process.exit(1);

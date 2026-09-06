@@ -98,7 +98,7 @@ const CreateRecurrencePage = {
                     <label>Audiencia</label>
                     <select class="pricing-audience">
                       <option value="tourist">Turista</option>
-                      <option value="local">Residente en Cuba</option>
+                      <option value="local">Residente Local</option>
                     </select>
                   </div>
                   <div style="flex:1;">
@@ -124,8 +124,8 @@ const CreateRecurrencePage = {
               <label style="display:flex;align-items:flex-start;gap:8px;">
                 <input type="checkbox" id="rec-mixed-audience" style="margin-top:4px;">
                 <span>
-                  Esta serie admite reservas mixtas de residentes en Cuba y turistas juntos.
-                  <br><strong style="color:var(--danger, #c0392b);">Solo marca esta opción si tienes el permiso legal vigente del gobierno cubano para hacerlo.</strong>
+                  Esta serie admite reservas mixtas de residentes locales y turistas juntos.
+                  <br><strong style="color:var(--danger, #c0392b);">Solo marca esta opción si tienes el permiso legal vigente para hacerlo en tu país.</strong>
                   El admin lo revisa en cada ocurrencia que apruebe.
                 </span>
               </label>
@@ -149,7 +149,7 @@ const CreateRecurrencePage = {
       row.style.cssText = 'display:flex;gap:10px;align-items:end;';
       row.innerHTML = `
         <div style="flex:1;"><label>Audiencia</label>
-          <select class="pricing-audience"><option value="tourist">Turista</option><option value="local">Residente en Cuba</option></select>
+          <select class="pricing-audience"><option value="tourist">Turista</option><option value="local">Residente Local</option></select>
         </div>
         <div style="flex:1;"><label>Moneda</label>
           <select class="pricing-currency"><option value="USD">USD</option><option value="USDT">USDT</option><option value="CUP">CUP</option></select>

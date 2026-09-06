@@ -97,7 +97,7 @@ const Header = {
               ←
             </button>
             <a href="/" data-link class="logo">
-              <img src="/assets/logo-real.png" alt="Da-El Travels" class="logo-img">
+              <img src="/assets/logo-real.png" alt="Elysio Experiences" class="logo-img">
             </a>
           </div>
           <nav class="nav">

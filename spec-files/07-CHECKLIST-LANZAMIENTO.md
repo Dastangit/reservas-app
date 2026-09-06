@@ -1,5 +1,5 @@
 # CHECKLIST DE LANZAMIENTO
-## Da-El Travels
+## Elysio Experiences
 
 **Fecha:** Agosto 2026
 **Estado:** En preparación — plataforma construida, pendiente de verificación antes de usuarios reales
@@ -8,7 +8,7 @@
 
 ## Branding — completo
 
-- [x] Nombre unificado: "Da-El Travels" (config, HTML, PWA, header, footer, 3 idiomas)
+- [x] Nombre unificado: "Elysio Experiences" (config, HTML, PWA, header, footer, 3 idiomas)
 - [x] Logo/ícono reales conectados (`logo-real.jpeg`, `icon-real.jpeg`)
 - [x] Footer rediseñado a tema claro
 - [x] Posicionamiento "Latinoamérica y el Caribe" en todo el copy público

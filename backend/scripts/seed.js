@@ -10,12 +10,12 @@ const seed = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('MongoDB connected for seeding');
 
-    let tenant = await Tenant.findOne({ domain: 'daelworldtravelers.com' });
+    let tenant = await Tenant.findOne({ domain: 'elysioexperiences.com' });
     if (!tenant) {
       tenant = await Tenant.create({
-        name: 'Da-El World Travelers',
-        domain: 'daelworldtravelers.com',
-        admin_email: 'supportdaelworld@gmail.com',
+        name: 'Elysio Experiences',
+        domain: 'elysioexperiences.com',
+        admin_email: 'elysio.support@gmail.com',
         settings: {
           languages: ['en', 'es', 'fr'],
           default_language: 'en',
@@ -36,7 +36,7 @@ const seed = async () => {
       console.log('Tenant already exists:', tenant._id);
     }
 
-    const adminEmail = 'supportdaelworld@gmail.com';
+    const adminEmail = 'elysio.support@gmail.com';
     let admin = await User.findOne({ email: adminEmail });
     if (!admin) {
       admin = await User.create({
@@ -56,7 +56,7 @@ const seed = async () => {
     }
 
     console.log('\n--- Admin Credentials ---');
-    console.log('Email:    supportdaelworld@gmail.com');
+    console.log('Email:    elysio.support@gmail.com');
     console.log('Password: Admin123!');
     console.log('--------------------------\n');
 

@@ -1,10 +1,12 @@
 import api from '../api.js';
+import i18n from '../i18n.js';
 import { passwordToggleButton } from '../utils/passwordToggle.js';
 
 const ResetPasswordPage = {
   token: null,
 
   render() {
+    const t = (key) => i18n.t(key);
     const params = new URLSearchParams(window.location.search);
     this.token = params.get('token');
 
@@ -13,10 +15,10 @@ const ResetPasswordPage = {
         <div class="auth-page">
           <div class="auth-container">
             <div class="auth-card">
-              <h1>Link inv\u00e1lido</h1>
-              <p class="auth-subtitle">Este link de restablecimiento no es v\u00e1lido. Solicita uno nuevo.</p>
+              <h1>${t('auth.invalidLinkTitle')}</h1>
+              <p class="auth-subtitle">${t('auth.invalidLinkSubtitle')}</p>
               <div class="auth-links">
-                <p><a href="/forgot-password" data-link>Solicitar nuevo link</a></p>
+                <p><a href="/forgot-password" data-link>${t('auth.requestNewLink')}</a></p>
               </div>
             </div>
           </div>
@@ -28,24 +30,24 @@ const ResetPasswordPage = {
       <div class="auth-page">
         <div class="auth-container">
           <div class="auth-card">
-            <h1>Nueva contrase\u00f1a</h1>
-            <p class="auth-subtitle">Ingresa tu nueva contrase\u00f1a. Se cerrar\u00e1 sesi\u00f3n en todos tus dispositivos por seguridad.</p>
+            <h1>${t('auth.newPasswordTitle')}</h1>
+            <p class="auth-subtitle">${t('auth.newPasswordSubtitle')}</p>
 
             <form id="reset-form">
               <div class="form-group">
-                <label for="new-password">Nueva contrase\u00f1a</label>
-                <div class="password-field-wrapper"><input type="password" id="new-password" required minlength="6" placeholder="M\u00ednimo 6 caracteres">
+                <label for="new-password">${t('auth.newPassword')}</label>
+                <div class="password-field-wrapper"><input type="password" id="new-password" required minlength="6" placeholder="Min 6 characters">
                   ${passwordToggleButton('new-password')}</div>
               </div>
               <div class="form-group">
-                <label for="confirm-password">Confirmar contrase\u00f1a</label>
-                <div class="password-field-wrapper"><input type="password" id="confirm-password" required minlength="6" placeholder="Repite la contrase\u00f1a">
+                <label for="confirm-password">${t('auth.confirmPassword')}</label>
+                <div class="password-field-wrapper"><input type="password" id="confirm-password" required minlength="6" placeholder="Repeat password">
                   ${passwordToggleButton('confirm-password')}</div>
               </div>
 
               <div id="error-message" class="error-message" style="display:none;"></div>
 
-              <button type="submit" class="btn btn-primary btn-block" id="reset-submit">Actualizar contrase\u00f1a</button>
+              <button type="submit" class="btn btn-primary btn-block" id="reset-submit">${t('auth.updatePassword')}</button>
             </form>
           </div>
         </div>
@@ -72,7 +74,7 @@ const ResetPasswordPage = {
     errorEl.style.display = 'none';
 
     if (newPassword !== confirmPassword) {
-      errorEl.textContent = 'Las contrase\u00f1as no coinciden.';
+      errorEl.textContent = i18n.t('auth.passwordsDontMatch');
       errorEl.style.display = 'block';
       return;
     }
@@ -85,11 +87,11 @@ const ResetPasswordPage = {
       });
 
       if (response.success) {
-        alert('Contrase\u00f1a actualizada. Ahora puedes iniciar sesi\u00f3n.');
+        alert(i18n.t('auth.passwordUpdated'));
         window.location.href = '/login';
       }
     } catch (error) {
-      errorEl.textContent = error.message || 'El link puede haber expirado. Solicita uno nuevo.';
+      errorEl.textContent = error.message || i18n.t('auth.resetLinkExpired');
       errorEl.style.display = 'block';
     } finally {
       submitBtn.disabled = false;

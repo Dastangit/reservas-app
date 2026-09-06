@@ -104,7 +104,7 @@ exports.approveProperty = async (req, res, next) => {
     if (property.host_id?.email) {
       sendEmail({
         to: property.host_id.email,
-        subject: 'Property Approved - Da-El World Travelers',
+        subject: 'Property Approved - Elysio Experiences',
         html: `
           <h1>Property Approved!</h1>
           <p>Your property <strong>${property.name}</strong> has been approved and is now active on the platform.</p>
@@ -146,7 +146,7 @@ exports.rejectProperty = async (req, res, next) => {
     if (property.host_id?.email) {
       sendEmail({
         to: property.host_id.email,
-        subject: 'Property Rejected - Da-El World Travelers',
+        subject: 'Property Rejected - Elysio Experiences',
         html: `
           <h1>Property Not Approved</h1>
           <p>Your property <strong>${property.name}</strong> was not approved.</p>
@@ -950,12 +950,12 @@ exports.getPasswordResetDeliveryLinks = async (req, res, next) => {
     await user.save();
 
     const resetLink = `${env.frontendUrl}/reset-password?token=${rawToken}`;
-    const message = `Hola ${user.name}, recibimos tu solicitud para restablecer tu contraseña en Da-El World Travelers. `
+    const message = `Hola ${user.name}, recibimos tu solicitud para restablecer tu contraseña en Elysio Experiences. `
       + `Usa este link para crear una nueva contraseña (válido por 1 hora): ${resetLink}\n\n`
       + `Si no lo solicitaste, ignora este mensaje.`;
 
     const whatsapp_url = user.phone ? buildWhatsAppLink(user.phone, message) : null;
-    const mailto_url = user.email ? buildMailtoLink(user.email, 'Restablecer tu contraseña - Da-El World Travelers', message) : null;
+    const mailto_url = user.email ? buildMailtoLink(user.email, 'Restablecer tu contraseña - Elysio Experiences', message) : null;
 
     res.json({ success: true, data: { whatsapp_url, mailto_url, reset_link: resetLink } });
   } catch (error) {
@@ -1144,7 +1144,7 @@ exports.approveExperience = async (req, res, next) => {
     if (experience.organizer_id?.email) {
       sendEmail({
         to: experience.organizer_id.email,
-        subject: 'Excursión aprobada - Da-El World Travelers',
+        subject: 'Excursión aprobada - Elysio Experiences',
         html: `
           <h1>¡Excursión aprobada!</h1>
           <p>Tu excursión <strong>${experience.title}</strong> del ${new Date(experience.date).toLocaleDateString()} fue aprobada y ya está visible para los clientes.</p>
@@ -1185,7 +1185,7 @@ exports.rejectExperience = async (req, res, next) => {
     if (experience.organizer_id?.email) {
       sendEmail({
         to: experience.organizer_id.email,
-        subject: 'Excursión no aprobada - Da-El World Travelers',
+        subject: 'Excursión no aprobada - Elysio Experiences',
         html: `
           <h1>Excursión no aprobada</h1>
           <p>Tu excursión <strong>${experience.title}</strong> del ${new Date(experience.date).toLocaleDateString()} no fue aprobada.</p>
@@ -1358,7 +1358,7 @@ exports.getExperienceBookingTouristContactLinks = async (req, res, next) => {
     }
 
     let message;
-    let subject = `Tu reserva en "${booking.experience_id.title}" - Da-El World Travelers`;
+    let subject = `Tu reserva en "${booking.experience_id.title}" - Elysio Experiences`;
 
     if (booking.status === 'approved') {
       message = `Hola ${booking.tourist_data?.name || ''}, tu reserva en "${booking.experience_id.title}" `

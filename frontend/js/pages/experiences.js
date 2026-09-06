@@ -1,10 +1,12 @@
 import api from '../api.js';
+import i18n from '../i18n.js';
 import { formatExperiencePrice } from '../utils/formatters.js';
 
 const ExperiencesPage = {
   currentFilters: {},
 
   async render() {
+    const t = (key) => i18n.t(key);
     const params = new URLSearchParams(window.location.search);
     this.currentFilters = {
       city: params.get('city') || '',
@@ -16,41 +18,41 @@ const ExperiencesPage = {
       <div class="experiences-page">
         <div class="container">
           <div class="search-header">
-            <h1>Excursiones y viajes locales</h1>
-            <p style="color:var(--text-light);">Conecta con organizadores locales en Cuba</p>
+            <h1>${t('experience.pageTitle')}</h1>
+            <p style="color:var(--text-light);">${t('experience.pageSubtitle')}</p>
           </div>
 
           <div class="search-layout">
             <aside class="search-filters">
-              <h3>Filtros</h3>
+              <h3>${t('experience.filters')}</h3>
               <form id="filter-form">
                 <div class="filter-group">
-                  <label>Ciudad</label>
-                  <input type="text" id="filter-city" value="${this.currentFilters.city}" placeholder="ej: Habana">
+                  <label>${t('search.city')}</label>
+                  <input type="text" id="filter-city" value="${this.currentFilters.city}" placeholder="${t('search.cityPlaceholder')}">
                 </div>
 
                 <div class="filter-group">
-                  <label>Categoría</label>
-                  <input type="text" id="filter-category" value="${this.currentFilters.category}" placeholder="ej: tour, senderismo">
+                  <label>${t('experience.category')}</label>
+                  <input type="text" id="filter-category" value="${this.currentFilters.category}" placeholder="${t('experience.categoryPlaceholder')}">
                 </div>
 
                 <div class="filter-group">
-                  <label>Para</label>
+                  <label>${t('experience.audienceLabel')}</label>
                   <select id="filter-audience">
-                    <option value="">Todos</option>
-                    <option value="tourist" ${this.currentFilters.audience === 'tourist' ? 'selected' : ''}>Turistas</option>
-                    <option value="local" ${this.currentFilters.audience === 'local' ? 'selected' : ''}>Residentes en Cuba</option>
+                    <option value="">${t('experience.allAudiences')}</option>
+                    <option value="tourist" ${this.currentFilters.audience === 'tourist' ? 'selected' : ''}>${t('experience.tourist')}</option>
+                    <option value="local" ${this.currentFilters.audience === 'local' ? 'selected' : ''}>${t('experience.local')}</option>
                   </select>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-block">Aplicar filtros</button>
+                <button type="submit" class="btn btn-primary btn-block">${t('search.applyFilters')}</button>
               </form>
             </aside>
 
             <main class="search-results">
               <div id="results-count" class="results-count"></div>
               <div id="experiences-grid" class="properties-grid">
-                <p class="loading">Cargando excursiones...</p>
+                <p class="loading">${t('experience.loading')}</p>
               </div>
             </main>
           </div>
@@ -92,7 +94,7 @@ const ExperiencesPage = {
     const countEl = document.getElementById('results-count');
     if (!grid) return;
 
-    grid.innerHTML = '<p class="loading">Cargando...</p>';
+    grid.innerHTML = `<p class="loading">${i18n.t('common.loading')}</p>`;
 
     try {
       const params = new URLSearchParams(window.location.search);
@@ -100,10 +102,10 @@ const ExperiencesPage = {
       const experiences = response.data?.experiences || [];
       const total = response.data?.total_count ?? experiences.length;
 
-      countEl.textContent = `${total} excursiones encontradas`;
+      countEl.textContent = `${total} ${i18n.t('experience.resultsFound')}`;
 
       if (experiences.length === 0) {
-        grid.innerHTML = '<p class="no-results">No hay excursiones disponibles con estos filtros.</p>';
+        grid.innerHTML = `<p class="no-results">${i18n.t('experience.noResults')}</p>`;
         return;
       }
 
@@ -111,23 +113,23 @@ const ExperiencesPage = {
         const spotsLeft = Math.max((exp.max_participants || 0) - (exp.current_participants || 0), 0);
         const firstPrice = exp.pricing?.[0];
         const priceLabel = firstPrice
-          ? `Desde ${formatExperiencePrice(firstPrice.amount, firstPrice.currency)}`
-          : 'Consultar precio';
+          ? `${i18n.t('experience.fromPrice')} ${formatExperiencePrice(firstPrice.amount, firstPrice.currency)}`
+          : i18n.t('experience.inquirePrice');
 
         return `
           <a href="/experiences/${exp._id}" data-link class="property-card">
             <img src="${exp.images?.[0]?.url || 'https://via.placeholder.com/300x200'}" alt="${exp.title}">
             <div class="property-card-body">
               <h3>${exp.title}</h3>
-              <p>${exp.location?.city || ''} · ${new Date(exp.date).toLocaleDateString()}</p>
+              <p>${exp.location?.city || ''} · ${new Date(exp.date).toLocaleDateString(i18n.currentLang)}</p>
               <p>${priceLabel}</p>
-              <p style="font-size:0.85rem;color:var(--text-light);">${spotsLeft} cupos disponibles</p>
+              <p style="font-size:0.85rem;color:var(--text-light);">${spotsLeft} ${i18n.t('experience.spotsAvailable')}</p>
             </div>
           </a>
         `;
       }).join('');
     } catch (error) {
-      grid.innerHTML = '<p class="error">Error cargando excursiones</p>';
+      grid.innerHTML = `<p class="error">${i18n.t('experience.errorLoadingList')}</p>`;
     }
   },
 };

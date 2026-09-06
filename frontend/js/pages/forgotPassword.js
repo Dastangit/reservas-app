@@ -1,28 +1,30 @@
 import api from '../api.js';
+import i18n from '../i18n.js';
 
 const ForgotPasswordPage = {
   render() {
+    const t = (key) => i18n.t(key);
     return `
       <div class="auth-page">
         <div class="auth-container">
           <div class="auth-card">
-            <h1>\u00bfOlvidaste tu contrase\u00f1a?</h1>
-            <p class="auth-subtitle">Ingresa tu email. Un administrador se pondr\u00e1 en contacto contigo con instrucciones para restablecerla.</p>
+            <h1>${t('auth.forgotPasswordTitle')}</h1>
+            <p class="auth-subtitle">${t('auth.forgotPasswordSubtitle')}</p>
 
             <form id="forgot-form">
               <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" required placeholder="tu@email.com">
+                <label for="email">${t('auth.email')}</label>
+                <input type="email" id="email" required placeholder="your@email.com">
               </div>
 
               <div id="error-message" class="error-message" style="display:none;"></div>
               <div id="success-message" class="success-message" style="display:none;"></div>
 
-              <button type="submit" class="btn btn-primary btn-block" id="forgot-submit">Enviar solicitud</button>
+              <button type="submit" class="btn btn-primary btn-block" id="forgot-submit">${t('auth.sendRequest')}</button>
             </form>
 
             <div class="auth-links">
-              <p><a href="/login" data-link>Volver a iniciar sesi\u00f3n</a></p>
+              <p><a href="/login" data-link>${t('auth.backToLogin')}</a></p>
             </div>
           </div>
         </div>
@@ -53,12 +55,12 @@ const ForgotPasswordPage = {
       submitBtn.disabled = true;
       const response = await api.post('/auth/forgot-password', { email });
       if (response.success) {
-        successEl.textContent = 'Si ese email est\u00e1 registrado, nuestro equipo te contactar\u00e1 pronto por WhatsApp o correo con instrucciones para restablecer tu contrase\u00f1a.';
+        successEl.textContent = i18n.t('auth.forgotPasswordSuccess');
         successEl.style.display = 'block';
         document.getElementById('forgot-form').reset();
       }
     } catch (error) {
-      errorEl.textContent = error.message || 'Ocurri\u00f3 un error, intenta de nuevo.';
+      errorEl.textContent = error.message || i18n.t('auth.forgotPasswordError');
       errorEl.style.display = 'block';
     } finally {
       submitBtn.disabled = false;

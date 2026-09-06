@@ -11,7 +11,7 @@ const FeedbackFormPage = {
       <div class="feedback-form-page">
         <div class="container">
           <h1>Send Feedback</h1>
-          <p>Help us improve Da-El World Travelers</p>
+          <p>Help us improve Elysio Experiences</p>
           
           <form id="feedback-form">
             <div class="form-group">

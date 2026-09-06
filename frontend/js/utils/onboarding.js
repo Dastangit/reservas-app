@@ -3,19 +3,19 @@ import auth from '../auth.js';
 
 const WELCOME_TEXT = {
   es: {
-    title: '\u00a1Bienvenido a Da-El World Travelers!',
+    title: '\u00a1Bienvenido a Elysio Experiences!',
     body: 'Nos gustar\u00eda que leyeras nuestra secci\u00f3n <strong>C\u00f3mo Funciona</strong> para que entiendas bien el proceso de reserva, el pago del fee y c\u00f3mo funciona el resto del pago en el alojamiento. Gracias por elegirnos.',
     cta: 'Leer C\u00f3mo Funciona',
     dismiss: 'Entendido',
   },
   en: {
-    title: 'Welcome to Da-El World Travelers!',
+    title: 'Welcome to Elysio Experiences!',
     body: 'We\u2019d like you to read our <strong>How It Works</strong> section so you understand the booking process, the booking fee, and how the remaining payment at the accommodation works. Thank you for choosing us.',
     cta: 'Read How It Works',
     dismiss: 'Got it',
   },
   fr: {
-    title: 'Bienvenue chez Da-El World Travelers !',
+    title: 'Bienvenue chez Elysio Experiences !',
     body: 'Nous vous invitons \u00e0 lire notre section <strong>Comment \u00e7a marche</strong> pour bien comprendre le processus de r\u00e9servation, les frais, et comment fonctionne le paiement restant \u00e0 l\u2019h\u00e9bergement. Merci de nous avoir choisis.',
     cta: 'Lire Comment \u00e7a marche',
     dismiss: 'Compris',

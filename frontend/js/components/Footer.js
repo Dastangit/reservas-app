@@ -6,12 +6,12 @@ const Footer = {
           <div class="footer-grid">
             <div class="footer-brand">
               <div class="footer-logo-row">
-                <img src="/assets/logo-real.png" alt="Da-El Travels" class="footer-logo-img">
+                <img src="/assets/logo-real.png" alt="Elysio Experiences" class="footer-logo-img">
               </div>
               <p>Viaja con confianza</p>
               <p class="footer-contact">
                 <strong>Contacto:</strong><br>
-                Email: <a href="mailto:supportdaelworld@gmail.com">supportdaelworld@gmail.com</a><br>
+                Email: <a href="mailto:elysio.support@gmail.com">elysio.support@gmail.com</a><br>
                 WhatsApp: <a href="https://wa.me/16055003653" target="_blank" rel="noopener">+1 6055003653</a>
               </p>
             </div>
@@ -36,7 +36,7 @@ const Footer = {
             </div>
           </div>
           <div class="footer-bottom">
-            <p>&copy; ${new Date().getFullYear()} Da-El Travels. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} Elysio Experiences. All rights reserved.</p>
           </div>
         </div>
       </footer>

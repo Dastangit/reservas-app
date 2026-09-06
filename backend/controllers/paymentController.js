@@ -29,7 +29,7 @@ exports.createInvoice = async (req, res, next) => {
 
     const invoice = await createQvaPayInvoice({
       amount: booking.fee_amount,
-      description: 'Da-El Travels - Booking Service Fee',
+      description: 'Elysio Experiences - Booking Service Fee',
       remote_id: booking._id.toString(),
       webhook: `${env.apiUrl}/api/webhooks/qvapay`,
       expire_at: booking.hold_expires_at ? booking.hold_expires_at.toISOString() : undefined,

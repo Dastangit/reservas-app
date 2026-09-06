@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dael-v5';
+const CACHE_NAME = 'elysio-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -63,11 +63,11 @@ self.addEventListener('push', (event) => {
   try {
     payload = event.data.json();
   } catch (e) {
-    payload = { title: 'Da-El World Travelers', body: event.data.text() };
+    payload = { title: 'Elysio Experiences', body: event.data.text() };
   }
 
   event.waitUntil(
-    self.registration.showNotification(payload.title || 'Da-El World Travelers', {
+    self.registration.showNotification(payload.title || 'Elysio Experiences', {
       body: payload.body || '',
       icon: '/assets/icons/icon-192.png',
       badge: '/assets/icons/icon-192.png',

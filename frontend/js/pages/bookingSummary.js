@@ -1,11 +1,14 @@
 import api from '../api.js';
 import { formatCurrency, formatDate, getStatusColor } from '../utils/formatters.js';
 import auth from '../auth.js';
+import i18n from '../i18n.js';
 
 const BookingSummaryPage = {
   async render() {
+    const t = (key) => i18n.t(key);
+
     if (!auth.isLoggedIn()) {
-      return '<div class="container"><p>Please <a href="/login" data-link>login</a> to view booking details.</p></div>';
+      return `<div class="container"><p>${t('booking.loginRequiredView')}</p></div>`;
     }
 
     const bookingId = this._params?.id;
@@ -15,7 +18,7 @@ const BookingSummaryPage = {
       const booking = response.data?.booking;
 
       if (!booking) {
-        return '<div class="container"><p class="error">Booking not found</p></div>';
+        return `<div class="container"><p class="error">${t('booking.bookingNotFound')}</p></div>`;
       }
 
       const statusColor = getStatusColor(booking.status);
@@ -23,96 +26,108 @@ const BookingSummaryPage = {
       return `
         <div class="booking-summary-page">
           <div class="container">
-            <h1>Booking Details</h1>
+            <h1>${t('booking.detailsTitle')}</h1>
             
             <div class="booking-detail-card">
               <div class="booking-header">
-                <h2>${booking.property_id?.name || 'Property'}</h2>
+                <h2>${booking.property_id?.name || t('booking.propertyFallback')}</h2>
                 <span class="status-badge" style="background-color: ${statusColor}">
-                  ${booking.status.replace(/_/g, ' ').toUpperCase()}
+                  ${this.statusLabel(booking.status)}
                 </span>
               </div>
               
               <div class="booking-body">
                 <div class="detail-section">
-                  <h3>Dates</h3>
-                  <p><strong>Check-in:</strong> ${formatDate(booking.check_in)}</p>
-                  <p><strong>Check-out:</strong> ${formatDate(booking.check_out)}</p>
-                  <p><strong>Nights:</strong> ${booking.num_nights}</p>
+                  <h3>${t('booking.dates')}</h3>
+                  <p><strong>${t('booking.checkIn')}:</strong> ${formatDate(booking.check_in)}</p>
+                  <p><strong>${t('booking.checkOut')}:</strong> ${formatDate(booking.check_out)}</p>
+                  <p><strong>${t('booking.nights')}:</strong> ${booking.num_nights}</p>
                 </div>
                 
                 <div class="detail-section">
-                  <h3>Guests</h3>
-                  <p>${booking.num_guests} guest(s)</p>
+                  <h3>${t('booking.guests')}</h3>
+                  <p>${booking.num_guests} ${t('booking.guestWord')}</p>
                 </div>
                 
                 <div class="detail-section">
-                  <h3>Payment</h3>
-                  <p><strong>Total Amount:</strong> ${formatCurrency(booking.total_amount)}</p>
-                  <p><strong>Fee Paid:</strong> ${formatCurrency(booking.fee_amount)}</p>
-                  <p><strong>Payment Option:</strong> ${booking.payment_option === 'full_payment' ? 'Full payment on arrival' : 'Daily payment'}</p>
-                  ${booking.status === 'pending_payment' ? `<p><strong>Payment Status:</strong> ${this.paymentStageLabel(booking.payment_stage)}</p>` : ''}
+                  <h3>${t('booking.payment')}</h3>
+                  <p><strong>${t('booking.totalAmount')}</strong> ${formatCurrency(booking.total_amount)}</p>
+                  <p><strong>${t('booking.feePaid')}</strong> ${formatCurrency(booking.fee_amount)}</p>
+                  <p><strong>${t('booking.paymentOption')}</strong> ${booking.payment_option === 'full_payment' ? t('booking.fullPayment') : t('booking.dailyPayment')}</p>
+                  ${booking.status === 'pending_payment' ? `<p><strong>${t('booking.paymentStatus')}</strong> ${this.paymentStageLabel(booking.payment_stage)}</p>` : ''}
                 </div>
                 
                 <div class="detail-section">
-                  <h3>Contact Information</h3>
-                  <p><strong>Name:</strong> ${booking.tourist_data?.name || 'N/A'}</p>
-                  <p><strong>Email:</strong> ${booking.tourist_data?.email || 'N/A'}</p>
-                  <p><strong>Phone:</strong> ${booking.tourist_data?.phone || 'N/A'}</p>
+                  <h3>${t('booking.contactInfo')}</h3>
+                  <p><strong>${t('auth.name')}:</strong> ${booking.tourist_data?.name || 'N/A'}</p>
+                  <p><strong>${t('auth.email')}:</strong> ${booking.tourist_data?.email || 'N/A'}</p>
+                  <p><strong>${t('booking.phoneLabel').replace(' (WhatsApp) *', '')}:</strong> ${booking.tourist_data?.phone || 'N/A'}</p>
                 </div>
                 
                 ${booking.status === 'pending_approval' || booking.status === 'pending_payment' ? `
                   <div class="booking-actions">
-                    <button onclick="cancelBooking('${booking._id}')" class="btn btn-danger">Cancel Booking</button>
+                    <button onclick="cancelBooking('${booking._id}')" class="btn btn-danger">${t('booking.cancelBookingBtn')}</button>
                   </div>
                 ` : ''}
                 
                 ${booking.status === 'completed' ? `
                   <div class="booking-actions">
-                    <a href="/review?booking_id=${booking._id}" data-link class="btn btn-primary">Write Review</a>
+                    <a href="/review?booking_id=${booking._id}" data-link class="btn btn-primary">${t('booking.writeReview')}</a>
                   </div>
                 ` : ''}
               </div>
               
               <div class="booking-contact">
-                <h3>Contact Administrator</h3>
-                <p>Email: supportdaelworld@gmail.com</p>
+                <h3>${t('confirmation.contactAdmin')}</h3>
+                <p>Email: elysio.support@gmail.com</p>
               </div>
             </div>
           </div>
         </div>
       `;
     } catch (error) {
-      return '<div class="container"><p class="error">Error loading booking details</p></div>';
+      return `<div class="container"><p class="error">${t('booking.errorLoadingDetails')}</p></div>`;
     }
   },
 
   init() {
     window.cancelBooking = async (bookingId) => {
-      if (confirm('Are you sure you want to cancel this booking?')) {
+      if (confirm(i18n.t('booking.confirmCancel'))) {
         try {
           await api.post(`/bookings/${bookingId}/cancel`);
-          alert('Booking cancelled successfully');
+          alert(i18n.t('booking.cancelled'));
           window.location.href = '/dashboard';
         } catch (error) {
-          alert('Failed to cancel booking: ' + error.message);
+          alert(i18n.t('booking.cancelFailed') + error.message);
         }
       }
     };
   },
 
+  statusLabel(status) {
+    const key = {
+      pending_payment: 'statusPendingPayment',
+      pending_approval: 'statusPendingApproval',
+      approved: 'statusApproved',
+      rejected: 'statusRejected',
+      completed: 'statusCompleted',
+      cancelled: 'statusCancelled',
+    }[status];
+    return key ? i18n.t(`booking.${key}`) : status.replace(/_/g, ' ').toUpperCase();
+  },
+
   paymentStageLabel(stage) {
-    const labels = {
-      awaiting_payment: 'Awaiting payment',
-      waiting: 'Waiting for your crypto payment',
-      confirming: 'Payment received, confirming on the blockchain…',
-      sending: 'Confirmed, finalizing…',
-      partially_paid: 'Partial payment received — our team will contact you',
-      finished: 'Payment complete',
-      failed: 'Payment failed',
-      expired: 'Payment window expired',
-    };
-    return labels[stage] || 'Awaiting payment';
+    const key = {
+      awaiting_payment: 'stageAwaitingPayment',
+      waiting: 'stageWaiting',
+      confirming: 'stageConfirming',
+      sending: 'stageSending',
+      partially_paid: 'stagePartiallyPaid',
+      finished: 'stageFinished',
+      failed: 'stageFailed',
+      expired: 'stageExpired',
+    }[stage];
+    return key ? i18n.t(`booking.${key}`) : i18n.t('booking.stageAwaitingPayment');
   }
 };
 

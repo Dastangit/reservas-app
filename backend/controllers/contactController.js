@@ -22,7 +22,7 @@ exports.contact = async (req, res, next) => {
 
     await sendEmail({
       to: adminEmail,
-      subject: `New Contact Message from ${name} - Da-El World Travelers`,
+      subject: `New Contact Message from ${name} - Elysio Experiences`,
       html: `
         <h1>New Contact Message</h1>
         <p><strong>From:</strong> ${name} (${email})</p>

@@ -109,7 +109,7 @@ const PropertyDetailPage = {
                 
                 <div class="contact-info">
                   <p><strong>${t('confirmation.contactAdmin')}:</strong></p>
-                  <p>Email: supportdaelworld@gmail.com</p>
+                  <p>Email: elysio.support@gmail.com</p>
                 </div>
               </div>
             </div>

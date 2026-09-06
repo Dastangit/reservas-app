@@ -36,12 +36,12 @@ exports.register = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Email already registered' });
     }
 
-    let tenant = await Tenant.findOne({ domain: 'daelworldtravelers.com' });
+    let tenant = await Tenant.findOne({ domain: 'elysioexperiences.com' });
     if (!tenant) {
       tenant = await Tenant.create({
-        name: 'Da-El World Travelers',
-        domain: 'daelworldtravelers.com',
-        admin_email: 'supportdaelworld@gmail.com',
+        name: 'Elysio Experiences',
+        domain: 'elysioexperiences.com',
+        admin_email: 'elysio.support@gmail.com',
       });
     }
 
@@ -211,7 +211,7 @@ exports.verifyTwoFactor = async (req, res, next) => {
 exports.setupTwoFactor = async (req, res, next) => {
   try {
     const secret = speakeasy.generateSecret({
-      name: `Da-El Admin (${req.user.email})`,
+      name: `Elysio Admin (${req.user.email})`,
     });
 
     req.user.two_factor.secret = secret.base32;

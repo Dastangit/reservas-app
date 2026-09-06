@@ -91,8 +91,8 @@ const CreateExperiencePage = {
               <label style="display:flex;align-items:flex-start;gap:8px;">
                 <input type="checkbox" id="exp-mixed-audience" ${existing?.allows_mixed_audience ? 'checked' : ''} style="margin-top:4px;">
                 <span>
-                  Esta excursión admite reservas mixtas de residentes en Cuba y turistas juntos.
-                  <br><strong style="color:var(--danger, #c0392b);">Solo marca esta opción si tienes el permiso legal vigente del gobierno cubano para hacerlo.</strong>
+                  Esta excursión admite reservas mixtas de residentes locales y turistas juntos.
+                  <br><strong style="color:var(--danger, #c0392b);">Solo marca esta opción si tienes el permiso legal vigente para hacerlo en tu país.</strong>
                   El admin revisa esto al aprobar la excursión.
                 </span>
               </label>
@@ -145,7 +145,7 @@ const CreateExperiencePage = {
           <label>Audiencia</label>
           <select class="pricing-audience">
             <option value="tourist" ${p.audience === 'tourist' ? 'selected' : ''}>Turista</option>
-            <option value="local" ${p.audience === 'local' ? 'selected' : ''}>Residente en Cuba</option>
+            <option value="local" ${p.audience === 'local' ? 'selected' : ''}>Residente Local</option>
           </select>
         </div>
         <div style="flex:1;">
