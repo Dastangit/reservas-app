@@ -1,10 +1,12 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import i18n from '../i18n.js';
 
 const ReviewFormPage = {
   async render() {
+    const t = (key) => i18n.t(key);
     if (!auth.isLoggedIn()) {
-      return '<div class="container"><p>Please <a href="/login" data-link>login</a> to submit a review.</p></div>';
+      return `<div class="container"><p>${t('review.loginPromptBefore')} <a href="/login" data-link>${t('common.login')}</a> ${t('review.loginPromptAfter')}</p></div>`;
     }
 
     const params = new URLSearchParams(window.location.search);
@@ -13,13 +15,13 @@ const ReviewFormPage = {
     return `
       <div class="review-form-page">
         <div class="container">
-          <h1>Write a Review</h1>
+          <h1>${t('review.title')}</h1>
           
           <form id="review-form">
             <input type="hidden" id="booking-id" value="${bookingId || ''}">
             
             <div class="form-group">
-              <label>Rating</label>
+              <label>${t('review.rating')}</label>
               <div class="rating-input" id="rating-input">
                 <span class="star" data-value="1">&#9733;</span>
                 <span class="star" data-value="2">&#9733;</span>
@@ -31,14 +33,14 @@ const ReviewFormPage = {
             </div>
             
             <div class="form-group">
-              <label>Your Review</label>
-              <textarea id="review-text" rows="5" required placeholder="Tell us about your experience..."></textarea>
+              <label>${t('review.yourReview')}</label>
+              <textarea id="review-text" rows="5" required placeholder="${t('review.placeholder')}"></textarea>
             </div>
             
             <div id="error-message" class="error-message" style="display:none;"></div>
             <div id="success-message" class="success-message" style="display:none;"></div>
             
-            <button type="submit" class="btn btn-primary">Submit Review</button>
+            <button type="submit" class="btn btn-primary">${t('review.submit')}</button>
           </form>
         </div>
       </div>
@@ -77,7 +79,7 @@ const ReviewFormPage = {
     const successEl = document.getElementById('success-message');
 
     if (rating === 0) {
-      errorEl.textContent = 'Please select a rating';
+      errorEl.textContent = i18n.t('review.selectRating');
       errorEl.style.display = 'block';
       return;
     }
@@ -90,7 +92,7 @@ const ReviewFormPage = {
       });
 
       if (response.success) {
-        successEl.textContent = 'Review submitted successfully!';
+        successEl.textContent = i18n.t('review.submitSuccess');
         successEl.style.display = 'block';
         errorEl.style.display = 'none';
 
@@ -99,7 +101,7 @@ const ReviewFormPage = {
         }, 2000);
       }
     } catch (error) {
-      errorEl.textContent = error.message || 'Failed to submit review';
+      errorEl.textContent = error.message || i18n.t('review.submitFailed');
       errorEl.style.display = 'block';
     }
   }

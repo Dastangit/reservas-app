@@ -1,14 +1,11 @@
 const APP_CONFIG = {
   app_name: 'Elysio Experiences',
   app_tagline: 'Viaja con confianza',
-  app_logo: '/assets/logo-real.png',
+  app_logo: '/assets/logo-elysio.svg',
 
   admin_email: 'elysio.support@gmail.com',
 
-  social: {
-    instagram: 'https://instagram.com/daelworldtravelers',
-    facebook: 'https://facebook.com/daelworldtravelers',
-  },
+  social: {},
 
   fee: {
     amount: 7,

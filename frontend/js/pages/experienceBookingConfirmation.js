@@ -1,10 +1,13 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import i18n from '../i18n.js';
 
 const ExperienceBookingConfirmationPage = {
   async render() {
+    const t = (key) => i18n.t(key);
+
     if (!auth.isLoggedIn()) {
-      return '<div class="container"><p>Por favor <a href="/login" data-link>inicia sesión</a>.</p></div>';
+      return `<div class="container"><p>${t('experience.loginRequiredSimple')}</p></div>`;
     }
 
     const id = this._params?.bookingId || window.location.pathname.split('/')[2];
@@ -14,7 +17,7 @@ const ExperienceBookingConfirmationPage = {
       const booking = response.data?.booking;
 
       if (!booking) {
-        return '<div class="container"><p class="error">Reserva no encontrada</p></div>';
+        return `<div class="container"><p class="error">${t('booking.bookingNotFound')}</p></div>`;
       }
 
       const hoursLeft = Math.max(0, Math.round((new Date(booking.hold_expires_at) - new Date()) / (1000 * 60 * 60)));
@@ -23,22 +26,22 @@ const ExperienceBookingConfirmationPage = {
         <div class="confirmation-page">
           <div class="container">
             <div class="confirmation-card">
-              <h1>¡Solicitud de reserva enviada!</h1>
-              <p class="confirmation-subtitle">Reservaste ${booking.num_spots} cupo(s) en "${booking.experience_id?.title || 'la excursión'}"</p>
+              <h1>${t('experience.requestSentTitle')}</h1>
+              <p class="confirmation-subtitle">${t('experience.bookedSpotsPrefix')} ${booking.num_spots} ${t('experience.spotsWord')} ${t('experience.inQuotes')} "${booking.experience_id?.title || t('experience.fallbackTitle')}"</p>
 
               <div class="confirmation-details">
-                <h2>¿Qué sigue?</h2>
-                <p>No pagaste nada por reservar. Tu solicitud está pendiente de aprobación del admin -- tienes una ventana de aproximadamente ${hoursLeft}h más para que se apruebe, o los cupos se liberan automáticamente.</p>
-                <p>Una vez aprobada, recibirás el contacto del organizador para coordinar el pago del servicio y los detalles del punto de encuentro.</p>
+                <h2>${t('confirmation.whatNext')}</h2>
+                <p>${t('experience.noFeePaidPrefix')}${hoursLeft}${t('experience.noFeePaidSuffix')}</p>
+                <p>${t('experience.approvedContactNote')}</p>
               </div>
 
-              <a href="/experience-bookings" data-link class="btn btn-primary">Ver mis reservas de excursiones</a>
+              <a href="/experience-bookings" data-link class="btn btn-primary">${t('experience.viewMyBookingsBtn')}</a>
             </div>
           </div>
         </div>
       `;
     } catch (error) {
-      return '<div class="container"><p class="error">No se pudo cargar la reserva</p></div>';
+      return `<div class="container"><p class="error">${t('experience.couldNotLoadBooking')}</p></div>`;
     }
   },
 

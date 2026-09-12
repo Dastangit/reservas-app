@@ -1,47 +1,49 @@
 import api from '../api.js';
+import i18n from '../i18n.js';
 
 const PaymentCheckoutPage = {
   bookingId: null,
 
   async render() {
+    const t = (key) => i18n.t(key);
     const params = new URLSearchParams(window.location.search);
     this.bookingId = params.get('booking_id');
 
     if (!this.bookingId) {
-      return '<div class="container"><p class="error">No booking specified.</p></div>';
+      return `<div class="container"><p class="error">${t('booking.checkoutNoBooking')}</p></div>`;
     }
 
     return `
       <div class="checkout-page">
         <div class="container">
           <div class="checkout-info">
-            <h1>Pago del fee de reserva</h1>
+            <h1>${t('booking.checkoutTitle')}</h1>
 
             <div id="checkout-choice">
-              <p>Elige cómo prefieres pagar el fee de reserva:</p>
+              <p>${t('booking.checkoutChoosePayment')}</p>
               <div class="checkout-methods">
-                <button id="method-qvapay" class="btn btn-primary">Pagar con QvaPay (tarjeta / saldo)</button>
-                <button id="method-paypal" class="btn btn-outline">Pagar con PayPal (transferencia manual)</button>
+                <button id="method-qvapay" class="btn btn-primary">${t('booking.checkoutQvapay')}</button>
+                <button id="method-paypal" class="btn btn-outline">${t('booking.checkoutPaypal')}</button>
               </div>
             </div>
 
             <div id="checkout-loading" style="display:none;">
-              <p>Preparando tu pago...</p>
+              <p>${t('booking.checkoutPreparing')}</p>
               <div class="loading-spinner"></div>
             </div>
 
             <div id="checkout-paypal-manual" style="display:none;">
-              <p>Usa este link para pagar el fee por PayPal. Puedes pagar con tarjeta sin necesidad de cuenta de PayPal.</p>
-              <a id="paypal-manual-link" href="#" target="_blank" class="btn btn-primary">Ir a pagar por PayPal</a>
-              <p style="margin-top:1rem;">Cuando termines el pago, presiona el siguiente botón para avisarnos:</p>
-              <button id="paypal-manual-confirm" class="btn btn-success">Ya pagué</button>
+              <p>${t('booking.checkoutPaypalInstructions')}</p>
+              <a id="paypal-manual-link" href="#" target="_blank" class="btn btn-primary">${t('booking.checkoutPaypalGo')}</a>
+              <p style="margin-top:1rem;">${t('booking.checkoutPaypalConfirmPrompt')}</p>
+              <button id="paypal-manual-confirm" class="btn btn-success">${t('booking.checkoutPaypalPaid')}</button>
               <p id="paypal-manual-thanks" style="display:none; margin-top:1rem;">
-                ¡Gracias! Le avisamos al equipo, revisarán tu pago y confirmaremos tu reserva pronto.
+                ${t('booking.checkoutPaypalThanks')}
               </p>
             </div>
 
             <div id="checkout-error" class="error-message" style="display:none; margin-top: 1rem;"></div>
-            <a id="checkout-retry" href="#" style="display:none; margin-top: 1rem;" class="btn btn-primary">Retry</a>
+            <a id="checkout-retry" href="#" style="display:none; margin-top: 1rem;" class="btn btn-primary">${t('booking.checkoutRetry')}</a>
           </div>
         </div>
       </div>
@@ -64,7 +66,7 @@ const PaymentCheckoutPage = {
     document.getElementById('checkout-loading').style.display = 'none';
     const errorEl = document.getElementById('checkout-error');
     const retryEl = document.getElementById('checkout-retry');
-    errorEl.textContent = message || 'Failed to create payment';
+    errorEl.textContent = message || i18n.t('booking.checkoutFailed');
     errorEl.style.display = 'block';
     retryEl.style.display = 'inline-block';
     retryEl.onclick = (e) => {
@@ -108,7 +110,7 @@ const PaymentCheckoutPage = {
             document.getElementById('paypal-manual-thanks').style.display = 'block';
           } catch (error) {
             e.target.disabled = false;
-            alert('No se pudo avisar al equipo, intenta de nuevo: ' + error.message);
+            alert(i18n.t('booking.checkoutNotifyFailed') + error.message);
           }
         });
       } else {

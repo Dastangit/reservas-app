@@ -1,29 +1,32 @@
 import api from '../api.js';
 import BookingCard from '../components/BookingCard.js';
 import auth from '../auth.js';
+import i18n from '../i18n.js';
 
 const AdminBookingsPage = {
   async render() {
+    const t = (key) => i18n.t(key);
+
     if (!auth.isLoggedIn() || !auth.isAdmin()) {
-      return '<div class="container"><p>Access denied. Please login as admin.</p></div>';
+      return `<div class="container"><p>${t('admin.accessDenied')}</p></div>`;
     }
 
     return `
       <div class="admin-bookings-page">
         <div class="container">
-          <h1>Manage Bookings</h1>
+          <h1>${t('admin.manageBookings')}</h1>
           
           <div class="dashboard-tabs">
-            <button class="tab-btn active" data-tab="all">All</button>
-            <button class="tab-btn" data-tab="pending_payment">Pago pendiente</button>
-            <button class="tab-btn" data-tab="pending_approval">Pending</button>
-            <button class="tab-btn" data-tab="approved">Approved</button>
-            <button class="tab-btn" data-tab="completed">Completed</button>
-            <button class="tab-btn" data-tab="rejected">Rejected</button>
+            <button class="tab-btn active" data-tab="all">${t('dashboard.all')}</button>
+            <button class="tab-btn" data-tab="pending_payment">${t('booking.statusPendingPayment')}</button>
+            <button class="tab-btn" data-tab="pending_approval">${t('dashboard.pending')}</button>
+            <button class="tab-btn" data-tab="approved">${t('dashboard.approved')}</button>
+            <button class="tab-btn" data-tab="completed">${t('dashboard.completed')}</button>
+            <button class="tab-btn" data-tab="rejected">${t('booking.statusRejected')}</button>
           </div>
           
           <div id="bookings-list">
-            <p class="loading">Loading bookings...</p>
+            <p class="loading">${t('admin.loadingBookings')}</p>
           </div>
         </div>
       </div>
@@ -46,22 +49,22 @@ const AdminBookingsPage = {
     window.approveBooking = async (id) => {
       try {
         await api.post(`/bookings/${id}/approve`);
-        alert('Booking approved');
+        alert(i18n.t('admin.bookingApproved'));
         this.loadBookings('all');
       } catch (error) {
-        alert('Error: ' + error.message);
+        alert(i18n.t('common.errorPrefix') + error.message);
       }
     };
 
     window.rejectBooking = async (id) => {
-      const reason = prompt('Enter rejection reason:');
+      const reason = prompt(i18n.t('admin.enterRejectionReason'));
       if (reason) {
         try {
           await api.post(`/bookings/${id}/reject`, { reason });
-          alert('Booking rejected');
+          alert(i18n.t('admin.bookingRejected'));
           this.loadBookings('all');
         } catch (error) {
-          alert('Error: ' + error.message);
+          alert(i18n.t('common.errorPrefix') + error.message);
         }
       }
     };
@@ -69,10 +72,10 @@ const AdminBookingsPage = {
     window.completeBooking = async (id) => {
       try {
         await api.post(`/bookings/${id}/complete`);
-        alert('Booking completed');
+        alert(i18n.t('host.bookingCompleted'));
         this.loadBookings('all');
       } catch (error) {
-        alert('Error: ' + error.message);
+        alert(i18n.t('common.errorPrefix') + error.message);
       }
     };
 
@@ -83,10 +86,10 @@ const AdminBookingsPage = {
         if (url) {
           window.open(url, '_blank');
         } else {
-          alert('El anfitrión no tiene un teléfono registrado.');
+          alert(i18n.t('admin.hostNoPhoneRegistered'));
         }
       } catch (error) {
-        alert('Error: ' + error.message);
+        alert(i18n.t('common.errorPrefix') + error.message);
       }
     };
 
@@ -98,10 +101,10 @@ const AdminBookingsPage = {
         if (url) {
           window.open(url, '_blank');
         } else {
-          alert('El turista no tiene un teléfono registrado.');
+          alert(i18n.t('admin.touristNoPhoneRegistered'));
         }
       } catch (error) {
-        alert('Error: ' + error.message);
+        alert(i18n.t('common.errorPrefix') + error.message);
       }
     };
 
@@ -113,21 +116,21 @@ const AdminBookingsPage = {
         if (url) {
           window.location.href = url;
         } else {
-          alert('El turista no tiene un correo registrado.');
+          alert(i18n.t('admin.touristNoEmailRegistered'));
         }
       } catch (error) {
-        alert('Error: ' + error.message);
+        alert(i18n.t('common.errorPrefix') + error.message);
       }
     };
 
     window.confirmManualPayment = async (id) => {
-      const reference = prompt('Referencia u observación del pago (opcional):') || undefined;
+      const reference = prompt(i18n.t('admin.paymentReferencePrompt')) || undefined;
       try {
         await api.post(`/admin/bookings/${id}/confirm-manual-payment`, { reference });
-        alert('Pago confirmado, la reserva pasó a revisión de aprobación.');
+        alert(i18n.t('admin.paymentConfirmedMoved'));
         this.loadBookings(document.querySelector('.tab-btn.active')?.dataset.tab || 'all');
       } catch (error) {
-        alert('Error: ' + error.message);
+        alert(i18n.t('common.errorPrefix') + error.message);
       }
     };
   },
@@ -136,7 +139,7 @@ const AdminBookingsPage = {
     const list = document.getElementById('bookings-list');
     if (!list) return;
 
-    list.innerHTML = '<p class="loading">Loading...</p>';
+    list.innerHTML = `<p class="loading">${i18n.t('common.loading')}</p>`;
 
     try {
       const params = filter !== 'all' ? `?status=${filter}` : '';
@@ -144,13 +147,13 @@ const AdminBookingsPage = {
       const bookings = response.data?.bookings || [];
 
       if (bookings.length === 0) {
-        list.innerHTML = '<p class="no-results">No bookings found</p>';
+        list.innerHTML = `<p class="no-results">${i18n.t('admin.noBookingsFound')}</p>`;
         return;
       }
 
       list.innerHTML = BookingCard.renderList(bookings, 'admin');
     } catch (error) {
-      list.innerHTML = '<p class="error">Error loading bookings</p>';
+      list.innerHTML = `<p class="error">${i18n.t('dashboard.errorLoading')}</p>`;
     }
   }
 };

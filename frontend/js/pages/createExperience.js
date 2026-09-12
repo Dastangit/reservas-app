@@ -1,13 +1,16 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import i18n from '../i18n.js';
 
 const CreateExperiencePage = {
   editId: null,
   images: [],
 
   async render() {
+    const t = (key) => i18n.t(key);
+
     if (!auth.isLoggedIn() || !auth.isOrganizer()) {
-      return '<div class="container"><p>Acceso denegado. Inicia sesión como organizador.</p></div>';
+      return `<div class="container"><p>${t('organizer.accessDenied')}</p></div>`;
     }
 
     this.editId = this._params?.id || null;
@@ -18,10 +21,10 @@ const CreateExperiencePage = {
         const res = await api.get(`/organizer/experiences`);
         existing = (res.data?.experiences || []).find((e) => e._id === this.editId);
       } catch (error) {
-        return '<div class="container"><p class="error">No se pudo cargar la excursión</p></div>';
+        return `<div class="container"><p class="error">${t('createExperience.couldNotLoad')}</p></div>`;
       }
       if (!existing) {
-        return '<div class="container"><p class="error">Excursión no encontrada</p></div>';
+        return `<div class="container"><p class="error">${t('experience.notFound')}</p></div>`;
       }
       this.images = existing.images || [];
     }
@@ -29,109 +32,109 @@ const CreateExperiencePage = {
     return `
       <div class="publish-property-page">
         <div class="container">
-          <h1>${this.editId ? 'Editar excursión' : 'Nueva excursión'}</h1>
+          <h1>${this.editId ? t('createExperience.editTitle') : t('createExperience.newTitle')}</h1>
 
           <form id="experience-form">
             <div class="form-section">
-              <h2>Información básica</h2>
+              <h2>${t('propertyForm.basicInfo')}</h2>
 
               <div class="form-group">
-                <label>Título</label>
+                <label>${t('createExperience.titleLabel')}</label>
                 <input type="text" id="exp-title" value="${existing?.title || ''}" required>
               </div>
 
               <div class="form-group">
-                <label>Descripción</label>
+                <label>${t('createExperience.descriptionLabel')}</label>
                 <textarea id="exp-description" rows="4" required>${existing?.description || ''}</textarea>
               </div>
 
               <div class="form-group">
-                <label>Categoría</label>
-                <input type="text" id="exp-category" value="${existing?.category || ''}" placeholder="ej: tour, senderismo, gastronomía">
+                <label>${t('createExperience.categoryLabel')}</label>
+                <input type="text" id="exp-category" value="${existing?.category || ''}" placeholder="${t('createExperience.categoryPlaceholder')}">
               </div>
 
               <div class="form-group">
-                <label>Ciudad</label>
+                <label>${t('propertyForm.cityLabel')}</label>
                 <input type="text" id="exp-city" value="${existing?.location?.city || ''}" required>
               </div>
 
               <div class="form-group">
-                <label>Dirección / punto de encuentro (opcional, solo lo ve el admin hasta aprobar la reserva)</label>
+                <label>${t('createExperience.addressLabel')}</label>
                 <input type="text" id="exp-address" value="${existing?.location?.address || ''}">
               </div>
 
               <div class="form-group">
-                <label>Fecha y hora</label>
+                <label>${t('createExperience.dateLabel')}</label>
                 <input type="datetime-local" id="exp-date" value="${existing?.date ? new Date(existing.date).toISOString().slice(0, 16) : ''}" required>
               </div>
 
               <div class="form-group">
-                <label>Duración (horas)</label>
+                <label>${t('createExperience.durationLabel')}</label>
                 <input type="number" id="exp-duration" min="0" value="${existing?.duration_hours || ''}">
               </div>
 
               <div class="form-group">
-                <label>Cupos máximos</label>
+                <label>${t('createExperience.maxSpotsLabel')}</label>
                 <input type="number" id="exp-max-participants" min="1" value="${existing?.max_participants || ''}" required>
               </div>
             </div>
 
             <div class="form-section">
-              <h2>Precios</h2>
-              <p style="color:var(--text-light);font-size:0.9rem;">Define el precio por cupo según a quién le vendes -- podés agregar varias combinaciones.</p>
+              <h2>${t('createExperience.pricingSection')}</h2>
+              <p style="color:var(--text-light);font-size:0.9rem;">${t('createExperience.pricingHint')}</p>
 
               <div id="pricing-rows">
                 ${(existing?.pricing?.length ? existing.pricing : [{ audience: 'tourist', currency: 'USD', amount: '' }]).map((p) => this.pricingRowHtml(p)).join('')}
               </div>
-              <button type="button" id="add-pricing-btn" class="btn btn-outline btn-sm">+ Agregar precio</button>
+              <button type="button" id="add-pricing-btn" class="btn btn-outline btn-sm">${t('createExperience.addPriceBtn')}</button>
             </div>
 
             <div class="form-section">
-              <h2>Mezcla de audiencias</h2>
+              <h2>${t('createExperience.mixedAudienceSection')}</h2>
               <label style="display:flex;align-items:flex-start;gap:8px;">
                 <input type="checkbox" id="exp-mixed-audience" ${existing?.allows_mixed_audience ? 'checked' : ''} style="margin-top:4px;">
                 <span>
-                  Esta excursión admite reservas mixtas de residentes locales y turistas juntos.
-                  <br><strong style="color:var(--danger, #c0392b);">Solo marca esta opción si tienes el permiso legal vigente para hacerlo en tu país.</strong>
-                  El admin revisa esto al aprobar la excursión.
+                  ${t('createExperience.mixedAudienceLabel')}
+                  <br><strong style="color:var(--danger, #c0392b);">${t('createExperience.mixedAudienceWarning')}</strong>
+                  ${t('createExperience.mixedAudienceNote')}
                 </span>
               </label>
             </div>
 
             <div class="form-section">
-              <h2>Incluye</h2>
+              <h2>${t('createExperience.includesSection')}</h2>
               <div id="includes-rows">
                 ${(existing?.includes?.length ? existing.includes : ['']).map((v) => `
-                  <div class="form-group list-row"><input type="text" class="includes-input" value="${v}" placeholder="ej: transporte, almuerzo"></div>
+                  <div class="form-group list-row"><input type="text" class="includes-input" value="${v}" placeholder="${t('createExperience.includesPlaceholder')}"></div>
                 `).join('')}
               </div>
-              <button type="button" id="add-includes-btn" class="btn btn-outline btn-sm">+ Agregar</button>
+              <button type="button" id="add-includes-btn" class="btn btn-outline btn-sm">${t('createExperience.addBtn')}</button>
             </div>
 
             <div class="form-section">
-              <h2>Requisitos</h2>
+              <h2>${t('createExperience.requirementsSection')}</h2>
               <div id="requirements-rows">
                 ${(existing?.requirements?.length ? existing.requirements : ['']).map((v) => `
-                  <div class="form-group list-row"><input type="text" class="requirements-input" value="${v}" placeholder="ej: buen estado físico"></div>
+                  <div class="form-group list-row"><input type="text" class="requirements-input" value="${v}" placeholder="${t('createExperience.requirementsPlaceholder')}"></div>
                 `).join('')}
               </div>
-              <button type="button" id="add-requirements-btn" class="btn btn-outline btn-sm">+ Agregar</button>
+              <button type="button" id="add-requirements-btn" class="btn btn-outline btn-sm">${t('createExperience.addBtn')}</button>
             </div>
 
             <div class="form-section">
-              <h2>Política de cancelación (opcional)</h2>
+              <h2>${t('createExperience.cancellationPolicySection')}</h2>
               <textarea id="exp-cancellation-policy" rows="2">${existing?.cancellation_policy || ''}</textarea>
             </div>
 
             <div class="form-section">
-              <h2>Fotos</h2>
+              <h2>${t('createExperience.photosSection')}</h2>
               <input type="file" id="exp-image-upload" accept="image/*" multiple>
               <div id="exp-images-preview" class="images-preview"></div>
             </div>
 
             <div id="error-message" class="error-message" style="display:none;"></div>
 
-            <button type="submit" class="btn btn-primary btn-block">${this.editId ? 'Guardar cambios' : 'Enviar para aprobación'}</button>
+            <button type="submit" class="btn btn-primary btn-block">${this.editId ? t('profile.saveChanges') : t('propertyForm.submitBtn')}</button>
           </form>
         </div>
       </div>
@@ -139,17 +142,18 @@ const CreateExperiencePage = {
   },
 
   pricingRowHtml(p = {}) {
+    const t = (key) => i18n.t(key);
     return `
       <div class="form-group pricing-row" style="display:flex;gap:10px;align-items:end;">
         <div style="flex:1;">
-          <label>Audiencia</label>
+          <label>${t('createExperience.audienceLabel')}</label>
           <select class="pricing-audience">
-            <option value="tourist" ${p.audience === 'tourist' ? 'selected' : ''}>Turista</option>
-            <option value="local" ${p.audience === 'local' ? 'selected' : ''}>Residente Local</option>
+            <option value="tourist" ${p.audience === 'tourist' ? 'selected' : ''}>${t('experience.tourist')}</option>
+            <option value="local" ${p.audience === 'local' ? 'selected' : ''}>${t('experience.local')}</option>
           </select>
         </div>
         <div style="flex:1;">
-          <label>Moneda</label>
+          <label>${t('createExperience.currencyLabel')}</label>
           <select class="pricing-currency">
             <option value="USD" ${p.currency === 'USD' ? 'selected' : ''}>USD</option>
             <option value="USDT" ${p.currency === 'USDT' ? 'selected' : ''}>USDT</option>
@@ -157,7 +161,7 @@ const CreateExperiencePage = {
           </select>
         </div>
         <div style="flex:1;">
-          <label>Precio por cupo</label>
+          <label>${t('createExperience.pricePerSpotLabel')}</label>
           <input type="number" class="pricing-amount" min="0" step="0.01" value="${p.amount ?? ''}" required>
         </div>
         <button type="button" class="btn btn-danger btn-sm remove-pricing-row">X</button>
@@ -222,7 +226,7 @@ const CreateExperiencePage = {
         const response = await api.uploadFile('/uploads/image', file);
         this.images.push({ url: response.data.url, public_id: response.data.public_id, order: this.images.length, is_primary: this.images.length === 0 });
       } catch (error) {
-        alert('Error subiendo imagen: ' + error.message);
+        alert(i18n.t('createExperience.imageUploadError') + error.message);
       }
     }
     this.renderImagePreview();
@@ -238,7 +242,7 @@ const CreateExperiencePage = {
     }));
 
     if (pricing.length === 0 || pricing.some((p) => Number.isNaN(p.amount))) {
-      errorEl.textContent = 'Revisa los precios ingresados';
+      errorEl.textContent = i18n.t('createExperience.pricingValidationError');
       errorEl.style.display = 'block';
       return;
     }
@@ -271,11 +275,11 @@ const CreateExperiencePage = {
         window.location.href = '/organizer/experiences';
       } else {
         const response = await api.post('/organizer/experiences', payload);
-        alert('Excursión enviada para aprobación del admin.');
+        alert(i18n.t('createExperience.experienceSubmitted'));
         window.location.href = '/organizer/experiences';
       }
     } catch (error) {
-      errorEl.textContent = error.message || 'No se pudo guardar la excursión';
+      errorEl.textContent = error.message || i18n.t('createExperience.saveFailed');
       errorEl.style.display = 'block';
     }
   },

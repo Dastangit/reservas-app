@@ -1,12 +1,15 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import i18n from '../i18n.js';
 
 const ExperienceWaitlistJoinPage = {
   experience: null,
 
   async render() {
+    const t = (key) => i18n.t(key);
+
     if (!auth.isLoggedIn()) {
-      return '<div class="container"><p>Por favor <a href="/login" data-link>inicia sesión</a>.</p></div>';
+      return `<div class="container"><p>${t('experience.loginRequiredSimple')}</p></div>`;
     }
 
     const id = this._params?.id || window.location.pathname.split('/')[2];
@@ -15,30 +18,30 @@ const ExperienceWaitlistJoinPage = {
       const response = await api.get(`/experiences/${id}`);
       this.experience = response.data?.experience;
     } catch (error) {
-      return '<div class="container"><p class="error">Excursión no encontrada</p></div>';
+      return `<div class="container"><p class="error">${t('experience.notFound')}</p></div>`;
     }
 
     if (!this.experience) {
-      return '<div class="container"><p class="error">Excursión no encontrada</p></div>';
+      return `<div class="container"><p class="error">${t('experience.notFound')}</p></div>`;
     }
 
     return `
       <div class="booking-form-page">
         <div class="container">
-          <h1>Lista de espera: ${this.experience.title}</h1>
+          <h1>${t('experience.waitlistTitlePrefix')} ${this.experience.title}</h1>
           <p style="color:var(--text-light);margin-bottom:20px;">
-            Esta excursión no tiene cupos disponibles ahora mismo. Te avisaremos si se libera un cupo -- tendrás una ventana de tiempo limitada para confirmarlo.
+            ${t('experience.waitlistIntro')}
           </p>
 
           <form id="waitlist-form" style="max-width:400px;">
             <div class="form-group">
-              <label>Cantidad de cupos que necesitas</label>
+              <label>${t('experience.spotsNeededLabel')}</label>
               <input type="number" id="num-spots-requested" min="1" value="1" required>
             </div>
 
             <div id="error-message" class="error-message" style="display:none;"></div>
 
-            <button type="submit" class="btn btn-primary btn-block">Unirme a la lista de espera</button>
+            <button type="submit" class="btn btn-primary btn-block">${t('experience.waitlistSubmitBtn')}</button>
           </form>
         </div>
       </div>
@@ -62,11 +65,11 @@ const ExperienceWaitlistJoinPage = {
     try {
       const response = await api.post(`/experiences/${this.experience._id}/waitlist`, { num_spots_requested });
       if (response.success) {
-        alert(`Te uniste a la lista de espera en la posición #${response.data.position}. Te avisaremos si se libera un cupo.`);
+        alert(`${i18n.t('experience.joinedWaitlistPrefix')}${response.data.position}${i18n.t('experience.joinedWaitlistSuffix')}`);
         window.location.href = `/experiences/${this.experience._id}`;
       }
     } catch (error) {
-      errorEl.textContent = error.message || 'No se pudo unir a la lista de espera';
+      errorEl.textContent = error.message || i18n.t('experience.joinWaitlistFailed');
       errorEl.style.display = 'block';
     }
   },

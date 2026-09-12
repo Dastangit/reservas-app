@@ -1,3 +1,5 @@
+﻿import i18n from '../i18n.js';
+
 const TermsPage = {
   render() {
     const lastUpdated = 'July 8, 2026';

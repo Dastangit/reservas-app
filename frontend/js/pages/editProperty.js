@@ -1,112 +1,115 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import i18n from '../i18n.js';
 
 const EditPropertyPage = {
   property: null,
 
   async render() {
+    const t = (key) => i18n.t(key);
+
     if (!auth.isLoggedIn() || !auth.isHost()) {
-      return '<div class="container"><p>Access denied. Please login as a host.</p></div>';
+      return `<div class="container"><p>${t('host.accessDenied')}</p></div>`;
     }
 
     return `
       <div class="publish-property-page">
         <div class="container">
-          <h1>Edit Property</h1>
-          
-          <div id="loading" class="loading">Loading property...</div>
-          
+          <h1>${t('propertyForm.editTitle')}</h1>
+
+          <div id="loading" class="loading">${t('propertyForm.loadingProperty')}</div>
+
           <form id="property-form" style="display:none;">
             <div class="form-section">
-              <h2>Basic Information</h2>
-              
+              <h2>${t('propertyForm.basicInfo')}</h2>
+
               <div class="form-group">
-                <label>Property Name *</label>
+                <label>${t('propertyForm.nameLabel')}</label>
                 <input type="text" id="name" required>
               </div>
-              
+
               <div class="form-group">
-                <label>Type *</label>
+                <label>${t('propertyForm.typeLabel')}</label>
                 <select id="type" required>
-                  <option value="casa_particular">Casa Particular</option>
-                  <option value="hostel">Hostel</option>
+                  <option value="casa_particular">${t('propertyForm.typeCasaParticular')}</option>
+                  <option value="hostel">${t('propertyForm.typeHostel')}</option>
                 </select>
               </div>
-              
+
               <div class="form-group">
-                <label>Description *</label>
+                <label>${t('propertyForm.descriptionLabel')}</label>
                 <textarea id="description" rows="5" required></textarea>
               </div>
             </div>
-            
+
             <div class="form-section">
-              <h2>Location</h2>
-              
+              <h2>${t('propertyForm.locationSection')}</h2>
+
               <div class="form-row">
                 <div class="form-group">
-                  <label>City *</label>
+                  <label>${t('propertyForm.cityLabel')}</label>
                   <input type="text" id="city" required>
                 </div>
                 <div class="form-group">
-                  <label>Neighborhood</label>
+                  <label>${t('propertyForm.neighborhoodLabel')}</label>
                   <input type="text" id="neighborhood">
                 </div>
               </div>
-              
+
               <div class="form-group">
-                <label>Address</label>
+                <label>${t('propertyForm.addressLabel')}</label>
                 <input type="text" id="address">
               </div>
             </div>
-            
+
             <div class="form-section">
-              <h2>Details</h2>
-              
+              <h2>${t('propertyForm.detailsSection')}</h2>
+
               <div class="form-row">
                 <div class="form-group">
-                  <label>Max Guests *</label>
+                  <label>${t('propertyForm.maxGuestsLabel')}</label>
                   <input type="number" id="max_guests" min="1" required>
                 </div>
                 <div class="form-group">
-                  <label>Bedrooms</label>
+                  <label>${t('propertyForm.bedroomsLabel')}</label>
                   <input type="number" id="bedrooms" min="1">
                 </div>
                 <div class="form-group">
-                  <label>Bathrooms</label>
+                  <label>${t('propertyForm.bathroomsLabel')}</label>
                   <input type="number" id="bathrooms" min="1">
                 </div>
               </div>
-              
+
               <div class="form-group">
-                <label>Price per Night (USD) *</label>
+                <label>${t('propertyForm.priceLabel')}</label>
                 <input type="number" id="price_per_night" min="1" required>
               </div>
-              
+
               <div class="form-group">
-                <label>Amenities</label>
-                <input type="text" id="amenities" placeholder="wifi, air_conditioning, kitchen (comma separated)">
+                <label>${t('propertyForm.amenitiesLabel')}</label>
+                <input type="text" id="amenities" placeholder="${t('propertyForm.amenitiesPlaceholder')}">
               </div>
             </div>
 
             <div class="form-section">
-              <h2>Payment Options</h2>
+              <h2>${t('propertyForm.paymentOptionsLabel')}</h2>
               <div class="checkbox-group">
-                <label><input type="checkbox" name="payment_options" value="full_payment" checked> Full Payment on Arrival</label>
-                <label><input type="checkbox" name="payment_options" value="daily_payment"> Daily Payment</label>
+                <label><input type="checkbox" name="payment_options" value="full_payment" checked> ${t('propertyForm.fullPaymentOption')}</label>
+                <label><input type="checkbox" name="payment_options" value="daily_payment"> ${t('propertyForm.dailyPaymentOption')}</label>
               </div>
             </div>
 
             <div class="form-section">
-              <h2>Images</h2>
-              <p style="color:var(--text-light);margin-bottom:15px;font-size:0.9rem;">Manage your property images. First image is the main photo.</p>
-              
+              <h2>${t('propertyForm.imagesSection')}</h2>
+              <p style="color:var(--text-light);margin-bottom:15px;font-size:0.9rem;">${t('propertyForm.imagesHintEdit')}</p>
+
               <div id="image-inputs"></div>
-              <button type="button" id="add-image-btn" class="btn btn-outline btn-sm" style="margin-top:10px;">+ Add Another Image</button>
+              <button type="button" id="add-image-btn" class="btn btn-outline btn-sm" style="margin-top:10px;">${t('propertyForm.addAnotherImage')}</button>
             </div>
-            
+
             <div id="error-message" class="error-message" style="display:none;"></div>
-            
-            <button type="submit" class="btn btn-primary">Save Changes</button>
+
+            <button type="submit" class="btn btn-primary">${t('profile.saveChanges')}</button>
           </form>
         </div>
       </div>
@@ -125,9 +128,9 @@ const EditPropertyPage = {
     try {
       const response = await api.get(`/properties/${id}`);
       this.property = response.data?.property;
-      
+
       if (!this.property) {
-        document.getElementById('loading').innerHTML = '<p class="error">Property not found</p>';
+        document.getElementById('loading').innerHTML = `<p class="error">${i18n.t('property.notFound')}</p>`;
         return;
       }
 
@@ -135,7 +138,7 @@ const EditPropertyPage = {
       this.setupImageInputs();
       this.setupFormSubmit();
     } catch (error) {
-      document.getElementById('loading').innerHTML = '<p class="error">Error loading property</p>';
+      document.getElementById('loading').innerHTML = `<p class="error">${i18n.t('propertyForm.errorLoadingProperty')}</p>`;
     }
   },
 
@@ -163,14 +166,15 @@ const EditPropertyPage = {
   },
 
   setupImageInputs() {
+    const t = (key) => i18n.t(key);
     const container = document.getElementById('image-inputs');
     const images = this.property.images || [];
 
     if (images.length === 0) {
       container.innerHTML = `
         <div class="form-group image-entry">
-          <label>Main Image URL *</label>
-          <input type="url" class="image-url" required placeholder="https://example.com/photo1.jpg">
+          <label>${t('propertyForm.mainImageUrlLabel')}</label>
+          <input type="url" class="image-url" required placeholder="${t('propertyForm.imageUrlPlaceholder')}">
           <div class="image-upload-row">
             <input type="file" class="image-file-input" accept="image/*">
             <span class="image-upload-status"></span>
@@ -181,8 +185,8 @@ const EditPropertyPage = {
       container.innerHTML = images.map((img, i) => `
         <div class="form-group image-entry" style="display:flex;gap:10px;align-items:end;" data-public-id="${img.public_id || ''}">
           <div style="flex:1">
-            <label>${i === 0 ? 'Main Image URL *' : 'Image URL'}</label>
-            <input type="url" class="image-url" value="${img.url || ''}" ${i === 0 ? 'required' : ''} placeholder="https://example.com/photo.jpg">
+            <label>${i === 0 ? t('propertyForm.mainImageUrlLabel') : t('propertyForm.imageUrlLabel')}</label>
+            <input type="url" class="image-url" value="${img.url || ''}" ${i === 0 ? 'required' : ''} placeholder="${t('propertyForm.imageUrlPlaceholder')}">
             <div class="image-upload-row">
               <input type="file" class="image-file-input" accept="image/*">
               <span class="image-upload-status"></span>
@@ -203,8 +207,8 @@ const EditPropertyPage = {
       div.style.cssText = 'display:flex;gap:10px;align-items:end;';
       div.innerHTML = `
         <div style="flex:1">
-          <label>Image URL</label>
-          <input type="url" class="image-url" placeholder="https://example.com/photo.jpg">
+          <label>${t('propertyForm.imageLabel')}</label>
+          <input type="url" class="image-url" placeholder="${t('propertyForm.imageUrlPlaceholder')}">
           <div class="image-upload-row">
             <input type="file" class="image-file-input" accept="image/*">
             <span class="image-upload-status"></span>
@@ -235,7 +239,7 @@ const EditPropertyPage = {
         const statusEl = entry?.querySelector('.image-upload-status');
 
         if (statusEl) {
-          statusEl.textContent = 'Subiendo...';
+          statusEl.textContent = i18n.t('propertyForm.uploading');
           statusEl.className = 'image-upload-status uploading';
         }
 
@@ -244,12 +248,12 @@ const EditPropertyPage = {
           if (urlInput) urlInput.value = response.data.url;
           if (entry) entry.dataset.publicId = response.data.public_id || '';
           if (statusEl) {
-            statusEl.textContent = '✓ Imagen subida';
+            statusEl.textContent = i18n.t('propertyForm.imageUploaded');
             statusEl.className = 'image-upload-status success';
           }
         } catch (error) {
           if (statusEl) {
-            statusEl.textContent = error.message || 'No se pudo subir. Usa el campo de URL.';
+            statusEl.textContent = error.message || i18n.t('propertyForm.imageUploadFailed');
             statusEl.className = 'image-upload-status error';
           }
         }
@@ -310,11 +314,11 @@ const EditPropertyPage = {
       const response = await api.put(`/properties/${this.property._id}`, propertyData);
 
       if (response.success) {
-        alert('Property updated successfully!');
+        alert(i18n.t('propertyForm.updateSuccess'));
         window.location.href = '/host/properties';
       }
     } catch (error) {
-      errorEl.textContent = error.message || 'Failed to update property';
+      errorEl.textContent = error.message || i18n.t('propertyForm.updateFailed');
       errorEl.style.display = 'block';
     }
   }

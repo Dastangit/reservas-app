@@ -6,7 +6,7 @@ const Footer = {
           <div class="footer-grid">
             <div class="footer-brand">
               <div class="footer-logo-row">
-                <img src="/assets/logo-real.png" alt="Elysio Experiences" class="footer-logo-img">
+                <img src="/assets/logo-elysio.svg" alt="Elysio Experiences" class="footer-logo-img">
               </div>
               <p>Viaja con confianza</p>
               <p class="footer-contact">
@@ -26,13 +26,6 @@ const Footer = {
               <h4>Legal</h4>
               <a href="/terms" data-link>Terms of Service</a>
               <a href="/privacy" data-link>Privacy Policy</a>
-            </div>
-            <div class="footer-social">
-              <h4>Follow Us</h4>
-              <div class="social-icons">
-                <a href="https://instagram.com/daelworldtravelers" target="_blank" aria-label="Instagram">Instagram</a>
-                <a href="https://facebook.com/daelworldtravelers" target="_blank" aria-label="Facebook">Facebook</a>
-              </div>
             </div>
           </div>
           <div class="footer-bottom">

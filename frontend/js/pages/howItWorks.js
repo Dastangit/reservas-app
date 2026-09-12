@@ -1,9 +1,11 @@
+﻿import i18n from '../i18n.js';
+
 import { markTermsViewed } from '../utils/onboarding.js';
 import auth from '../auth.js';
 
 const HowItWorksPage = {
   render() {
-    const role = auth.getRole(); // null si no está logueado -- en ese caso se muestran ambas secciones
+    const role = auth.getRole(); // null si no estÃ¡ logueado -- en ese caso se muestran ambas secciones
     const showTourist = role !== 'host';
     const showHost = role !== 'tourist';
 

@@ -1,27 +1,30 @@
 import api from '../api.js';
 import BookingCard from '../components/BookingCard.js';
 import auth from '../auth.js';
+import i18n from '../i18n.js';
 
 const HostReservationsPage = {
   async render() {
+    const t = (key) => i18n.t(key);
+
     if (!auth.isLoggedIn() || !auth.isHost()) {
-      return '<div class="container"><p>Access denied. Please login as a host.</p></div>';
+      return `<div class="container"><p>${t('host.accessDenied')}</p></div>`;
     }
 
     return `
       <div class="host-reservations-page">
         <div class="container">
-          <h1>My Reservations</h1>
-          
+          <h1>${t('host.myReservations')}</h1>
+
           <div class="dashboard-tabs">
-            <button class="tab-btn active" data-tab="all">All</button>
-            <button class="tab-btn" data-tab="pending_approval">Pending</button>
-            <button class="tab-btn" data-tab="approved">Active</button>
-            <button class="tab-btn" data-tab="completed">Completed</button>
+            <button class="tab-btn active" data-tab="all">${t('dashboard.all')}</button>
+            <button class="tab-btn" data-tab="pending_approval">${t('dashboard.pending')}</button>
+            <button class="tab-btn" data-tab="approved">${t('host.tabActive')}</button>
+            <button class="tab-btn" data-tab="completed">${t('dashboard.completed')}</button>
           </div>
-          
+
           <div id="bookings-list">
-            <p class="loading">Loading reservations...</p>
+            <p class="loading">${t('host.loadingReservations')}</p>
           </div>
         </div>
       </div>
@@ -42,13 +45,13 @@ const HostReservationsPage = {
     await this.loadBookings('all');
 
     window.completeBooking = async (id) => {
-      if (confirm('Mark this booking as completed?')) {
+      if (confirm(i18n.t('host.completeConfirm'))) {
         try {
           await api.post(`/bookings/${id}/complete`);
-          alert('Booking completed');
+          alert(i18n.t('host.bookingCompleted'));
           this.loadBookings('all');
         } catch (error) {
-          alert('Error: ' + error.message);
+          alert(i18n.t('common.errorPrefix') + error.message);
         }
       }
     };
@@ -58,7 +61,7 @@ const HostReservationsPage = {
     const list = document.getElementById('bookings-list');
     if (!list) return;
 
-    list.innerHTML = '<p class="loading">Loading...</p>';
+    list.innerHTML = `<p class="loading">${i18n.t('common.loading')}</p>`;
 
     try {
       const response = await api.get('/bookings/host');
@@ -69,13 +72,13 @@ const HostReservationsPage = {
       }
 
       if (bookings.length === 0) {
-        list.innerHTML = '<p class="no-results">No reservations found</p>';
+        list.innerHTML = `<p class="no-results">${i18n.t('host.noReservations')}</p>`;
         return;
       }
 
       list.innerHTML = BookingCard.renderList(bookings, 'host');
     } catch (error) {
-      list.innerHTML = '<p class="error">Error loading reservations</p>';
+      list.innerHTML = `<p class="error">${i18n.t('host.errorLoadingReservations')}</p>`;
     }
   }
 };

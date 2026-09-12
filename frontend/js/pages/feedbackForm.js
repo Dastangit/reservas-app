@@ -1,39 +1,42 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import i18n from '../i18n.js';
 
 const FeedbackFormPage = {
   async render() {
+    const t = (key) => i18n.t(key);
+
     if (!auth.isLoggedIn()) {
-      return '<div class="container"><p>Please <a href="/login" data-link>login</a> to submit feedback.</p></div>';
+      return `<div class="container"><p>${t('feedback.loginRequired')}</p></div>`;
     }
 
     return `
       <div class="feedback-form-page">
         <div class="container">
-          <h1>Send Feedback</h1>
-          <p>Help us improve Elysio Experiences</p>
-          
+          <h1>${t('feedback.title')}</h1>
+          <p>${t('feedback.subtitle')}</p>
+
           <form id="feedback-form">
             <div class="form-group">
-              <label>Category</label>
+              <label>${t('feedback.categoryLabel')}</label>
               <select id="category">
-                <option value="other">Other</option>
-                <option value="ux">User Experience</option>
-                <option value="payment">Payment</option>
-                <option value="communication">Communication</option>
-                <option value="features">Feature Request</option>
+                <option value="other">${t('feedback.categoryOther')}</option>
+                <option value="ux">${t('feedback.categoryUx')}</option>
+                <option value="payment">${t('feedback.categoryPayment')}</option>
+                <option value="communication">${t('feedback.categoryCommunication')}</option>
+                <option value="features">${t('feedback.categoryFeatures')}</option>
               </select>
             </div>
-            
+
             <div class="form-group">
-              <label>Your Message</label>
-              <textarea id="message" rows="5" required placeholder="Tell us what you think..."></textarea>
+              <label>${t('feedback.messageLabel')}</label>
+              <textarea id="message" rows="5" required placeholder="${t('feedback.messagePlaceholder')}"></textarea>
             </div>
-            
+
             <div id="error-message" class="error-message" style="display:none;"></div>
             <div id="success-message" class="success-message" style="display:none;"></div>
-            
-            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+
+            <button type="submit" class="btn btn-primary">${t('feedback.submitBtn')}</button>
           </form>
         </div>
       </div>
@@ -60,7 +63,7 @@ const FeedbackFormPage = {
       const response = await api.post('/feedback', { category, message });
 
       if (response.success) {
-        successEl.textContent = 'Feedback submitted successfully!';
+        successEl.textContent = i18n.t('feedback.submitSuccess');
         successEl.style.display = 'block';
         errorEl.style.display = 'none';
 
@@ -69,7 +72,7 @@ const FeedbackFormPage = {
         }, 2000);
       }
     } catch (error) {
-      errorEl.textContent = error.message || 'Failed to submit feedback';
+      errorEl.textContent = error.message || i18n.t('feedback.submitFailed');
       errorEl.style.display = 'block';
     }
   }

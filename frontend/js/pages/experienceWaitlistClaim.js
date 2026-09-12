@@ -1,5 +1,6 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import i18n from '../i18n.js';
 import { validateInternationalPhone } from '../utils/validators.js';
 
 const ExperienceWaitlistClaimPage = {
@@ -7,8 +8,10 @@ const ExperienceWaitlistClaimPage = {
   waitlistId: null,
 
   async render() {
+    const t = (key) => i18n.t(key);
+
     if (!auth.isLoggedIn()) {
-      return '<div class="container"><p>Por favor <a href="/login" data-link>inicia sesión</a>.</p></div>';
+      return `<div class="container"><p>${t('experience.loginRequiredSimple')}</p></div>`;
     }
 
     const id = this._params?.id || window.location.pathname.split('/')[2];
@@ -18,43 +21,43 @@ const ExperienceWaitlistClaimPage = {
       const response = await api.get(`/experiences/${id}`);
       this.experience = response.data?.experience;
     } catch (error) {
-      return '<div class="container"><p class="error">Excursión no encontrada</p></div>';
+      return `<div class="container"><p class="error">${t('experience.notFound')}</p></div>`;
     }
 
     if (!this.experience) {
-      return '<div class="container"><p class="error">Excursión no encontrada</p></div>';
+      return `<div class="container"><p class="error">${t('experience.notFound')}</p></div>`;
     }
 
     return `
       <div class="booking-form-page">
         <div class="container">
-          <h1>¡Se liberó tu cupo!</h1>
+          <h1>${t('experience.spotFreedTitle')}</h1>
           <p style="color:var(--text-light);margin-bottom:20px;">
-            Tenés un tiempo limitado para confirmar tu lugar en "${this.experience.title}" antes de que pase al siguiente en la lista.
+            ${t('experience.limitedTimeNoticePrefix')}${this.experience.title}${t('experience.limitedTimeNoticeSuffix')}
           </p>
 
           <form id="claim-form" style="max-width:450px;">
             <div class="form-group">
-              <label>Nombre</label>
+              <label>${t('profile.name')}</label>
               <input type="text" id="tourist-name" value="${auth.getUser()?.name || ''}" required>
             </div>
             <div class="form-group">
-              <label>Email</label>
+              <label>${t('auth.email')}</label>
               <input type="email" id="tourist-email" required>
             </div>
             <div class="form-group">
-              <label>Teléfono (WhatsApp) *</label>
+              <label>${t('booking.phoneLabel')}</label>
               <input type="tel" id="tourist-phone" placeholder="+53 5xxxxxxx" required>
             </div>
             <div class="form-group">
-              <label>Cantidad de cupos que reclamás</label>
+              <label>${t('experience.claimNumSpotsLabel')}</label>
               <input type="number" id="claim-num-spots" min="1" value="1" required>
-              <small class="field-hint">Debe coincidir con lo que pediste en la lista de espera.</small>
+              <small class="field-hint">${t('experience.claimNumSpotsHint')}</small>
             </div>
 
             <div id="error-message" class="error-message" style="display:none;"></div>
 
-            <button type="submit" class="btn btn-primary btn-block">Confirmar mi cupo</button>
+            <button type="submit" class="btn btn-primary btn-block">${t('experience.confirmSpotBtn')}</button>
           </form>
         </div>
       </div>
@@ -73,7 +76,7 @@ const ExperienceWaitlistClaimPage = {
     const phone = document.getElementById('tourist-phone')?.value?.trim();
 
     if (!validateInternationalPhone(phone)) {
-      errorEl.textContent = 'Ingresa un teléfono válido con código de país (ej. +5355512345)';
+      errorEl.textContent = i18n.t('booking.invalidPhone');
       errorEl.style.display = 'block';
       return;
     }
@@ -96,7 +99,7 @@ const ExperienceWaitlistClaimPage = {
         email: document.getElementById('tourist-email')?.value,
         phone,
         contact_method: 'whatsapp',
-        language: window.i18n?.currentLang || 'es',
+        language: i18n.currentLang || 'es',
       },
     };
 
@@ -106,7 +109,7 @@ const ExperienceWaitlistClaimPage = {
         window.location.href = `/experience-bookings/${response.data.booking_id}/confirmation`;
       }
     } catch (error) {
-      errorEl.textContent = error.message || 'No se pudo confirmar el cupo -- puede que la ventana de tiempo haya vencido';
+      errorEl.textContent = error.message || i18n.t('experience.claimFailed');
       errorEl.style.display = 'block';
     }
   },
