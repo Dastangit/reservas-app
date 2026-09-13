@@ -1,6 +1,38 @@
 ﻿import i18n from '../i18n.js';
 
 const FAQPage = {
+  faqKeyMap: [
+    ['q1Question', ['q1Answer', 'q1Step1', 'q1Step2', 'q1Step3', 'q1Step4']],
+    ['q2Question', ['q2Answer', 'q2Contact']],
+    ['q3Question', ['q3Answer', 'q3Approved']],
+    ['q4Question', ['q4Answer', 'q4Usdt', 'q4Btc', 'q4Refund', 'q4Process']],
+    ['q5Question', ['q5Answer', 'q5Step1', 'q5Step2', 'q5Step3', 'q5Step4', 'q5NoFee']],
+    ['q6Question', ['q6Answer', 'q6Verified', 'q6Secure', 'q6Data', 'q6Isolation', 'q6Reviews', 'q6Practice']],
+    ['q7Question', ['q7Answer', 'q7DastanName', 'q7DastanEmail', 'q7Feedback']],
+    ['q8Question', ['q8Answer', 'q8Collect', 'q8Use', 'q8Share', 'q8Security', 'q8Rights', 'q8PrivacyLink']],
+  ],
+
+  buildFaqSchema() {
+    const stripHtml = (str) => String(str).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    const mainEntity = this.faqKeyMap.map(([questionKey, answerKeys]) => ({
+      '@type': 'Question',
+      name: stripHtml(i18n.t(`pages.faq.${questionKey}`)),
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: answerKeys.map((k) => stripHtml(i18n.t(`pages.faq.${k}`))).join(' '),
+      },
+    }));
+    return { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity };
+  },
+
+  meta() {
+    return {
+      title: i18n.t('seo.faq.title'),
+      description: i18n.t('seo.faq.description'),
+      schema: this.buildFaqSchema(),
+    };
+  },
+
   render() {
     return `
       <div class="faq-page">

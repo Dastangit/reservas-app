@@ -1,6 +1,10 @@
 ﻿import i18n from '../i18n.js';
 
 const TermsPage = {
+  meta() {
+    return { title: i18n.t('seo.terms.title'), description: i18n.t('seo.terms.description') };
+  },
+
   render() {
     const lastUpdated = 'July 8, 2026';
     return `

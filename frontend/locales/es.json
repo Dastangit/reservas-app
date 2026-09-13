@@ -950,5 +950,43 @@
     "seriesCreatedPrefix": "Serie creada. Se generaron ",
     "seriesCreatedMiddle": " ocurrencias, cada una pendiente de aprobación del admin.",
     "createSeriesFailed": "No se pudo crear la serie recurrente"
+  },
+  "seo": {
+    "landing": {
+      "title": "Alquileres Vacacionales y Experiencias en Latinoamérica y el Caribe",
+      "description": "Encuentra alquileres vacacionales verificados y experiencias locales auténticas en Latinoamérica y el Caribe, incluyendo Cuba. Reserva directo con anfitriones de confianza."
+    },
+    "search": {
+      "title": "Buscar Propiedades",
+      "description": "Explora y filtra alquileres vacacionales verificados en Latinoamérica y el Caribe por ubicación, precio y comodidades."
+    },
+    "experiences": {
+      "title": "Experiencias y Tours Locales",
+      "description": "Descubre experiencias y tours locales auténticos organizados por anfitriones verificados en Latinoamérica y el Caribe."
+    },
+    "howItWorks": {
+      "title": "Cómo Funciona",
+      "description": "Aprende cómo reservar una estadía o experiencia, cómo se publican los alojamientos y cómo funcionan los pagos y aprobaciones en Elysio Experiences."
+    },
+    "faq": {
+      "title": "Preguntas Frecuentes",
+      "description": "Respuestas a las preguntas más comunes sobre reservas, pagos, cancelaciones, cómo ser anfitrión y seguridad de la cuenta en Elysio Experiences."
+    },
+    "terms": {
+      "title": "Términos y Condiciones",
+      "description": "Lee los términos y condiciones para usar Elysio Experiences y reservar alojamientos y experiencias."
+    },
+    "privacy": {
+      "title": "Política de Privacidad",
+      "description": "Conoce cómo Elysio Experiences recopila, usa y protege tus datos personales."
+    },
+    "register": {
+      "title": "Crea tu Cuenta",
+      "description": "Regístrate como turista, anfitrión u organizador de experiencias en Elysio Experiences."
+    },
+    "login": {
+      "title": "Iniciar Sesión",
+      "description": "Inicia sesión en tu cuenta de Elysio Experiences para gestionar reservas, propiedades o experiencias."
+    }
   }
 }

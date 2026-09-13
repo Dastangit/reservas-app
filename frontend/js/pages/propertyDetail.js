@@ -6,6 +6,17 @@ import i18n from '../i18n.js';
 const PropertyDetailPage = {
   property: null,
 
+  meta() {
+    if (!this.property) return {};
+    const p = this.property;
+    const city = p.location?.city || '';
+    const title = city ? `${p.name} – ${city}` : p.name;
+    const description = p.description
+      ? (p.description.length > 157 ? p.description.slice(0, 157).trim() + '…' : p.description)
+      : undefined;
+    return { title, description };
+  },
+
   async render() {
     const t = (key) => i18n.t(key);
     const id = this._params?.id || window.location.pathname.split('/').pop();

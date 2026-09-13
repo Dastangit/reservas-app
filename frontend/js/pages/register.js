@@ -4,6 +4,10 @@ import i18n from '../i18n.js';
 import { passwordToggleButton } from '../utils/passwordToggle.js';
 
 const RegisterPage = {
+  meta() {
+    return { title: i18n.t('seo.register.title'), description: i18n.t('seo.register.description') };
+  },
+
   render() {
     const t = (key) => i18n.t(key);
     const params = new URLSearchParams(window.location.search);

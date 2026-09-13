@@ -1,4 +1,4 @@
-import Header from './components/Header.js';
+﻿import Header from './components/Header.js';
 import Footer from './components/Footer.js';
 import auth from './auth.js';
 import router from './router.js';
@@ -61,6 +61,7 @@ import TermsPage from './pages/terms.js';
 import PrivacyPage from './pages/privacy.js';
 import FAQPage from './pages/faq.js';
 import { initPwaInstall } from './utils/pwaInstall.js';
+import seo from './utils/seo.js';
 
 async function renderPage(page) {
   const app = document.getElementById('app');
@@ -75,6 +76,12 @@ async function renderPage(page) {
   app.innerHTML = html;
   Header.init();
   Footer.init();
+
+  if (typeof page.meta === 'function') {
+    seo.set(page.meta());
+  } else {
+    seo.reset();
+  }
 
   if (typeof page.init === 'function') {
     page.init();
@@ -369,7 +376,7 @@ window.togglePasswordVisibility = function (inputId) {
   const btn = input.parentElement?.querySelector('.password-toggle-btn');
   const isHidden = input.type === 'password';
   input.type = isHidden ? 'text' : 'password';
-  if (btn) btn.textContent = isHidden ? '🙈' : '👁️';
+  if (btn) btn.textContent = isHidden ? 'ðŸ™ˆ' : 'ðŸ‘ï¸';
 };
 
 if ('serviceWorker' in navigator) {

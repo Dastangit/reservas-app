@@ -950,5 +950,43 @@
     "seriesCreatedPrefix": "Series created. ",
     "seriesCreatedMiddle": " occurrences were generated, each pending admin approval.",
     "createSeriesFailed": "Could not create the recurring series"
+  },
+  "seo": {
+    "landing": {
+      "title": "Vacation Rentals & Experiences in Latin America & the Caribbean",
+      "description": "Find verified vacation rentals and authentic local experiences across Latin America and the Caribbean, including Cuba. Book directly with trusted hosts."
+    },
+    "search": {
+      "title": "Search Properties",
+      "description": "Browse and filter verified vacation rentals across Latin America and the Caribbean by location, price, and amenities."
+    },
+    "experiences": {
+      "title": "Experiences & Local Tours",
+      "description": "Discover authentic local experiences and tours hosted by verified organizers across Latin America and the Caribbean."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "description": "Learn how to book a stay or experience, how hosts get listed, and how payments and approvals work on Elysio Experiences."
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "description": "Answers to common questions about booking, payments, cancellations, becoming a host, and account safety on Elysio Experiences."
+    },
+    "terms": {
+      "title": "Terms & Conditions",
+      "description": "Read the terms and conditions for using Elysio Experiences to book accommodations and experiences."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Learn how Elysio Experiences collects, uses, and protects your personal data."
+    },
+    "register": {
+      "title": "Create Your Account",
+      "description": "Sign up as a tourist, host, or experience organizer on Elysio Experiences."
+    },
+    "login": {
+      "title": "Log In",
+      "description": "Log in to your Elysio Experiences account to manage bookings, listings, or experiences."
+    }
   }
 }

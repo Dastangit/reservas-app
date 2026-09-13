@@ -3,6 +3,10 @@ import PropertyCard from '../components/PropertyCard.js';
 import i18n from '../i18n.js';
 
 const SearchPage = {
+  meta() {
+    return { title: i18n.t('seo.search.title'), description: i18n.t('seo.search.description') };
+  },
+
   currentFilters: {},
 
   async render() {

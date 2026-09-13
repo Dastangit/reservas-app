@@ -3,6 +3,10 @@ import i18n from '../i18n.js';
 import { formatExperiencePrice } from '../utils/formatters.js';
 
 const ExperiencesPage = {
+  meta() {
+    return { title: i18n.t('seo.experiences.title'), description: i18n.t('seo.experiences.description') };
+  },
+
   currentFilters: {},
 
   async render() {

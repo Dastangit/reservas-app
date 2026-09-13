@@ -949,5 +949,43 @@
     "seriesCreatedPrefix": "Série créée. ",
     "seriesCreatedMiddle": " occurrences ont été générées, chacune en attente d'approbation par l'admin.",
     "createSeriesFailed": "Impossible de créer la série récurrente"
+  },
+  "seo": {
+    "landing": {
+      "title": "Locations de Vacances et Expériences en Amérique Latine et Caraïbes",
+      "description": "Trouvez des locations de vacances vérifiées et des expériences locales authentiques en Amérique Latine et dans les Caraïbes, y compris à Cuba. Réservez directement auprès d'hôtes de confiance."
+    },
+    "search": {
+      "title": "Rechercher des Propriétés",
+      "description": "Parcourez et filtrez des locations de vacances vérifiées en Amérique Latine et dans les Caraïbes par lieu, prix et équipements."
+    },
+    "experiences": {
+      "title": "Expériences et Excursions Locales",
+      "description": "Découvrez des expériences et excursions locales authentiques organisées par des hôtes vérifiés en Amérique Latine et dans les Caraïbes."
+    },
+    "howItWorks": {
+      "title": "Comment ça Marche",
+      "description": "Découvrez comment réserver un séjour ou une expérience, comment les hôtes sont référencés, et comment fonctionnent les paiements et approbations sur Elysio Experiences."
+    },
+    "faq": {
+      "title": "Questions Fréquentes",
+      "description": "Réponses aux questions courantes sur les réservations, paiements, annulations, comment devenir hôte et la sécurité du compte sur Elysio Experiences."
+    },
+    "terms": {
+      "title": "Conditions Générales",
+      "description": "Consultez les conditions générales d'utilisation d'Elysio Experiences pour réserver des hébergements et des expériences."
+    },
+    "privacy": {
+      "title": "Politique de Confidentialité",
+      "description": "Découvrez comment Elysio Experiences collecte, utilise et protège vos données personnelles."
+    },
+    "register": {
+      "title": "Créer votre Compte",
+      "description": "Inscrivez-vous en tant que touriste, hôte ou organisateur d'expériences sur Elysio Experiences."
+    },
+    "login": {
+      "title": "Connexion",
+      "description": "Connectez-vous à votre compte Elysio Experiences pour gérer vos réservations, annonces ou expériences."
+    }
   }
 }

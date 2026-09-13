@@ -3,6 +3,10 @@ import auth from '../auth.js';
 import i18n from '../i18n.js';
 
 const LoginPage = {
+  meta() {
+    return { title: i18n.t('seo.login.title'), description: i18n.t('seo.login.description') };
+  },
+
   pendingToken: null,
 
   render() {

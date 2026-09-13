@@ -7,6 +7,17 @@ const ExperienceDetailPage = {
   experience: null,
   spotsAvailable: 0,
 
+  meta() {
+    if (!this.experience) return {};
+    const exp = this.experience;
+    const city = exp.location?.city || '';
+    const title = city ? `${exp.title} – ${city}` : exp.title;
+    const description = exp.description
+      ? (exp.description.length > 157 ? exp.description.slice(0, 157).trim() + '…' : exp.description)
+      : undefined;
+    return { title, description };
+  },
+
   async render() {
     const t = (key) => i18n.t(key);
     const id = this._params?.id || window.location.pathname.split('/').pop();

@@ -4,6 +4,10 @@ import { markTermsViewed } from '../utils/onboarding.js';
 import auth from '../auth.js';
 
 const HowItWorksPage = {
+  meta() {
+    return { title: i18n.t('seo.howItWorks.title'), description: i18n.t('seo.howItWorks.description') };
+  },
+
   render() {
     const role = auth.getRole(); // null si no estÃ¡ logueado -- en ese caso se muestran ambas secciones
     const showTourist = role !== 'host';

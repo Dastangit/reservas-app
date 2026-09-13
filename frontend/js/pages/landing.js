@@ -4,6 +4,10 @@ import HeroCarousel from '../components/HeroCarousel.js';
 import i18n from '../i18n.js';
 
 const LandingPage = {
+  meta() {
+    return { title: i18n.t('seo.landing.title'), description: i18n.t('seo.landing.description') };
+  },
+
   async render() {
     const t = (key) => i18n.t(key);
     let featuredProperties = [];
