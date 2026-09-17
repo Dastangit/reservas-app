@@ -15,8 +15,40 @@ const ExperienceDetailPage = {
     const description = exp.description
       ? (exp.description.length > 157 ? exp.description.slice(0, 157).trim() + '…' : exp.description)
       : undefined;
-    return { title, description };
+    return { title, description, schema: this.buildSchema() };
   },
+
+  buildSchema() {
+    const exp = this.experience;
+    if (!exp) return undefined;
+    const offers = (exp.pricing || []).map((pr) => ({
+      '@type': 'Offer',
+      price: pr.amount,
+      priceCurrency: pr.currency,
+      availability: 'https://schema.org/InStock',
+      url: window.location.href,
+    }));
+    const remaining = typeof exp.max_participants === 'number'
+      ? Math.max((exp.max_participants || 0) - (exp.current_participants || 0), 0)
+      : undefined;
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Event',
+      name: exp.title,
+      description: exp.description,
+      startDate: exp.date,
+      image: (exp.images || []).map((img) => img.url),
+      location: {
+        '@type': 'Place',
+        name: exp.location?.city,
+        address: exp.location?.address || exp.location?.city,
+      },
+      maximumAttendeeCapacity: exp.max_participants,
+      remainingAttendeeCapacity: remaining,
+      offers,
+    };
+  },
+
 
   async render() {
     const t = (key) => i18n.t(key);

@@ -14,8 +14,54 @@ const PropertyDetailPage = {
     const description = p.description
       ? (p.description.length > 157 ? p.description.slice(0, 157).trim() + '…' : p.description)
       : undefined;
-    return { title, description };
+    return { title, description, schema: this.buildSchema() };
   },
+
+  buildSchema() {
+    const p = this.property;
+    if (!p) return undefined;
+    const amenityFeature = (p.amenities || []).map((a) => ({
+      '@type': 'LocationFeatureSpecification',
+      name: a,
+      value: true,
+    }));
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'LodgingBusiness',
+      name: p.name,
+      description: p.description,
+      image: (p.images || []).map((img) => img.url),
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: p.location?.address,
+        addressLocality: p.location?.city,
+        addressRegion: p.location?.neighborhood,
+      },
+      priceRange: `${p.price_per_night} ${p.currency}`,
+      amenityFeature,
+      numberOfRooms: p.bedrooms,
+      additionalProperty: [
+        { '@type': 'PropertyValue', name: 'maxGuests', value: p.max_guests },
+        { '@type': 'PropertyValue', name: 'bathrooms', value: p.bathrooms },
+      ],
+      makesOffer: {
+        '@type': 'Offer',
+        price: p.price_per_night,
+        priceCurrency: p.currency,
+        availability: 'https://schema.org/InStock',
+        url: window.location.href,
+      },
+    };
+    if (p.rating) {
+      schema.aggregateRating = {
+        '@type': 'AggregateRating',
+        ratingValue: p.rating,
+        reviewCount: p.reviews_count || 0,
+      };
+    }
+    return schema;
+  },
+
 
   async render() {
     const t = (key) => i18n.t(key);

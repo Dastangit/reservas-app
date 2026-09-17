@@ -61,7 +61,7 @@ const SearchPage = {
                   <label>${t('search.type')}</label>
                   <select id="filter-type">
                     <option value="">${t('search.allTypes')}</option>
-                    <option value="casa_particular" ${this.currentFilters.type === 'casa_particular' ? 'selected' : ''}>Casa Particular</option>
+                    <option value="casa_particular" ${this.currentFilters.type === 'casa_particular' ? 'selected' : ''}>${t('search.casaParticular')}</option>
                     <option value="hostel" ${this.currentFilters.type === 'hostel' ? 'selected' : ''}>${t('search.hostel')}</option>
                   </select>
                 </div>

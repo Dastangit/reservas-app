@@ -1,3 +1,5 @@
+import i18n from '../i18n.js';
+
 const SITE_URL = 'https://reservas-app-blue.vercel.app';
 const DEFAULT_TITLE = 'Elysio Experiences';
 const DEFAULT_DESCRIPTION = 'Book authentic accommodations and experiences with trusted hosts across Latin America and the Caribbean.';
@@ -28,6 +30,28 @@ function ensureSchemaScript() {
   return el;
 }
 
+function clearHreflangLinks() {
+  document.querySelectorAll('link[rel="alternate"][data-hreflang]').forEach((el) => el.remove());
+}
+
+function setHreflangLinks(strippedPath) {
+  clearHreflangLinks();
+  const variants = [
+    { hreflang: 'en', locale: 'en' },
+    { hreflang: 'es', locale: 'es' },
+    { hreflang: 'fr', locale: 'fr' },
+    { hreflang: 'x-default', locale: 'en' },
+  ];
+  for (const { hreflang, locale } of variants) {
+    const link = document.createElement('link');
+    link.setAttribute('rel', 'alternate');
+    link.setAttribute('hreflang', hreflang);
+    link.setAttribute('href', `${SITE_URL}${i18n.localizePath(strippedPath, locale)}`);
+    link.setAttribute('data-hreflang', 'true');
+    document.head.appendChild(link);
+  }
+}
+
 const seo = {
   /**
    * Set per-page SEO metadata. Call this from a page's meta() hook.
@@ -54,6 +78,13 @@ const seo = {
 
     ensureCanonical().setAttribute('href', url);
     ensureSchemaScript().textContent = schema ? JSON.stringify(schema) : '';
+
+    const strippedPath = i18n.stripLocaleFromPath(finalPath);
+    if (i18n.isLocalizablePath(strippedPath)) {
+      setHreflangLinks(strippedPath);
+    } else {
+      clearHreflangLinks();
+    }
   },
 
   reset() {

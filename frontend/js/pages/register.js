@@ -23,25 +23,25 @@ const RegisterPage = {
             <form id="register-form">
               <div class="form-group">
                 <label for="name">${t('auth.name')}</label>
-                <input type="text" id="name" required placeholder="John Doe">
+                <input type="text" id="name" required placeholder="${t('auth.namePlaceholder')}">
               </div>
 
               <div class="form-group">
                 <label for="email">${t('auth.email')}</label>
-                <input type="email" id="email" required placeholder="your@email.com">
+                <input type="email" id="email" required placeholder="${t('auth.emailPlaceholder')}">
               </div>
 
               <div class="form-group">
                 <label for="password">${t('auth.password')}</label>
                 <div class="password-field-wrapper">
-                  <input type="password" id="password" required placeholder="Min 6 characters" minlength="6">
+                  <input type="password" id="password" required placeholder="${t('auth.passwordMinPlaceholder')}" minlength="6">
                   ${passwordToggleButton('password')}
                 </div>
               </div>
 
               <div class="form-group">
                 <label for="phone">${t('auth.phone')}</label>
-                <input type="tel" id="phone" placeholder="+1 234 567 890">
+                <input type="tel" id="phone" placeholder="${t('auth.phonePlaceholder')}">
                 <small class="field-hint" id="phone-hint" style="display:none;">${t('auth.phoneHint')}</small>
               </div>
 

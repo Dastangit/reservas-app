@@ -1,0 +1,23 @@
+# Elysio Experiences
+
+> Booking platform for vacation rentals and local experiences across Latin America and the Caribbean, connecting international tourists with verified local hosts and organizers.
+
+Tourists can search and book verified accommodations (casas particulares, apartments, houses) and local experiences or tours without needing to log in to browse. A $7 USD non-refundable booking fee secures property reservations (no platform fee on experiences); hosts, organizers, and listings are reviewed by an admin team before going live. The remaining balance for stays is paid directly at the accommodation.
+
+## Docs
+
+- [How It Works](https://reservas-app-blue.vercel.app/how-it-works): Step-by-step booking process for tourists and hosts, payment process, and cancellation policy
+- [FAQ](https://reservas-app-blue.vercel.app/faq): Common questions about booking, payments, becoming a host, safety, and data privacy
+- [API Catalog](https://reservas-app-blue.vercel.app/.well-known/api-catalog): Machine-readable, public read-only endpoints for properties and experiences
+
+## Listings
+
+- [Search Properties](https://reservas-app-blue.vercel.app/search): Browse verified vacation rentals by location, price, guest count, and amenities
+- [Experiences](https://reservas-app-blue.vercel.app/experiences): Browse local experiences and tours hosted by verified organizers
+- [Sitemap](https://reservas-app-blue.vercel.app/sitemap.xml): Full, always-current list of indexable pages, including every individual property and experience listing
+
+## Optional
+
+- [Terms & Conditions](https://reservas-app-blue.vercel.app/terms)
+- [Privacy Policy](https://reservas-app-blue.vercel.app/privacy)
+- [Create an Account](https://reservas-app-blue.vercel.app/register): Sign up as a tourist, host, or experience organizer

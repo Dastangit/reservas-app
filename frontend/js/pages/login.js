@@ -21,13 +21,13 @@ const LoginPage = {
             <form id="login-form">
               <div class="form-group">
                 <label for="email">${t('auth.email')}</label>
-                <input type="email" id="email" required placeholder="your@email.com">
+                <input type="email" id="email" required placeholder="${t('auth.emailPlaceholder')}">
               </div>
               
               <div class="form-group">
                 <label for="password">${t('auth.password')}</label>
                 <div class="password-field">
-                  <input type="password" id="password" required placeholder="Enter your password">
+                  <input type="password" id="password" required placeholder="${t('auth.passwordPlaceholder')}">
                   <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password')" aria-label="${t('auth.showPassword')}">👁️</button>
                 </div>
               </div>
