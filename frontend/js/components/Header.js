@@ -61,17 +61,17 @@ const Header = {
         <a href="/admin/users" data-link>Users</a>
         <div class="nav-dropdown">
           <button type="button" class="nav-bell" onclick="toggleNotifBell(event)" aria-label="Notificaciones">
-            ðŸ””<span class="notif-badge" id="notif-badge" style="display:none;">0</span>
+            🔔<span class="notif-badge" id="notif-badge" style="display:none;">0</span>
           </button>
           <div class="nav-dropdown-menu notif-menu" id="notif-menu">
             <p class="loading">Cargando...</p>
           </div>
         </div>
         <div class="nav-dropdown">
-          <button type="button" class="nav-dropdown-toggle" onclick="toggleNavDropdown(event)">MÃ¡s â–¾</button>
+          <button type="button" class="nav-dropdown-toggle" onclick="toggleNavDropdown(event)">Más ▾</button>
           <div class="nav-dropdown-menu">
             <a href="/admin/availability" data-link>Disponibilidad</a>
-            <a href="/admin/orphaned-payments" data-link>Pagos huÃ©rfanos</a>
+            <a href="/admin/orphaned-payments" data-link>Pagos huérfanos</a>
             <a href="/admin/host-commissions" data-link>Comisiones hosts</a>
             ${experiencesEnabled ? `
               <a href="/admin/organizers" data-link>Organizadores</a>
@@ -79,7 +79,7 @@ const Header = {
               <a href="/admin/experience-bookings" data-link>Reservas de excursiones</a>
               <a href="/admin/organizer-commissions" data-link>Comisiones organizadores</a>
             ` : ''}
-            <a href="/admin/password-resets" data-link>Reset contraseÃ±as</a>
+            <a href="/admin/password-resets" data-link>Reset contraseñas</a>
             <a href="/admin/audit-log" data-link>Registro de acciones</a>
             <a href="/admin/feedback" data-link>${t('nav.feedback')}</a>
             <a href="/admin/reports" data-link>${t('nav.reports')}</a>
@@ -94,8 +94,8 @@ const Header = {
       <header class="header">
         <div class="container">
           <div class="header-left">
-            <button type="button" class="nav-back-btn" onclick="history.back()" aria-label="Volver atrÃ¡s" title="Volver atrÃ¡s">
-              â†
+            <button type="button" class="nav-back-btn" onclick="history.back()" aria-label="${t('common.back')}" title="${t('common.back')}">
+              ←
             </button>
             <a href="/" data-link class="logo">
               <img src="/assets/logo-elysio.svg" alt="Elysio Experiences" class="logo-img">
@@ -164,8 +164,8 @@ document.addEventListener('click', () => {
 const notifLabels = {
   bookings: { label: 'Reservas pendientes', url: '/admin/bookings' },
   properties: { label: 'Propiedades pendientes', url: '/admin/properties' },
-  password_resets: { label: 'Resets de contraseÃ±a', url: '/admin/password-resets' },
-  orphaned_payments: { label: 'Pagos huÃ©rfanos', url: '/admin/orphaned-payments' },
+  password_resets: { label: 'Resets de contraseña', url: '/admin/password-resets' },
+  orphaned_payments: { label: 'Pagos huérfanos', url: '/admin/orphaned-payments' },
   overdue_commissions: { label: 'Comisiones vencidas', url: '/admin/host-commissions' },
   pending_experiences: { label: 'Excursiones pendientes', url: '/admin/experiences' },
   pending_experience_bookings: { label: 'Reservas de excursiones pendientes', url: '/admin/experience-bookings' },
@@ -196,7 +196,7 @@ async function loadPendingCounts() {
 
     const { subscribed } = await syncAdminPushSubscription();
     const subscribeRow = !subscribed
-      ? '<button type="button" class="notif-enable-btn" onclick="enableAdminPush()">ðŸ”” Activar notificaciones push</button>'
+      ? '<button type="button" class="notif-enable-btn" onclick="enableAdminPush()">🔔 Activar notificaciones push</button>'
       : '';
 
     menu.innerHTML = (items || '<p class="no-results" style="padding:8px 12px;">Nada pendiente por ahora.</p>') + subscribeRow;
@@ -219,14 +219,14 @@ window.toggleNotifBell = function (event) {
 window.enableAdminPush = async function () {
   const result = await subscribeAdminToPush();
   if (result.ok) {
-    alert('Â¡Notificaciones activadas! RecibirÃ¡s un aviso cuando algo necesite tu atenciÃ³n.');
+    alert('¡Notificaciones activadas! Recibirás un aviso cuando algo necesite tu atención.');
     loadPendingCounts();
   } else if (result.reason === 'denied') {
-    alert('Bloqueaste el permiso de notificaciones. ActÃ­valo desde la configuraciÃ³n del navegador si cambias de opiniÃ³n.');
+    alert('Bloqueaste el permiso de notificaciones. Actívalo desde la configuración del navegador si cambias de opinión.');
   } else if (result.reason === 'unsupported') {
     alert('Tu navegador no soporta notificaciones push.');
   } else {
-    alert('No se pudo activar la notificaciÃ³n, intenta de nuevo.');
+    alert('No se pudo activar la notificación, intenta de nuevo.');
   }
 };
 

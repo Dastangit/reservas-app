@@ -25,7 +25,7 @@ const API_BASE = 'https://booking-platform-f8co.onrender.com/api';
 
 // Known AI/agent crawlers that generally do NOT execute JavaScript.
 // These get markdown even without an explicit Accept: text/markdown header.
-const BOT_UA_PATTERN = /GPTBot|ChatGPT-User|OAI-SearchBot|ClaudeBot|Claude-User|Claude-SearchBot|anthropic-ai|PerplexityBot|Perplexity-User|Bingbot|Google-Extended|CCBot|Diffbot|YouBot|Applebot-Extended|facebookexternalhit/i;
+const BOT_UA_PATTERN = /GPTBot|ChatGPT-User|OAI-SearchBot|ClaudeBot|Claude-User|Claude-SearchBot|anthropic-ai|PerplexityBot|Perplexity-User|Google-Extended|CCBot|Diffbot|YouBot|Applebot-Extended/i;
 
 // ---- URL <-> locale helpers (standalone: this file runs on Vercel Edge Runtime,
 // which has no localStorage, so it cannot import frontend/js/i18n.js) ----
@@ -633,10 +633,14 @@ async function buildSitemapXml() {
   const LOCALES = ['en', 'es', 'fr'];
   const urls = [];
 
+  const localized = (entryLoc, locale) =>
+    locale === 'en' ? entryLoc : `/${locale}${entryLoc === '/' ? '' : entryLoc}`;
+
   function pushLocaleVariants(entry) {
+    const alternates = LOCALES.map((locale) => ({ hreflang: locale, loc: localized(entry.loc, locale) }));
+    alternates.push({ hreflang: 'x-default', loc: entry.loc });
     for (const locale of LOCALES) {
-      const loc = locale === 'en' ? entry.loc : `/${locale}${entry.loc === '/' ? '' : entry.loc}`;
-      urls.push({ ...entry, loc });
+      urls.push({ ...entry, loc: localized(entry.loc, locale), alternates });
     }
   }
 
@@ -667,11 +671,94 @@ async function buildSitemapXml() {
   const xmlUrls = urls
     .map((u) => {
       const lastmod = u.lastmod ? `\n    <lastmod>${u.lastmod}</lastmod>` : '';
-      return `  <url>\n    <loc>${SITE}${escapeXml(u.loc)}</loc>${lastmod}\n    <changefreq>${u.changefreq}</changefreq>\n    <priority>${u.priority}</priority>\n  </url>`;
+      const alts = (u.alternates || [])
+        .map((a) => `\n    <xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${SITE}${escapeXml(a.loc)}"/>`)
+        .join('');
+      return `  <url>\n    <loc>${SITE}${escapeXml(u.loc)}</loc>${alts}${lastmod}\n    <changefreq>${u.changefreq}</changefreq>\n    <priority>${u.priority}</priority>\n  </url>`;
     })
     .join('\n');
 
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${xmlUrls}\n</urlset>\n`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${xmlUrls}\n</urlset>\n`;
+}
+
+// ---- Social preview (Open Graph) HTML for link-preview crawlers ----
+// Facebook/WhatsApp/X/LinkedIn/etc. do not execute JavaScript, so without this they
+// would always show the generic home-page card for every property/experience link.
+
+const SOCIAL_UA_PATTERN = /facebookexternalhit|Facebot|Twitterbot|WhatsApp|LinkedInBot|Slackbot|TelegramBot|Discordbot|Pinterest|SkypeUriPreview/i;
+
+const OG_LOCALES = { en: 'en_US', es: 'es_ES', fr: 'fr_FR' };
+
+function pickImageUrl(images) {
+  const list = Array.isArray(images) ? images.filter((img) => img && img.url) : [];
+  if (list.length === 0) return `${SITE}/assets/og-image.png`;
+  const primary = list.find((img) => img.is_primary);
+  if (primary) return primary.url;
+  return [...list].sort((a, b) => (a.order || 0) - (b.order || 0))[0].url;
+}
+
+function shorten(text, max) {
+  const clean = String(text || '').replace(/\s+/g, ' ').trim();
+  return clean.length > max ? `${clean.slice(0, max - 1).trimEnd()}…` : clean;
+}
+
+async function buildSocialHtml(pathname) {
+  const locale = getLocaleFromPath(pathname);
+  const stripped = stripLocaleFromPath(pathname);
+  const propertyMatch = stripped.match(/^\/property\/([^/]+)$/);
+  const experienceMatch = stripped.match(/^\/experiences\/([^/]+)$/);
+  if (!propertyMatch && !experienceMatch) return null;
+
+  const endpoint = propertyMatch ? `properties/${propertyMatch[1]}` : `experiences/${experienceMatch[1]}`;
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/${endpoint}`);
+  } catch {
+    return null;
+  }
+  if (!res.ok) return null;
+  const json = await res.json();
+  const item = json && json.data && (propertyMatch ? json.data.property : json.data.experience);
+  if (!item) return null;
+
+  const name = propertyMatch ? item.name : item.title;
+  if (!name) return null;
+  const title = `${name} | Elysio Experiences`;
+  const description = shorten(item.description, 200) || 'Book authentic stays and local experiences with trusted hosts across Latin America and the Caribbean.';
+  const image = pickImageUrl(item.images);
+  const url = `${SITE}${localePrefix(locale)}${stripped}`;
+
+  const t = escapeXml(title);
+  const d = escapeXml(description);
+  const img = escapeXml(image);
+  const u = escapeXml(url);
+
+  return `<!DOCTYPE html>
+<html lang="${locale}">
+<head>
+  <meta charset="UTF-8">
+  <title>${t}</title>
+  <meta name="description" content="${d}">
+  <link rel="canonical" href="${u}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Elysio Experiences">
+  <meta property="og:locale" content="${OG_LOCALES[locale] || 'en_US'}">
+  <meta property="og:title" content="${t}">
+  <meta property="og:description" content="${d}">
+  <meta property="og:url" content="${u}">
+  <meta property="og:image" content="${img}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${t}">
+  <meta name="twitter:description" content="${d}">
+  <meta name="twitter:image" content="${img}">
+</head>
+<body>
+  <h1>${escapeXml(name)}</h1>
+  <p>${d}</p>
+  <p><a href="${u}">${u}</a></p>
+</body>
+</html>
+`;
 }
 
 export default async function middleware(request) {
@@ -692,6 +779,20 @@ export default async function middleware(request) {
   const userAgent = request.headers.get('user-agent') || '';
   const wantsMarkdown = accept.includes('text/markdown');
   const isKnownAgent = BOT_UA_PATTERN.test(userAgent);
+  if (!wantsMarkdown && SOCIAL_UA_PATTERN.test(userAgent)) {
+    const html = await buildSocialHtml(url.pathname);
+    if (html) {
+      return new Response(html, {
+        status: 200,
+        headers: {
+          'content-type': 'text/html; charset=utf-8',
+          'cache-control': 'public, max-age=3600',
+        },
+      });
+    }
+    return;
+  }
+
   if (!wantsMarkdown && !isKnownAgent) {
     return; // let normal SPA/static handling continue
   }

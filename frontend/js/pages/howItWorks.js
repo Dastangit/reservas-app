@@ -9,7 +9,7 @@ const HowItWorksPage = {
   },
 
   render() {
-    const role = auth.getRole(); // null si no estÃ¡ logueado -- en ese caso se muestran ambas secciones
+    const role = auth.getRole(); // null si no está logueado -- en ese caso se muestran ambas secciones
     const showTourist = role !== 'host';
     const showHost = role !== 'tourist';
 

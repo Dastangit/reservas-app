@@ -352,6 +352,7 @@ router
     }
     Header.init();
     Footer.init();
+    seo.set({ title: 'Page not found', noindex: true });
   })
   .init();
 
@@ -376,7 +377,7 @@ window.togglePasswordVisibility = function (inputId) {
   const btn = input.parentElement?.querySelector('.password-toggle-btn');
   const isHidden = input.type === 'password';
   input.type = isHidden ? 'text' : 'password';
-  if (btn) btn.textContent = isHidden ? 'ðŸ™ˆ' : 'ðŸ‘ï¸';
+  if (btn) btn.textContent = isHidden ? '🙈' : '👁️';
 };
 
 if ('serviceWorker' in navigator) {

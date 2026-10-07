@@ -1,5 +1,5 @@
 ﻿/* ============================================================
-   styles.css â€” Elysio Experiences
+   styles.css — Elysio Experiences
    Premium Design System
    ============================================================ */
 
@@ -1738,7 +1738,7 @@ p:last-child { margin-bottom: 0; }
 
 /* Resumen de la reserva en bookingForm.js -- distinto de .booking-info
    (grid de 2 columnas, usado en tarjetas de reserva del admin). Mismo
-   nombre de clase, contexto distinto: acÃ¡ se fuerza a columna Ãºnica y se
+   nombre de clase, contexto distinto: acá se fuerza a columna única y se
    le da formato de tarjeta para que no se vea "regado". */
 .booking-details .booking-info {
   display: block;
@@ -2387,7 +2387,7 @@ p:last-child { margin-bottom: 0; }
   border-radius: var(--radius-sm);
 }
 
-/* Comisiones de host y pagos huÃ©rfanos -- comparten el mismo lenguaje visual
+/* Comisiones de host y pagos huérfanos -- comparten el mismo lenguaje visual
    que .property-list-item para consistencia con el resto del panel admin. */
 .commission-item,
 .orphaned-payment-item {

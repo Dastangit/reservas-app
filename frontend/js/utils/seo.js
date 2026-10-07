@@ -19,6 +19,19 @@ function ensureCanonical() {
   return link;
 }
 
+// Paths that are public-facing but should not appear in search results.
+const NOINDEX_PATHS = ['/login'];
+
+function setRobots(noindex) {
+  let meta = document.querySelector('meta[name="robots"]');
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.setAttribute('name', 'robots');
+    document.head.appendChild(meta);
+  }
+  meta.setAttribute('content', noindex ? 'noindex, nofollow' : 'index, follow');
+}
+
 function ensureSchemaScript() {
   let el = document.getElementById('page-schema');
   if (!el) {
@@ -59,10 +72,11 @@ const seo = {
    * @param {string} [opts.title] - Page-specific title (site name is appended automatically).
    * @param {string} [opts.description] - Page-specific meta description.
    * @param {string} [opts.path] - Path used to build canonical/og:url. Defaults to current location.
+   * @param {boolean} [opts.noindex] - Force noindex/index. Defaults to noindex for non-public routes.
    * @param {Object} [opts.schema] - Optional JSON-LD object rendered as this page's structured data.
    *   Cleared automatically on pages that don't provide one.
    */
-  set({ title, description, path, schema } = {}) {
+  set({ title, description, path, schema, noindex } = {}) {
     const finalTitle = title ? `${title} | ${DEFAULT_TITLE}` : DEFAULT_TITLE;
     const finalDescription = description || DEFAULT_DESCRIPTION;
     const finalPath = path || window.location.pathname;
@@ -80,6 +94,8 @@ const seo = {
     ensureSchemaScript().textContent = schema ? JSON.stringify(schema) : '';
 
     const strippedPath = i18n.stripLocaleFromPath(finalPath);
+    // Dashboards, admin, booking flow and unknown routes (404) are noindex by default.
+    setRobots(noindex ?? (!i18n.isLocalizablePath(strippedPath) || NOINDEX_PATHS.includes(strippedPath)));
     if (i18n.isLocalizablePath(strippedPath)) {
       setHreflangLinks(strippedPath);
     } else {
