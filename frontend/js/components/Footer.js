@@ -6,7 +6,7 @@ const Footer = {
           <div class="footer-grid">
             <div class="footer-brand">
               <div class="footer-logo-row">
-                <img src="/assets/logo-elysio.svg" alt="Elysio Experiences" class="footer-logo-img">
+                <img loading="lazy" src="/assets/logo-elysio.svg" alt="Elysio Experiences" class="footer-logo-img">
               </div>
               <p>Viaja con confianza</p>
               <p class="footer-contact">

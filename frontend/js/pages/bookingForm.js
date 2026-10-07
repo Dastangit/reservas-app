@@ -48,7 +48,7 @@ const BookingFormPage = {
           <div class="booking-layout">
             <div class="booking-details">
               <div class="property-summary">
-                <img src="${p.images?.[0]?.url || 'https://via.placeholder.com/100'}" alt="${p.name}">
+                <img loading="lazy" src="${p.images?.[0]?.url || 'https://via.placeholder.com/100'}" alt="${p.name}">
                 <div>
                   <h3>${p.name}</h3>
                   <p>${p.location?.city}</p>

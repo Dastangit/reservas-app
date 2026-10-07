@@ -43,7 +43,7 @@ const ManagePropertiesPage = {
 
       list.innerHTML = properties.map(p => `
         <div class="property-list-item">
-          <img src="${p.images?.[0]?.url || 'https://via.placeholder.com/100'}" alt="${p.name}">
+          <img loading="lazy" src="${p.images?.[0]?.url || 'https://via.placeholder.com/100'}" alt="${p.name}">
           <div class="property-info">
             <h3>${p.name}</h3>
             <p>${p.location?.city}</p>

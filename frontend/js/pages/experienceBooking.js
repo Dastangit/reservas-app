@@ -41,7 +41,7 @@ const ExperienceBookingPage = {
           <div class="booking-layout">
             <div class="booking-details">
               <div class="property-summary">
-                <img src="${exp.images?.[0]?.url || 'https://via.placeholder.com/100'}" alt="${exp.title}">
+                <img loading="lazy" src="${exp.images?.[0]?.url || 'https://via.placeholder.com/100'}" alt="${exp.title}">
                 <div>
                   <h3>${exp.title}</h3>
                   <p>${exp.location?.city || ''} · ${new Date(exp.date).toLocaleDateString()}</p>

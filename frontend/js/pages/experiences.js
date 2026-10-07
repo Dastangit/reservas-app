@@ -122,7 +122,7 @@ const ExperiencesPage = {
 
         return `
           <a href="/experiences/${exp._id}" data-link class="property-card">
-            <img src="${exp.images?.[0]?.url || 'https://via.placeholder.com/300x200'}" alt="${exp.title}">
+            <img loading="lazy" src="${exp.images?.[0]?.url || 'https://via.placeholder.com/300x200'}" alt="${exp.title}">
             <div class="property-card-body">
               <h3>${exp.title}</h3>
               <p>${exp.location?.city || ''} · ${new Date(exp.date).toLocaleDateString(i18n.currentLang)}</p>

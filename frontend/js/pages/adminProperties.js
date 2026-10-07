@@ -94,7 +94,7 @@ const AdminPropertiesPage = {
       list.innerHTML = properties.map(p => `
         <div class="property-list-item">
           <div class="property-list-item-summary" onclick="togglePropertyDetail('${p._id}')">
-            <img src="${p.images?.[0]?.url || 'https://via.placeholder.com/100'}" alt="${p.name}">
+            <img loading="lazy" src="${p.images?.[0]?.url || 'https://via.placeholder.com/100'}" alt="${p.name}">
             <div class="property-info">
               <h3>${p.name}</h3>
               <p>${p.location?.city} | $${p.price_per_night}${i18n.t('property.perNight')}</p>
@@ -134,7 +134,7 @@ const AdminPropertiesPage = {
 
                 <h4>${i18n.t('admin.photosHeading')} (${p.images?.length || 0})</h4>
                 <div class="property-detail-gallery">
-                  ${p.images?.length ? p.images.map(img => `<img src="${img.url}" alt="${img.title || p.name}">`).join('') : `<em>${i18n.t('admin.noPhotos')}</em>`}
+                  ${p.images?.length ? p.images.map(img => `<img loading="lazy" src="${img.url}" alt="${img.title || p.name}">`).join('') : `<em>${i18n.t('admin.noPhotos')}</em>`}
                 </div>
               </div>
             </div>

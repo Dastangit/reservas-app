@@ -207,7 +207,7 @@ const CreateExperiencePage = {
     if (!preview) return;
     preview.innerHTML = this.images.map((img, i) => `
       <div class="image-preview-item">
-        <img src="${img.url}" alt="">
+        <img loading="lazy" src="${img.url}" alt="">
         <button type="button" class="remove-image-btn" data-index="${i}">X</button>
       </div>
     `).join('');

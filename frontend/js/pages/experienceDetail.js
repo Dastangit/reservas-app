@@ -80,7 +80,7 @@ const ExperienceDetailPage = {
         <div class="container">
           <div class="property-gallery">
             ${exp.images?.length ? exp.images.map((img, i) => `
-              <img src="${img.url}" alt="${img.title || exp.title}" class="${i === 0 ? 'main' : 'thumb'}">
+              <img src="${img.url}" alt="${img.title || exp.title}" class="${i === 0 ? 'main' : 'thumb'}" loading="${i === 0 ? 'eager' : 'lazy'}">
             `).join('') : `<img src="https://via.placeholder.com/800x600?text=${encodeURIComponent(t('experience.noImage'))}" alt="${exp.title}">`}
           </div>
 

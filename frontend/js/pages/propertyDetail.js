@@ -86,7 +86,7 @@ const PropertyDetailPage = {
         <div class="container">
           <div class="property-gallery">
             ${p.images?.map((img, i) => `
-              <img src="${img.url}" alt="${img.title || p.name}" class="${i === 0 ? 'main' : 'thumb'}">
+              <img src="${img.url}" alt="${img.title || p.name}" class="${i === 0 ? 'main' : 'thumb'}" loading="${i === 0 ? 'eager' : 'lazy'}">
             `).join('') || `<img src="https://via.placeholder.com/800x600?text=No+Image" alt="${p.name}">`}
           </div>
           
