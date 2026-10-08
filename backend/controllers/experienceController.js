@@ -2,6 +2,7 @@ const Experience = require('../models/Experience');
 const ExperienceBooking = require('../models/ExperienceBooking');
 const ExperienceWaitlist = require('../models/ExperienceWaitlist');
 const { promoteNextWaitlistEntry } = require('../utils/experienceWaitlist');
+const { escapeRegex } = require('../utils/helpers');
 
 exports.getExperiences = async (req, res, next) => {
   try {
@@ -16,7 +17,7 @@ exports.getExperiences = async (req, res, next) => {
       date: { $gte: new Date() }, // solo excursiones futuras
     };
 
-    if (city) query['location.city'] = new RegExp(city, 'i');
+    if (city) query['location.city'] = new RegExp(escapeRegex(city), 'i');
     if (category) query.category = category;
     if (date_from || date_to) {
       query.date = query.date || {};

@@ -1,6 +1,19 @@
 const Property = require('../models/Property');
 const Booking = require('../models/Booking');
 const { notifyAdmins } = require('../utils/pushNotifications');
+const { escapeRegex } = require('../utils/helpers');
+
+// Campos que un host puede enviar al crear/editar una propiedad. Todo lo demas
+// (status, suspended, rating, reviews_count, approval_date, admin_notes,
+// blocked_dates...) lo controla el servidor o el admin, nunca el cliente.
+const HOST_EDITABLE_FIELDS = [
+  'name', 'type', 'description', 'location', 'max_guests', 'bedrooms', 'bathrooms',
+  'bed_types', 'price_per_night', 'currency', 'amenities', 'images', 'payment_options',
+];
+
+const pickFields = (source, keys) => Object.fromEntries(
+  keys.filter((k) => source[k] !== undefined).map((k) => [k, source[k]]),
+);
 
 exports.getProperties = async (req, res, next) => {
   try {
@@ -11,7 +24,7 @@ exports.getProperties = async (req, res, next) => {
 
     const query = { tenant_id: req.tenantId, status: 'active', suspended: { $ne: true } };
 
-    if (city) query['location.city'] = new RegExp(city, 'i');
+    if (city) query['location.city'] = new RegExp(escapeRegex(city), 'i');
     if (min_price || max_price) {
       query.price_per_night = {};
       if (min_price) query.price_per_night.$gte = Number(min_price);
@@ -82,10 +95,12 @@ exports.getPropertyById = async (req, res, next) => {
 
 exports.createProperty = async (req, res, next) => {
   try {
-    req.body.tenant_id = req.tenantId;
-    req.body.host_id = req.user._id;
-
-    const property = await Property.create(req.body);
+    const property = await Property.create({
+      ...pickFields(req.body, HOST_EDITABLE_FIELDS),
+      tenant_id: req.tenantId,
+      host_id: req.user._id,
+      status: 'pending_approval',
+    });
 
     res.status(201).json({
       success: true,
@@ -114,10 +129,7 @@ exports.updateProperty = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Property not found' });
     }
 
-    const allowedUpdates = { ...req.body };
-    delete allowedUpdates.status;
-    delete allowedUpdates.host_id;
-    delete allowedUpdates.tenant_id;
+    const allowedUpdates = pickFields(req.body, HOST_EDITABLE_FIELDS);
 
     property = await Property.findByIdAndUpdate(req.params.id, allowedUpdates, {
       new: true,

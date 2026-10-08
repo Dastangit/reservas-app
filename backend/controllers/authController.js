@@ -152,7 +152,7 @@ exports.verifyTwoFactor = async (req, res, next) => {
 
     let decoded;
     try {
-      decoded = jwt.verify(pending_token, env.jwtSecret);
+      decoded = jwt.verify(pending_token, env.jwtSecret, { algorithms: ['HS256'] });
     } catch (err) {
       return res.status(401).json({ success: false, error: 'Pending token expired or invalid, please login again' });
     }
@@ -315,7 +315,7 @@ exports.refreshToken = async (req, res, _next) => {
       return res.status(400).json({ success: false, error: 'Refresh token required' });
     }
 
-    const decoded = jwt.verify(refresh_token, env.jwtRefreshSecret);
+    const decoded = jwt.verify(refresh_token, env.jwtRefreshSecret, { algorithms: ['HS256'] });
     const user = await User.findById(decoded.id).select('+refresh_token');
 
     if (!user || user.status !== 'active') {

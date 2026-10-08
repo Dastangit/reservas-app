@@ -28,16 +28,25 @@ app.use(morgan('dev'));
 
 app.use(helmet());
 
-// Ahora el frontend se sirve desde Vercel con proxy (/api/* → backend),
-// así que las peticiones de producción llegan sin Origin cross-domain.
-// Solo mantenemos CORS abierto para desarrollo local.
+// El frontend se sirve desde Vercel con proxy (/api/* → backend), asi que en
+// produccion el navegador habla siempre con el mismo origen. Solo se permiten
+// el frontend oficial y, fuera de produccion, los origenes de desarrollo local.
+const allowedOrigins = [env.frontendUrl, 'https://reservas-app-blue.vercel.app']
+  .filter(Boolean)
+  .map((url) => url.replace(/\/+$/, ''));
+
 const localDevOrigin = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}):\d+$/;
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || localDevOrigin.test(origin)) {
+    // Sin Origin: peticiones servidor a servidor (proxy de Vercel, middleware,
+    // health checks, curl). No son peticiones CORS de navegador.
+    if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    return callback(null, true);
+    if (env.nodeEnv !== 'production' && localDevOrigin.test(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, false);
   },
   credentials: true,
 }));

@@ -1,6 +1,7 @@
 const Property = require('../models/Property');
 const Booking = require('../models/Booking');
 const Experience = require('../models/Experience');
+const { escapeRegex } = require('../utils/helpers');
 
 exports.search = async (req, res, next) => {
   try {
@@ -12,7 +13,7 @@ exports.search = async (req, res, next) => {
 
     const query = { tenant_id: req.tenantId, status: 'active' };
 
-    if (city) query['location.city'] = new RegExp(city, 'i');
+    if (city) query['location.city'] = new RegExp(escapeRegex(city), 'i');
     if (num_guests) query.max_guests = { $gte: Number(num_guests) };
     if (min_price || max_price) {
       query.price_per_night = {};

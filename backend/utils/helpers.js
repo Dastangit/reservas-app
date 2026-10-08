@@ -34,7 +34,12 @@ const isHoldExpired = (holdExpiresAt) => {
   return new Date() > new Date(holdExpiresAt);
 };
 
+// Escapa los caracteres especiales de regex en texto que viene del usuario
+// (query params), para usarlo en new RegExp() sin riesgo de ReDoS ni errores.
+const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 module.exports = {
+  escapeRegex,
   calculateNights,
   calculateTotal,
   formatDate,
