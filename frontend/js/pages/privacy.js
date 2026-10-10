@@ -1,4 +1,5 @@
 ﻿import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const PrivacyPage = {
   meta() {
@@ -11,7 +12,7 @@ const PrivacyPage = {
       <div class="legal-page">
         <div class="container">
           <h1>${i18n.t('pages.privacy.title')}</h1>
-          <p class="last-updated">${i18n.t('pages.privacy.lastUpdated')}: ${lastUpdated}</p>
+          <p class="last-updated">${i18n.t('pages.privacy.lastUpdated')}: ${escapeHtml(lastUpdated)}</p>
 
           <section class="legal-section">
             <h2>${i18n.t('pages.privacy.s1Title')}</h2>

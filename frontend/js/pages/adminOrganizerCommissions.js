@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const AdminOrganizerCommissionsPage = {
   async render() {
@@ -102,18 +103,18 @@ const AdminOrganizerCommissionsPage = {
       }
 
       list.innerHTML = commissions.map((c) => `
-        <div class="commission-item commission-status-${c.status}">
+        <div class="commission-item commission-status-${escapeHtml(c.status)}">
           <div class="commission-header">
-            <span class="commission-host">${c.organizer_id?.name || i18n.t('admin.organizerUnknownFallback')}</span>
-            <span class="commission-period">${monthNames[c.month]} ${c.year}</span>
-            <span class="badge-status">${statusLabels[c.status] || c.status}</span>
+            <span class="commission-host">${escapeHtml(c.organizer_id?.name || i18n.t('admin.organizerUnknownFallback'))}</span>
+            <span class="commission-period">${monthNames[c.month]} ${escapeHtml(c.year)}</span>
+            <span class="badge-status">${escapeHtml(statusLabels[c.status] || c.status)}</span>
           </div>
           <div class="commission-body">
             ${(c.totals || []).map((t) => `
               <p><strong>${t.currency}:</strong> ${i18n.t('admin.totalWord')} ${t.total_amount} -- ${i18n.t('admin.commissionPercentSuffix')} ${t.commission_amount}</p>
             `).join('')}
             <p><strong>${i18n.t('admin.bookingsIncludedLabel')}</strong> ${c.experience_bookings?.length || 0}</p>
-            ${c.notes ? `<p><strong>${i18n.t('admin.notesLabel')}</strong> ${c.notes}</p>` : ''}
+            ${c.notes ? `<p><strong>${i18n.t('admin.notesLabel')}</strong> ${escapeHtml(c.notes)}</p>` : ''}
           </div>
           ${!['paid', 'waived'].includes(c.status) ? `
             <div class="commission-actions">

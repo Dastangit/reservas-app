@@ -2,6 +2,7 @@ import api from '../api.js';
 import { formatCurrency, formatDate } from '../utils/formatters.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const PropertyDetailPage = {
   property: null,
@@ -86,14 +87,14 @@ const PropertyDetailPage = {
         <div class="container">
           <div class="property-gallery">
             ${p.images?.map((img, i) => `
-              <img src="${img.url}" alt="${img.title || p.name}" class="${i === 0 ? 'main' : 'thumb'}" loading="${i === 0 ? 'eager' : 'lazy'}">
-            `).join('') || `<img src="https://via.placeholder.com/800x600?text=No+Image" alt="${p.name}">`}
+              <img src="${escapeHtml(img.url)}" alt="${escapeHtml(img.title || p.name)}" class="${i === 0 ? 'main' : 'thumb'}" loading="${i === 0 ? 'eager' : 'lazy'}">
+            `).join('') || `<img src="/assets/placeholder.svg" alt="${escapeHtml(p.name)}">`}
           </div>
           
           <div class="property-info">
             <div class="property-main">
-              <h1>${p.name}</h1>
-              <p class="property-location">${p.location?.city}${p.location?.neighborhood ? `, ${p.location.neighborhood}` : ''}</p>
+              <h1>${escapeHtml(p.name)}</h1>
+              <p class="property-location">${escapeHtml(p.location?.city)}${p.location?.neighborhood ? `, ${escapeHtml(p.location.neighborhood)}` : ''}</p>
               
               <div class="property-meta">
                 <span>${p.type === 'casa_particular' ? 'Casa Particular' : 'Hostel'}</span>
@@ -104,13 +105,13 @@ const PropertyDetailPage = {
               
               <div class="property-description">
                 <h2>${t('property.description')}</h2>
-                <p>${p.description}</p>
+                <p>${escapeHtml(p.description)}</p>
               </div>
               
               <div class="property-amenities">
                 <h2>${t('property.amenities')}</h2>
                 <div class="amenities-grid">
-                  ${p.amenities?.map(a => `<span class="amenity">${a}</span>`).join('') || `<p>${t('property.noAmenities')}</p>`}
+                  ${p.amenities?.map(a => `<span class="amenity">${escapeHtml(a)}</span>`).join('') || `<p>${t('property.noAmenities')}</p>`}
                 </div>
               </div>
               

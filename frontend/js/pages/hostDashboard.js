@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const HostDashboardPage = {
   async render() {
@@ -67,9 +68,9 @@ const HostDashboardPage = {
       } else {
         recentList.innerHTML = recent.map(b => `
           <div class="booking-list-item">
-            <span>${b.property_id?.name || i18n.t('booking.propertyFallback')}</span>
-            <span>${b.tourist_id?.name || i18n.t('host.touristFallback')}</span>
-            <span class="status-badge ${b.status}">${b.status}</span>
+            <span>${escapeHtml(b.property_id?.name || i18n.t('booking.propertyFallback'))}</span>
+            <span>${escapeHtml(b.tourist_id?.name || i18n.t('host.touristFallback'))}</span>
+            <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(b.status)}</span>
           </div>
         `).join('');
       }

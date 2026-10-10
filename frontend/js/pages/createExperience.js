@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const CreateExperiencePage = {
   editId: null,
@@ -40,27 +41,27 @@ const CreateExperiencePage = {
 
               <div class="form-group">
                 <label>${t('createExperience.titleLabel')}</label>
-                <input type="text" id="exp-title" value="${existing?.title || ''}" required>
+                <input type="text" id="exp-title" value="${escapeHtml(existing?.title || '')}" required>
               </div>
 
               <div class="form-group">
                 <label>${t('createExperience.descriptionLabel')}</label>
-                <textarea id="exp-description" rows="4" required>${existing?.description || ''}</textarea>
+                <textarea id="exp-description" rows="4" required>${escapeHtml(existing?.description || '')}</textarea>
               </div>
 
               <div class="form-group">
                 <label>${t('createExperience.categoryLabel')}</label>
-                <input type="text" id="exp-category" value="${existing?.category || ''}" placeholder="${t('createExperience.categoryPlaceholder')}">
+                <input type="text" id="exp-category" value="${escapeHtml(existing?.category || '')}" placeholder="${t('createExperience.categoryPlaceholder')}">
               </div>
 
               <div class="form-group">
                 <label>${t('propertyForm.cityLabel')}</label>
-                <input type="text" id="exp-city" value="${existing?.location?.city || ''}" required>
+                <input type="text" id="exp-city" value="${escapeHtml(existing?.location?.city || '')}" required>
               </div>
 
               <div class="form-group">
                 <label>${t('createExperience.addressLabel')}</label>
-                <input type="text" id="exp-address" value="${existing?.location?.address || ''}">
+                <input type="text" id="exp-address" value="${escapeHtml(existing?.location?.address || '')}">
               </div>
 
               <div class="form-group">
@@ -92,7 +93,7 @@ const CreateExperiencePage = {
             <div class="form-section">
               <h2>${t('createExperience.mixedAudienceSection')}</h2>
               <label style="display:flex;align-items:flex-start;gap:8px;">
-                <input type="checkbox" id="exp-mixed-audience" ${existing?.allows_mixed_audience ? 'checked' : ''} style="margin-top:4px;">
+                <input type="checkbox" id="exp-mixed-audience" ${escapeHtml(existing?.allows_mixed_audience ? 'checked' : '')} style="margin-top:4px;">
                 <span>
                   ${t('createExperience.mixedAudienceLabel')}
                   <br><strong style="color:var(--danger, #c0392b);">${t('createExperience.mixedAudienceWarning')}</strong>
@@ -105,7 +106,7 @@ const CreateExperiencePage = {
               <h2>${t('createExperience.includesSection')}</h2>
               <div id="includes-rows">
                 ${(existing?.includes?.length ? existing.includes : ['']).map((v) => `
-                  <div class="form-group list-row"><input type="text" class="includes-input" value="${v}" placeholder="${t('createExperience.includesPlaceholder')}"></div>
+                  <div class="form-group list-row"><input type="text" class="includes-input" value="${escapeHtml(v)}" placeholder="${t('createExperience.includesPlaceholder')}"></div>
                 `).join('')}
               </div>
               <button type="button" id="add-includes-btn" class="btn btn-outline btn-sm">${t('createExperience.addBtn')}</button>
@@ -115,7 +116,7 @@ const CreateExperiencePage = {
               <h2>${t('createExperience.requirementsSection')}</h2>
               <div id="requirements-rows">
                 ${(existing?.requirements?.length ? existing.requirements : ['']).map((v) => `
-                  <div class="form-group list-row"><input type="text" class="requirements-input" value="${v}" placeholder="${t('createExperience.requirementsPlaceholder')}"></div>
+                  <div class="form-group list-row"><input type="text" class="requirements-input" value="${escapeHtml(v)}" placeholder="${t('createExperience.requirementsPlaceholder')}"></div>
                 `).join('')}
               </div>
               <button type="button" id="add-requirements-btn" class="btn btn-outline btn-sm">${t('createExperience.addBtn')}</button>
@@ -123,7 +124,7 @@ const CreateExperiencePage = {
 
             <div class="form-section">
               <h2>${t('createExperience.cancellationPolicySection')}</h2>
-              <textarea id="exp-cancellation-policy" rows="2">${existing?.cancellation_policy || ''}</textarea>
+              <textarea id="exp-cancellation-policy" rows="2">${escapeHtml(existing?.cancellation_policy || '')}</textarea>
             </div>
 
             <div class="form-section">
@@ -162,7 +163,7 @@ const CreateExperiencePage = {
         </div>
         <div style="flex:1;">
           <label>${t('createExperience.pricePerSpotLabel')}</label>
-          <input type="number" class="pricing-amount" min="0" step="0.01" value="${p.amount ?? ''}" required>
+          <input type="number" class="pricing-amount" min="0" step="0.01" value="${escapeHtml(p.amount ?? '')}" required>
         </div>
         <button type="button" class="btn btn-danger btn-sm remove-pricing-row">X</button>
       </div>
@@ -207,7 +208,7 @@ const CreateExperiencePage = {
     if (!preview) return;
     preview.innerHTML = this.images.map((img, i) => `
       <div class="image-preview-item">
-        <img loading="lazy" src="${img.url}" alt="">
+        <img loading="lazy" src="${escapeHtml(img.url)}" alt="">
         <button type="button" class="remove-image-btn" data-index="${i}">X</button>
       </div>
     `).join('');

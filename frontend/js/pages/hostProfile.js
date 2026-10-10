@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const HostProfilePage = {
   async render() {
@@ -21,22 +22,22 @@ const HostProfilePage = {
             <form id="profile-form">
               <div class="form-group">
                 <label>${t('profile.name')}</label>
-                <input type="text" id="name" value="${user?.name || ''}" required>
+                <input type="text" id="name" value="${escapeHtml(user?.name || '')}" required>
               </div>
 
               <div class="form-group">
                 <label>${t('auth.email')}</label>
-                <input type="email" id="email" value="${user?.email || ''}" disabled>
+                <input type="email" id="email" value="${escapeHtml(user?.email || '')}" disabled>
               </div>
 
               <div class="form-group">
                 <label>${t('auth.phone')}</label>
-                <input type="tel" id="phone" value="${user?.phone || ''}">
+                <input type="tel" id="phone" value="${escapeHtml(user?.phone || '')}">
               </div>
 
               <div class="form-group">
                 <label>${t('profile.whatsapp')}</label>
-                <input type="tel" id="whatsapp" value="${user?.whatsapp_phone || ''}" placeholder="+53 123 456 789">
+                <input type="tel" id="whatsapp" value="${escapeHtml(user?.whatsapp_phone || '')}" placeholder="+53 123 456 789">
               </div>
 
               <div id="error-message" class="error-message" style="display:none;"></div>

@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const ExperienceMyBookingsPage = {
   async render() {
@@ -55,10 +56,10 @@ const ExperienceMyBookingsPage = {
 
       list.innerHTML = bookings.map((b) => `
         <div class="booking-list-item">
-          <span>${b.experience_id?.title || i18n.t('experience.fallbackTitle')}</span>
+          <span>${escapeHtml(b.experience_id?.title || i18n.t('experience.fallbackTitle'))}</span>
           <span>${b.experience_id?.date ? new Date(b.experience_id.date).toLocaleDateString(i18n.currentLang) : ''}</span>
           <span>${b.num_spots} ${i18n.t('experience.spotsWord')}</span>
-          <span class="status-badge ${b.status}">${b.status.replace(/_/g, ' ')}</span>
+          <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(b.status.replace(/_/g, ' '))}</span>
           ${['pending_approval', 'approved'].includes(b.status) ? `<button class="btn btn-danger btn-sm" onclick="cancelExperienceBooking('${b._id}')">${i18n.t('common.cancel')}</button>` : ''}
         </div>
       `).join('');

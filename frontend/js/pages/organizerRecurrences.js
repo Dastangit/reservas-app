@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const OrganizerRecurrencesPage = {
   async render() {
@@ -64,9 +65,9 @@ const OrganizerRecurrencesPage = {
       list.innerHTML = recurrences.map((r) => `
         <div class="property-list-item">
           <div class="property-info">
-            <h3>${r.title}</h3>
+            <h3>${escapeHtml(r.title)}</h3>
             <p style="font-size:var(--fs-xs);color:var(--text-light);">
-              ${r.occurrences_generated || 0} ${i18n.t('organizer.occurrencesGeneratedSuffix')} · ${i18n.t('booking.statusLabel')} ${r.status}
+              ${escapeHtml(r.occurrences_generated || 0)} ${i18n.t('organizer.occurrencesGeneratedSuffix')} · ${i18n.t('booking.statusLabel')} ${escapeHtml(r.status)}
             </p>
           </div>
           <div class="property-actions">

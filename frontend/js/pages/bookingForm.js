@@ -4,6 +4,7 @@ import auth from '../auth.js';
 import { validateInternationalPhone, sanitizePhone } from '../utils/validators.js';
 import { renderBookingReminderIfNeeded } from '../utils/onboarding.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const BookingFormPage = {
   property: null,
@@ -48,21 +49,21 @@ const BookingFormPage = {
           <div class="booking-layout">
             <div class="booking-details">
               <div class="property-summary">
-                <img loading="lazy" src="${p.images?.[0]?.url || 'https://via.placeholder.com/100'}" alt="${p.name}">
+                <img loading="lazy" src="${escapeHtml(p.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(p.name)}">
                 <div>
-                  <h3>${p.name}</h3>
-                  <p>${p.location?.city}</p>
+                  <h3>${escapeHtml(p.name)}</h3>
+                  <p>${escapeHtml(p.location?.city)}</p>
                 </div>
               </div>
               
               <div class="booking-info">
                 <div class="info-row">
                   <span>${t('booking.checkIn')}:</span>
-                  <span>${checkIn}</span>
+                  <span>${escapeHtml(checkIn)}</span>
                 </div>
                 <div class="info-row">
                   <span>${t('booking.checkOut')}:</span>
-                  <span>${checkOut}</span>
+                  <span>${escapeHtml(checkOut)}</span>
                 </div>
                 <div class="info-row">
                   <span>${t('booking.nights')}:</span>
@@ -70,7 +71,7 @@ const BookingFormPage = {
                 </div>
                 <div class="info-row">
                   <span>${t('booking.guests')}:</span>
-                  <span>${numGuests}</span>
+                  <span>${escapeHtml(numGuests)}</span>
                 </div>
                 <div class="info-row">
                   <span>${t('booking.pricePerNight')}:</span>
@@ -105,7 +106,7 @@ const BookingFormPage = {
                 
                 <div class="form-group">
                   <label>${t('auth.name')}</label>
-                  <input type="text" id="tourist-name" value="${auth.getUser()?.name || ''}" required>
+                  <input type="text" id="tourist-name" value="${escapeHtml(auth.getUser()?.name || '')}" required>
                 </div>
                 
                 <div class="form-group">

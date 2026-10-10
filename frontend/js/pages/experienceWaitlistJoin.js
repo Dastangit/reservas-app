@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const ExperienceWaitlistJoinPage = {
   experience: null,
@@ -28,7 +29,7 @@ const ExperienceWaitlistJoinPage = {
     return `
       <div class="booking-form-page">
         <div class="container">
-          <h1>${t('experience.waitlistTitlePrefix')} ${this.experience.title}</h1>
+          <h1>${t('experience.waitlistTitlePrefix')} ${escapeHtml(this.experience.title)}</h1>
           <p style="color:var(--text-light);margin-bottom:20px;">
             ${t('experience.waitlistIntro')}
           </p>

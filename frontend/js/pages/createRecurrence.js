@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const CreateRecurrencePage = {
   images: [],
@@ -62,7 +63,7 @@ const CreateRecurrencePage = {
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                   ${days.map((label, value) => `
                     <label style="display:flex;align-items:center;gap:4px;">
-                      <input type="checkbox" class="rec-day" value="${value}"> ${label}
+                      <input type="checkbox" class="rec-day" value="${escapeHtml(value)}"> ${escapeHtml(label)}
                     </label>
                   `).join('')}
                 </div>

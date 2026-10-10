@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { validateInternationalPhone } from '../utils/validators.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const ExperienceWaitlistClaimPage = {
   experience: null,
@@ -33,13 +34,13 @@ const ExperienceWaitlistClaimPage = {
         <div class="container">
           <h1>${t('experience.spotFreedTitle')}</h1>
           <p style="color:var(--text-light);margin-bottom:20px;">
-            ${t('experience.limitedTimeNoticePrefix')}${this.experience.title}${t('experience.limitedTimeNoticeSuffix')}
+            ${t('experience.limitedTimeNoticePrefix')}${escapeHtml(this.experience.title)}${t('experience.limitedTimeNoticeSuffix')}
           </p>
 
           <form id="claim-form" style="max-width:450px;">
             <div class="form-group">
               <label>${t('profile.name')}</label>
-              <input type="text" id="tourist-name" value="${auth.getUser()?.name || ''}" required>
+              <input type="text" id="tourist-name" value="${escapeHtml(auth.getUser()?.name || '')}" required>
             </div>
             <div class="form-group">
               <label>${t('auth.email')}</label>

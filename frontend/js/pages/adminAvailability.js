@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import AvailabilityCalendar from '../components/AvailabilityCalendar.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const AdminAvailabilityPage = {
   async render() {
@@ -43,7 +44,7 @@ const AdminAvailabilityPage = {
 
       select.innerHTML = `
         <option value="">-- Selecciona --</option>
-        ${properties.map((p) => `<option value="${p._id}">${p.name} (${p.host_id?.name || 'sin host'})</option>`).join('')}
+        ${properties.map((p) => `<option value="${p._id}">${escapeHtml(p.name)} (${escapeHtml(p.host_id?.name || 'sin host')})</option>`).join('')}
       `;
 
       select.addEventListener('change', () => {

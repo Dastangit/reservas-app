@@ -1,6 +1,7 @@
 import api from '../api.js';
 import PropertyCard from '../components/PropertyCard.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const SearchPage = {
   meta() {
@@ -35,25 +36,25 @@ const SearchPage = {
               <form id="filter-form">
                 <div class="filter-group">
                   <label>${t('search.city')}</label>
-                  <input type="text" id="filter-city" value="${this.currentFilters.city}" placeholder="${t('search.cityPlaceholder')}">
+                  <input type="text" id="filter-city" value="${escapeHtml(this.currentFilters.city)}" placeholder="${t('search.cityPlaceholder')}">
                 </div>
                 
                 <div class="filter-group">
                   <label>${t('booking.checkIn')}</label>
-                  <input type="date" id="filter-checkin" value="${this.currentFilters.check_in}">
+                  <input type="date" id="filter-checkin" value="${escapeHtml(this.currentFilters.check_in)}">
                 </div>
                 
                 <div class="filter-group">
                   <label>${t('booking.checkOut')}</label>
-                  <input type="date" id="filter-checkout" value="${this.currentFilters.check_out}">
+                  <input type="date" id="filter-checkout" value="${escapeHtml(this.currentFilters.check_out)}">
                 </div>
                 
                 <div class="filter-group">
                   <label>${t('search.priceRange')}</label>
                   <div class="price-range">
-                    <input type="number" id="filter-min-price" value="${this.currentFilters.min_price}" placeholder="${t('search.min')}">
+                    <input type="number" id="filter-min-price" value="${escapeHtml(this.currentFilters.min_price)}" placeholder="${t('search.min')}">
                     <span>-</span>
-                    <input type="number" id="filter-max-price" value="${this.currentFilters.max_price}" placeholder="${t('search.max')}">
+                    <input type="number" id="filter-max-price" value="${escapeHtml(this.currentFilters.max_price)}" placeholder="${t('search.max')}">
                   </div>
                 </div>
                 

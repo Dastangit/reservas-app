@@ -1,5 +1,6 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const actionLabels = {
   approve_property: 'Aprob\u00f3 propiedad',
@@ -88,8 +89,8 @@ const AdminAuditLogPage = {
       list.innerHTML = logs.map((log) => `
         <div class="property-list-item">
           <div class="property-info">
-            <h3>${actionLabels[log.action] || log.action}</h3>
-            <p>${log.admin_id?.name || 'Admin desconocido'} (${log.admin_id?.email || 'N/A'})</p>
+            <h3>${escapeHtml(actionLabels[log.action] || log.action)}</h3>
+            <p>${escapeHtml(log.admin_id?.name || 'Admin desconocido')} (${escapeHtml(log.admin_id?.email || 'N/A')})</p>
             <p style="font-size:var(--fs-xs);color:var(--text-light);">
               ${log.target_type ? `${log.target_type} \u00b7 ` : ''}${new Date(log.created_at).toLocaleString()}
             </p>

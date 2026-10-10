@@ -1,6 +1,7 @@
 import api from '../api.js';
 import i18n from '../i18n.js';
 import { formatExperiencePrice } from '../utils/formatters.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const ExperiencesPage = {
   meta() {
@@ -32,12 +33,12 @@ const ExperiencesPage = {
               <form id="filter-form">
                 <div class="filter-group">
                   <label>${t('search.city')}</label>
-                  <input type="text" id="filter-city" value="${this.currentFilters.city}" placeholder="${t('search.cityPlaceholder')}">
+                  <input type="text" id="filter-city" value="${escapeHtml(this.currentFilters.city)}" placeholder="${t('search.cityPlaceholder')}">
                 </div>
 
                 <div class="filter-group">
                   <label>${t('experience.category')}</label>
-                  <input type="text" id="filter-category" value="${this.currentFilters.category}" placeholder="${t('experience.categoryPlaceholder')}">
+                  <input type="text" id="filter-category" value="${escapeHtml(this.currentFilters.category)}" placeholder="${t('experience.categoryPlaceholder')}">
                 </div>
 
                 <div class="filter-group">
@@ -122,11 +123,11 @@ const ExperiencesPage = {
 
         return `
           <a href="/experiences/${exp._id}" data-link class="property-card">
-            <img loading="lazy" src="${exp.images?.[0]?.url || 'https://via.placeholder.com/300x200'}" alt="${exp.title}">
+            <img loading="lazy" src="${escapeHtml(exp.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(exp.title)}">
             <div class="property-card-body">
-              <h3>${exp.title}</h3>
-              <p>${exp.location?.city || ''} · ${new Date(exp.date).toLocaleDateString(i18n.currentLang)}</p>
-              <p>${priceLabel}</p>
+              <h3>${escapeHtml(exp.title)}</h3>
+              <p>${escapeHtml(exp.location?.city || '')} · ${new Date(exp.date).toLocaleDateString(i18n.currentLang)}</p>
+              <p>${escapeHtml(priceLabel)}</p>
               <p style="font-size:0.85rem;color:var(--text-light);">${spotsLeft} ${i18n.t('experience.spotsAvailable')}</p>
             </div>
           </a>

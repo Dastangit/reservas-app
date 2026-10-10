@@ -1,4 +1,4 @@
-const CACHE_NAME = 'elysio-v1';
+const CACHE_NAME = 'elysio-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -9,6 +9,7 @@ const STATIC_ASSETS = [
   '/js/auth.js',
   '/js/api.js',
   '/js/utils/formatters.js',
+  '/js/utils/escape.js',
   '/js/utils/validators.js',
   '/js/components/Header.js',
   '/js/components/Footer.js',
@@ -34,6 +35,10 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  // No cachear la API: contiene datos autenticados (reservas, perfil) que no
+  // deben quedar en disco tras cerrar sesion ni servirse obsoletos offline.
+  if (new URL(event.request.url).pathname.startsWith('/api/')) return;
 
   event.respondWith(
     fetch(event.request)

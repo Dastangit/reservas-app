@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const ManagePropertiesPage = {
   async render() {
@@ -43,11 +44,11 @@ const ManagePropertiesPage = {
 
       list.innerHTML = properties.map(p => `
         <div class="property-list-item">
-          <img loading="lazy" src="${p.images?.[0]?.url || 'https://via.placeholder.com/100'}" alt="${p.name}">
+          <img loading="lazy" src="${escapeHtml(p.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(p.name)}">
           <div class="property-info">
-            <h3>${p.name}</h3>
-            <p>${p.location?.city}</p>
-            <span class="status-badge ${p.status}">${p.status.replace(/_/g, ' ')}</span>
+            <h3>${escapeHtml(p.name)}</h3>
+            <p>${escapeHtml(p.location?.city)}</p>
+            <span class="status-badge ${escapeHtml(p.status)}">${escapeHtml(p.status.replace(/_/g, ' '))}</span>
           </div>
           <div class="property-actions">
             <a href="/host/properties/${p._id}/edit" data-link class="btn btn-outline btn-sm">${t('common.edit')}</a>

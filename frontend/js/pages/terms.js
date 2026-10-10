@@ -1,4 +1,5 @@
 ﻿import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const TermsPage = {
   meta() {
@@ -11,7 +12,7 @@ const TermsPage = {
       <div class="legal-page">
         <div class="container">
           <h1>${i18n.t('pages.terms.title')}</h1>
-          <p class="last-updated">${i18n.t('pages.terms.lastUpdated')}: ${lastUpdated}</p>
+          <p class="last-updated">${i18n.t('pages.terms.lastUpdated')}: ${escapeHtml(lastUpdated)}</p>
 
           <section class="legal-section">
             <h2>${i18n.t('pages.terms.s1Title')}</h2>

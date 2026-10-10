@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const OrganizerDashboardPage = {
   async render() {
@@ -75,9 +76,9 @@ const OrganizerDashboardPage = {
       } else {
         recentList.innerHTML = recent.map((b) => `
           <div class="booking-list-item">
-            <span>${b.experience_id?.title || i18n.t('experience.fallbackTitle')}</span>
+            <span>${escapeHtml(b.experience_id?.title || i18n.t('experience.fallbackTitle'))}</span>
             <span>${b.num_spots} ${i18n.t('experience.spotsWord')}</span>
-            <span class="status-badge ${b.status}">${b.status.replace(/_/g, ' ')}</span>
+            <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(b.status.replace(/_/g, ' '))}</span>
           </div>
         `).join('');
       }

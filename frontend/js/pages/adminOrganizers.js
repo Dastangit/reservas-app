@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const AdminOrganizersPage = {
   async render() {
@@ -99,9 +100,9 @@ const AdminOrganizersPage = {
       list.innerHTML = organizers.map((o) => `
         <div class="property-list-item">
           <div class="property-info">
-            <h3>${o.name}</h3>
-            <p>${o.email} · ${o.phone || i18n.t('admin.noPhone')}</p>
-            <span class="status-badge ${o.organizer_status}">${o.organizer_status}</span>
+            <h3>${escapeHtml(o.name)}</h3>
+            <p>${escapeHtml(o.email)} · ${escapeHtml(o.phone || i18n.t('admin.noPhone'))}</p>
+            <span class="status-badge ${escapeHtml(o.organizer_status)}">${escapeHtml(o.organizer_status)}</span>
           </div>
           <div class="property-actions">
             ${o.organizer_status === 'pending' ? `

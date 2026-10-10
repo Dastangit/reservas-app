@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const AdminUsersPage = {
   async render() {
@@ -108,10 +109,10 @@ const AdminUsersPage = {
         <div class="property-list-item">
           <div class="property-list-item-summary" onclick="toggleHostDetail('${h._id}')">
             <div class="property-info">
-              <h3>${h.name}</h3>
-              <p>${h.email} | ${h.phone || i18n.t('admin.noPhone')}</p>
-              <span class="status-badge ${h.host_status}">${h.host_status}</span>
-              <span class="status-badge ${h.status}" style="margin-left:5px;">${h.status}</span>
+              <h3>${escapeHtml(h.name)}</h3>
+              <p>${escapeHtml(h.email)} | ${escapeHtml(h.phone || i18n.t('admin.noPhone'))}</p>
+              <span class="status-badge ${escapeHtml(h.host_status)}">${escapeHtml(h.host_status)}</span>
+              <span class="status-badge ${escapeHtml(h.status)}" style="margin-left:5px;">${escapeHtml(h.status)}</span>
             </div>
             <button type="button" class="btn btn-outline btn-sm property-detail-toggle">${i18n.t('admin.viewDetail')}</button>
           </div>
@@ -120,21 +121,21 @@ const AdminUsersPage = {
             <div class="property-detail-grid">
               <div>
                 <h4>${i18n.t('admin.contactHeading')}</h4>
-                <p>Email: ${h.email}</p>
-                <p>${i18n.t('auth.phone')}: ${h.phone || i18n.t('admin.notRegistered')}</p>
-                <p>WhatsApp: ${h.whatsapp_phone || (h.phone_whatsapp ? h.phone : i18n.t('admin.notRegistered'))}</p>
+                <p>Email: ${escapeHtml(h.email)}</p>
+                <p>${i18n.t('auth.phone')}: ${escapeHtml(h.phone || i18n.t('admin.notRegistered'))}</p>
+                <p>WhatsApp: ${escapeHtml(h.whatsapp_phone || (h.phone_whatsapp ? h.phone : i18n.t('admin.notRegistered')))}</p>
 
                 <h4>${i18n.t('admin.bioProfileHeading')}</h4>
                 <p>${h.profile?.bio || `<em>${i18n.t('admin.noBio')}</em>`}</p>
-                <p>${i18n.t('admin.verifiedLabel')} ${h.profile?.verified ? i18n.t('admin.yes') : i18n.t('admin.no')}</p>
+                <p>${i18n.t('admin.verifiedLabel')} ${escapeHtml(h.profile?.verified ? i18n.t('admin.yes') : i18n.t('admin.no'))}</p>
               </div>
 
               <div>
                 <h4>${i18n.t('admin.accountHeading')}</h4>
-                <p>${i18n.t('admin.regionLabel')} ${h.host_region || i18n.t('admin.na')}</p>
+                <p>${i18n.t('admin.regionLabel')} ${escapeHtml(h.host_region || i18n.t('admin.na'))}</p>
                 <p>${i18n.t('admin.memberSince')} ${h.created_at ? new Date(h.created_at).toLocaleDateString(i18n.currentLang) : i18n.t('admin.na')}</p>
                 <p>${i18n.t('admin.lastLogin')} ${h.auth?.last_login ? new Date(h.auth.last_login).toLocaleDateString(i18n.currentLang) : i18n.t('admin.never')}</p>
-                ${h.host_status === 'rejected' && h.host_status_reason ? `<h4>${i18n.t('admin.rejectionReasonHeading')}</h4><p>${h.host_status_reason}</p>` : ''}
+                ${h.host_status === 'rejected' && h.host_status_reason ? `<h4>${i18n.t('admin.rejectionReasonHeading')}</h4><p>${escapeHtml(h.host_status_reason)}</p>` : ''}
               </div>
             </div>
           </div>

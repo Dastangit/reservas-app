@@ -1,9 +1,10 @@
+import { escapeHtml } from './escape.js';
 // Botón de mostrar/ocultar contraseña (👁️), reutilizable en cualquier campo
 // de password. Uso: colocar el botón justo después del <input>, con
 // data-target apuntando al id del input.
 
 export function passwordToggleButton(inputId) {
-  return `<button type="button" class="password-toggle-btn" data-target="${inputId}" onclick="togglePasswordVisibility('${inputId}')" aria-label="Mostrar contraseña" tabindex="-1">\u{1F441}\u{FE0F}</button>`;
+  return `<button type="button" class="password-toggle-btn" data-target="${escapeHtml(inputId)}" onclick="togglePasswordVisibility('${escapeHtml(inputId)}')" aria-label="Mostrar contraseña" tabindex="-1">\u{1F441}\u{FE0F}</button>`;
 }
 
 if (typeof window !== 'undefined' && !window.togglePasswordVisibility) {

@@ -1,5 +1,6 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const AdminPasswordResetsPage = {
   async render() {
@@ -61,13 +62,13 @@ const AdminPasswordResetsPage = {
       list.innerHTML = requests.map((r) => `
         <div class="property-list-item">
           <div class="property-info">
-            <h3>${r.name} <span class="status-badge pending">${r.role}</span></h3>
-            <p>${r.email} ${r.phone ? '\u00b7 ' + r.phone : ''}</p>
+            <h3>${escapeHtml(r.name)} <span class="status-badge pending">${escapeHtml(r.role)}</span></h3>
+            <p>${escapeHtml(r.email)} ${escapeHtml(r.phone ? '\u00b7 ' + r.phone : '')}</p>
             <p style="font-size:var(--fs-xs);color:var(--text-light);">Expira: ${new Date(r.expires_at).toLocaleString()}</p>
           </div>
           <div class="property-actions">
-            <button onclick="deliverPasswordReset('${r.user_id}', 'whatsapp')" class="btn btn-outline btn-sm">WhatsApp</button>
-            <button onclick="deliverPasswordReset('${r.user_id}', 'mailto')" class="btn btn-outline btn-sm">Correo</button>
+            <button onclick="deliverPasswordReset('${escapeHtml(r.user_id)}', 'whatsapp')" class="btn btn-outline btn-sm">WhatsApp</button>
+            <button onclick="deliverPasswordReset('${escapeHtml(r.user_id)}', 'mailto')" class="btn btn-outline btn-sm">Correo</button>
           </div>
         </div>
       `).join('');

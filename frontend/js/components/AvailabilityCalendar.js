@@ -1,4 +1,5 @@
 import api from '../api.js';
+import { escapeHtml } from '../utils/escape.js';
 
 // Componente de calendario de disponibilidad reutilizable.
 // Uso: AvailabilityCalendar.mount('#calendar-root', { propertyId, mode: 'host' | 'admin' })
@@ -166,7 +167,7 @@ const AvailabilityCalendar = {
 
     container.innerHTML = `
       <div class="availability-calendar">
-        ${this._state.error ? `<p class="error-message">${this._state.error}</p>` : ''}
+        ${this._state.error ? `<p class="error-message">${escapeHtml(this._state.error)}</p>` : ''}
         <div id="avail-inline-error"></div>
         <div class="avail-legend">
           <span class="avail-legend-item"><i class="avail-swatch avail-swatch-free"></i> Libre</span>
@@ -182,7 +183,7 @@ const AvailabilityCalendar = {
           ${manualBlocks.length === 0 ? '<p class="no-results">No hay fechas bloqueadas.</p>' : manualBlocks.map((b) => `
             <div class="avail-block-item">
               <span>${dateOnly(b.start_date).toLocaleDateString()} — ${new Date(dateOnly(b.end_date).getTime() - 86400000).toLocaleDateString()}
-                ${b.reason ? `<em>(${b.reason})</em>` : ''}
+                ${b.reason ? `<em>(${escapeHtml(b.reason)})</em>` : ''}
                 <small>· bloqueado por ${b.blocked_by === 'admin' ? 'admin' : 'ti'}</small>
               </span>
               <button class="avail-block-remove" data-block-id="${b._id}" title="Eliminar bloqueo">×</button>
@@ -286,7 +287,7 @@ const AvailabilityCalendar = {
         ? 'No se puede bloquear: ese rango choca con una reserva activa de la plataforma.'
         : 'No se pudo bloquear el rango seleccionado.';
       if (inlineError) {
-        inlineError.innerHTML = `<p class="error-message">${message}</p>`;
+        inlineError.innerHTML = `<p class="error-message">${escapeHtml(message)}</p>`;
       }
       this.render();
     }

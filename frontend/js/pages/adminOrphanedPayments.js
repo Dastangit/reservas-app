@@ -1,5 +1,6 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const AdminOrphanedPaymentsPage = {
   async render() {
@@ -76,16 +77,16 @@ const AdminOrphanedPaymentsPage = {
         <div class="orphaned-payment-item">
           <div class="orphaned-payment-header">
             <span class="orphaned-payment-reason">${p.reason === 'missing_order_id' ? 'Sin order_id' : 'Reserva no encontrada'}</span>
-            <span class="orphaned-payment-status">${p.payment_status || 'unknown'}</span>
+            <span class="orphaned-payment-status">${escapeHtml(p.payment_status || 'unknown')}</span>
             ${p.reviewed ? '<span class="badge-reviewed">Revisado</span>' : ''}
           </div>
           <div class="orphaned-payment-body">
             <p><strong>Fecha:</strong> ${new Date(p.created_at).toLocaleString()}</p>
-            <p><strong>invoice_id:</strong> ${p.invoice_id || 'N/A'}</p>
-            <p><strong>payment_id:</strong> ${p.payment_id || 'N/A'}</p>
-            ${p.order_id ? `<p><strong>order_id (no encontrado):</strong> ${p.order_id}</p>` : ''}
-            <p><strong>Monto:</strong> ${p.price_amount || '?'} ${p.price_currency || ''} ${p.actually_paid ? `(recibido: ${p.actually_paid} ${p.pay_currency || ''})` : ''}</p>
-            ${p.resolution_notes ? `<p><strong>Notas:</strong> ${p.resolution_notes}</p>` : ''}
+            <p><strong>invoice_id:</strong> ${escapeHtml(p.invoice_id || 'N/A')}</p>
+            <p><strong>payment_id:</strong> ${escapeHtml(p.payment_id || 'N/A')}</p>
+            ${p.order_id ? `<p><strong>order_id (no encontrado):</strong> ${escapeHtml(p.order_id)}</p>` : ''}
+            <p><strong>Monto:</strong> ${p.price_amount || '?'} ${escapeHtml(p.price_currency || '')} ${p.actually_paid ? `(recibido: ${p.actually_paid} ${p.pay_currency || ''})` : ''}</p>
+            ${p.resolution_notes ? `<p><strong>Notas:</strong> ${escapeHtml(p.resolution_notes)}</p>` : ''}
           </div>
           ${!p.reviewed ? `
             <div class="orphaned-payment-actions">

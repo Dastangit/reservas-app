@@ -3,6 +3,7 @@ import i18n from '../i18n.js';
 import api from '../api.js';
 import { subscribeAdminToPush, syncAdminPushSubscription } from '../utils/adminPush.js';
 import router from '../router.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const Header = {
   render() {
@@ -12,7 +13,7 @@ const Header = {
     const t = (key) => i18n.t(key);
 
     const langOptions = i18n.getLangs().map((lang) =>
-      `<option value="${lang.code}" ${lang.code === i18n.currentLang ? 'selected' : ''}>${lang.label}</option>`
+      `<option value="${escapeHtml(lang.code)}" ${lang.code === i18n.currentLang ? 'selected' : ''}>${escapeHtml(lang.label)}</option>`
     ).join('');
 
     let navLinks = '';
@@ -32,7 +33,7 @@ const Header = {
         <a href="/search" data-link>${t('common.search')}</a>
         ${experiencesLink}
         <a href="/dashboard" data-link>${t('nav.myBookings')}</a>
-        <a href="/profile" data-link class="nav-user">${user?.name || t('common.profile')}</a>
+        <a href="/profile" data-link class="nav-user">${escapeHtml(user?.name || t('common.profile'))}</a>
         <button onclick="logout()" class="btn btn-outline">${t('common.logout')}</button>
       `;
     } else if (role === 'host') {
@@ -41,7 +42,7 @@ const Header = {
         <a href="/host/properties" data-link>${t('host.myProperties')}</a>
         <a href="/host/bookings" data-link>${t('nav.myBookings')}</a>
         <a href="/host/earnings" data-link>${t('host.earnings')}</a>
-        <a href="/host/profile" data-link class="nav-user">${user?.name || t('common.profile')}</a>
+        <a href="/host/profile" data-link class="nav-user">${escapeHtml(user?.name || t('common.profile'))}</a>
         <button onclick="logout()" class="btn btn-outline">${t('common.logout')}</button>
       `;
     } else if (role === 'organizer') {
@@ -50,7 +51,7 @@ const Header = {
         <a href="/organizer/experiences" data-link>Mis excursiones</a>
         <a href="/organizer/recurrences" data-link>Recurrentes</a>
         <a href="/organizer/bookings" data-link>Reservas</a>
-        <a href="/profile" data-link class="nav-user">${user?.name || t('common.profile')}</a>
+        <a href="/profile" data-link class="nav-user">${escapeHtml(user?.name || t('common.profile'))}</a>
         <button onclick="logout()" class="btn btn-outline">${t('common.logout')}</button>
       `;
     } else if (role === 'admin') {
@@ -191,7 +192,7 @@ async function loadPendingCounts() {
 
     const items = Object.entries(notifLabels)
       .filter(([key]) => counts[key] > 0)
-      .map(([key, meta]) => `<a href="${meta.url}" data-link>${meta.label} <strong>(${counts[key]})</strong></a>`)
+      .map(([key, meta]) => `<a href="${escapeHtml(meta.url)}" data-link>${escapeHtml(meta.label)} <strong>(${counts[key]})</strong></a>`)
       .join('');
 
     const { subscribed } = await syncAdminPushSubscription();

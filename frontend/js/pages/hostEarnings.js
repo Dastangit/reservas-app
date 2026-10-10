@@ -2,6 +2,7 @@ import api from '../api.js';
 import { formatCurrency } from '../utils/formatters.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const HostEarningsPage = {
   async render() {
@@ -59,7 +60,7 @@ const HostEarningsPage = {
       } else {
         list.innerHTML += completed.map(b => `
           <div class="earnings-item">
-            <span>${b.property_id?.name || i18n.t('booking.propertyFallback')}</span>
+            <span>${escapeHtml(b.property_id?.name || i18n.t('booking.propertyFallback'))}</span>
             <span>${new Date(b.check_out).toLocaleDateString(i18n.currentLang)}</span>
             <span>${formatCurrency(b.total_amount)}</span>
           </div>

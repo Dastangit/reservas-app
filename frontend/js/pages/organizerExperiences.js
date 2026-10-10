@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const OrganizerExperiencesPage = {
   async render() {
@@ -41,10 +42,10 @@ const OrganizerExperiencesPage = {
       list.innerHTML = experiences.map((exp) => `
         <div class="property-list-item">
           <div class="property-info">
-            <h3>${exp.title}${exp.recurrence_id ? ` <span class="audit-log-badge">${i18n.t('organizer.recurringBadge')}</span>` : ''}</h3>
-            <p>${exp.location?.city || ''} · ${new Date(exp.date).toLocaleDateString(i18n.currentLang)}</p>
+            <h3>${escapeHtml(exp.title)}${exp.recurrence_id ? ` <span class="audit-log-badge">${i18n.t('organizer.recurringBadge')}</span>` : ''}</h3>
+            <p>${escapeHtml(exp.location?.city || '')} · ${new Date(exp.date).toLocaleDateString(i18n.currentLang)}</p>
             <p style="font-size:var(--fs-xs);color:var(--text-light);">
-              ${exp.current_participants}/${exp.max_participants} ${i18n.t('organizer.spotsLabel')} · ${i18n.t('booking.statusLabel')} ${exp.status}
+              ${escapeHtml(exp.current_participants)}/${exp.max_participants} ${i18n.t('organizer.spotsLabel')} · ${i18n.t('booking.statusLabel')} ${escapeHtml(exp.status)}
             </p>
           </div>
           <div class="property-actions">

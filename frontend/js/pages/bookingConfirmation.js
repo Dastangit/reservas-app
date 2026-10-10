@@ -1,6 +1,7 @@
 import api from '../api.js';
 import { formatCurrency } from '../utils/formatters.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const BookingConfirmationPage = {
   async render() {
@@ -30,7 +31,7 @@ const BookingConfirmationPage = {
                 </div>
                 <div class="detail-row">
                   <span>${t('booking.propertyLabel')}</span>
-                  <span>${booking.property_id?.name || 'N/A'}</span>
+                  <span>${escapeHtml(booking.property_id?.name || 'N/A')}</span>
                 </div>
                 <div class="detail-row">
                   <span>${t('booking.checkIn')}:</span>

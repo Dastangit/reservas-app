@@ -1,4 +1,5 @@
 import api from '../api.js';
+import { escapeHtml } from '../utils/escape.js';
 
 // Carrusel de fondo del hero: muestra fotos reales de ciudades donde ya
 // hay propiedades o excursiones activas (ver GET /search/destinations).
@@ -23,9 +24,9 @@ const HeroCarousel = {
     if (this._destinations.length === 0) return '';
 
     const slides = this._destinations.map((d, i) => `
-      <div class="hero-carousel__slide${i === 0 ? ' is-active' : ''}" role="img" aria-label="${d.city}">
-        <div class="hero-carousel__slide-blur" style="background-image:url('${d.image_url}')"></div>
-        <div class="hero-carousel__slide-img" style="background-image:url('${d.image_url}')"></div>
+      <div class="hero-carousel__slide${i === 0 ? ' is-active' : ''}" role="img" aria-label="${escapeHtml(d.city)}">
+        <div class="hero-carousel__slide-blur" style="background-image:url('${escapeHtml(d.image_url)}')"></div>
+        <div class="hero-carousel__slide-img" style="background-image:url('${escapeHtml(d.image_url)}')"></div>
       </div>
     `).join('');
 

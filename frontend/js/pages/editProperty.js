@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const EditPropertyPage = {
   property: null,
@@ -183,10 +184,10 @@ const EditPropertyPage = {
       `;
     } else {
       container.innerHTML = images.map((img, i) => `
-        <div class="form-group image-entry" style="display:flex;gap:10px;align-items:end;" data-public-id="${img.public_id || ''}">
+        <div class="form-group image-entry" style="display:flex;gap:10px;align-items:end;" data-public-id="${escapeHtml(img.public_id || '')}">
           <div style="flex:1">
             <label>${i === 0 ? t('propertyForm.mainImageUrlLabel') : t('propertyForm.imageUrlLabel')}</label>
-            <input type="url" class="image-url" value="${img.url || ''}" ${i === 0 ? 'required' : ''} placeholder="${t('propertyForm.imageUrlPlaceholder')}">
+            <input type="url" class="image-url" value="${escapeHtml(img.url || '')}" ${i === 0 ? 'required' : ''} placeholder="${t('propertyForm.imageUrlPlaceholder')}">
             <div class="image-upload-row">
               <input type="file" class="image-file-input" accept="image/*">
               <span class="image-upload-status"></span>

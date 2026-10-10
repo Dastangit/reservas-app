@@ -1,5 +1,6 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import { escapeHtml } from './escape.js';
 
 const WELCOME_TEXT = {
   es: {
@@ -57,11 +58,11 @@ export function showWelcomeModalIfNeeded() {
   overlay.className = 'onboarding-modal-overlay';
   overlay.innerHTML = `
     <div class="onboarding-modal">
-      <h2>${t.title}</h2>
-      <p>${t.body}</p>
+      <h2>${escapeHtml(t.title)}</h2>
+      <p>${escapeHtml(t.body)}</p>
       <div class="onboarding-modal-actions">
-        <a href="/how-it-works" data-link class="btn btn-primary" id="onboarding-cta">${t.cta}</a>
-        <button type="button" class="btn btn-outline" id="onboarding-dismiss">${t.dismiss}</button>
+        <a href="/how-it-works" data-link class="btn btn-primary" id="onboarding-cta">${escapeHtml(t.cta)}</a>
+        <button type="button" class="btn btn-outline" id="onboarding-dismiss">${escapeHtml(t.dismiss)}</button>
       </div>
     </div>
   `;
@@ -83,7 +84,7 @@ export function renderBookingReminderIfNeeded() {
   if (auth.getOnboarding().terms_viewed) return '';
 
   const t = REMINDER_TEXT[lang()];
-  return `<div class="onboarding-reminder-banner">${t.text}</div>`;
+  return `<div class="onboarding-reminder-banner">${escapeHtml(t.text)}</div>`;
 }
 
 // Se llama al entrar a la p\u00e1gina C\u00f3mo Funciona -- marca que ya lo vio, para

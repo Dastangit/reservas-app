@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const AdminFeedbackPage = {
   async render() {
@@ -73,10 +74,10 @@ const AdminFeedbackPage = {
       list.innerHTML = feedback.map(f => `
         <div class="property-list-item">
           <div class="property-info">
-            <h3>${f.category}</h3>
-            <p>${f.message}</p>
-            <p style="font-size:0.85rem;color:var(--text-light);">${i18n.t('admin.fromLabel')} ${f.user_id?.name || i18n.t('admin.unknownFallback')} - ${new Date(f.created_at).toLocaleDateString(i18n.currentLang)}</p>
-            ${f.admin_response ? `<p><strong>${i18n.t('admin.adminResponseLabel')}</strong> ${f.admin_response}</p>` : ''}
+            <h3>${escapeHtml(f.category)}</h3>
+            <p>${escapeHtml(f.message)}</p>
+            <p style="font-size:0.85rem;color:var(--text-light);">${i18n.t('admin.fromLabel')} ${escapeHtml(f.user_id?.name || i18n.t('admin.unknownFallback'))} - ${new Date(f.created_at).toLocaleDateString(i18n.currentLang)}</p>
+            ${f.admin_response ? `<p><strong>${i18n.t('admin.adminResponseLabel')}</strong> ${escapeHtml(f.admin_response)}</p>` : ''}
           </div>
           <div class="property-actions">
             ${!f.admin_response ? `<button onclick="respondFeedback('${f._id}')" class="btn btn-primary btn-sm">${i18n.t('admin.respondBtn')}</button>` : ''}

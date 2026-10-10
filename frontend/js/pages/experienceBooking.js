@@ -3,6 +3,7 @@ import auth from '../auth.js';
 import { formatExperiencePrice } from '../utils/formatters.js';
 import { validateInternationalPhone, sanitizePhone } from '../utils/validators.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const ExperienceBookingPage = {
   experience: null,
@@ -30,26 +31,26 @@ const ExperienceBookingPage = {
 
     const exp = this.experience;
     const pricingOptions = (exp.pricing || []).map((p) =>
-      `<option value="${p.audience}|${p.currency}">${p.audience === 'local' ? t('experience.local') : t('experience.tourist')} -- ${formatExperiencePrice(p.amount, p.currency)}${t('experience.perSpot')}</option>`
+      `<option value="${escapeHtml(p.audience)}|${escapeHtml(p.currency)}">${p.audience === 'local' ? t('experience.local') : t('experience.tourist')} -- ${formatExperiencePrice(p.amount, p.currency)}${t('experience.perSpot')}</option>`
     ).join('');
 
     return `
       <div class="booking-form-page">
         <div class="container">
-          <h1>${t('experience.book')}: ${exp.title}</h1>
+          <h1>${t('experience.book')}: ${escapeHtml(exp.title)}</h1>
 
           <div class="booking-layout">
             <div class="booking-details">
               <div class="property-summary">
-                <img loading="lazy" src="${exp.images?.[0]?.url || 'https://via.placeholder.com/100'}" alt="${exp.title}">
+                <img loading="lazy" src="${escapeHtml(exp.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(exp.title)}">
                 <div>
-                  <h3>${exp.title}</h3>
-                  <p>${exp.location?.city || ''} · ${new Date(exp.date).toLocaleDateString()}</p>
+                  <h3>${escapeHtml(exp.title)}</h3>
+                  <p>${escapeHtml(exp.location?.city || '')} · ${new Date(exp.date).toLocaleDateString()}</p>
                 </div>
               </div>
 
               <p style="margin:15px 0;color:var(--text-light);">
-                ${this.spotsAvailable} ${t('experience.spotsAvailable')}
+                ${escapeHtml(this.spotsAvailable)} ${t('experience.spotsAvailable')}
                 ${exp.allows_mixed_audience ? ` ${t('experience.mixedAudienceNote')}` : ''}
               </p>
 
@@ -80,7 +81,7 @@ const ExperienceBookingPage = {
 
                 <div class="form-group">
                   <label>${t('auth.name')}</label>
-                  <input type="text" id="tourist-name" value="${auth.getUser()?.name || ''}" required>
+                  <input type="text" id="tourist-name" value="${escapeHtml(auth.getUser()?.name || '')}" required>
                 </div>
 
                 <div class="form-group">
@@ -138,7 +139,7 @@ const ExperienceBookingPage = {
     const t = (key) => i18n.t(key);
     const container = document.getElementById('spots-rows');
     const pricingOptions = (this.experience.pricing || []).map((p) =>
-      `<option value="${p.audience}|${p.currency}">${p.audience === 'local' ? t('experience.local') : t('experience.tourist')}</option>`
+      `<option value="${escapeHtml(p.audience)}|${escapeHtml(p.currency)}">${p.audience === 'local' ? t('experience.local') : t('experience.tourist')}</option>`
     ).join('');
 
     const div = document.createElement('div');

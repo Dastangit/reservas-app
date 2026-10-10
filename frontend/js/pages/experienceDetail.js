@@ -2,6 +2,7 @@ import api from '../api.js';
 import i18n from '../i18n.js';
 import { formatExperiencePrice } from '../utils/formatters.js';
 import auth from '../auth.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const ExperienceDetailPage = {
   experience: null,
@@ -80,25 +81,25 @@ const ExperienceDetailPage = {
         <div class="container">
           <div class="property-gallery">
             ${exp.images?.length ? exp.images.map((img, i) => `
-              <img src="${img.url}" alt="${img.title || exp.title}" class="${i === 0 ? 'main' : 'thumb'}" loading="${i === 0 ? 'eager' : 'lazy'}">
-            `).join('') : `<img src="https://via.placeholder.com/800x600?text=${encodeURIComponent(t('experience.noImage'))}" alt="${exp.title}">`}
+              <img src="${escapeHtml(img.url)}" alt="${escapeHtml(img.title || exp.title)}" class="${i === 0 ? 'main' : 'thumb'}" loading="${i === 0 ? 'eager' : 'lazy'}">
+            `).join('') : `<img src="/assets/placeholder.svg" alt="${escapeHtml(exp.title)}">`}
           </div>
 
           <div class="property-info">
             <div class="property-main">
-              <h1>${exp.title}</h1>
-              <p class="property-location">${exp.location?.city || ''}${exp.location?.address ? `, ${exp.location.address}` : ''}</p>
+              <h1>${escapeHtml(exp.title)}</h1>
+              <p class="property-location">${escapeHtml(exp.location?.city || '')}${exp.location?.address ? `, ${escapeHtml(exp.location.address)}` : ''}</p>
 
               <div class="property-meta">
                 <span>${new Date(exp.date).toLocaleDateString(i18n.currentLang)} ${new Date(exp.date).toLocaleTimeString(i18n.currentLang, { hour: '2-digit', minute: '2-digit' })}</span>
                 ${exp.duration_hours ? `<span>${exp.duration_hours}${t('experience.hoursDurationSuffix')}</span>` : ''}
-                <span>${this.spotsAvailable} ${t('experience.spotsAvailable')}</span>
+                <span>${escapeHtml(this.spotsAvailable)} ${t('experience.spotsAvailable')}</span>
                 ${exp.allows_mixed_audience ? `<span>${t('experience.mixedGroupsBadge')}</span>` : ''}
               </div>
 
               <div class="property-description">
                 <h2>${t('property.description')}</h2>
-                <p>${exp.description}</p>
+                <p>${escapeHtml(exp.description)}</p>
               </div>
 
               ${exp.includes?.length ? `
@@ -114,7 +115,7 @@ const ExperienceDetailPage = {
                 <div class="property-amenities">
                   <h2>${t('experience.requirementsHeading')}</h2>
                   <div class="amenities-grid">
-                    ${exp.requirements.map((r) => `<span class="amenity">${r}</span>`).join('')}
+                    ${exp.requirements.map((r) => `<span class="amenity">${escapeHtml(r)}</span>`).join('')}
                   </div>
                 </div>
               ` : ''}
@@ -122,7 +123,7 @@ const ExperienceDetailPage = {
               ${exp.cancellation_policy ? `
                 <div class="property-description">
                   <h2>${t('experience.cancellationPolicyHeading')}</h2>
-                  <p>${exp.cancellation_policy}</p>
+                  <p>${escapeHtml(exp.cancellation_policy)}</p>
                 </div>
               ` : ''}
             </div>

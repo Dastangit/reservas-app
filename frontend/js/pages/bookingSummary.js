@@ -2,6 +2,7 @@ import api from '../api.js';
 import { formatCurrency, formatDate, getStatusColor } from '../utils/formatters.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const BookingSummaryPage = {
   async render() {
@@ -30,9 +31,9 @@ const BookingSummaryPage = {
             
             <div class="booking-detail-card">
               <div class="booking-header">
-                <h2>${booking.property_id?.name || t('booking.propertyFallback')}</h2>
+                <h2>${escapeHtml(booking.property_id?.name || t('booking.propertyFallback'))}</h2>
                 <span class="status-badge" style="background-color: ${statusColor}">
-                  ${this.statusLabel(booking.status)}
+                  ${escapeHtml(this.statusLabel(booking.status))}
                 </span>
               </div>
               
@@ -54,14 +55,14 @@ const BookingSummaryPage = {
                   <p><strong>${t('booking.totalAmount')}</strong> ${formatCurrency(booking.total_amount)}</p>
                   <p><strong>${t('booking.feePaid')}</strong> ${formatCurrency(booking.fee_amount)}</p>
                   <p><strong>${t('booking.paymentOption')}</strong> ${booking.payment_option === 'full_payment' ? t('booking.fullPayment') : t('booking.dailyPayment')}</p>
-                  ${booking.status === 'pending_payment' ? `<p><strong>${t('booking.paymentStatus')}</strong> ${this.paymentStageLabel(booking.payment_stage)}</p>` : ''}
+                  ${booking.status === 'pending_payment' ? `<p><strong>${t('booking.paymentStatus')}</strong> ${escapeHtml(this.paymentStageLabel(booking.payment_stage))}</p>` : ''}
                 </div>
                 
                 <div class="detail-section">
                   <h3>${t('booking.contactInfo')}</h3>
-                  <p><strong>${t('auth.name')}:</strong> ${booking.tourist_data?.name || 'N/A'}</p>
-                  <p><strong>${t('auth.email')}:</strong> ${booking.tourist_data?.email || 'N/A'}</p>
-                  <p><strong>${t('booking.phoneLabel').replace(' (WhatsApp) *', '')}:</strong> ${booking.tourist_data?.phone || 'N/A'}</p>
+                  <p><strong>${t('auth.name')}:</strong> ${escapeHtml(booking.tourist_data?.name || 'N/A')}</p>
+                  <p><strong>${t('auth.email')}:</strong> ${escapeHtml(booking.tourist_data?.email || 'N/A')}</p>
+                  <p><strong>${escapeHtml(t('booking.phoneLabel').replace(' (WhatsApp) *', ''))}:</strong> ${escapeHtml(booking.tourist_data?.phone || 'N/A')}</p>
                 </div>
                 
                 ${booking.status === 'pending_approval' || booking.status === 'pending_payment' ? `

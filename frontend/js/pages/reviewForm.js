@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const ReviewFormPage = {
   async render() {
@@ -18,7 +19,7 @@ const ReviewFormPage = {
           <h1>${t('review.title')}</h1>
           
           <form id="review-form">
-            <input type="hidden" id="booking-id" value="${bookingId || ''}">
+            <input type="hidden" id="booking-id" value="${escapeHtml(bookingId || '')}">
             
             <div class="form-group">
               <label>${t('review.rating')}</label>

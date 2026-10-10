@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { formatExperiencePrice } from '../utils/formatters.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const OrganizerBookingsPage = {
   async render() {
@@ -57,10 +58,10 @@ const OrganizerBookingsPage = {
 
         return `
           <div class="booking-list-item">
-            <span>${b.experience_id?.title || i18n.t('experience.fallbackTitle')}</span>
+            <span>${escapeHtml(b.experience_id?.title || i18n.t('experience.fallbackTitle'))}</span>
             <span>${b.experience_id?.date ? new Date(b.experience_id.date).toLocaleDateString(i18n.currentLang) : ''}</span>
-            <span>${paymentSummary}</span>
-            <span class="status-badge ${b.status}">${b.status.replace(/_/g, ' ')}</span>
+            <span>${escapeHtml(paymentSummary)}</span>
+            <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(b.status.replace(/_/g, ' '))}</span>
             ${b.status === 'approved' ? `<button class="btn btn-primary btn-sm" onclick="completeOrganizerBooking('${b._id}')">${i18n.t('organizer.markCompletedBtn')}</button>` : ''}
           </div>
         `;

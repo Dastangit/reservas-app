@@ -1,4 +1,5 @@
 import { formatDate, formatCurrency, getStatusColor } from '../utils/formatters.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const BookingCard = {
   render(booking, mode = 'tourist') {
@@ -10,9 +11,9 @@ const BookingCard = {
     return `
       <div class="booking-card" data-id="${booking._id}">
         <div class="booking-card-header">
-          <h3>${property?.name || 'Property'}</h3>
+          <h3>${escapeHtml(property?.name || 'Property')}</h3>
           <span class="booking-status" style="background-color: ${statusColor}">
-            ${booking.status.replace(/_/g, ' ').toUpperCase()}
+            ${escapeHtml(booking.status.replace(/_/g, ' ').toUpperCase())}
           </span>
           <span class="booking-type-badge pre_booking">Pre-booking</span>
         </div>
@@ -35,8 +36,8 @@ const BookingCard = {
           </div>
           ${booking.tourist_data ? `
             <div class="booking-tourist">
-              <p><strong>Tourist:</strong> ${booking.tourist_data.name}</p>
-              <p><strong>Contact:</strong> ${booking.tourist_data.email || booking.tourist_data.phone}</p>
+              <p><strong>Tourist:</strong> ${escapeHtml(booking.tourist_data.name)}</p>
+              <p><strong>Contact:</strong> ${escapeHtml(booking.tourist_data.email || booking.tourist_data.phone)}</p>
             </div>
           ` : ''}
         </div>

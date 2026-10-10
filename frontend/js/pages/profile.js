@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const ProfilePage = {
   async render() {
@@ -20,22 +21,22 @@ const ProfilePage = {
             <form id="profile-form">
               <div class="form-group">
                 <label>${t('profile.name')}</label>
-                <input type="text" id="name" value="${user?.name || ''}" required>
+                <input type="text" id="name" value="${escapeHtml(user?.name || '')}" required>
               </div>
               
               <div class="form-group">
                 <label>${t('profile.email')}</label>
-                <input type="email" id="email" value="${user?.email || ''}" disabled>
+                <input type="email" id="email" value="${escapeHtml(user?.email || '')}" disabled>
               </div>
               
               <div class="form-group">
                 <label>${t('profile.phone')}</label>
-                <input type="tel" id="phone" value="${user?.phone || ''}">
+                <input type="tel" id="phone" value="${escapeHtml(user?.phone || '')}">
               </div>
               
               <div class="form-group">
                 <label>${t('profile.role')}</label>
-                <input type="text" value="${user?.role || ''}" disabled>
+                <input type="text" value="${escapeHtml(user?.role || '')}" disabled>
               </div>
               
               <div id="error-message" class="error-message" style="display:none;"></div>

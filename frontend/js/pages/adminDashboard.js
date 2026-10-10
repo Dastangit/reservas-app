@@ -2,6 +2,7 @@ import api from '../api.js';
 import { formatCurrency } from '../utils/formatters.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const AdminDashboardPage = {
   async render() {
@@ -87,8 +88,8 @@ const AdminDashboardPage = {
       } else {
         hostsListEl.innerHTML = pendingHosts.map(h => `
           <div class="booking-list-item">
-            <span>${h.name}</span>
-            <span>${h.email}</span>
+            <span>${escapeHtml(h.name)}</span>
+            <span>${escapeHtml(h.email)}</span>
             <span>${new Date(h.created_at).toLocaleDateString(i18n.currentLang)}</span>
             <button onclick="approveHost('${h._id}')" class="btn btn-success btn-sm">${t('admin.approveBtn')}</button>
             <button onclick="rejectHost('${h._id}')" class="btn btn-danger btn-sm">${t('admin.rejectBtn')}</button>
@@ -103,9 +104,9 @@ const AdminDashboardPage = {
       } else {
         propsListEl.innerHTML = pendingProps.map(p => `
           <div class="booking-list-item">
-            <span>${p.name}</span>
-            <span>${p.host_id?.name || t('admin.hostFallback')}</span>
-            <span>${p.location?.city}</span>
+            <span>${escapeHtml(p.name)}</span>
+            <span>${escapeHtml(p.host_id?.name || t('admin.hostFallback'))}</span>
+            <span>${escapeHtml(p.location?.city)}</span>
             <button onclick="approveProperty('${p._id}')" class="btn btn-success btn-sm">${t('admin.approveBtn')}</button>
             <button onclick="rejectProperty('${p._id}')" class="btn btn-danger btn-sm">${t('admin.rejectBtn')}</button>
           </div>

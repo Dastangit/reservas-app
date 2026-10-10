@@ -84,7 +84,9 @@ const LoginPage = {
     });
 
     const params = new URLSearchParams(window.location.search);
-    const redirect = params.get('redirect') || '/';
+    // Solo rutas internas (/algo). Evita open redirect (//evil.com) y javascript: URLs.
+    const rawRedirect = params.get('redirect') || '/';
+    const redirect = /^\/(?!\/)[^\\\s]*$/.test(rawRedirect) ? rawRedirect : '/';
     window.location.href = redirect;
   },
 

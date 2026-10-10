@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const ExperienceBookingConfirmationPage = {
   async render() {
@@ -27,7 +28,7 @@ const ExperienceBookingConfirmationPage = {
           <div class="container">
             <div class="confirmation-card">
               <h1>${t('experience.requestSentTitle')}</h1>
-              <p class="confirmation-subtitle">${t('experience.bookedSpotsPrefix')} ${booking.num_spots} ${t('experience.spotsWord')} ${t('experience.inQuotes')} "${booking.experience_id?.title || t('experience.fallbackTitle')}"</p>
+              <p class="confirmation-subtitle">${t('experience.bookedSpotsPrefix')} ${booking.num_spots} ${t('experience.spotsWord')} ${t('experience.inQuotes')} "${escapeHtml(booking.experience_id?.title || t('experience.fallbackTitle'))}"</p>
 
               <div class="confirmation-details">
                 <h2>${t('confirmation.whatNext')}</h2>
