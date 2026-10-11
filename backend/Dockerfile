@@ -1,18 +1,23 @@
 FROM node:20-alpine
 
 WORKDIR /app
+ENV NODE_ENV=production
 
-# Copiar solo package.json primero -- así Docker cachea la capa de
+# Copiar solo los manifiestos primero -- así Docker cachea la capa de
 # dependencias y no reinstala todo en cada build si el código cambia pero
-# las dependencias no.
-COPY package*.json ./
-RUN npm install --omit=dev
+# las dependencias no. `npm ci` instala exactamente el package-lock
+# (desde registry.npmjs.org, ver .npmrc).
+COPY package.json package-lock.json .npmrc ./
+RUN npm ci --omit=dev && npm cache clean --force
 
 # Ahora sí, el resto del código del backend.
-COPY . .
+COPY --chown=node:node . .
 
-# Render/SnapDeploy inyectan PORT como variable de entorno; el c\u00f3digo ya
-# lee env.port desde config/env.js, as\u00ed que no hace falta hardcodear nada aqu\u00ed.
+# No correr como root dentro del contenedor.
+USER node
+
+# Render/SnapDeploy inyectan PORT como variable de entorno; el código ya
+# lee env.port desde config/env.js, así que no hace falta hardcodear nada aquí.
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

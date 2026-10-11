@@ -2,6 +2,7 @@
 // arranca crons: eso lo hace server.js. Los tests la usan con supertest.
 const Sentry = require('./instrument');
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -58,8 +59,15 @@ app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 // de que llegue a Mongoose -- previene NoSQL injection.
 app.use(mongoSanitize());
 
+// 503 si Mongo no esta conectado: asi el healthcheck del hosting y
+// UptimeRobot detectan una caida real, no solo que el proceso responde.
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  const dbUp = mongoose.connection.readyState === 1;
+  res.status(dbUp ? 200 : 503).json({
+    status: dbUp ? 'ok' : 'degraded',
+    db: dbUp ? 'connected' : 'disconnected',
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.use('/api/auth', apiLimiter, require('./routes/auth'));

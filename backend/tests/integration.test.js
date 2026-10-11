@@ -263,3 +263,11 @@ describe('excursiones', () => {
     expect(saved.date.toISOString()).toBe('2027-01-15T14:00:00.000Z');
   });
 });
+
+describe('health', () => {
+  test('responde ok con la base conectada', async () => {
+    const res = await request(app).get('/health');
+    expect(res.status).toBe(200);
+    expect(res.body.db).toBe('connected');
+  });
+});
