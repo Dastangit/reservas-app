@@ -97,7 +97,7 @@ const AdminOrphanedPaymentsPage = {
           </div>
           ${!p.reviewed ? `
             <div class="orphaned-payment-actions">
-              <button onclick="reviewOrphanedPayment('${p._id}')" class="btn btn-primary btn-sm">Marcar como revisado</button>
+              <button data-action="reviewOrphanedPayment" data-arg="${p._id}" class="btn btn-primary btn-sm">Marcar como revisado</button>
             </div>
           ` : ''}
         </div>

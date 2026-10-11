@@ -91,8 +91,8 @@ const AdminDashboardPage = {
             <span>${escapeHtml(h.name)}</span>
             <span>${escapeHtml(h.email)}</span>
             <span>${new Date(h.created_at).toLocaleDateString(i18n.currentLang)}</span>
-            <button onclick="approveHost('${h._id}')" class="btn btn-success btn-sm">${t('admin.approveBtn')}</button>
-            <button onclick="rejectHost('${h._id}')" class="btn btn-danger btn-sm">${t('admin.rejectBtn')}</button>
+            <button data-action="approveHost" data-arg="${h._id}" class="btn btn-success btn-sm">${t('admin.approveBtn')}</button>
+            <button data-action="rejectHost" data-arg="${h._id}" class="btn btn-danger btn-sm">${t('admin.rejectBtn')}</button>
           </div>
         `).join('');
       }
@@ -107,8 +107,8 @@ const AdminDashboardPage = {
             <span>${escapeHtml(p.name)}</span>
             <span>${escapeHtml(p.host_id?.name || t('admin.hostFallback'))}</span>
             <span>${escapeHtml(p.location?.city)}</span>
-            <button onclick="approveProperty('${p._id}')" class="btn btn-success btn-sm">${t('admin.approveBtn')}</button>
-            <button onclick="rejectProperty('${p._id}')" class="btn btn-danger btn-sm">${t('admin.rejectBtn')}</button>
+            <button data-action="approveProperty" data-arg="${p._id}" class="btn btn-success btn-sm">${t('admin.approveBtn')}</button>
+            <button data-action="rejectProperty" data-arg="${p._id}" class="btn btn-danger btn-sm">${t('admin.rejectBtn')}</button>
           </div>
         `).join('');
       }

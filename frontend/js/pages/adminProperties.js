@@ -17,10 +17,10 @@ const AdminPropertiesPage = {
           <h1>${t('admin.propertyManagementTitle')}</h1>
           
           <div class="dashboard-tabs">
-            <button class="tab-btn active" onclick="filterProps('')">${t('dashboard.all')}</button>
-            <button class="tab-btn" onclick="filterProps('pending_approval')">${t('dashboard.pending')}</button>
-            <button class="tab-btn" onclick="filterProps('active')">${t('host.tabActive')}</button>
-            <button class="tab-btn" onclick="filterProps('rejected')">${t('booking.statusRejected')}</button>
+            <button class="tab-btn active" data-action="filterProps" data-arg="">${t('dashboard.all')}</button>
+            <button class="tab-btn" data-action="filterProps" data-arg="pending_approval">${t('dashboard.pending')}</button>
+            <button class="tab-btn" data-action="filterProps" data-arg="active">${t('host.tabActive')}</button>
+            <button class="tab-btn" data-action="filterProps" data-arg="rejected">${t('booking.statusRejected')}</button>
           </div>
           
           <div id="properties-list">
@@ -94,7 +94,7 @@ const AdminPropertiesPage = {
 
       list.innerHTML = properties.map(p => `
         <div class="property-list-item">
-          <div class="property-list-item-summary" onclick="togglePropertyDetail('${p._id}')">
+          <div class="property-list-item-summary" data-action="togglePropertyDetail" data-arg="${p._id}">
             <img loading="lazy" src="${escapeHtml(p.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(p.name)}">
             <div class="property-info">
               <h3>${escapeHtml(p.name)}</h3>
@@ -144,10 +144,10 @@ const AdminPropertiesPage = {
 
           <div class="property-actions">
             ${p.status === 'pending_approval' || p.changes_pending_review ? `
-              <button onclick="approveProperty('${p._id}')" class="btn btn-success btn-sm">${i18n.t('admin.approveBtn')}</button>
-              <button onclick="rejectProperty('${p._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.rejectBtn')}</button>
+              <button data-action="approveProperty" data-arg="${p._id}" class="btn btn-success btn-sm">${i18n.t('admin.approveBtn')}</button>
+              <button data-action="rejectProperty" data-arg="${p._id}" class="btn btn-danger btn-sm">${i18n.t('admin.rejectBtn')}</button>
             ` : ''}
-            <button onclick="adminDeleteProperty('${p._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.deleteBtn')}</button>
+            <button data-action="adminDeleteProperty" data-arg="${p._id}" class="btn btn-danger btn-sm">${i18n.t('admin.deleteBtn')}</button>
           </div>
         </div>
       `).join('');

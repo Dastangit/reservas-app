@@ -17,10 +17,10 @@ const AdminUsersPage = {
           <h1>${t('admin.hostManagementTitle')}</h1>
           
           <div class="dashboard-tabs">
-            <button class="tab-btn active" onclick="filterHosts('')">${t('dashboard.all')}</button>
-            <button class="tab-btn" onclick="filterHosts('pending')">${t('dashboard.pending')}</button>
-            <button class="tab-btn" onclick="filterHosts('approved')">${t('dashboard.approved')}</button>
-            <button class="tab-btn" onclick="filterHosts('rejected')">${t('booking.statusRejected')}</button>
+            <button class="tab-btn active" data-action="filterHosts" data-arg="">${t('dashboard.all')}</button>
+            <button class="tab-btn" data-action="filterHosts" data-arg="pending">${t('dashboard.pending')}</button>
+            <button class="tab-btn" data-action="filterHosts" data-arg="approved">${t('dashboard.approved')}</button>
+            <button class="tab-btn" data-action="filterHosts" data-arg="rejected">${t('booking.statusRejected')}</button>
           </div>
           
           <div id="hosts-list">
@@ -116,7 +116,7 @@ const AdminUsersPage = {
 
       list.innerHTML = hosts.map(h => `
         <div class="property-list-item">
-          <div class="property-list-item-summary" onclick="toggleHostDetail('${h._id}')">
+          <div class="property-list-item-summary" data-action="toggleHostDetail" data-arg="${h._id}">
             <div class="property-info">
               <h3>${escapeHtml(h.name)}</h3>
               <p>${escapeHtml(h.email)} | ${escapeHtml(h.phone || i18n.t('admin.noPhone'))}</p>
@@ -151,16 +151,16 @@ const AdminUsersPage = {
 
           <div class="property-actions">
             ${h.host_status === 'pending' ? `
-              <button onclick="approveHost('${h._id}')" class="btn btn-success btn-sm">${i18n.t('admin.approveBtn')}</button>
-              <button onclick="rejectHost('${h._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.rejectBtn')}</button>
+              <button data-action="approveHost" data-arg="${h._id}" class="btn btn-success btn-sm">${i18n.t('admin.approveBtn')}</button>
+              <button data-action="rejectHost" data-arg="${h._id}" class="btn btn-danger btn-sm">${i18n.t('admin.rejectBtn')}</button>
             ` : ''}
             ${h.host_status === 'approved' && h.status !== 'suspended' ? `
-              <button onclick="suspendHost('${h._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.suspendBtn')}</button>
+              <button data-action="suspendHost" data-arg="${h._id}" class="btn btn-danger btn-sm">${i18n.t('admin.suspendBtn')}</button>
             ` : ''}
             ${h.status === 'suspended' ? `
-              <button onclick="reactivateHost('${h._id}')" class="btn btn-success btn-sm">${i18n.t('admin.reactivateBtn')}</button>
+              <button data-action="reactivateHost" data-arg="${h._id}" class="btn btn-success btn-sm">${i18n.t('admin.reactivateBtn')}</button>
             ` : ''}
-            <button onclick="deleteHost('${h._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.deleteBtn')}</button>
+            <button data-action="deleteHost" data-arg="${h._id}" class="btn btn-danger btn-sm">${i18n.t('admin.deleteBtn')}</button>
           </div>
         </div>
       `).join('');

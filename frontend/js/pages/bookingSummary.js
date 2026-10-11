@@ -76,7 +76,7 @@ const BookingSummaryPage = {
 
                 ${booking.status === 'pending_approval' || booking.status === 'pending_payment' ? `
                   <div class="booking-actions">
-                    <button onclick="cancelBooking('${booking._id}')" class="btn btn-danger">${t('booking.cancelBookingBtn')}</button>
+                    <button data-action="cancelBooking" data-arg="${booking._id}" class="btn btn-danger">${t('booking.cancelBookingBtn')}</button>
                   </div>
                 ` : ''}
                 

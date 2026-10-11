@@ -72,8 +72,8 @@ const OrganizerRecurrencesPage = {
           </div>
           <div class="property-actions">
             <a href="/organizer/recurrences/${r._id}/occurrences" data-link class="btn btn-outline btn-sm">${i18n.t('organizer.viewOccurrencesBtn')}</a>
-            ${r.status === 'active' ? `<button class="btn btn-outline btn-sm" onclick="pauseRecurrence('${r._id}')">${i18n.t('organizer.pauseBtn')}</button>` : ''}
-            ${r.status !== 'ended' ? `<button class="btn btn-danger btn-sm" onclick="endRecurrence('${r._id}')">${i18n.t('organizer.endBtn')}</button>` : ''}
+            ${r.status === 'active' ? `<button class="btn btn-outline btn-sm" data-action="pauseRecurrence" data-arg="${r._id}">${i18n.t('organizer.pauseBtn')}</button>` : ''}
+            ${r.status !== 'ended' ? `<button class="btn btn-danger btn-sm" data-action="endRecurrence" data-arg="${r._id}">${i18n.t('organizer.endBtn')}</button>` : ''}
           </div>
         </div>
       `).join('');

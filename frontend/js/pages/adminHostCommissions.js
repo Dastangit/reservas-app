@@ -120,9 +120,9 @@ const AdminHostCommissionsPage = {
           </div>
           ${!['paid', 'waived'].includes(c.status) ? `
             <div class="commission-actions">
-              <button onclick="notifyHostCommissionWhatsApp('${c._id}')" class="btn btn-outline btn-sm">${i18n.t('admin.whatsappHostBtn')}</button>
-              <button onclick="markCommissionPaid('${c._id}')" class="btn btn-success btn-sm">${i18n.t('admin.markPaidBtn')}</button>
-              <button onclick="waiveCommission('${c._id}')" class="btn btn-outline btn-sm">${i18n.t('admin.waiveBtn')}</button>
+              <button data-action="notifyHostCommissionWhatsApp" data-arg="${c._id}" class="btn btn-outline btn-sm">${i18n.t('admin.whatsappHostBtn')}</button>
+              <button data-action="markCommissionPaid" data-arg="${c._id}" class="btn btn-success btn-sm">${i18n.t('admin.markPaidBtn')}</button>
+              <button data-action="waiveCommission" data-arg="${c._id}" class="btn btn-outline btn-sm">${i18n.t('admin.waiveBtn')}</button>
             </div>
           ` : ''}
         </div>

@@ -54,15 +54,15 @@ const BookingCard = {
         ${isAdmin ? `
           <div class="booking-card-actions">
             ${booking.status === 'pending_payment' && booking.payment_method === 'paypal_manual' ? `
-              <button onclick="confirmManualPayment('${booking._id}')" class="btn btn-success btn-sm">${t('bookingCard.confirmManualPayment')}</button>
+              <button data-action="confirmManualPayment" data-arg="${booking._id}" class="btn btn-success btn-sm">${t('bookingCard.confirmManualPayment')}</button>
             ` : ''}
             ${booking.status === 'pending_approval' ? `
-              <button onclick="approveBooking('${booking._id}')" class="btn btn-success btn-sm">${t('admin.approveBtn')}</button>
-              <button onclick="rejectBooking('${booking._id}')" class="btn btn-danger btn-sm">${t('admin.rejectBtn')}</button>
+              <button data-action="approveBooking" data-arg="${booking._id}" class="btn btn-success btn-sm">${t('admin.approveBtn')}</button>
+              <button data-action="rejectBooking" data-arg="${booking._id}" class="btn btn-danger btn-sm">${t('admin.rejectBtn')}</button>
             ` : ''}
             ${booking.status === 'approved' ? `
-              <button onclick="completeBooking('${booking._id}')" class="btn btn-primary btn-sm">${t('bookingCard.markComplete')}</button>
-              <button onclick="notifyHostWhatsApp('${booking._id}')" class="btn btn-outline btn-sm">${t('bookingCard.whatsappHost')}</button>
+              <button data-action="completeBooking" data-arg="${booking._id}" class="btn btn-primary btn-sm">${t('bookingCard.markComplete')}</button>
+              <button data-action="notifyHostWhatsApp" data-arg="${booking._id}" class="btn btn-outline btn-sm">${t('bookingCard.whatsappHost')}</button>
             ` : ''}
           </div>
           <div class="tourist-contact-actions">
@@ -72,8 +72,8 @@ const BookingCard = {
               <option value="payment_reminder">${t('bookingCard.msgPaymentReminder')}</option>
               <option value="booking_complete">${t('bookingCard.msgBookingComplete')}</option>
             </select>
-            <button onclick="notifyTouristWhatsApp('${booking._id}')" class="btn btn-outline btn-sm">${t('bookingCard.whatsappTourist')}</button>
-            <button onclick="notifyTouristEmail('${booking._id}')" class="btn btn-outline btn-sm">${t('bookingCard.emailTourist')}</button>
+            <button data-action="notifyTouristWhatsApp" data-arg="${booking._id}" class="btn btn-outline btn-sm">${t('bookingCard.whatsappTourist')}</button>
+            <button data-action="notifyTouristEmail" data-arg="${booking._id}" class="btn btn-outline btn-sm">${t('bookingCard.emailTourist')}</button>
           </div>
         ` : ''}
         ${!isAdmin && !isHost ? `
@@ -89,7 +89,7 @@ const BookingCard = {
         ` : ''}
         ${isHost && booking.status === 'approved' ? `
           <div class="booking-card-actions">
-            <button onclick="completeBooking('${booking._id}')" class="btn btn-primary btn-sm">${t('bookingCard.markComplete')}</button>
+            <button data-action="completeBooking" data-arg="${booking._id}" class="btn btn-primary btn-sm">${t('bookingCard.markComplete')}</button>
           </div>
         ` : ''}
       </div>

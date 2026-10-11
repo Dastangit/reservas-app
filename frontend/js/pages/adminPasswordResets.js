@@ -67,8 +67,8 @@ const AdminPasswordResetsPage = {
             <p style="font-size:var(--fs-xs);color:var(--text-light);">Expira: ${new Date(r.expires_at).toLocaleString()}</p>
           </div>
           <div class="property-actions">
-            <button onclick="deliverPasswordReset('${escapeHtml(r.user_id)}', 'whatsapp')" class="btn btn-outline btn-sm">WhatsApp</button>
-            <button onclick="deliverPasswordReset('${escapeHtml(r.user_id)}', 'mailto')" class="btn btn-outline btn-sm">Correo</button>
+            <button data-action="deliverPasswordReset" data-arg="${escapeHtml(r.user_id)}" data-arg2="whatsapp" class="btn btn-outline btn-sm">WhatsApp</button>
+            <button data-action="deliverPasswordReset" data-arg="${escapeHtml(r.user_id)}" data-arg2="mailto" class="btn btn-outline btn-sm">Correo</button>
           </div>
         </div>
       `).join('');

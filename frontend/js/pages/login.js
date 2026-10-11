@@ -28,7 +28,7 @@ const LoginPage = {
                 <label for="password">${t('auth.password')}</label>
                 <div class="password-field">
                   <input type="password" id="password" required placeholder="${t('auth.passwordPlaceholder')}">
-                  <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password')" aria-label="${t('auth.showPassword')}">👁️</button>
+                  <button type="button" class="password-toggle-btn" data-action="togglePasswordVisibility" data-arg="password" aria-label="${t('auth.showPassword')}">👁️</button>
                 </div>
               </div>
 

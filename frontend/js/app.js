@@ -362,6 +362,49 @@ router
 
 });
 
+// Eventos delegados: los botones declaran data-action="nombreFuncion" (+ data-arg,
+// data-arg2...) en vez de onclick="..." en linea. Asi la CSP no necesita
+// 'unsafe-inline' para scripts. La funcion se busca en window, recibe los
+// argumentos y el evento al final, y `this` es el elemento (como en onclick).
+// Se recorren los ancestros para imitar el burbujeo de los onclick en linea.
+const runAction = (el, event) => {
+  const fn = window[el.dataset.action];
+  if (typeof fn !== 'function') {
+    console.warn('Accion no definida:', el.dataset.action);
+    return;
+  }
+  const args = [];
+  for (let i = 1; ; i += 1) {
+    const value = el.dataset[i === 1 ? 'arg' : `arg${i}`];
+    if (value === undefined) break;
+    args.push(value);
+  }
+  fn.call(el, ...args, event);
+};
+
+document.addEventListener('click', (event) => {
+  let el = event.target.closest('[data-action]');
+  while (el && !event.cancelBubble) {
+    runAction(el, event);
+    el = el.parentElement?.closest('[data-action]');
+  }
+});
+
+document.addEventListener('change', (event) => {
+  const el = event.target.closest('[data-change-action]');
+  if (!el) return;
+  const fn = window[el.dataset.changeAction];
+  if (typeof fn === 'function') fn.call(el, el.value, event);
+});
+
+window.toggleParentClass = function (className) {
+  this.parentElement?.classList.toggle(className);
+};
+
+window.historyBack = function () {
+  window.history.back();
+};
+
 window.toggleMobileMenu = function () {
   const nav = document.querySelector('.nav');
   if (nav) nav.classList.toggle('active');

@@ -79,8 +79,8 @@ const AdminExperiencesPage = {
             <p style="font-size:var(--fs-xs);color:var(--text-light);">${i18n.t('admin.maxSpotsShort')} ${exp.max_participants}</p>
           </div>
           <div class="property-actions">
-            <button onclick="approveExperienceAdmin('${exp._id}')" class="btn btn-success btn-sm">${i18n.t('admin.approveBtn')}</button>
-            <button onclick="rejectExperienceAdmin('${exp._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.rejectBtn')}</button>
+            <button data-action="approveExperienceAdmin" data-arg="${exp._id}" class="btn btn-success btn-sm">${i18n.t('admin.approveBtn')}</button>
+            <button data-action="rejectExperienceAdmin" data-arg="${exp._id}" class="btn btn-danger btn-sm">${i18n.t('admin.rejectBtn')}</button>
           </div>
         </div>
       `).join('');

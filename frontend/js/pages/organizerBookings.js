@@ -62,7 +62,7 @@ const OrganizerBookingsPage = {
             <span>${b.experience_id?.date ? `${formatExperienceDate(b.experience_id.date)} ${formatExperienceTime(b.experience_id.date)}` : ''}</span>
             <span>${escapeHtml(paymentSummary)}</span>
             <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(b.status.replace(/_/g, ' '))}</span>
-            ${b.status === 'approved' ? `<button class="btn btn-primary btn-sm" onclick="completeOrganizerBooking('${b._id}')">${i18n.t('organizer.markCompletedBtn')}</button>` : ''}
+            ${b.status === 'approved' ? `<button class="btn btn-primary btn-sm" data-action="completeOrganizerBooking" data-arg="${b._id}">${i18n.t('organizer.markCompletedBtn')}</button>` : ''}
           </div>
         `;
       }).join('');

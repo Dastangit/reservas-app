@@ -42,7 +42,7 @@ const FAQPage = {
 
           <div class="faq-list">
             <div class="faq-item">
-              <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+              <button class="faq-question" data-action="toggleParentClass" data-arg="open">
                 <span>${i18n.t('pages.faq.q1Question')}</span>
                 <span class="faq-icon">+</span>
               </button>
@@ -58,7 +58,7 @@ const FAQPage = {
             </div>
 
             <div class="faq-item">
-              <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+              <button class="faq-question" data-action="toggleParentClass" data-arg="open">
                 <span>${i18n.t('pages.faq.q2Question')}</span>
                 <span class="faq-icon">+</span>
               </button>
@@ -69,7 +69,7 @@ const FAQPage = {
             </div>
 
             <div class="faq-item">
-              <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+              <button class="faq-question" data-action="toggleParentClass" data-arg="open">
                 <span>${i18n.t('pages.faq.q3Question')}</span>
                 <span class="faq-icon">+</span>
               </button>
@@ -80,7 +80,7 @@ const FAQPage = {
             </div>
 
             <div class="faq-item">
-              <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+              <button class="faq-question" data-action="toggleParentClass" data-arg="open">
                 <span>${i18n.t('pages.faq.q4Question')}</span>
                 <span class="faq-icon">+</span>
               </button>
@@ -96,7 +96,7 @@ const FAQPage = {
             </div>
 
             <div class="faq-item">
-              <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+              <button class="faq-question" data-action="toggleParentClass" data-arg="open">
                 <span>${i18n.t('pages.faq.q5Question')}</span>
                 <span class="faq-icon">+</span>
               </button>
@@ -113,7 +113,7 @@ const FAQPage = {
             </div>
 
             <div class="faq-item">
-              <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+              <button class="faq-question" data-action="toggleParentClass" data-arg="open">
                 <span>${i18n.t('pages.faq.q6Question')}</span>
                 <span class="faq-icon">+</span>
               </button>
@@ -131,7 +131,7 @@ const FAQPage = {
             </div>
 
             <div class="faq-item">
-              <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+              <button class="faq-question" data-action="toggleParentClass" data-arg="open">
                 <span>${i18n.t('pages.faq.q7Question')}</span>
                 <span class="faq-icon">+</span>
               </button>
@@ -148,7 +148,7 @@ const FAQPage = {
             </div>
 
             <div class="faq-item">
-              <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+              <button class="faq-question" data-action="toggleParentClass" data-arg="open">
                 <span>${i18n.t('pages.faq.q8Question')}</span>
                 <span class="faq-icon">+</span>
               </button>

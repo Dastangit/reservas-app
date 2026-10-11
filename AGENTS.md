@@ -17,6 +17,7 @@ npm test            # Jest — export smoke tests + logic tests (tests/logic.tes
 npm run lint        # ESLint
 npm run lint:fix    # ESLint auto-fix
 npm run dev         # Nodemon dev server (port 3000)
+npm run dev:local   # Full local stack: API :3000 + in-memory MongoDB with demo users + web :5500 (never touches prod)
 npm run worker      # Cron jobs only (use with RUN_JOBS=false on the web service)
 npm run backup      # Dump every collection to backend/backups/<date>/ (EJSON, gitignored)
 npm run reviews:dedupe [-- --fix]  # Find/remove duplicate reviews and sync Review indexes

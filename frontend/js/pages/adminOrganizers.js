@@ -17,10 +17,10 @@ const AdminOrganizersPage = {
           <h1>${t('admin.organizersTitle')}</h1>
 
           <div class="dashboard-tabs">
-            <button class="tab-btn active" onclick="filterOrganizers('')">${t('dashboard.all')}</button>
-            <button class="tab-btn" onclick="filterOrganizers('pending')">${t('dashboard.pending')}</button>
-            <button class="tab-btn" onclick="filterOrganizers('approved')">${t('dashboard.approved')}</button>
-            <button class="tab-btn" onclick="filterOrganizers('rejected')">${t('booking.statusRejected')}</button>
+            <button class="tab-btn active" data-action="filterOrganizers" data-arg="">${t('dashboard.all')}</button>
+            <button class="tab-btn" data-action="filterOrganizers" data-arg="pending">${t('dashboard.pending')}</button>
+            <button class="tab-btn" data-action="filterOrganizers" data-arg="approved">${t('dashboard.approved')}</button>
+            <button class="tab-btn" data-action="filterOrganizers" data-arg="rejected">${t('booking.statusRejected')}</button>
           </div>
 
           <div id="organizers-list">
@@ -115,13 +115,13 @@ const AdminOrganizersPage = {
           </div>
           <div class="property-actions">
             ${o.organizer_status === 'pending' ? `
-              <button onclick="approveOrganizerAdmin('${o._id}')" class="btn btn-success btn-sm">${i18n.t('admin.approveBtn')}</button>
-              <button onclick="rejectOrganizerAdmin('${o._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.rejectBtn')}</button>
+              <button data-action="approveOrganizerAdmin" data-arg="${o._id}" class="btn btn-success btn-sm">${i18n.t('admin.approveBtn')}</button>
+              <button data-action="rejectOrganizerAdmin" data-arg="${o._id}" class="btn btn-danger btn-sm">${i18n.t('admin.rejectBtn')}</button>
             ` : ''}
             ${o.status === 'suspended'
-              ? `<button onclick="reactivateOrganizerAdmin('${o._id}')" class="btn btn-success btn-sm">${i18n.t('admin.reactivateBtn')}</button>`
-              : `<button onclick="suspendOrganizerAdmin('${o._id}')" class="btn btn-outline btn-sm">${i18n.t('admin.suspendBtn')}</button>`}
-            <button onclick="deleteOrganizerAdmin('${o._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.deleteBtn')}</button>
+              ? `<button data-action="reactivateOrganizerAdmin" data-arg="${o._id}" class="btn btn-success btn-sm">${i18n.t('admin.reactivateBtn')}</button>`
+              : `<button data-action="suspendOrganizerAdmin" data-arg="${o._id}" class="btn btn-outline btn-sm">${i18n.t('admin.suspendBtn')}</button>`}
+            <button data-action="deleteOrganizerAdmin" data-arg="${o._id}" class="btn btn-danger btn-sm">${i18n.t('admin.deleteBtn')}</button>
           </div>
         </div>
       `).join('');

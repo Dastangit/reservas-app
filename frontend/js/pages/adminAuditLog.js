@@ -105,9 +105,9 @@ const AdminAuditLogPage = {
 
       this.currentPage = page;
       pagination.innerHTML = pages > 1 ? `
-        <button class="btn btn-outline btn-sm" ${page <= 1 ? 'disabled' : ''} onclick="window.auditLogPrevPage()">\u2190 Anterior</button>
+        <button class="btn btn-outline btn-sm" ${page <= 1 ? 'disabled' : ''} data-action="auditLogPrevPage">\u2190 Anterior</button>
         <span style="margin:0 10px;">P\u00e1gina ${page} de ${pages} (${total} registros)</span>
-        <button class="btn btn-outline btn-sm" ${page >= pages ? 'disabled' : ''} onclick="window.auditLogNextPage()">Siguiente \u2192</button>
+        <button class="btn btn-outline btn-sm" ${page >= pages ? 'disabled' : ''} data-action="auditLogNextPage">Siguiente \u2192</button>
       ` : `<p style="text-align:center;color:var(--text-light);font-size:var(--fs-sm);">${total} registro${total === 1 ? '' : 's'}</p>`;
 
       const activeTab = document.querySelector('.tab-btn.active');
