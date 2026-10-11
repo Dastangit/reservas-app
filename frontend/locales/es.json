@@ -145,7 +145,9 @@
     "checkoutNotifyFailed": "No se pudo avisar al equipo, intenta de nuevo: ",
     "checkoutPaypalReference": "ID de la transacción de PayPal",
     "checkoutPaypalPayerEmail": "Email de la cuenta de PayPal con la que pagaste",
-    "checkoutPaypalReferenceRequired": "Indica el ID de la transacción de PayPal o el email con el que pagaste, para poder encontrar tu pago."
+    "checkoutPaypalReferenceRequired": "Indica el ID de la transacción de PayPal o el email con el que pagaste, para poder encontrar tu pago.",
+    "payNow": "Pagar la tarifa de reserva",
+    "holdExpiresAt": "Fechas retenidas hasta:"
   },
   "experience": {
     "loginRequired": "Por favor <a href=\"/login\" data-link>inicia sesión</a> para reservar.",
@@ -536,7 +538,8 @@
     "contactEmailLabel": "Email de soporte",
     "contactWhatsappLabel": "WhatsApp de soporte",
     "settingsPaymentNote": "La tarifa de reserva está fija en $7 USD y las credenciales de QvaPay se configuran como variables de entorno del servidor, no aquí.",
-    "changesPendingReview": "Editada - revisar cambios"
+    "changesPendingReview": "Editada - revisar cambios",
+    "reactivateBtn": "Reactivar"
   },
   "footer": {
     "brand": "Elysio Experiences",
@@ -1054,6 +1057,7 @@
       "rejected": "Rechazada",
       "completed": "Completada",
       "cancelled": "Cancelada"
-    }
+    },
+    "viewDetails": "Ver detalle"
   }
 }

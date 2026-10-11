@@ -65,6 +65,15 @@ const BookingSummaryPage = {
                   <p><strong>${escapeHtml(t('booking.phoneLabel').replace(' (WhatsApp) *', ''))}:</strong> ${escapeHtml(booking.tourist_data?.phone || 'N/A')}</p>
                 </div>
                 
+                ${booking.status === 'pending_payment' ? `
+                  <div class="booking-actions">
+                    ${booking.hold_expires_at ? `<p>${t('booking.holdExpiresAt')} ${escapeHtml(new Date(booking.hold_expires_at).toLocaleString(i18n.currentLang))}</p>` : ''}
+                    ${booking.payment_needs_review
+                      ? `<p>${t('booking.checkoutPaypalThanks')}</p>`
+                      : `<a href="/payment/checkout?booking_id=${booking._id}" class="btn btn-primary">${t('booking.payNow')}</a>`}
+                  </div>
+                ` : ''}
+
                 ${booking.status === 'pending_approval' || booking.status === 'pending_payment' ? `
                   <div class="booking-actions">
                     <button onclick="cancelBooking('${booking._id}')" class="btn btn-danger">${t('booking.cancelBookingBtn')}</button>
@@ -73,14 +82,14 @@ const BookingSummaryPage = {
                 
                 ${booking.status === 'completed' ? `
                   <div class="booking-actions">
-                    <a href="/review?booking_id=${booking._id}" data-link class="btn btn-primary">${t('booking.writeReview')}</a>
+                    <a href="/review/new?booking_id=${booking._id}" data-link class="btn btn-primary">${t('booking.writeReview')}</a>
                   </div>
                 ` : ''}
               </div>
               
               <div class="booking-contact">
                 <h3>${t('confirmation.contactAdmin')}</h3>
-                <p>Email: elysio.support@gmail.com</p>
+                <p>Email: ${escapeHtml(window.APP_CONFIG?.admin_email || 'elysio.support@gmail.com')}</p>
               </div>
             </div>
           </div>

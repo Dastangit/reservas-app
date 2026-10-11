@@ -70,6 +70,15 @@ const AdminOrganizersPage = {
       }
     };
 
+    window.reactivateOrganizerAdmin = async (id) => {
+      try {
+        await api.post(`/admin/organizers/${id}/reactivate`);
+        await this.load('');
+      } catch (error) {
+        alert(i18n.t('common.errorPrefix') + error.message);
+      }
+    };
+
     window.deleteOrganizerAdmin = async (id) => {
       if (!confirm(i18n.t('admin.deleteOrganizerConfirm'))) return;
       try {
@@ -109,7 +118,9 @@ const AdminOrganizersPage = {
               <button onclick="approveOrganizerAdmin('${o._id}')" class="btn btn-success btn-sm">${i18n.t('admin.approveBtn')}</button>
               <button onclick="rejectOrganizerAdmin('${o._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.rejectBtn')}</button>
             ` : ''}
-            <button onclick="suspendOrganizerAdmin('${o._id}')" class="btn btn-outline btn-sm">${i18n.t('admin.suspendBtn')}</button>
+            ${o.status === 'suspended'
+              ? `<button onclick="reactivateOrganizerAdmin('${o._id}')" class="btn btn-success btn-sm">${i18n.t('admin.reactivateBtn')}</button>`
+              : `<button onclick="suspendOrganizerAdmin('${o._id}')" class="btn btn-outline btn-sm">${i18n.t('admin.suspendBtn')}</button>`}
             <button onclick="deleteOrganizerAdmin('${o._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.deleteBtn')}</button>
           </div>
         </div>

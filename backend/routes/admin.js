@@ -2,7 +2,7 @@ const express = require('express');
 const {
   getDashboard, getPendingProperties, approveProperty,
   rejectProperty, getAllBookings, getSettings, updateSettings,
-  getHosts, approveHost, rejectHost, suspendHost, deleteHost,
+  getHosts, approveHost, rejectHost, suspendHost, reactivateHost, deleteHost,
   getAllProperties, adminEditProperty, adminDeleteProperty,
   adminBlockDates, adminUnblockDates, adminGetAvailabilityCalendar,
   getBookingWhatsAppLink, getBookingTouristContactLinks,
@@ -10,7 +10,7 @@ const {
   getHostCommissions, markHostCommissionPaid, markHostCommissionWaived, getHostCommissionWhatsAppLink,
   getAuditLog,
   getPasswordResetRequests, getPasswordResetDeliveryLinks,
-  getOrganizers, approveOrganizer, rejectOrganizer, suspendOrganizer, deleteOrganizer,
+  getOrganizers, approveOrganizer, rejectOrganizer, suspendOrganizer, reactivateOrganizer, deleteOrganizer,
   getPendingExperiences, approveExperience, rejectExperience,
   getAllExperienceBookings, approveExperienceBooking, rejectExperienceBooking,
   getExperienceBookingOrganizerWhatsAppLink, getExperienceBookingTouristContactLinks,
@@ -41,6 +41,7 @@ router.get('/hosts', getHosts);
 router.post('/hosts/:id/approve', approveHost);
 router.post('/hosts/:id/reject', rejectHost);
 router.post('/hosts/:id/suspend', suspendHost);
+router.post('/hosts/:id/reactivate', reactivateHost);
 router.delete('/hosts/:id', deleteHost);
 router.get('/bookings', getAllBookings);
 router.get('/bookings/:id/whatsapp-link', getBookingWhatsAppLink);
@@ -61,6 +62,7 @@ router.get('/organizers', getOrganizers);
 router.post('/organizers/:id/approve', approveOrganizer);
 router.post('/organizers/:id/reject', rejectOrganizer);
 router.post('/organizers/:id/suspend', suspendOrganizer);
+router.post('/organizers/:id/reactivate', reactivateOrganizer);
 router.delete('/organizers/:id', deleteOrganizer);
 
 // Excursiones (incluye ocurrencias generadas por recurrencia)

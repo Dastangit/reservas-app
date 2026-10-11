@@ -438,6 +438,37 @@ exports.suspendHost = async (req, res, next) => {
   }
 };
 
+// Reactiva un host suspendido y vuelve a publicar las propiedades que se
+// suspendieron por su suspension (no las que el admin suspendio aparte).
+exports.reactivateHost = async (req, res, next) => {
+  try {
+    const host = await User.findOne({ _id: req.params.id, tenant_id: req.tenantId, role: 'host' });
+    if (!host) {
+      return res.status(404).json({ success: false, error: 'Host not found' });
+    }
+
+    host.status = 'active';
+    await host.save();
+
+    await Property.updateMany(
+      { host_id: host._id, tenant_id: req.tenantId, suspended: true, suspension_reason: 'host_suspended' },
+      { $set: { suspended: false }, $unset: { suspension_reason: '', suspended_at: '' } },
+    );
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'reactivate_host',
+      target_type: 'User',
+      target_id: host._id,
+    });
+
+    res.json({ success: true, data: { host_id: host._id, status: 'active' } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.deleteHost = async (req, res, next) => {
   try {
     const host = await User.findOne({ _id: req.params.id, tenant_id: req.tenantId, role: 'host' });
@@ -1116,6 +1147,43 @@ exports.suspendOrganizer = async (req, res, next) => {
     });
 
     res.json({ success: true, data: { organizer_id: organizer._id, status: 'suspended' } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Reactiva un organizador. Sus excursiones futuras canceladas por la
+// suspension vuelven a revision del admin (no se publican solas).
+exports.reactivateOrganizer = async (req, res, next) => {
+  try {
+    const organizer = await User.findOne({ _id: req.params.id, tenant_id: req.tenantId, role: 'organizer' });
+    if (!organizer) {
+      return res.status(404).json({ success: false, error: 'Organizer not found' });
+    }
+
+    organizer.status = 'active';
+    await organizer.save();
+
+    await Experience.updateMany(
+      {
+        organizer_id: organizer._id,
+        tenant_id: req.tenantId,
+        status: 'cancelled',
+        admin_notes: 'Organizador suspendido',
+        date: { $gt: new Date() },
+      },
+      { $set: { status: 'pending_approval' }, $unset: { admin_notes: '' } },
+    );
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'reactivate_organizer',
+      target_type: 'User',
+      target_id: organizer._id,
+    });
+
+    res.json({ success: true, data: { organizer_id: organizer._id, status: 'active' } });
   } catch (error) {
     next(error);
   }

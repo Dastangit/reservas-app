@@ -76,6 +76,17 @@ const BookingCard = {
             <button onclick="notifyTouristEmail('${booking._id}')" class="btn btn-outline btn-sm">${t('bookingCard.emailTourist')}</button>
           </div>
         ` : ''}
+        ${!isAdmin && !isHost ? `
+          <div class="booking-card-actions">
+            <a href="/booking/summary/${booking._id}" data-link class="btn btn-outline btn-sm">${t('bookingCard.viewDetails')}</a>
+            ${booking.status === 'pending_payment' && !booking.payment_needs_review ? `
+              <a href="/payment/checkout?booking_id=${booking._id}" class="btn btn-primary btn-sm">${t('booking.payNow')}</a>
+            ` : ''}
+            ${booking.status === 'completed' ? `
+              <a href="/review/new?booking_id=${booking._id}" data-link class="btn btn-primary btn-sm">${t('booking.writeReview')}</a>
+            ` : ''}
+          </div>
+        ` : ''}
         ${isHost && booking.status === 'approved' ? `
           <div class="booking-card-actions">
             <button onclick="completeBooking('${booking._id}')" class="btn btn-primary btn-sm">${t('bookingCard.markComplete')}</button>

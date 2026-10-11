@@ -76,6 +76,15 @@ const AdminUsersPage = {
       }
     };
 
+    window.reactivateHost = async (id) => {
+      try {
+        await api.post(`/admin/hosts/${id}/reactivate`);
+        await this.loadHosts('');
+      } catch (error) {
+        alert(i18n.t('common.errorPrefix') + error.message);
+      }
+    };
+
     window.deleteHost = async (id) => {
       if (confirm(i18n.t('admin.deleteHostConfirm'))) {
         try {
@@ -145,8 +154,11 @@ const AdminUsersPage = {
               <button onclick="approveHost('${h._id}')" class="btn btn-success btn-sm">${i18n.t('admin.approveBtn')}</button>
               <button onclick="rejectHost('${h._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.rejectBtn')}</button>
             ` : ''}
-            ${h.host_status === 'approved' ? `
+            ${h.host_status === 'approved' && h.status !== 'suspended' ? `
               <button onclick="suspendHost('${h._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.suspendBtn')}</button>
+            ` : ''}
+            ${h.status === 'suspended' ? `
+              <button onclick="reactivateHost('${h._id}')" class="btn btn-success btn-sm">${i18n.t('admin.reactivateBtn')}</button>
             ` : ''}
             <button onclick="deleteHost('${h._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.deleteBtn')}</button>
           </div>
