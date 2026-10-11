@@ -597,35 +597,41 @@ function escapeXml(str) {
     .replace(/'/g, '&apos;');
 }
 
+// Devuelve { items, ok }: ok=false si la API fallo (para no cachear un sitemap incompleto).
 async function fetchAllItems(endpoint) {
   const items = [];
   let page = 1;
   for (;;) {
     let res;
     try {
-      res = await fetch(`${API_BASE}/${endpoint}?per_page=200&page=${page}`);
+      // El backend pagina con `limit` (max 50); con timeout por si Render esta dormido.
+      res = await fetch(`${API_BASE}/${endpoint}?limit=50&page=${page}`, { signal: AbortSignal.timeout(8000) });
     } catch {
-      break;
+      return { items, ok: false };
     }
-    if (!res.ok) break;
+    if (!res.ok) return { items, ok: false };
     const json = await res.json();
     const list = (json && json.data && json.data[endpoint]) || [];
     items.push(...list);
     const total = (json && json.data && json.data.total_count) || items.length;
-    if (items.length >= total || list.length === 0 || page > 10) break;
+    if (items.length >= total || list.length === 0 || page >= 40) break;
     page += 1;
   }
-  return items;
+  return { items, ok: true };
 }
 
 async function buildSitemapXml() {
   let properties = [];
   let experiences = [];
+  let complete = false;
   try {
-    [properties, experiences] = await Promise.all([
+    const [p, e] = await Promise.all([
       fetchAllItems('properties'),
       fetchAllItems('experiences'),
     ]);
+    properties = p.items;
+    experiences = e.items;
+    complete = p.ok && e.ok;
   } catch {
     // fall back to static entries only if the API is unreachable
   }
@@ -678,7 +684,10 @@ async function buildSitemapXml() {
     })
     .join('\n');
 
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${xmlUrls}\n</urlset>\n`;
+  return {
+    complete,
+    xml: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${xmlUrls}\n</urlset>\n`,
+  };
 }
 
 // ---- Social preview (Open Graph) HTML for link-preview crawlers ----
@@ -765,12 +774,13 @@ export default async function middleware(request) {
   const url = new URL(request.url);
 
   if (url.pathname === '/sitemap.xml') {
-    const xml = await buildSitemapXml();
+    const { xml, complete } = await buildSitemapXml();
     return new Response(xml, {
       status: 200,
       headers: {
         'content-type': 'application/xml; charset=utf-8',
-        'cache-control': 'public, max-age=3600',
+        // Si la API no respondio, el sitemap solo tiene paginas estaticas: no se cachea.
+        'cache-control': complete ? 'public, s-maxage=3600, stale-while-revalidate=86400' : 'no-store',
       },
     });
   }

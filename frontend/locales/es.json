@@ -16,7 +16,9 @@
     "next": "Siguiente",
     "backToHome": "Volver al Inicio",
     "errorPrefix": "Error: ",
-    "edit": "Editar"
+    "edit": "Editar",
+    "pageNotFound": "Página no encontrada",
+    "goHome": "Ir al inicio"
   },
   "nav": {
     "myBookings": "Mis Reservas",
@@ -140,7 +142,10 @@
     "checkoutPaypalThanks": "¡Gracias! Le avisamos al equipo, revisarán tu pago y confirmaremos tu reserva pronto.",
     "checkoutRetry": "Reintentar",
     "checkoutFailed": "No se pudo crear el pago",
-    "checkoutNotifyFailed": "No se pudo avisar al equipo, intenta de nuevo: "
+    "checkoutNotifyFailed": "No se pudo avisar al equipo, intenta de nuevo: ",
+    "checkoutPaypalReference": "ID de la transacción de PayPal",
+    "checkoutPaypalPayerEmail": "Email de la cuenta de PayPal con la que pagaste",
+    "checkoutPaypalReferenceRequired": "Indica el ID de la transacción de PayPal o el email con el que pagaste, para poder encontrar tu pago."
   },
   "experience": {
     "loginRequired": "Por favor <a href=\"/login\" data-link>inicia sesión</a> para reservar.",
@@ -213,7 +218,8 @@
     "claimNumSpotsLabel": "Cantidad de cupos que reclamás",
     "claimNumSpotsHint": "Debe coincidir con lo que pediste en la lista de espera.",
     "confirmSpotBtn": "Confirmar mi cupo",
-    "claimFailed": "No se pudo confirmar el cupo -- puede que la ventana de tiempo haya vencido"
+    "claimFailed": "No se pudo confirmar el cupo -- puede que la ventana de tiempo haya vencido",
+    "cubaTime": "hora de Cuba"
   },
   "search": {
     "title": "Buscar Propiedades",
@@ -248,7 +254,7 @@
     "phone": "Teléfono",
     "namePlaceholder": "Juan Pérez",
     "emailPlaceholder": "tu@email.com",
-    "passwordMinPlaceholder": "Mín. 6 caracteres",
+    "passwordMinPlaceholder": "Mín. 8 caracteres",
     "phonePlaceholder": "+1 234 567 890",
     "passwordPlaceholder": "Ingresa tu contraseña",
     "role": "Quiero",
@@ -282,7 +288,9 @@
     "updatePassword": "Actualizar contraseña",
     "passwordsDontMatch": "Las contraseñas no coinciden.",
     "passwordUpdated": "Contraseña actualizada. Ahora puedes iniciar sesión.",
-    "resetLinkExpired": "El link puede haber expirado. Solicita uno nuevo."
+    "resetLinkExpired": "El link puede haber expirado. Solicita uno nuevo.",
+    "repeatPassword": "Repite la contraseña",
+    "pendingApprovalRegistered": "¡Cuenta creada! Nuestro equipo la revisará y te contactará cuando esté aprobada. Podrás iniciar sesión después de la aprobación."
   },
   "dashboard": {
     "myBookings": "Mis Reservas",
@@ -523,18 +531,28 @@
     "organizerNoPhoneRegistered": "El organizador no tiene un teléfono registrado.",
     "organizerUnknownFallback": "Organizador desconocido",
     "totalWord": "total",
-    "commissionPercentSuffix": "comisión (10%):"
+    "commissionPercentSuffix": "comisión (10%):",
+    "contactSection": "Contacto público",
+    "contactEmailLabel": "Email de soporte",
+    "contactWhatsappLabel": "WhatsApp de soporte",
+    "settingsPaymentNote": "La tarifa de reserva está fija en $7 USD y las credenciales de QvaPay se configuran como variables de entorno del servidor, no aquí.",
+    "changesPendingReview": "Editada - revisar cambios"
   },
   "footer": {
     "brand": "Elysio Experiences",
     "tagline": "Viaja con confianza",
     "contact": "Contacto",
-    "quickLinks": "Enlaces Rápidos",
+    "quickLinks": "Enlaces",
     "legal": "Legal",
-    "terms": "Términos de Servicio",
-    "privacy": "Política de Privacidad",
+    "terms": "Términos del servicio",
+    "privacy": "Política de privacidad",
     "followUs": "Síguenos",
-    "copyright": "Todos los derechos reservados."
+    "copyright": "Todos los derechos reservados.",
+    "searchProperties": "Buscar alojamientos",
+    "howItWorks": "Cómo funciona",
+    "faq": "Preguntas frecuentes",
+    "sendFeedback": "Enviar comentarios",
+    "rights": "Todos los derechos reservados."
   },
   "pages": {
     "howItWorks": {
@@ -603,8 +621,8 @@
       "s5Offer": "Estás haciendo una oferta para alquilar la propiedad en las fechas seleccionadas",
       "s5Fee": "Se cobra una <strong>tarifa no reembolsable de $7 USD</strong> para asegurar tu reserva",
       "s5Approval": "La reserva está sujeta a aprobación del admin dentro de 24 horas",
-      "s5Approved": "Cuando se aprueba la reserva, recibirás un email de confirmación.",
-      "s5Rejected": "Si es rechazada, serás notificado por correo electrónico (la tarifa no se reembolsa, salvo que el rechazo se deba a un error nuestro, en cuyo caso se coordina el reembolso)",
+      "s5Approved": "Cuando se apruebe la reserva, nuestro equipo te contactará por WhatsApp o correo para confirmártela.",
+      "s5Rejected": "Si es rechazada, nuestro equipo te avisará por WhatsApp o correo (la tarifa no se reembolsa, salvo que el rechazo se deba a un error nuestro, en cuyo caso se coordina el reembolso)",
       "s6Title": "6. Pagos y Tarifas",
       "s6Intro": "Cuando haces una reserva, se cobra una tarifa de $7 USD para asegurar tu reserva. El resto se paga directamente al anfitrión.",
       "s6BookingFee": "Tarifa de Pre-reserva de $7 USD",
@@ -671,7 +689,7 @@
       "s3Title": "3. Cómo Usamos Tu Información",
       "s3Content": "Usamos tu información para:",
       "s3Process": "Procesar y gestionar tus reservas",
-      "s3Send": "Enviar confirmaciones y actualizaciones de reserva por correo electrónico",
+      "s3Send": "Enviar confirmaciones y actualizaciones de reserva (de forma manual, por WhatsApp o correo)",
       "s3Communicate": "Comunicarnos contigo sobre tus reservas",
       "s3Improve": "Mejorar nuestra plataforma y servicios",
       "s3Security": "Asegurar la prevenir el fraude",
@@ -993,6 +1011,49 @@
     "login": {
       "title": "Iniciar Sesión",
       "description": "Inicia sesión en tu cuenta de Elysio Experiences para gestionar reservas, propiedades o experiencias."
+    }
+  },
+  "propertyCard": {
+    "typeCasa": "Casa Particular",
+    "typeHostel": "Hostal",
+    "locationUnknown": "Ubicación no indicada",
+    "maxGuests": "Máx. {n} huéspedes",
+    "new": "Nuevo",
+    "perNight": "/noche",
+    "viewDetails": "Ver detalles",
+    "noResults": "No se encontraron propiedades"
+  },
+  "bookingCard": {
+    "property": "Propiedad",
+    "preBooking": "Pre-reserva",
+    "checkIn": "Entrada",
+    "checkOut": "Salida",
+    "nights": "Noches",
+    "guests": "Huéspedes",
+    "total": "Total",
+    "fee": "Tarifa de reserva",
+    "feePending": "pendiente",
+    "tourist": "Huésped",
+    "contact": "Contacto",
+    "paypalRef": "Ref. PayPal",
+    "payer": "Pagador",
+    "confirmManualPayment": "Confirmar pago manual (PayPal)",
+    "markComplete": "Marcar completada",
+    "whatsappHost": "WhatsApp anfitrión",
+    "notifyTourist": "Notificar al huésped",
+    "msgPaymentReceived": "Pago recibido",
+    "msgPaymentReminder": "Recordatorio de pago",
+    "msgBookingComplete": "Confirmación completa",
+    "whatsappTourist": "WhatsApp huésped",
+    "emailTourist": "Correo huésped",
+    "noBookings": "No hay reservas",
+    "status": {
+      "pending_payment": "Pago pendiente",
+      "pending_approval": "Pendiente de aprobación",
+      "approved": "Aprobada",
+      "rejected": "Rechazada",
+      "completed": "Completada",
+      "cancelled": "Cancelada"
     }
   }
 }

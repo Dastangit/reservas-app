@@ -57,7 +57,14 @@ class Router {
     const path = i18n.stripLocaleFromPath(rawPath);
 
     if (i18n.isLocalizablePath(path) && i18n.currentLang !== locale) {
-      i18n.setLang(locale);
+      const hasPrefix = locale !== 'en';
+      if (!hasPrefix && i18n.prefixedLocales.includes(i18n.currentLang)) {
+        // URL sin prefijo pero el usuario eligio es/fr: se mantiene su idioma y
+        // se corrige la URL (antes se le forzaba a ingles, p. ej. tras el login).
+        window.history.replaceState({}, '', i18n.localizePath(path, i18n.currentLang) + window.location.search);
+      } else {
+        i18n.setLang(locale);
+      }
     }
 
     for (const route of this.routes) {

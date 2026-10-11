@@ -2,6 +2,13 @@ import api from '../api.js';
 import auth from '../auth.js';
 import { escapeHtml } from '../utils/escape.js';
 
+const REASON_LABELS = {
+  missing_order_id: 'Sin order_id',
+  booking_not_found: 'Reserva no encontrada',
+  booking_not_pending: 'Pago recibido con la reserva ya cerrada',
+  amount_mismatch: 'Monto menor al esperado',
+};
+
 const AdminOrphanedPaymentsPage = {
   async render() {
     if (!auth.isLoggedIn() || !auth.isAdmin()) {
@@ -13,8 +20,8 @@ const AdminOrphanedPaymentsPage = {
         <div class="container">
           <h1>Pagos sin reserva asociada</h1>
           <p class="page-subtitle">
-            IPNs de NOWPayments que llegaron sin order_id v\u00e1lido o apuntando a una reserva
-            que ya no existe. Revisa manualmente cada uno.
+            Pagos de QvaPay que no se pudieron aplicar a una reserva (reserva inexistente,
+            ya cerrada o monto menor al esperado). Revisa cada uno y reembolsa o resuelve a mano.
           </p>
 
           <div class="dashboard-tabs">
@@ -76,7 +83,7 @@ const AdminOrphanedPaymentsPage = {
       list.innerHTML = payments.map(p => `
         <div class="orphaned-payment-item">
           <div class="orphaned-payment-header">
-            <span class="orphaned-payment-reason">${p.reason === 'missing_order_id' ? 'Sin order_id' : 'Reserva no encontrada'}</span>
+            <span class="orphaned-payment-reason">${escapeHtml(REASON_LABELS[p.reason] || p.reason)}</span>
             <span class="orphaned-payment-status">${escapeHtml(p.payment_status || 'unknown')}</span>
             ${p.reviewed ? '<span class="badge-reviewed">Revisado</span>' : ''}
           </div>
@@ -84,7 +91,7 @@ const AdminOrphanedPaymentsPage = {
             <p><strong>Fecha:</strong> ${new Date(p.created_at).toLocaleString()}</p>
             <p><strong>invoice_id:</strong> ${escapeHtml(p.invoice_id || 'N/A')}</p>
             <p><strong>payment_id:</strong> ${escapeHtml(p.payment_id || 'N/A')}</p>
-            ${p.order_id ? `<p><strong>order_id (no encontrado):</strong> ${escapeHtml(p.order_id)}</p>` : ''}
+            ${p.order_id ? `<p><strong>order_id:</strong> ${escapeHtml(p.order_id)}</p>` : ''}
             <p><strong>Monto:</strong> ${p.price_amount || '?'} ${escapeHtml(p.price_currency || '')} ${p.actually_paid ? `(recibido: ${p.actually_paid} ${p.pay_currency || ''})` : ''}</p>
             ${p.resolution_notes ? `<p><strong>Notas:</strong> ${escapeHtml(p.resolution_notes)}</p>` : ''}
           </div>

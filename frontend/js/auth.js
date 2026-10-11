@@ -1,3 +1,5 @@
+import api from './api.js';
+
 const auth = {
   getToken() {
     return localStorage.getItem('token');
@@ -18,10 +20,12 @@ const auth = {
     localStorage.setItem('user', JSON.stringify(user));
   },
 
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
+  // Revoca el refresh token en el servidor (si falla, igual se cierra la sesion local).
+  async logout() {
+    if (this.getToken()) {
+      await api.post('/auth/logout', {}).catch(() => {});
+    }
+    api.clearSession();
     window.location.href = '/';
   },
 

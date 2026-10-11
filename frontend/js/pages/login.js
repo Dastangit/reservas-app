@@ -80,12 +80,16 @@ const LoginPage = {
     auth.setAuth(data.token, data.refresh_token, {
       id: data.user_id,
       role: data.role,
+      name: data.name,
       tourist_onboarding: data.tourist_onboarding,
     });
 
+    const HOME_BY_ROLE = {
+      admin: '/admin/dashboard', host: '/host/dashboard', organizer: '/organizer/dashboard', tourist: '/',
+    };
     const params = new URLSearchParams(window.location.search);
     // Solo rutas internas (/algo). Evita open redirect (//evil.com) y javascript: URLs.
-    const rawRedirect = params.get('redirect') || '/';
+    const rawRedirect = params.get('redirect') || HOME_BY_ROLE[data.role] || '/';
     const redirect = /^\/(?!\/)[^\\\s]*$/.test(rawRedirect) ? rawRedirect : '/';
     window.location.href = redirect;
   },

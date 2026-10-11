@@ -16,7 +16,9 @@
     "next": "Next",
     "backToHome": "Back to Home",
     "errorPrefix": "Error: ",
-    "edit": "Edit"
+    "edit": "Edit",
+    "pageNotFound": "Page not found",
+    "goHome": "Go Home"
   },
   "nav": {
     "myBookings": "My Bookings",
@@ -140,7 +142,10 @@
     "checkoutPaypalThanks": "Thank you! We've notified our team, they'll review your payment and confirm your booking soon.",
     "checkoutRetry": "Retry",
     "checkoutFailed": "Failed to create payment",
-    "checkoutNotifyFailed": "Could not notify the team, please try again: "
+    "checkoutNotifyFailed": "Could not notify the team, please try again: ",
+    "checkoutPaypalReference": "PayPal transaction ID",
+    "checkoutPaypalPayerEmail": "Email of the PayPal account you paid from",
+    "checkoutPaypalReferenceRequired": "Please enter the PayPal transaction ID or the email you paid from, so we can find your payment."
   },
   "experience": {
     "loginRequired": "Please <a href=\"/login\" data-link>login</a> to book.",
@@ -213,7 +218,8 @@
     "claimNumSpotsLabel": "Number of spots you're claiming",
     "claimNumSpotsHint": "Must match what you requested on the waitlist.",
     "confirmSpotBtn": "Confirm my spot",
-    "claimFailed": "Could not confirm the spot — the time window may have expired"
+    "claimFailed": "Could not confirm the spot — the time window may have expired",
+    "cubaTime": "Cuba time"
   },
   "search": {
     "title": "Search Properties",
@@ -248,7 +254,7 @@
     "phone": "Phone",
     "namePlaceholder": "John Doe",
     "emailPlaceholder": "your@email.com",
-    "passwordMinPlaceholder": "Min 6 characters",
+    "passwordMinPlaceholder": "Min 8 characters",
     "phonePlaceholder": "+1 234 567 890",
     "passwordPlaceholder": "Enter your password",
     "role": "I want to",
@@ -282,7 +288,9 @@
     "updatePassword": "Update password",
     "passwordsDontMatch": "Passwords do not match.",
     "passwordUpdated": "Password updated. You can now log in.",
-    "resetLinkExpired": "The link may have expired. Please request a new one."
+    "resetLinkExpired": "The link may have expired. Please request a new one.",
+    "repeatPassword": "Repeat password",
+    "pendingApprovalRegistered": "Account created! Our team will review it and contact you once it is approved. You will be able to log in after approval."
   },
   "dashboard": {
     "myBookings": "My Bookings",
@@ -523,7 +531,12 @@
     "organizerNoPhoneRegistered": "The organizer doesn't have a registered phone.",
     "organizerUnknownFallback": "Unknown organizer",
     "totalWord": "total",
-    "commissionPercentSuffix": "commission (10%):"
+    "commissionPercentSuffix": "commission (10%):",
+    "contactSection": "Public contact",
+    "contactEmailLabel": "Support email",
+    "contactWhatsappLabel": "Support WhatsApp",
+    "settingsPaymentNote": "The booking fee is fixed at $7 USD and the QvaPay credentials are configured as server environment variables, not here.",
+    "changesPendingReview": "Edited - review changes"
   },
   "footer": {
     "brand": "Elysio Experiences",
@@ -534,7 +547,12 @@
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",
     "followUs": "Follow Us",
-    "copyright": "All rights reserved."
+    "copyright": "All rights reserved.",
+    "searchProperties": "Search Properties",
+    "howItWorks": "How It Works",
+    "faq": "FAQ",
+    "sendFeedback": "Send Feedback",
+    "rights": "All rights reserved."
   },
   "pages": {
     "howItWorks": {
@@ -603,8 +621,8 @@
       "s5Offer": "You are making an offer to rent the property for the selected dates",
       "s5Fee": "A <strong>$7 USD non-refundable fee</strong> is charged to secure your reservation",
       "s5Approval": "The booking is subject to admin approval within 24 hours",
-      "s5Approved": "When your booking is approved, you will receive a confirmation email.",
-      "s5Rejected": "If rejected, you will be notified by email (fee is not refunded, unless the rejection was due to our own error, in which case we arrange a refund)",
+      "s5Approved": "When the booking is approved, our team will contact you by WhatsApp or email to confirm it.",
+      "s5Rejected": "If it is rejected, our team will notify you by WhatsApp or email (the fee is not refunded unless the rejection is due to our error, in which case a refund is arranged)",
       "s6Title": "6. Payments and Fees",
       "s6Intro": "When you make a booking, a $7 USD fee is charged to secure your reservation. The remainder is paid directly to the host.",
       "s6BookingFee": "$7 USD Pre-booking Fee",
@@ -671,7 +689,7 @@
       "s3Title": "3. How We Use Your Information",
       "s3Content": "We use your information to:",
       "s3Process": "Process and manage your bookings",
-      "s3Send": "Send booking confirmations and updates via email",
+      "s3Send": "Send booking confirmations and updates (manually, by WhatsApp or email)",
       "s3Communicate": "Communicate with you about your reservations",
       "s3Improve": "Improve our platform and services",
       "s3Security": "Ensure security and prevent fraud",
@@ -993,6 +1011,49 @@
     "login": {
       "title": "Log In",
       "description": "Log in to your Elysio Experiences account to manage bookings, listings, or experiences."
+    }
+  },
+  "propertyCard": {
+    "typeCasa": "Casa Particular",
+    "typeHostel": "Hostel",
+    "locationUnknown": "Location not specified",
+    "maxGuests": "Max {n} guests",
+    "new": "New",
+    "perNight": "/night",
+    "viewDetails": "View Details",
+    "noResults": "No properties found"
+  },
+  "bookingCard": {
+    "property": "Property",
+    "preBooking": "Pre-booking",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "nights": "Nights",
+    "guests": "Guests",
+    "total": "Total",
+    "fee": "Booking fee",
+    "feePending": "pending",
+    "tourist": "Guest",
+    "contact": "Contact",
+    "paypalRef": "PayPal ref",
+    "payer": "Payer",
+    "confirmManualPayment": "Confirm manual payment (PayPal)",
+    "markComplete": "Mark complete",
+    "whatsappHost": "WhatsApp host",
+    "notifyTourist": "Notify guest",
+    "msgPaymentReceived": "Payment received",
+    "msgPaymentReminder": "Payment reminder",
+    "msgBookingComplete": "Full confirmation",
+    "whatsappTourist": "WhatsApp guest",
+    "emailTourist": "Email guest",
+    "noBookings": "No bookings found",
+    "status": {
+      "pending_payment": "Pending payment",
+      "pending_approval": "Pending approval",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
     }
   }
 }

@@ -36,6 +36,14 @@ const PaymentCheckoutPage = {
               <p>${t('booking.checkoutPaypalInstructions')}</p>
               <a id="paypal-manual-link" href="#" target="_blank" class="btn btn-primary">${t('booking.checkoutPaypalGo')}</a>
               <p style="margin-top:1rem;">${t('booking.checkoutPaypalConfirmPrompt')}</p>
+              <div class="form-group">
+                <label for="paypal-reference">${t('booking.checkoutPaypalReference')}</label>
+                <input type="text" id="paypal-reference" maxlength="200" autocomplete="off">
+              </div>
+              <div class="form-group">
+                <label for="paypal-payer-email">${t('booking.checkoutPaypalPayerEmail')}</label>
+                <input type="email" id="paypal-payer-email" maxlength="200">
+              </div>
               <button id="paypal-manual-confirm" class="btn btn-success">${t('booking.checkoutPaypalPaid')}</button>
               <p id="paypal-manual-thanks" style="display:none; margin-top:1rem;">
                 ${t('booking.checkoutPaypalThanks')}
@@ -104,9 +112,21 @@ const PaymentCheckoutPage = {
         link.href = response.data.paypal_url;
 
         document.getElementById('paypal-manual-confirm').addEventListener('click', async (e) => {
+          // Sin ID de transaccion o email del pagador el admin no puede
+          // identificar el deposito (todas las reservas pagan lo mismo).
+          const reference = document.getElementById('paypal-reference')?.value.trim();
+          const payerEmail = document.getElementById('paypal-payer-email')?.value.trim();
+          if (!reference && !payerEmail) {
+            alert(i18n.t('booking.checkoutPaypalReferenceRequired'));
+            return;
+          }
           e.target.disabled = true;
           try {
-            await api.post('/payments/paypal-manual/notify-sent', { booking_id: this.bookingId });
+            await api.post('/payments/paypal-manual/notify-sent', {
+              booking_id: this.bookingId,
+              reference,
+              payer_email: payerEmail,
+            });
             document.getElementById('paypal-manual-thanks').style.display = 'block';
           } catch (error) {
             e.target.disabled = false;

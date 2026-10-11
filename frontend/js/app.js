@@ -147,7 +147,11 @@ router
     ReviewFormPage._params = params;
     await renderPage(ReviewFormPage);
   })
-  .addRoute('/feedback', routeHandler(FeedbackFormPage))
+  .addRoute('/feedback', async (params) => {
+    if (!guard()) return;
+    FeedbackFormPage._params = params;
+    await renderPage(FeedbackFormPage);
+  })
   .addRoute('/profile', async (params) => {
     if (!guard()) return;
     ProfilePage._params = params;
@@ -345,14 +349,14 @@ router
       app.innerHTML = `
         <div class="error" style="padding:80px 20px;text-align:center;">
           <h1 style="font-size:3rem;color:var(--primary);">404</h1>
-          <p style="margin:20px 0;color:var(--text-light);">Page not found</p>
-          <a href="/" data-link class="btn btn-primary">Go Home</a>
+          <p style="margin:20px 0;color:var(--text-light);">${i18n.t('common.pageNotFound')}</p>
+          <a href="/" data-link class="btn btn-primary">${i18n.t('common.goHome')}</a>
         </div>
       `;
     }
     Header.init();
     Footer.init();
-    seo.set({ title: 'Page not found', noindex: true });
+    seo.set({ title: i18n.t('common.pageNotFound'), noindex: true });
   })
   .init();
 

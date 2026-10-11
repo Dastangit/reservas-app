@@ -101,6 +101,7 @@ const AdminPropertiesPage = {
               <p>${escapeHtml(p.location?.city)} | $${p.price_per_night}${i18n.t('property.perNight')}</p>
               <p>${i18n.t('admin.hostLabel')} ${escapeHtml(p.host_id?.name || i18n.t('admin.unknownFallback'))}</p>
               <span class="status-badge ${escapeHtml(p.status)}">${escapeHtml(p.status.replace(/_/g, ' '))}</span>
+              ${p.changes_pending_review ? `<span class="status-badge pending_approval">${i18n.t('admin.changesPendingReview')}</span>` : ''}
             </div>
             <button type="button" class="btn btn-outline btn-sm property-detail-toggle">${i18n.t('admin.viewDetail')}</button>
           </div>
@@ -142,7 +143,7 @@ const AdminPropertiesPage = {
           </div>
 
           <div class="property-actions">
-            ${p.status === 'pending_approval' ? `
+            ${p.status === 'pending_approval' || p.changes_pending_review ? `
               <button onclick="approveProperty('${p._id}')" class="btn btn-success btn-sm">${i18n.t('admin.approveBtn')}</button>
               <button onclick="rejectProperty('${p._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.rejectBtn')}</button>
             ` : ''}

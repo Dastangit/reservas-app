@@ -36,12 +36,12 @@ const ResetPasswordPage = {
             <form id="reset-form">
               <div class="form-group">
                 <label for="new-password">${t('auth.newPassword')}</label>
-                <div class="password-field-wrapper"><input type="password" id="new-password" required minlength="6" placeholder="Min 6 characters">
+                <div class="password-field-wrapper"><input type="password" id="new-password" required minlength="8" placeholder="${i18n.t('auth.passwordMinPlaceholder')}">
                   ${passwordToggleButton('new-password')}</div>
               </div>
               <div class="form-group">
                 <label for="confirm-password">${t('auth.confirmPassword')}</label>
-                <div class="password-field-wrapper"><input type="password" id="confirm-password" required minlength="6" placeholder="Repeat password">
+                <div class="password-field-wrapper"><input type="password" id="confirm-password" required minlength="8" placeholder="${i18n.t('auth.repeatPassword')}">
                   ${passwordToggleButton('confirm-password')}</div>
               </div>
 

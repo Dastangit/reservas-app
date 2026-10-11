@@ -1,5 +1,5 @@
 import api from '../api.js';
-import { formatCurrency, formatDate } from '../utils/formatters.js';
+import { formatCurrency, formatDate, localDateISO, addDaysISO } from '../utils/formatters.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
@@ -191,15 +191,13 @@ const PropertyDetailPage = {
       if (checkIn && checkOut) {
         // No dejar elegir fechas pasadas, y el check-out nunca puede ser
         // antes (ni el mismo día) que el check-in elegido.
-        const todayISO = new Date().toISOString().slice(0, 10);
+        const todayISO = localDateISO();
         checkIn.min = todayISO;
         checkOut.min = todayISO;
 
         checkIn.addEventListener('change', () => {
           if (checkIn.value) {
-            const nextDay = new Date(checkIn.value);
-            nextDay.setDate(nextDay.getDate() + 1);
-            checkOut.min = nextDay.toISOString().slice(0, 10);
+            checkOut.min = addDaysISO(checkIn.value, 1);
 
             if (checkOut.value && checkOut.value <= checkIn.value) {
               checkOut.value = checkOut.min;
