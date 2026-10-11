@@ -4,6 +4,9 @@ const {
   sendBookingConfirmation, sendBookingApproved, sendBookingRejected, sendHostBookingNotification,
 } = require('../utils/email');
 
+// Estados que ocupan las fechas de una propiedad.
+const BLOCKING_STATUSES = ['pending_payment', 'pending_approval', 'approved'];
+
 exports.createBooking = async (req, res, next) => {
   try {
     const {
@@ -40,10 +43,10 @@ exports.createBooking = async (req, res, next) => {
     const existingBooking = await Booking.findOne({
       property_id,
       tenant_id: req.tenantId,
-      status: { $in: ['pending_payment', 'pending_approval', 'approved'] },
-      $or: [
-        { check_in: { $lte: new Date(check_out) }, check_out: { $gte: new Date(check_in) } },
-      ],
+      status: { $in: BLOCKING_STATUSES },
+      // Desigualdad estricta: una reserva puede entrar el dia que otra sale.
+      check_in: { $lt: new Date(check_out) },
+      check_out: { $gt: new Date(check_in) },
     });
 
     if (existingBooking) {
@@ -53,6 +56,10 @@ exports.createBooking = async (req, res, next) => {
     const num_nights = Math.ceil(
       (new Date(check_out) - new Date(check_in)) / (1000 * 60 * 60 * 24)
     );
+    if (!(num_nights >= 1)) {
+      return res.status(400).json({ success: false, error: 'Check-out must be after check-in' });
+    }
+
     const total_amount = num_nights * property.price_per_night;
 
     const hold_expires_at = new Date();
@@ -76,6 +83,33 @@ exports.createBooking = async (req, res, next) => {
       status_history: [{ status: 'pending_payment', changed_at: new Date(), changed_by: 'system' }],
     });
 
+    // El chequeo de conflicto de arriba y este create() no son atomicos: si dos
+    // personas reservan las mismas fechas casi a la vez, ambas pueden pasar el
+    // chequeo. Por eso verificamos DESPUES de crear y ANTES de responder: si hay
+    // otra reserva vigente que solapa y se creo antes (menor _id), esta pierde.
+    // Desempatar por _id garantiza que sobrevive exactamente una, incluso si las
+    // dos se crearon en el mismo milisegundo.
+    const earlierConflict = await Booking.findOne({
+      _id: { $lt: booking._id },
+      property_id,
+      tenant_id: req.tenantId,
+      status: { $in: BLOCKING_STATUSES },
+      check_in: { $lt: new Date(check_out) },
+      check_out: { $gt: new Date(check_in) },
+    });
+
+    if (earlierConflict) {
+      await Booking.updateOne(
+        { _id: booking._id, status: 'pending_payment' },
+        {
+          $set: { status: 'cancelled' },
+          $push: { status_history: { status: 'cancelled', changed_at: new Date(), changed_by: 'system' } },
+        },
+      );
+      console.error(`[Race condition] Booking ${booking._id} cancelada automaticamente -- otra reserva (${earlierConflict._id}) reclamo las mismas fechas primero.`);
+      return res.status(400).json({ success: false, error: 'Property already booked for these dates' });
+    }
+
     res.status(201).json({
       success: true,
       data: {
@@ -87,42 +121,6 @@ exports.createBooking = async (req, res, next) => {
     });
 
     sendBookingConfirmation(req.user.email, booking, property).catch(() => {});
-
-    // Verificación posterior a la creación: el chequeo de conflicto de arriba
-    // y este create() no son atómicos -- si dos personas reservan las mismas
-    // fechas casi simultáneamente, ambas pueden pasar el chequeo antes de que
-    // ninguna termine de crearse. Esto detecta esa condición de carrera después
-    // del hecho y cancela automáticamente la que perdió, en vez de dejar una
-    // doble reserva silenciosa sin que nadie se entere.
-    (async () => {
-      try {
-        const conflictingBooking = await Booking.findOne({
-          _id: { $ne: booking._id },
-          property_id,
-          tenant_id: req.tenantId,
-          status: { $in: ['pending_payment', 'pending_approval', 'approved'] },
-          check_in: { $lte: new Date(check_out) },
-          check_out: { $gte: new Date(check_in) },
-          created_at: { $lte: booking.created_at },
-        });
-
-        if (conflictingBooking) {
-          const fresh = await Booking.findById(booking._id);
-          if (fresh && fresh.status === 'pending_payment') {
-            fresh.status = 'cancelled';
-            fresh.status_history.push({
-              status: 'cancelled',
-              changed_at: new Date(),
-              changed_by: 'system',
-            });
-            await fresh.save();
-            console.error(`[Race condition] Booking ${booking._id} cancelada automáticamente -- otra reserva (${conflictingBooking._id}) reclamó las mismas fechas primero.`);
-          }
-        }
-      } catch (err) {
-        console.error('[Race condition check] Error:', err.message);
-      }
-    })();
   } catch (error) {
     next(error);
   }

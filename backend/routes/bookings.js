@@ -9,6 +9,9 @@ const { protect, authorize } = require('../middleware/auth');
 const { setTenant } = require('../middleware/tenant');
 const validate = require('../middleware/validate');
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+const MAX_STAY_NIGHTS = 365;
+
 const router = express.Router();
 
 router.use(setTenant);
@@ -16,8 +19,22 @@ router.use(protect);
 
 router.post('/', authorize('tourist'), [
   body('property_id').notEmpty().withMessage('Property ID is required'),
-  body('check_in').isISO8601().withMessage('Check-in date is required'),
-  body('check_out').isISO8601().withMessage('Check-out date is required'),
+  body('check_in').isISO8601().withMessage('Check-in date is required')
+    .custom((value) => {
+      // Un dia de margen: el turista puede estar en una zona horaria detras de UTC.
+      const startOfTodayUtc = new Date(new Date().toISOString().slice(0, 10)).getTime();
+      if (new Date(value).getTime() < startOfTodayUtc - DAY_MS) {
+        throw new Error('Check-in date cannot be in the past');
+      }
+      return true;
+    }),
+  body('check_out').isISO8601().withMessage('Check-out date is required')
+    .custom((value, { req }) => {
+      const nights = (new Date(value) - new Date(req.body.check_in)) / DAY_MS;
+      if (!(nights > 0)) throw new Error('Check-out must be after check-in');
+      if (nights > MAX_STAY_NIGHTS) throw new Error(`Maximum stay is ${MAX_STAY_NIGHTS} nights`);
+      return true;
+    }),
   body('num_guests').isInt({ min: 1 }).withMessage('Number of guests must be at least 1'),
   body('booking_type').isIn(['pre_booking']).withMessage('Invalid booking type'),
   body('payment_option').isIn(['full_payment', 'daily_payment']).withMessage('Invalid payment option'),

@@ -294,8 +294,8 @@ exports.checkAvailability = async (req, res, next) => {
       property_id: req.params.id,
       tenant_id: req.tenantId,
       status: { $in: ['pending_payment', 'pending_approval', 'approved'] },
-      check_in: { $lte: new Date(check_out) },
-      check_out: { $gte: new Date(check_in) },
+      check_in: { $lt: new Date(check_out) },
+      check_out: { $gt: new Date(check_in) },
     });
 
     res.json({

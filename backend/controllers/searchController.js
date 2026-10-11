@@ -80,8 +80,8 @@ async function getAvailablePropertyIds(tenantId, checkIn, checkOut, propertyIds)
     tenant_id: tenantId,
     property_id: { $in: propertyIds },
     status: { $in: ['pending_payment', 'pending_approval', 'approved'] },
-    check_in: { $lte: new Date(checkOut) },
-    check_out: { $gte: new Date(checkIn) },
+    check_in: { $lt: new Date(checkOut) },
+    check_out: { $gt: new Date(checkIn) },
   }).select('property_id');
 
   const bookedIds = new Set(overlappingBookings.map((b) => b.property_id.toString()));
