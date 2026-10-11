@@ -12,7 +12,7 @@ cloudinary.config({
 function uploadImageBuffer(buffer, folder = 'reservas-app/properties') {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: 'image' },
+      { folder, resource_type: 'image', allowed_formats: ['jpg', 'jpeg', 'png', 'webp'] },
       (error, result) => {
         if (error) return reject(error);
         resolve(result);

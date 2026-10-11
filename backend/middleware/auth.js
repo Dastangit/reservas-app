@@ -50,4 +50,14 @@ const authorize = (...roles) => {
   };
 };
 
-module.exports = { protect, authorize };
+// Hosts y organizadores solo operan (subir archivos, etc.) cuando el admin los aprobo.
+// El login ya lo exige, pero el token que se entrega al registrarse existe antes.
+const requireApproved = (req, res, next) => {
+  const { role, host_status: hostStatus, organizer_status: organizerStatus } = req.user;
+  if ((role === 'host' && hostStatus !== 'approved') || (role === 'organizer' && organizerStatus !== 'approved')) {
+    return res.status(403).json({ success: false, error: 'Your account is pending approval' });
+  }
+  next();
+};
+
+module.exports = { protect, authorize, requireApproved };

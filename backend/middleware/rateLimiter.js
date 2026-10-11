@@ -26,4 +26,14 @@ const apiLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { loginLimiter, passwordResetLimiter, apiLimiter };
+// Limite por usuario autenticado (no por IP): protege la cuota de Cloudinary.
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 30,
+  keyGenerator: (req) => String(req.user?._id || 'anonymous'),
+  message: { success: false, error: 'Too many uploads, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+module.exports = { loginLimiter, passwordResetLimiter, apiLimiter, uploadLimiter };

@@ -12,14 +12,14 @@ const { loginLimiter, passwordResetLimiter } = require('../middleware/rateLimite
 const router = express.Router();
 
 router.post('/register', [
-  body('email').isEmail().withMessage('Valid email is required'),
+  body('email').trim().toLowerCase().isEmail().withMessage('Valid email is required'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('name').notEmpty().withMessage('Name is required'),
   body('role').optional().isIn(['tourist', 'host']).withMessage('Role must be tourist or host'),
 ], validate, register);
 
 router.post('/login', loginLimiter, [
-  body('email').isEmail().withMessage('Valid email is required'),
+  body('email').trim().toLowerCase().isEmail().withMessage('Valid email is required'),
   body('password').notEmpty().withMessage('Password is required'),
 ], validate, login);
 
@@ -49,7 +49,7 @@ router.post('/2fa/disable', protect, authorize('admin'), [
 // Bucket propio (passwordResetLimiter), separado del de login -- probar
 // esto varias veces no debe agotar los intentos de login/registro de la IP.
 router.post('/forgot-password', passwordResetLimiter, [
-  body('email').isEmail().withMessage('Valid email is required'),
+  body('email').trim().toLowerCase().isEmail().withMessage('Valid email is required'),
 ], validate, forgotPassword);
 
 router.post('/reset-password', passwordResetLimiter, [

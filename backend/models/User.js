@@ -10,7 +10,10 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, 'Email is required'],
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Invalid email'],
+    lowercase: true,
+    trim: true,
+    // Cualquier dominio con TLD de 2+ letras (.travel, .tours, .info...).
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, 'Invalid email'],
   },
   phone: {
     type: String,

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { protect, authorize } = require('../middleware/auth');
+const { protect, authorize, requireApproved } = require('../middleware/auth');
+const { uploadLimiter } = require('../middleware/rateLimiter');
 const { setTenant } = require('../middleware/tenant');
 const { uploadMiddleware, handleImageUpload, handleImageDelete } = require('../controllers/uploadController');
 
@@ -8,7 +9,9 @@ router.use(setTenant);
 router.use(protect);
 router.use(authorize('host', 'organizer', 'admin'));
 
-router.post('/image', uploadMiddleware, handleImageUpload);
+router.use(requireApproved);
+
+router.post('/image', uploadLimiter, uploadMiddleware, handleImageUpload);
 router.delete('/image/:public_id', handleImageDelete);
 
 module.exports = router;
