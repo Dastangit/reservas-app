@@ -1,24 +1,24 @@
 import api from '../api.js';
 import auth from '../auth.js';
+import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+
+const t = (key) => i18n.t(key);
 
 const AdminPasswordResetsPage = {
   async render() {
     if (!auth.isLoggedIn() || !auth.isAdmin()) {
-      return '<div class="container"><p>Access denied. Please login as admin.</p></div>';
+      return `<div class="container"><p>${t('admin.accessDenied')}</p></div>`;
     }
 
     return `
       <div class="admin-password-resets-page">
         <div class="container">
-          <h1>Solicitudes de restablecimiento de contrase\u00f1a</h1>
-          <p class="page-subtitle">
-            No hay env\u00edo autom\u00e1tico de email -- genera el link real y entr\u00e9galo manualmente
-            por WhatsApp o correo. El link expira en 1 hora desde que lo generas aqu\u00ed.
-          </p>
+          <h1>${t('passwordResets.title')}</h1>
+          <p class="page-subtitle">${t('passwordResets.subtitle')}</p>
 
           <div id="password-resets-list">
-            <p class="loading">Cargando...</p>
+            <p class="loading">${t('common.loading')}</p>
           </div>
         </div>
       </div>
@@ -35,13 +35,13 @@ const AdminPasswordResetsPage = {
         const response = await api.get(`/admin/password-resets/${userId}/delivery-links`);
         const url = method === 'whatsapp' ? response.data?.whatsapp_url : response.data?.mailto_url;
         if (url) {
-          if (method === 'whatsapp') window.open(url, '_blank');
+          if (method === 'whatsapp') window.open(url, '_blank', 'noopener');
           else window.location.href = url;
         } else {
-          alert(`El usuario no tiene ${method === 'whatsapp' ? 'tel\u00e9fono' : 'email'} registrado.`);
+          alert(method === 'whatsapp' ? t('passwordResets.noPhone') : t('passwordResets.noEmail'));
         }
       } catch (error) {
-        alert('Error: ' + error.message);
+        alert(t('common.errorPrefix') + error.message);
       }
     };
   },
@@ -55,7 +55,7 @@ const AdminPasswordResetsPage = {
       const requests = response.data?.requests || [];
 
       if (requests.length === 0) {
-        list.innerHTML = '<p class="no-results">No hay solicitudes pendientes.</p>';
+        list.innerHTML = `<p class="no-results">${t('passwordResets.empty')}</p>`;
         return;
       }
 
@@ -63,17 +63,17 @@ const AdminPasswordResetsPage = {
         <div class="property-list-item">
           <div class="property-info">
             <h3>${escapeHtml(r.name)} <span class="status-badge pending">${escapeHtml(r.role)}</span></h3>
-            <p>${escapeHtml(r.email)} ${escapeHtml(r.phone ? '\u00b7 ' + r.phone : '')}</p>
-            <p style="font-size:var(--fs-xs);color:var(--text-light);">Expira: ${new Date(r.expires_at).toLocaleString()}</p>
+            <p>${escapeHtml(r.email)} ${escapeHtml(r.phone ? '· ' + r.phone : '')}</p>
+            <p style="font-size:var(--fs-xs);color:var(--text-light);">${t('passwordResets.expires')} ${new Date(r.expires_at).toLocaleString(i18n.currentLang)}</p>
           </div>
           <div class="property-actions">
             <button data-action="deliverPasswordReset" data-arg="${escapeHtml(r.user_id)}" data-arg2="whatsapp" class="btn btn-outline btn-sm">WhatsApp</button>
-            <button data-action="deliverPasswordReset" data-arg="${escapeHtml(r.user_id)}" data-arg2="mailto" class="btn btn-outline btn-sm">Correo</button>
+            <button data-action="deliverPasswordReset" data-arg="${escapeHtml(r.user_id)}" data-arg2="mailto" class="btn btn-outline btn-sm">${t('passwordResets.email')}</button>
           </div>
         </div>
       `).join('');
     } catch (error) {
-      list.innerHTML = '<p class="error">Error cargando solicitudes</p>';
+      list.innerHTML = `<p class="error">${t('passwordResets.loadError')}</p>`;
     }
   }
 };

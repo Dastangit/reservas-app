@@ -55,7 +55,7 @@ const BookingConfirmationPage = {
               
               <div class="confirmation-contact">
                 <p><strong>${t('confirmation.contactAdmin')}:</strong></p>
-                <p>Email: elysio.support@gmail.com</p>
+                <p>Email: ${escapeHtml(window.APP_CONFIG?.admin_email || 'elysio.support@gmail.com')}</p>
               </div>
               
               <div class="confirmation-actions">
