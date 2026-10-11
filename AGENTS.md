@@ -58,7 +58,9 @@ CI (`.github/workflows/ci.yml`) runs lint, tests and `npm audit` for the backend
 - **Seeds**: `scripts/seed.js` needs `SEED_ADMIN_PASSWORD`; demo seeds refuse to run with `NODE_ENV=production`. Never hardcode passwords.
 - **Timezone dates**: Booking dates are calendar dates stored at UTC midnight: format them with `formatDate` (uses UTC) and compute "today" with `localDateISO()` from `utils/formatters.js` — never `toISOString()`.
 - **Experience times are Cuba time**: the organizer's `datetime-local` value is interpreted as `America/Havana` (`utils/timezone.js`); display with `formatExperienceDate/Time` and edit with `toExperienceInputValue`.
-- **Booking overlap check**: Uses strict `$lt`/`$gt` (same-day turnover allowed). The race is resolved by re-checking after create (earlier `_id` wins). Do NOT switch to `$lte`.
+- **Booking overlap check**: Uses strict `$lt`/`$gt` (same-day turnover allowed). Do NOT switch to `$lte`. Check + create runs inside `withPropertyLock` (`utils/propertyLock.js`, atomic lock on the property doc, safe with several instances); date blocks use the same lock. A post-create re-check (earlier `_id` wins) remains as a second safety net.
+- **2FA**: `otplib` (TOTP, window 1) with replay protection (`two_factor.last_used_step`). Backup codes are stored hashed.
+- **Inline handlers are not allowed** (CSP `script-src 'self'`): use `data-action="fnName" data-arg="..."` (+ `data-arg2`...) and define `window.fnName`; `this` is the element and the event is the last argument. For `<select>` use `data-change-action`.
 - **i18n.t()**: Returns key itself if translation missing (uses `??` not `||` to preserve empty strings).
 - **changeLang**: Calls `i18n.setLang()` + `window.rerenderCurrentPage()` — never `location.reload()`.
 - **User model**: Has both `phone` and `whatsapp_phone` as separate fields.

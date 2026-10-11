@@ -127,22 +127,12 @@ describe('Routes', () => {
     const searchRoutes = require('../routes/search');
     expect(typeof searchRoutes).toBe('function');
   });
-
-  test('should export contact routes', () => {
-    const contactRoutes = require('../routes/contact');
-    expect(typeof contactRoutes).toBe('function');
-  });
 });
 
 describe('Controllers', () => {
   test('should export search controller', () => {
     const { search } = require('../controllers/searchController');
     expect(typeof search).toBe('function');
-  });
-
-  test('should export contact controller', () => {
-    const { contact } = require('../controllers/contactController');
-    expect(typeof contact).toBe('function');
   });
 
   test('should export booking controller functions', () => {

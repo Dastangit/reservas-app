@@ -78,7 +78,6 @@ app.use('/api/feedback', apiLimiter, require('./routes/feedback'));
 app.use('/api/users', apiLimiter, require('./routes/users'));
 app.use('/api/admin', apiLimiter, require('./routes/admin'));
 app.use('/api/search', apiLimiter, require('./routes/search'));
-app.use('/api/contact', apiLimiter, require('./routes/contact'));
 app.use('/api/payments', apiLimiter, require('./routes/payments'));
 app.use('/api/uploads', apiLimiter, require('./routes/uploads'));
 app.use('/api/push', apiLimiter, require('./routes/push'));

@@ -143,3 +143,17 @@ Frontend
 - Paginas admin restantes sin i18n (solo espanol); `onclick` inline impiden una CSP sin `unsafe-inline`.
 - Backups: `npm run backup` programado en tu PC (o Atlas M10). Crons: `worker.js` + `RUN_JOBS=false` disponible; falta crear el servicio worker en el hosting. Plan de pago en Render.
 - Mongoose 7 -> 8, reemplazar `speakeasy`.
+
+## Segunda tanda (2026-10-11)
+
+- Tests de integracion contra MongoDB en memoria (`tests/integration.test.js`); 69 tests en total.
+- Mongoose 8; lockfile apuntando a registry.npmjs.org (integridad verificada) + `.npmrc`; Dockerfile con `npm ci`, usuario no root.
+- Bloqueo atomico por propiedad (`utils/propertyLock.js`): sin dobles reservas aunque haya varias instancias.
+- 2FA con `otplib` + proteccion anti-replay; `speakeasy` eliminado.
+- CSP estricta: 87 `onclick` en linea sustituidos por `data-action` delegado.
+- Reactivar hosts/organizadores suspendidos; enlaces del turista a detalle, pago y resena (el de resena daba 404).
+- Calendario: los errores de bloqueo ya se muestran (antes se borraban). Audit log: metadata escapada (XSS).
+- i18n completo del Header, calendario y paginas admin (1085 claves en en/es/fr).
+- Apagado limpio, `/health` con estado de Mongo, `worker.js`, `npm run backup`, `npm run reviews:dedupe`, `npm run dev:local`.
+- Eliminado `/api/contact` (no lo usaba el frontend y los mensajes se perdian).
+- Verificado en navegador con `npm run dev:local`: login por rol, aprobar, menus, idioma, logout, reserva + PayPal + confirmacion admin, renovacion de token, calendario, fechas en America/Havana.
