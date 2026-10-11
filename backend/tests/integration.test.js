@@ -271,3 +271,57 @@ describe('health', () => {
     expect(res.body.db).toBe('connected');
   });
 });
+
+describe('bloqueo por propiedad', () => {
+  test('cinco reservas simultaneas de las mismas fechas: exactamente una', async () => {
+    const tourists = await Promise.all([1, 2, 3, 4, 5].map(() => makeUser('tourist')));
+    const results = await Promise.all(tourists.map((t) => request(app).post('/api/bookings').set(auth(t))
+      .send(bookingBody(day(200), day(203)))));
+    expect(results.filter((r) => r.status === 201)).toHaveLength(1);
+    const alive = await Booking.countDocuments({
+      property_id: property._id, check_in: new Date(day(200)), status: 'pending_payment',
+    });
+    expect(alive).toBe(1);
+  });
+
+  test('el host no puede bloquear fechas que ya tienen una reserva', async () => {
+    const res = await request(app).post(`/api/properties/${property._id}/availability/block`).set(auth(host))
+      .send({ start_date: day(201), end_date: day(202) });
+    expect(res.status).toBe(409);
+    expect(res.body.error).toBe('DATE_CONFLICT');
+  });
+
+  test('bloquear fechas libres funciona y libera el lock', async () => {
+    const res = await request(app).post(`/api/properties/${property._id}/availability/block`).set(auth(host))
+      .send({ start_date: day(300), end_date: day(302), reason: 'mantenimiento' });
+    expect(res.status).toBe(201);
+    const fresh = await Property.findById(property._id).select('+booking_lock_until');
+    expect(fresh.booking_lock_until).toBeNull();
+  });
+});
+
+describe('2FA (otplib)', () => {
+  test('login con codigo valido y el mismo codigo no se puede reutilizar', async () => {
+    const { authenticator } = require('otplib');
+    const secret = authenticator.generateSecret(20);
+    const user = await makeUser('admin', { two_factor: { enabled: true, secret } });
+
+    const login = async () => (await request(app).post('/api/auth/login')
+      .send({ email: user.email, password: 'password123' })).body.data.pending_token;
+
+    const code = authenticator.generate(secret);
+    const ok = await request(app).post('/api/auth/verify-2fa').send({ pending_token: await login(), code });
+    expect(ok.status).toBe(200);
+    expect(ok.body.data.token).toBeTruthy();
+
+    const replay = await request(app).post('/api/auth/verify-2fa').send({ pending_token: await login(), code });
+    expect(replay.status).toBe(401);
+  });
+
+  test('setup no reemplaza un 2FA ya activo', async () => {
+    const { authenticator } = require('otplib');
+    const user = await makeUser('admin', { two_factor: { enabled: true, secret: authenticator.generateSecret(20) } });
+    const res = await request(app).post('/api/auth/2fa/setup').set(auth(user));
+    expect(res.status).toBe(400);
+  });
+});

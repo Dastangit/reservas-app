@@ -1,5 +1,6 @@
 const Booking = require('../models/Booking');
 const Property = require('../models/Property');
+const { withPropertyLock } = require('../utils/propertyLock');
 const Feedback = require('../models/Feedback');
 const User = require('../models/User');
 const Payment = require('../models/Payment');
@@ -598,34 +599,47 @@ exports.adminBlockDates = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'start_date and end_date are required' });
     }
 
-    const conflictingBooking = await Booking.findOne({
-      property_id: property._id,
-      tenant_id: req.tenantId,
-      status: { $in: ['pending_payment', 'pending_approval', 'approved'] },
-      check_in: { $lt: new Date(end_date) },
-      check_out: { $gt: new Date(start_date) },
+    // Con la propiedad bloqueada: no puede entrar una reserva entre la
+    // comprobacion de conflictos y el guardado del bloqueo.
+    const result = await withPropertyLock(property._id, async () => {
+      const conflictingBooking = await Booking.findOne({
+        property_id: property._id,
+        tenant_id: req.tenantId,
+        status: { $in: ['pending_payment', 'pending_approval', 'approved'] },
+        check_in: { $lt: new Date(end_date) },
+        check_out: { $gt: new Date(start_date) },
+      });
+      if (conflictingBooking) return { conflict: conflictingBooking._id };
+
+      const updated = await Property.findByIdAndUpdate(
+        property._id,
+        {
+          $push: {
+            blocked_dates: {
+              start_date,
+              end_date,
+              reason: reason ? String(reason).slice(0, 200) : undefined,
+              blocked_by: 'admin',
+              blocked_by_user: req.user._id,
+            },
+          },
+        },
+        { new: true, runValidators: true },
+      );
+      return { block: updated.blocked_dates[updated.blocked_dates.length - 1] };
     });
 
-    if (conflictingBooking) {
+    if (result.conflict) {
       return res.status(409).json({
         success: false,
         error: 'DATE_CONFLICT',
-        conflicting_booking_id: conflictingBooking._id,
+        conflicting_booking_id: result.conflict,
       });
     }
 
-    property.blocked_dates.push({
-      start_date,
-      end_date,
-      reason,
-      blocked_by: 'admin',
-      blocked_by_user: req.user._id,
-    });
-    await property.save();
-
     res.status(201).json({
       success: true,
-      data: { block: property.blocked_dates[property.blocked_dates.length - 1] },
+      data: { block: result.block },
     });
   } catch (error) {
     next(error);

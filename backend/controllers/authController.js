@@ -1,7 +1,20 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
-const speakeasy = require('speakeasy');
+const { authenticator } = require('otplib');
+
+// TOTP estandar (RFC 6238, 30 s, 6 digitos). window 1 tolera 30 s de desfase.
+authenticator.options = { window: 1 };
+const TOTP_STEP_SECONDS = 30;
+
+// Devuelve el paso de tiempo del codigo si es valido, o null. Sirve para
+// impedir reutilizar un mismo codigo (replay) dentro de su ventana.
+const verifyTotpStep = (code, secret) => {
+  if (!secret || !/^\d{6}$/.test(code)) return null;
+  const delta = authenticator.checkDelta(code, secret);
+  if (delta === null) return null;
+  return Math.floor(Date.now() / 1000 / TOTP_STEP_SECONDS) + delta;
+};
 const qrcode = require('qrcode');
 const User = require('../models/User');
 const Tenant = require('../models/Tenant');
@@ -192,17 +205,16 @@ exports.verifyTwoFactor = async (req, res, next) => {
       return res.status(401).json({ success: false, error: 'Invalid token' });
     }
 
-    const user = await User.findById(decoded.id).select('+two_factor.secret +two_factor.backup_codes');
+    const user = await User.findById(decoded.id).select('+two_factor.secret +two_factor.backup_codes +two_factor.last_used_step');
     if (!user || !user.two_factor?.enabled) {
       return res.status(401).json({ success: false, error: 'Invalid request' });
     }
 
-    const isValidTotp = speakeasy.totp.verify({
-      secret: user.two_factor.secret,
-      encoding: 'base32',
-      token: code,
-      window: 1, // tolera 30s de desfase de reloj
-    });
+    const totpStep = verifyTotpStep(code, user.two_factor.secret);
+    // Un codigo ya usado no vale otra vez (alguien que lo vea por encima del
+    // hombro no puede reutilizarlo en sus 30-60 s de validez).
+    const isValidTotp = totpStep !== null && totpStep > (user.two_factor.last_used_step || 0);
+    if (isValidTotp) user.two_factor.last_used_step = totpStep;
 
     let usedBackupCode = false;
     if (!isValidTotp) {
@@ -252,19 +264,18 @@ exports.setupTwoFactor = async (req, res, next) => {
       return res.status(400).json({ success: false, error: '2FA is already enabled. Disable it first.' });
     }
 
-    const secret = speakeasy.generateSecret({
-      name: `Elysio Admin (${req.user.email})`,
-    });
+    const secretBase32 = authenticator.generateSecret(20);
+    const otpauthUrl = authenticator.keyuri(req.user.email, 'Elysio Admin', secretBase32);
 
-    req.user.two_factor.secret = secret.base32;
+    req.user.two_factor.secret = secretBase32;
     req.user.two_factor.enabled = false;
     await req.user.save();
 
-    const qrDataUrl = await qrcode.toDataURL(secret.otpauth_url);
+    const qrDataUrl = await qrcode.toDataURL(otpauthUrl);
 
     res.json({
       success: true,
-      data: { qr_code: qrDataUrl, manual_entry_key: secret.base32 },
+      data: { qr_code: qrDataUrl, manual_entry_key: secretBase32 },
     });
   } catch (error) {
     next(error);
@@ -282,12 +293,9 @@ exports.enableTwoFactor = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Run 2FA setup first' });
     }
 
-    const isValid = speakeasy.totp.verify({
-      secret: user.two_factor.secret,
-      encoding: 'base32',
-      token: code,
-      window: 1,
-    });
+    const step = verifyTotpStep(code, user.two_factor.secret);
+    const isValid = step !== null;
+    if (isValid) user.two_factor.last_used_step = step;
 
     if (!isValid) {
       return res.status(400).json({ success: false, error: 'Invalid code, try again' });

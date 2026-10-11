@@ -113,6 +113,13 @@ const propertySchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  // Bloqueo corto mientras se crea una reserva o se bloquean fechas (ver
+  // utils/propertyLock.js). No es dato de negocio.
+  booking_lock_until: {
+    type: Date,
+    default: null,
+    select: false,
+  },
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 });

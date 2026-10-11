@@ -2,6 +2,7 @@ const Booking = require('../models/Booking');
 const Property = require('../models/Property');
 const User = require('../models/User');
 const { notifyAdmins } = require('../utils/pushNotifications');
+const { withPropertyLock } = require('../utils/propertyLock');
 const {
   sendBookingConfirmation, sendBookingApproved, sendBookingRejected, sendHostBookingNotification,
 } = require('../utils/email');
@@ -74,31 +75,6 @@ exports.createBooking = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Too many guests' });
     }
 
-    const isBlocked = property.blocked_dates.some((blocked) => {
-      const blockStart = new Date(blocked.start_date);
-      const blockEnd = new Date(blocked.end_date);
-      const requestStart = new Date(check_in);
-      const requestEnd = new Date(check_out);
-      return requestStart < blockEnd && requestEnd > blockStart;
-    });
-
-    if (isBlocked) {
-      return res.status(400).json({ success: false, error: 'Dates are not available' });
-    }
-
-    const existingBooking = await Booking.findOne({
-      property_id,
-      tenant_id: req.tenantId,
-      status: { $in: BLOCKING_STATUSES },
-      // Desigualdad estricta: una reserva puede entrar el dia que otra sale.
-      check_in: { $lt: new Date(check_out) },
-      check_out: { $gt: new Date(check_in) },
-    });
-
-    if (existingBooking) {
-      return res.status(400).json({ success: false, error: 'Property already booked for these dates' });
-    }
-
     const num_nights = Math.ceil(
       (new Date(check_out) - new Date(check_in)) / (1000 * 60 * 60 * 24)
     );
@@ -108,33 +84,60 @@ exports.createBooking = async (req, res, next) => {
 
     const total_amount = num_nights * property.price_per_night;
 
-    const hold_expires_at = new Date();
-    hold_expires_at.setHours(hold_expires_at.getHours() + 3);
+    // Comprobar disponibilidad y crear la reserva con la propiedad bloqueada:
+    // asi dos peticiones simultaneas (aunque lleguen a instancias distintas
+    // del backend) no pueden reservar las mismas fechas.
+    const outcome = await withPropertyLock(property._id, async () => {
+      // Se releen las fechas bloqueadas: el host pudo bloquear mientras tanto.
+      const fresh = await Property.findById(property._id).select('blocked_dates');
+      const requestStart = new Date(check_in);
+      const requestEnd = new Date(check_out);
+      const isBlocked = (fresh?.blocked_dates || []).some((blocked) => (
+        requestStart < new Date(blocked.end_date) && requestEnd > new Date(blocked.start_date)
+      ));
+      if (isBlocked) return { status: 400, error: 'Dates are not available' };
 
-    const booking = await Booking.create({
-      tenant_id: req.tenantId,
-      property_id,
-      tourist_id: req.user._id,
-      host_id: property.host_id,
-      booking_type,
-      check_in,
-      check_out,
-      num_nights,
-      num_guests: Number(num_guests),
-      total_amount,
-      payment_option,
-      tourist_data: pickTouristData(tourist_data),
-      hold_expires_at,
-      status: 'pending_payment',
-      status_history: [{ status: 'pending_payment', changed_at: new Date(), changed_by: 'system' }],
+      const existingBooking = await Booking.findOne({
+        property_id,
+        tenant_id: req.tenantId,
+        status: { $in: BLOCKING_STATUSES },
+        // Desigualdad estricta: una reserva puede entrar el dia que otra sale.
+        check_in: { $lt: requestEnd },
+        check_out: { $gt: requestStart },
+      });
+      if (existingBooking) return { status: 400, error: 'Property already booked for these dates' };
+
+      const hold_expires_at = new Date();
+      hold_expires_at.setHours(hold_expires_at.getHours() + 3);
+
+      const created = await Booking.create({
+        tenant_id: req.tenantId,
+        property_id,
+        tourist_id: req.user._id,
+        host_id: property.host_id,
+        booking_type,
+        check_in,
+        check_out,
+        num_nights,
+        num_guests: Number(num_guests),
+        total_amount,
+        payment_option,
+        tourist_data: pickTouristData(tourist_data),
+        hold_expires_at,
+        status: 'pending_payment',
+        status_history: [{ status: 'pending_payment', changed_at: new Date(), changed_by: 'system' }],
+      });
+      return { booking: created };
     });
 
-    // El chequeo de conflicto de arriba y este create() no son atomicos: si dos
-    // personas reservan las mismas fechas casi a la vez, ambas pueden pasar el
-    // chequeo. Por eso verificamos DESPUES de crear y ANTES de responder: si hay
-    // otra reserva vigente que solapa y se creo antes (menor _id), esta pierde.
-    // Desempatar por _id garantiza que sobrevive exactamente una, incluso si las
-    // dos se crearon en el mismo milisegundo.
+    if (outcome.error) {
+      return res.status(outcome.status).json({ success: false, error: outcome.error });
+    }
+    const { booking } = outcome;
+
+    // Segunda red de seguridad (por si algun dia se crea una reserva sin pasar
+    // por el bloqueo): si hay otra vigente que solapa y es anterior (menor _id),
+    // esta pierde. Desempatar por _id garantiza que sobrevive exactamente una.
     const earlierConflict = await Booking.findOne({
       _id: { $lt: booking._id },
       property_id,
