@@ -107,11 +107,18 @@ const propertySchema = new mongoose.Schema({
   },
   suspension_reason: String,
   suspended_at: Date,
+  // true cuando el host edita contenido de una propiedad ya aprobada; el
+  // admin lo limpia al revisarla (approveProperty).
+  changes_pending_review: {
+    type: Boolean,
+    default: false,
+  },
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 });
 
 propertySchema.index({ tenant_id: 1, status: 1, suspended: 1, 'location.city': 1 });
 propertySchema.index({ tenant_id: 1, price_per_night: 1 });
+propertySchema.index({ host_id: 1 });
 
 module.exports = mongoose.model('Property', propertySchema);

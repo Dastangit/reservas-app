@@ -15,7 +15,8 @@ const tenantSchema = new mongoose.Schema({
   admin_email: {
     type: String,
     required: [true, 'Admin email is required'],
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Invalid email'],
+    // Mismo criterio que User: cualquier TLD de 2+ letras.
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, 'Invalid email'],
   },
   admin_phone: String,
   admin_whatsapp: String,

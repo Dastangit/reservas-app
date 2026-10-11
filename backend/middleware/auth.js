@@ -2,12 +2,16 @@ const jwt = require('jsonwebtoken');
 const env = require('../config/env');
 const User = require('../models/User');
 
-const protect = async (req, res, next) => {
-  let token;
+const getBearerToken = (req) => {
+  const header = req.headers.authorization;
+  return header && header.startsWith('Bearer ') ? header.split(' ')[1] : null;
+};
 
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
-  }
+const protect = async (req, res, next) => {
+  // optionalAuth ya pudo haber cargado al usuario en esta misma peticion.
+  if (req.user) return next();
+
+  const token = getBearerToken(req);
 
   if (!token) {
     return res.status(401).json({ success: false, error: 'Not authorized, no token' });
@@ -38,6 +42,23 @@ const protect = async (req, res, next) => {
   }
 };
 
+// Para rutas publicas que muestran mas datos al dueno/admin: si hay un token
+// de sesion valido carga req.user; si no, sigue como anonimo (nunca responde 401).
+const optionalAuth = async (req, res, next) => {
+  const token = getBearerToken(req);
+  if (!token) return next();
+  try {
+    const decoded = jwt.verify(token, env.jwtSecret, { algorithms: ['HS256'] });
+    if (!decoded.purpose) {
+      const user = await User.findById(decoded.id);
+      if (user && user.status === 'active') req.user = user;
+    }
+  } catch (_error) {
+    // token vencido o invalido: se trata como anonimo
+  }
+  next();
+};
+
 const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
@@ -60,4 +81,4 @@ const requireApproved = (req, res, next) => {
   next();
 };
 
-module.exports = { protect, authorize, requireApproved };
+module.exports = { protect, optionalAuth, authorize, requireApproved };

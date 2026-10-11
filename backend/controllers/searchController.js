@@ -1,17 +1,18 @@
 const Property = require('../models/Property');
 const Booking = require('../models/Booking');
 const Experience = require('../models/Experience');
-const { escapeRegex } = require('../utils/helpers');
+const { escapeRegex, parsePagination } = require('../utils/helpers');
 
 exports.search = async (req, res, next) => {
   try {
     const {
       check_in, check_out, num_guests, city,
       min_price, max_price, type, amenities,
-      rating_min, sort_by, page = 1, limit = 10,
+      rating_min, sort_by,
     } = req.query;
+    const { page, limit, skip } = parsePagination(req.query, { defaultLimit: 10, maxLimit: 50 });
 
-    const query = { tenant_id: req.tenantId, status: 'active' };
+    const query = { tenant_id: req.tenantId, status: 'active', suspended: { $ne: true } };
 
     if (city) query['location.city'] = new RegExp(escapeRegex(city), 'i');
     if (num_guests) query.max_guests = { $gte: Number(num_guests) };
@@ -20,9 +21,27 @@ exports.search = async (req, res, next) => {
       if (min_price) query.price_per_night.$gte = Number(min_price);
       if (max_price) query.price_per_night.$lte = Number(max_price);
     }
-    if (type) query.type = type;
-    if (amenities) query.amenities = { $in: amenities.split(',') };
+    if (type) query.type = String(type);
+    if (amenities) query.amenities = { $in: String(amenities).split(',') };
     if (rating_min) query.rating = { $gte: Number(rating_min) };
+
+    // La disponibilidad se filtra EN la consulta (no despues de paginar), asi
+    // el total y las paginas son correctos. Cuenta reservas vigentes y tambien
+    // las fechas bloqueadas a mano por el host.
+    const checkIn = check_in ? new Date(check_in) : null;
+    const checkOut = check_out ? new Date(check_out) : null;
+    if (checkIn && checkOut && !Number.isNaN(checkIn.getTime()) && !Number.isNaN(checkOut.getTime())) {
+      const bookedIds = await Booking.distinct('property_id', {
+        tenant_id: req.tenantId,
+        status: { $in: ['pending_payment', 'pending_approval', 'approved'] },
+        check_in: { $lt: checkOut },
+        check_out: { $gt: checkIn },
+      });
+      query._id = { $nin: bookedIds };
+      query.blocked_dates = {
+        $not: { $elemMatch: { start_date: { $lt: checkOut }, end_date: { $gt: checkIn } } },
+      };
+    }
 
     let sortOption = { created_at: -1 };
     if (sort_by === 'price_asc') sortOption = { price_per_night: 1 };
@@ -30,23 +49,15 @@ exports.search = async (req, res, next) => {
     if (sort_by === 'rating_desc') sortOption = { rating: -1 };
     if (sort_by === 'newest') sortOption = { created_at: -1 };
 
-    const skip = (Number(page) - 1) * Number(limit);
-
-    let properties = await Property.find(query)
-      .sort(sortOption)
-      .skip(skip)
-      .limit(Number(limit))
-      .populate('host_id', 'name');
-
-    let total_count = await Property.countDocuments(query);
-
-    if (check_in && check_out) {
-      const availablePropertyIds = await getAvailablePropertyIds(
-        req.tenantId, check_in, check_out, properties.map((p) => p._id)
-      );
-      properties = properties.filter((p) => availablePropertyIds.includes(p._id.toString()));
-      total_count = properties.length;
-    }
+    const [properties, total_count] = await Promise.all([
+      Property.find(query)
+        .select('-admin_notes -rejection_reason -suspension_reason -changes_pending_review')
+        .sort(sortOption)
+        .skip(skip)
+        .limit(limit)
+        .populate('host_id', 'name'),
+      Property.countDocuments(query),
+    ]);
 
     const filters_applied = {};
     if (city) filters_applied.city = city;
@@ -56,7 +67,7 @@ exports.search = async (req, res, next) => {
     if (min_price) filters_applied.min_price = Number(min_price);
     if (max_price) filters_applied.max_price = Number(max_price);
     if (type) filters_applied.type = type;
-    if (amenities) filters_applied.amenities = amenities.split(',');
+    if (amenities) filters_applied.amenities = String(amenities).split(',');
     if (rating_min) filters_applied.rating_min = Number(rating_min);
     if (sort_by) filters_applied.sort_by = sort_by;
 
@@ -65,8 +76,8 @@ exports.search = async (req, res, next) => {
       data: {
         results: properties,
         total_count,
-        page: Number(page),
-        per_page: Number(limit),
+        page,
+        per_page: limit,
         filters_applied,
       },
     });
@@ -74,19 +85,6 @@ exports.search = async (req, res, next) => {
     next(error);
   }
 };
-
-async function getAvailablePropertyIds(tenantId, checkIn, checkOut, propertyIds) {
-  const overlappingBookings = await Booking.find({
-    tenant_id: tenantId,
-    property_id: { $in: propertyIds },
-    status: { $in: ['pending_payment', 'pending_approval', 'approved'] },
-    check_in: { $lt: new Date(checkOut) },
-    check_out: { $gt: new Date(checkIn) },
-  }).select('property_id');
-
-  const bookedIds = new Set(overlappingBookings.map((b) => b.property_id.toString()));
-  return propertyIds.filter((id) => !bookedIds.has(id.toString()));
-}
 
 // Destinos para el carrusel de la home: ciudades donde ya hay al menos una
 // propiedad o excursion activa, con una foto real de esa ciudad. Nunca

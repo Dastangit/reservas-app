@@ -1,11 +1,11 @@
 const express = require('express');
 const {
   getDashboard, getPendingProperties, approveProperty,
-  rejectProperty, getAllBookings, updateSettings,
+  rejectProperty, getAllBookings, getSettings, updateSettings,
   getHosts, approveHost, rejectHost, suspendHost, deleteHost,
   getAllProperties, adminEditProperty, adminDeleteProperty,
   adminBlockDates, adminUnblockDates, adminGetAvailabilityCalendar,
-  getBookingWhatsAppLink, getHostPayouts, getBookingTouristContactLinks,
+  getBookingWhatsAppLink, getBookingTouristContactLinks,
   getOrphanedPayments, reviewOrphanedPayment, confirmManualPayment,
   getHostCommissions, markHostCommissionPaid, markHostCommissionWaived, getHostCommissionWhatsAppLink,
   getAuditLog,
@@ -22,8 +22,9 @@ const { setTenant } = require('../middleware/tenant');
 
 const router = express.Router();
 
-router.use(setTenant);
+// protect primero: asi setTenant usa el tenant del usuario autenticado.
 router.use(protect);
+router.use(setTenant);
 router.use(authorize('admin'));
 
 router.get('/dashboard', getDashboard);
@@ -42,7 +43,6 @@ router.post('/hosts/:id/reject', rejectHost);
 router.post('/hosts/:id/suspend', suspendHost);
 router.delete('/hosts/:id', deleteHost);
 router.get('/bookings', getAllBookings);
-router.get('/host-payouts', getHostPayouts);
 router.get('/bookings/:id/whatsapp-link', getBookingWhatsAppLink);
 router.get('/bookings/:id/tourist-contact-links', getBookingTouristContactLinks);
 router.post('/bookings/:id/confirm-manual-payment', confirmManualPayment);
@@ -82,6 +82,7 @@ router.post('/organizer-commissions/:id/waive', markOrganizerCommissionWaived);
 router.get('/organizer-commissions/:id/whatsapp-link', getOrganizerCommissionWhatsAppLink);
 
 router.get('/pending-counts', getPendingCounts);
+router.get('/settings', getSettings);
 router.put('/settings', updateSettings);
 
 module.exports = router;

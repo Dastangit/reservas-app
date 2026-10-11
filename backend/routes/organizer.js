@@ -12,8 +12,9 @@ const validate = require('../middleware/validate');
 
 const router = express.Router();
 
-router.use(setTenant);
+// protect primero: asi setTenant usa el tenant del usuario autenticado.
 router.use(protect);
+router.use(setTenant);
 router.use(authorize('organizer'));
 
 const experienceValidators = [

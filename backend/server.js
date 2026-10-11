@@ -1,4 +1,4 @@
-require('./instrument');
+const Sentry = require('./instrument');
 console.log('[Server] Starting...');
 
 const express = require('express');
@@ -8,11 +8,8 @@ const morgan = require('morgan');
 const mongoSanitize = require('express-mongo-sanitize');
 const connectDB = require('./config/db');
 const env = require('./config/env');
-const { loginLimiter, apiLimiter } = require('./middleware/rateLimiter');
-const { startHoldExpiryCron } = require('./jobs/holdExpiry');
-const { startHostCommissionCron } = require('./jobs/hostCommissionCron');
-const { startOrganizerCommissionCron } = require('./jobs/organizerCommissionCron');
-const { startExperienceRecurrenceCron } = require('./jobs/experienceRecurrenceCron');
+const { startAllJobs } = require('./jobs');
+const { apiLimiter, webhookLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
@@ -23,8 +20,14 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Morgan PRIMERO — para capturar TODAS las requests (incluyendo OPTIONS
-// de CORS preflight) antes de que cors/helmet las consuman.
-app.use(morgan('dev'));
+// de CORS preflight) antes de que cors/helmet las consuman. En produccion se
+// registra solo la ruta (sin query string, que puede llevar tokens).
+if (env.nodeEnv === 'production') {
+  morgan.token('path', (req) => req.originalUrl.split('?')[0]);
+  app.use(morgan(':remote-addr :method :path :status :res[content-length] - :response-time ms'));
+} else {
+  app.use(morgan('dev'));
+}
 
 app.use(helmet());
 
@@ -50,8 +53,9 @@ app.use(cors({
   },
   credentials: true,
 }));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+// Las imagenes van por multipart (multer), asi que el JSON nunca necesita ser grande.
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 // Limpia cualquier operador Mongo ($gt, $ne, etc.) de body/query/params antes
 // de que llegue a Mongoose -- previene NoSQL injection.
 app.use(mongoSanitize());
@@ -75,25 +79,33 @@ app.use('/api/push', apiLimiter, require('./routes/push'));
 app.use('/api/experiences', apiLimiter, require('./routes/experiences'));
 app.use('/api/experience-bookings', apiLimiter, require('./routes/experienceBookings'));
 app.use('/api/organizer', apiLimiter, require('./routes/organizer'));
-app.use('/api/webhooks', require('./routes/webhooks'));
+app.use('/api/webhooks', webhookLimiter, require('./routes/webhooks'));
 
 app.use('/api/*', (req, res) => {
   res.status(404).json({ success: false, error: 'API route not found' });
 });
 
+// Sentry captura los errores antes de que nuestro errorHandler responda.
+if (Sentry && typeof Sentry.setupExpressErrorHandler === 'function') {
+  Sentry.setupExpressErrorHandler(app);
+}
+
 const errorHandler = require('./middleware/errorHandler');
 app.use(errorHandler);
 
 const startServer = async () => {
+  env.validateEnv();
   await connectDB();
 
   const PORT = env.port;
   app.listen(PORT, () => {
     console.log(`Server running in ${env.nodeEnv} mode on port ${PORT}`);
-    startHoldExpiryCron();
-    startHostCommissionCron();
-    startOrganizerCommissionCron();
-    startExperienceRecurrenceCron();
+    // RUN_JOBS=false cuando los crons corren en worker.js (proceso aparte).
+    if (process.env.RUN_JOBS !== 'false') {
+      startAllJobs();
+    } else {
+      console.log('[Server] Crons desactivados (RUN_JOBS=false), los corre worker.js');
+    }
   });
 };
 

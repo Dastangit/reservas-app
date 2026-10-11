@@ -10,6 +10,10 @@ const Property = require('../models/Property');
 // /search/destinations). Sigue el mismo patron que seedProperties.js:
 // mismo tenant/host, idempotente por nombre.
 const seed = async () => {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('Seed demo bloqueado en produccion.');
+    process.exit(1);
+  }
   try {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('MongoDB connected for seeding destination demo properties');
@@ -20,7 +24,7 @@ const seed = async () => {
       process.exit(1);
     }
 
-    let host = await User.findOne({ email: 'host@elysioexperiences.com' });
+    const host = await User.findOne({ email: 'host@elysioexperiences.com' });
     if (!host) {
       console.error('Host de prueba no encontrado. Corre seedProperties.js primero.');
       process.exit(1);

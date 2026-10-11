@@ -17,3 +17,5 @@ if (process.env.SENTRY_DSN) {
 } else {
   console.log('[Sentry] SENTRY_DSN no configurado -- monitoreo de errores deshabilitado');
 }
+
+module.exports = Sentry;

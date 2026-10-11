@@ -1,4 +1,9 @@
 const Experience = require('../models/Experience');
+const { zonedParts, zonedTimeToUtc } = require('./timezone');
+
+// Nunca se generan ocurrencias mas alla de este horizonte, aunque la
+// plantilla pida mas (evita crear miles de documentos de golpe).
+const MAX_HORIZON_DAYS = 90;
 
 // Genera las instancias de Experience faltantes para una plantilla
 // ExperienceRecurrence, dentro de su ventana generate_horizon_days.
@@ -10,28 +15,38 @@ async function generateOccurrences(recurrence) {
   if (recurrence.status !== 'active') return 0;
 
   const now = new Date();
-  const horizonEnd = new Date(now.getTime() + recurrence.generate_horizon_days * 24 * 60 * 60 * 1000);
+  const horizonDays = Math.min(Math.max(Number(recurrence.generate_horizon_days) || 30, 1), MAX_HORIZON_DAYS);
+  const horizonEnd = new Date(now.getTime() + horizonDays * 24 * 60 * 60 * 1000);
 
-  const templateStart = new Date(recurrence.recurrence.start_date);
-  const rangeStart = templateStart > now ? templateStart : now;
+  // start_date / end_date son fechas de calendario (se guardan a medianoche
+  // UTC): se usan sus partes UTC tal cual, sin convertir de zona.
+  const dayOf = (date) => {
+    const d = new Date(date);
+    return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  };
+  const today = zonedParts(now);
+  const horizon = zonedParts(horizonEnd);
 
-  const rangeEnd = (recurrence.recurrence.end_date && new Date(recurrence.recurrence.end_date) < horizonEnd)
-    ? new Date(recurrence.recurrence.end_date)
-    : horizonEnd;
+  const first = Math.max(dayOf(recurrence.recurrence.start_date), Date.UTC(today.year, today.month - 1, today.day));
+  let last = Date.UTC(horizon.year, horizon.month - 1, horizon.day);
+  if (recurrence.recurrence.end_date) last = Math.min(last, dayOf(recurrence.recurrence.end_date));
 
-  if (rangeStart > rangeEnd) return 0;
+  if (first > last) return 0;
 
-  const daysOfWeek = recurrence.recurrence.days_of_week || [];
-  const [hours, minutes] = (recurrence.recurrence.time_of_day || '09:00').split(':').map(Number);
+  const daysOfWeek = (recurrence.recurrence.days_of_week || []).map(Number);
+  const [hoursRaw, minutesRaw] = String(recurrence.recurrence.time_of_day || '09:00').split(':').map(Number);
+  const hours = Number.isInteger(hoursRaw) && hoursRaw >= 0 && hoursRaw <= 23 ? hoursRaw : 9;
+  const minutes = Number.isInteger(minutesRaw) && minutesRaw >= 0 && minutesRaw <= 59 ? minutesRaw : 0;
 
+  // Se recorre el calendario de Cuba (no el del servidor en UTC): el dia de la
+  // semana y la hora "09:00" son los de la zona de las excursiones.
   let created = 0;
-  const cursor = new Date(rangeStart);
-  cursor.setHours(0, 0, 0, 0);
+  let cursor = first;
 
-  while (cursor <= rangeEnd) {
-    if (daysOfWeek.includes(cursor.getDay())) {
-      const occurrenceDate = new Date(cursor);
-      occurrenceDate.setHours(hours || 9, minutes || 0, 0, 0);
+  while (cursor <= last) {
+    const day = new Date(cursor);
+    if (daysOfWeek.includes(day.getUTCDay())) {
+      const occurrenceDate = zonedTimeToUtc(day.getUTCFullYear(), day.getUTCMonth() + 1, day.getUTCDate(), hours, minutes);
 
       if (occurrenceDate >= now) {
         const exists = await Experience.findOne({
@@ -63,7 +78,7 @@ async function generateOccurrences(recurrence) {
         }
       }
     }
-    cursor.setDate(cursor.getDate() + 1);
+    cursor += 24 * 60 * 60 * 1000;
   }
 
   return created;

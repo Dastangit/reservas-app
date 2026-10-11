@@ -4,12 +4,15 @@ const validate = (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
+    const list = errors.array().map((err) => ({
+      field: err.path,
+      message: err.msg,
+    }));
     return res.status(400).json({
       success: false,
-      errors: errors.array().map((err) => ({
-        field: err.path,
-        message: err.msg,
-      })),
+      // `error` es lo que muestra el frontend; `errors` conserva el detalle por campo.
+      error: list.map((e) => e.message).join('. '),
+      errors: list,
     });
   }
 

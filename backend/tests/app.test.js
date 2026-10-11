@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
-let mongoServer;
+
 
 beforeAll(async () => {
   process.env.JWT_SECRET = 'test-secret';

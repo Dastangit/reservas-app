@@ -10,11 +10,15 @@ const COMMISSION_RATE = 0.10;
 // único (ver plan del módulo, sección 2). Se agrupa por el mes en que
 // ocurrió la excursión (experience.date), no por cuándo se completó la
 // reserva.
+// Se recalcula el mes en curso y el anterior (ver hostCommissionCron.js).
 const recomputeCommissions = async () => {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+  const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  await recomputeCommissionsForMonth(prev.getFullYear(), prev.getMonth() + 1);
+  await recomputeCommissionsForMonth(now.getFullYear(), now.getMonth() + 1);
+};
 
+const recomputeCommissionsForMonth = async (year, month) => {
   const rangeStart = new Date(year, month - 1, 1);
   const rangeEnd = new Date(year, month, 1);
 
@@ -76,7 +80,14 @@ const recomputeCommissions = async () => {
     if (existing) {
       // Si ya está paid/waived no se toca el status ni los recordatorios,
       // solo se refrescan los montos por si aparecieron reservas nuevas.
+      const previousTotal = (existing.totals || []).reduce((sum, t) => sum + t.commission_amount, 0);
+      const newTotal = g.totals.reduce((sum, t) => sum + t.commission_amount, 0);
       existing.experience_bookings = Array.from(g.bookings);
+      // Si ya estaba pagada y crecio, la diferencia queda pendiente de cobro.
+      if (newTotal > previousTotal && existing.status === 'paid') {
+        existing.notes = `${existing.notes ? `${existing.notes} | ` : ''}Recalculada tras el pago: hay reservas nuevas`;
+        existing.status = 'pending';
+      }
       existing.totals = g.totals;
       await existing.save();
     } else {

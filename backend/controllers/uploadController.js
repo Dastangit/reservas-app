@@ -2,7 +2,6 @@ const multer = require('multer');
 const Property = require('../models/Property');
 const Experience = require('../models/Experience');
 const { uploadImageBuffer, deleteImage } = require('../utils/cloudinary');
-const { escapeRegex } = require('../utils/helpers');
 
 // Formatos permitidos. SVG queda fuera a proposito: puede contener scripts.
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -71,18 +70,17 @@ exports.handleImageUpload = async (req, res, _next) => {
 
 const PUBLIC_ID_PATTERN = /^reservas-app\/[A-Za-z0-9_\-/]{1,200}$/;
 
-// Una imagen es del usuario si esta en su carpeta, o si aparece en una propiedad
-// (host) o experiencia (organizador) suya -- cubre las subidas anteriores a las
-// carpetas por usuario.
+// Una imagen es del usuario si esta en su carpeta, o si su public_id figura en
+// una propiedad (host) o experiencia (organizador) suya -- cubre subidas
+// anteriores a las carpetas por usuario. Desde utils/images.js un usuario ya no
+// puede guardar public_ids ajenos, y la URL ya no se usa como prueba (es un
+// campo libre que cualquiera podia copiar de otra propiedad).
 async function userOwnsImage(user, publicId) {
   if (publicId.startsWith(`reservas-app/uploads/${user._id}/`)) return true;
+  if (publicId.startsWith('reservas-app/uploads/')) return false;
 
-  const urlPattern = new RegExp(escapeRegex(publicId));
   const [property, experience] = await Promise.all([
-    Property.exists({
-      host_id: user._id,
-      $or: [{ 'images.public_id': publicId }, { 'images.url': urlPattern }],
-    }),
+    Property.exists({ host_id: user._id, 'images.public_id': publicId }),
     Experience.exists({ organizer_id: user._id, 'images.public_id': publicId }),
   ]);
   return Boolean(property || experience);

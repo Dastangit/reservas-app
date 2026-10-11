@@ -6,7 +6,12 @@ const Tenant = require('../models/Tenant');
 const User = require('../models/User');
 const Property = require('../models/Property');
 
+// Datos DEMO: nunca correr contra la base de produccion.
 const seed = async () => {
+  if (process.env.NODE_ENV === 'production' || !process.env.SEED_DEMO_HOST_PASSWORD) {
+    console.error('Seed demo bloqueado: no se corre en produccion y requiere SEED_DEMO_HOST_PASSWORD.');
+    process.exit(1);
+  }
   try {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('MongoDB connected for seeding properties');
@@ -22,7 +27,7 @@ const seed = async () => {
       host = await User.create({
         tenant_id: tenant._id,
         email: 'host@elysioexperiences.com',
-        password_hash: 'Host123!',
+        password_hash: process.env.SEED_DEMO_HOST_PASSWORD,
         name: 'Maria Rodriguez',
         role: 'host',
         phone: '+53 5555 1234',
@@ -142,7 +147,7 @@ const seed = async () => {
 
     console.log('\n--- Credenciales Host ---');
     console.log('Email:    host@elysioexperiences.com');
-    console.log('Password: Host123!');
+    console.log('Password: (la de SEED_DEMO_HOST_PASSWORD)');
     console.log('--------------------------\n');
 
     process.exit(0);

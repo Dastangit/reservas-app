@@ -5,8 +5,9 @@ const { uploadLimiter } = require('../middleware/rateLimiter');
 const { setTenant } = require('../middleware/tenant');
 const { uploadMiddleware, handleImageUpload, handleImageDelete } = require('../controllers/uploadController');
 
-router.use(setTenant);
+// protect primero: asi setTenant usa el tenant del usuario autenticado.
 router.use(protect);
+router.use(setTenant);
 router.use(authorize('host', 'organizer', 'admin'));
 
 router.use(requireApproved);

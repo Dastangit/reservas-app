@@ -1,10 +1,12 @@
 const Review = require('../models/Review');
 const Booking = require('../models/Booking');
-const Property = require('../models/Property');
+const { recomputePropertyRating } = require('../utils/reviews');
 
 exports.submitReview = async (req, res, next) => {
   try {
-    const { booking_id, rating, text } = req.body;
+    const { booking_id } = req.body;
+    const rating = Number(req.body.rating);
+    const text = String(req.body.text || '').trim().slice(0, 3000);
 
     const booking = await Booking.findOne({
       _id: booking_id,
@@ -32,6 +34,10 @@ exports.submitReview = async (req, res, next) => {
 
     if (existingReview) {
       return res.status(400).json({ success: false, error: 'You have already reviewed this booking' });
+    }
+
+    if (!text) {
+      return res.status(400).json({ success: false, error: 'Review text is required' });
     }
 
     const pairReview = await Review.findOne({
@@ -62,17 +68,7 @@ exports.submitReview = async (req, res, next) => {
       review.revealed_at = new Date();
       await review.save();
 
-      const allReviews = await Review.find({
-        property_id: booking.property_id,
-        status: 'visible',
-      });
-
-      const avgRating = allReviews.reduce((acc, r) => acc + r.rating, 0) / allReviews.length;
-
-      await Property.findByIdAndUpdate(booking.property_id, {
-        rating: Math.round(avgRating * 10) / 10,
-        reviews_count: allReviews.length,
-      });
+      await recomputePropertyRating(booking.property_id);
     }
 
     res.status(201).json({
@@ -93,6 +89,9 @@ exports.getPropertyReviews = async (req, res, next) => {
     const reviews = await Review.find({
       property_id: req.params.id,
       status: 'visible',
+      // En la ficha de la propiedad solo cuentan las resenas de huespedes (la
+      // del host es sobre el turista, no sobre el alojamiento).
+      reviewer_role: 'tourist',
       tenant_id: req.tenantId,
     }).populate('reviewer_id', 'name profile.avatar_url');
 

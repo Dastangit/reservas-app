@@ -5,7 +5,15 @@ dotenv.config();
 const Tenant = require('../models/Tenant');
 const User = require('../models/User');
 
+// La contrasena del admin inicial NUNCA va en el codigo: se pasa por env.
+// Uso: SEED_ADMIN_PASSWORD='...' node scripts/seed.js
+const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD;
+
 const seed = async () => {
+  if (!ADMIN_PASSWORD || ADMIN_PASSWORD.length < 12) {
+    console.error('Define SEED_ADMIN_PASSWORD (minimo 12 caracteres) antes de correr el seed.');
+    process.exit(1);
+  }
   try {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('MongoDB connected for seeding');
@@ -42,7 +50,7 @@ const seed = async () => {
       admin = await User.create({
         tenant_id: tenant._id,
         email: adminEmail,
-        password_hash: 'Admin123!',
+        password_hash: ADMIN_PASSWORD,
         name: 'Support Team',
         role: 'admin',
         status: 'active',
@@ -57,7 +65,7 @@ const seed = async () => {
 
     console.log('\n--- Admin Credentials ---');
     console.log('Email:    elysio.support@gmail.com');
-    console.log('Password: Admin123!');
+    console.log('Password: (la de SEED_ADMIN_PASSWORD)');
     console.log('--------------------------\n');
 
     process.exit(0);

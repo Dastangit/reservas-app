@@ -48,10 +48,32 @@ async function createInvoice({ amount, description, remote_id, webhook, expire_a
 // AVISO: falta confirmar, con un pago de prueba real completado, como se ve
 // el campo de estado (status/state) de un item pagado, y si trae remote_id
 // o solo transaction_uuid -- ajustar el filtro de abajo cuando se sepa.
-async function findTransactionByRemoteId(remoteId, { page = 1, take = 30 } = {}) {
-  const response = await client.post('/transactions', { page, take });
-  const transactions = response.data?.transactions || [];
-  return transactions.find((t) => String(t.remote_id) === String(remoteId)) || null;
+// Cuantas paginas de /transactions se revisan como maximo. La lista viene
+// ordenada de mas reciente a mas antigua; con volumen, mirar solo la primera
+// pagina dejaba pagos sin encontrar.
+const MAX_TRANSACTION_PAGES = 5;
+const PAGE_SIZE = 50;
+
+// Devuelve un Map remote_id -> transaccion para los ids pedidos, recorriendo
+// como mucho MAX_TRANSACTION_PAGES paginas (se detiene antes si ya los encontro).
+async function findTransactionsByRemoteIds(remoteIds) {
+  const wanted = new Set(remoteIds.map(String));
+  const found = new Map();
+  for (let page = 1; page <= MAX_TRANSACTION_PAGES && found.size < wanted.size; page += 1) {
+    const response = await client.post('/transactions', { page, take: PAGE_SIZE });
+    const transactions = response.data?.transactions || [];
+    for (const t of transactions) {
+      const id = String(t.remote_id);
+      if (wanted.has(id) && !found.has(id)) found.set(id, t);
+    }
+    if (transactions.length < PAGE_SIZE) break;
+  }
+  return found;
 }
 
-module.exports = { getAppInfo, createInvoice, findTransactionByRemoteId };
+async function findTransactionByRemoteId(remoteId) {
+  const found = await findTransactionsByRemoteIds([remoteId]);
+  return found.get(String(remoteId)) || null;
+}
+
+module.exports = { getAppInfo, createInvoice, findTransactionByRemoteId, findTransactionsByRemoteIds };

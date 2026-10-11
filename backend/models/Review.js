@@ -59,6 +59,8 @@ const reviewSchema = new mongoose.Schema({
 });
 
 reviewSchema.index({ property_id: 1, status: 1 });
-reviewSchema.index({ booking_id: 1 });
+// Una resena por persona y reserva (evita duplicados por doble envio).
+reviewSchema.index({ booking_id: 1, reviewer_id: 1 }, { unique: true });
+reviewSchema.index({ status: 1, submitted_at: 1 });
 
 module.exports = mongoose.model('Review', reviewSchema);

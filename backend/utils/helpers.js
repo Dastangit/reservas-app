@@ -47,3 +47,12 @@ module.exports = {
   generateHoldExpiry,
   isHoldExpired,
 };
+
+// Paginacion segura para query params: enteros, page >= 1, 1 <= limit <= max.
+const parsePagination = (query, { defaultLimit = 20, maxLimit = 100 } = {}) => {
+  const page = Math.max(1, Math.floor(Number(query.page)) || 1);
+  const limit = Math.min(maxLimit, Math.max(1, Math.floor(Number(query.limit)) || defaultLimit));
+  return { page, limit, skip: (page - 1) * limit };
+};
+
+module.exports.parsePagination = parsePagination;

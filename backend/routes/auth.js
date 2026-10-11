@@ -7,15 +7,18 @@ const {
 } = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/auth');
 const validate = require('../middleware/validate');
-const { loginLimiter, passwordResetLimiter } = require('../middleware/rateLimiter');
+const { loginLimiter, passwordResetLimiter, twoFactorLimiter, registerLimiter } = require('../middleware/rateLimiter');
+
+const MIN_PASSWORD = 8;
 
 const router = express.Router();
 
-router.post('/register', [
+router.post('/register', registerLimiter, [
   body('email').trim().toLowerCase().isEmail().withMessage('Valid email is required'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  body('name').notEmpty().withMessage('Name is required'),
-  body('role').optional().isIn(['tourist', 'host']).withMessage('Role must be tourist or host'),
+  body('password').isString().isLength({ min: MIN_PASSWORD, max: 128 }).withMessage(`Password must be at least ${MIN_PASSWORD} characters`),
+  body('name').isString().trim().isLength({ min: 1, max: 100 }).withMessage('Name is required'),
+  body('phone').optional({ values: 'falsy' }).isString().trim().isLength({ max: 30 }).withMessage('Invalid phone'),
+  body('role').optional().isIn(['tourist', 'host', 'organizer']).withMessage('Role must be tourist, host or organizer'),
 ], validate, register);
 
 router.post('/login', loginLimiter, [
@@ -33,7 +36,7 @@ router.post('/onboarding', protect, [
   body('field').isIn(['welcome_seen', 'terms_viewed']).withMessage('Invalid field'),
 ], validate, updateOnboarding);
 
-router.post('/verify-2fa', [
+router.post('/verify-2fa', twoFactorLimiter, [
   body('pending_token').notEmpty().withMessage('pending_token is required'),
   body('code').notEmpty().withMessage('code is required'),
 ], validate, verifyTwoFactor);
@@ -54,7 +57,8 @@ router.post('/forgot-password', passwordResetLimiter, [
 
 router.post('/reset-password', passwordResetLimiter, [
   body('token').notEmpty().withMessage('token is required'),
-  body('new_password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('token').isString().withMessage('token is required'),
+  body('new_password').isString().isLength({ min: MIN_PASSWORD, max: 128 }).withMessage(`Password must be at least ${MIN_PASSWORD} characters`),
 ], validate, resetPassword);
 
 module.exports = router;

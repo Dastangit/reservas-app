@@ -3,17 +3,49 @@ const ExperienceRecurrence = require('../models/ExperienceRecurrence');
 const ExperienceBooking = require('../models/ExperienceBooking');
 const { notifyAdmins } = require('../utils/pushNotifications');
 const { generateOccurrences } = require('../utils/experienceRecurrence');
+const { sanitizeImages } = require('../utils/images');
+const { parseLocalDateTime } = require('../utils/timezone');
+
+// Lista blanca de lo que un organizador puede enviar (antes se copiaba todo el
+// body menos unos pocos campos: admin_notes, rejection_reason, etc. eran editables).
+const EXPERIENCE_FIELDS = [
+  'title', 'description', 'category', 'location', 'date', 'duration_hours', 'max_participants',
+  'pricing', 'allows_mixed_audience', 'images', 'includes', 'requirements', 'cancellation_policy',
+];
+const RECURRENCE_FIELDS = EXPERIENCE_FIELDS.filter((f) => f !== 'date').concat(['recurrence']);
+const REVIEWABLE_FIELDS = ['title', 'description', 'location', 'images', 'pricing', 'date'];
+
+const pickFields = (source, keys) => Object.fromEntries(
+  keys.filter((k) => source[k] !== undefined).map((k) => [k, source[k]]),
+);
+
+// Normaliza fechas y limpia images; `existing` son las imagenes que ya tenia el documento.
+function normalizeExperienceInput(fields, userId, existingImages) {
+  if (fields.date !== undefined) fields.date = parseLocalDateTime(fields.date);
+  if (fields.images !== undefined) fields.images = sanitizeImages(fields.images, userId, existingImages);
+  if (fields.recurrence) {
+    const r = fields.recurrence;
+    fields.recurrence = {
+      frequency: r.frequency,
+      days_of_week: Array.isArray(r.days_of_week)
+        ? r.days_of_week.map(Number).filter((d) => Number.isInteger(d) && d >= 0 && d <= 6)
+        : [],
+      time_of_day: /^\d{2}:\d{2}$/.test(String(r.time_of_day || '')) ? r.time_of_day : '09:00',
+      start_date: r.start_date,
+      end_date: r.end_date || undefined,
+    };
+  }
+  return fields;
+}
 
 // ===== Excursiones de fecha única =====
 
 exports.createExperience = async (req, res, next) => {
   try {
-    const allowedFields = { ...req.body };
-    delete allowedFields.status;
-    delete allowedFields.organizer_id;
-    delete allowedFields.tenant_id;
-    delete allowedFields.current_participants;
-    delete allowedFields.recurrence_id;
+    const allowedFields = normalizeExperienceInput(pickFields(req.body, EXPERIENCE_FIELDS), req.user._id);
+    if (!allowedFields.date || Number.isNaN(allowedFields.date.getTime()) || allowedFields.date <= new Date()) {
+      return res.status(400).json({ success: false, error: 'Date must be in the future' });
+    }
 
     const experience = await Experience.create({
       ...allowedFields,
@@ -49,12 +81,23 @@ exports.updateExperience = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Experience not found' });
     }
 
-    const allowedUpdates = { ...req.body };
-    delete allowedUpdates.status;
-    delete allowedUpdates.organizer_id;
-    delete allowedUpdates.tenant_id;
-    delete allowedUpdates.current_participants;
-    delete allowedUpdates.recurrence_id;
+    const allowedUpdates = normalizeExperienceInput(pickFields(req.body, EXPERIENCE_FIELDS), req.user._id, experience.images);
+
+    if (allowedUpdates.max_participants !== undefined
+      && Number(allowedUpdates.max_participants) < experience.current_participants) {
+      return res.status(400).json({ success: false, error: 'Max participants cannot be lower than spots already booked' });
+    }
+
+    // Una excursion publicada que cambia contenido vuelve a revision del admin
+    // (antes se podia cambiar fecha, precio o descripcion sin control).
+    const current = experience.toObject();
+    const changedReviewable = experience.status === 'active' && REVIEWABLE_FIELDS.some((field) => (
+      allowedUpdates[field] !== undefined
+      && JSON.stringify(allowedUpdates[field]) !== JSON.stringify(current[field])
+    ));
+    if (changedReviewable && experience.current_participants === 0) {
+      allowedUpdates.status = 'pending_approval';
+    }
 
     const updated = await Experience.findByIdAndUpdate(req.params.id, allowedUpdates, {
       new: true,
@@ -62,6 +105,14 @@ exports.updateExperience = async (req, res, next) => {
     });
 
     res.json({ success: true, data: { experience: updated } });
+
+    if (changedReviewable) {
+      notifyAdmins(req.tenantId, {
+        title: 'Excursion editada por revisar',
+        body: `"${updated.title}" cambio su contenido${experience.current_participants > 0 ? ' (ya tiene reservas)' : ''}.`,
+        url: '/admin/experiences',
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -115,13 +166,16 @@ exports.completeExperienceBooking = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Booking is not approved' });
     }
 
-    booking.status = 'completed';
-    booking.status_history.push({
-      status: 'completed',
-      changed_at: new Date(),
-      changed_by: req.user._id,
-    });
-    await booking.save();
+    const result = await ExperienceBooking.updateOne(
+      { _id: booking._id, status: 'approved' },
+      {
+        $set: { status: 'completed' },
+        $push: { status_history: { status: 'completed', changed_at: new Date(), changed_by: String(req.user._id) } },
+      },
+    );
+    if (result.modifiedCount !== 1) {
+      return res.status(409).json({ success: false, error: 'Booking status changed, reload and try again' });
+    }
 
     res.json({ success: true, data: { booking_id: booking._id, status: 'completed' } });
   } catch (error) {
@@ -134,7 +188,7 @@ exports.completeExperienceBooking = async (req, res, next) => {
 exports.createRecurrence = async (req, res, next) => {
   try {
     const recurrence = await ExperienceRecurrence.create({
-      ...req.body,
+      ...normalizeExperienceInput(pickFields(req.body, RECURRENCE_FIELDS), req.user._id),
       tenant_id: req.tenantId,
       organizer_id: req.user._id,
       status: 'active',
@@ -168,10 +222,7 @@ exports.updateRecurrence = async (req, res, next) => {
 
     // Solo afecta instancias futuras aún no generadas -- las ya generadas
     // (algunas con reservas activas) no se tocan retroactivamente.
-    const allowedUpdates = { ...req.body };
-    delete allowedUpdates.status;
-    delete allowedUpdates.organizer_id;
-    delete allowedUpdates.tenant_id;
+    const allowedUpdates = normalizeExperienceInput(pickFields(req.body, RECURRENCE_FIELDS), req.user._id, recurrence.images);
 
     const updated = await ExperienceRecurrence.findByIdAndUpdate(req.params.id, allowedUpdates, {
       new: true,

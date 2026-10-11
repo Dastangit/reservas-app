@@ -1,9 +1,11 @@
 const Feedback = require('../models/Feedback');
 const Booking = require('../models/Booking');
+const { parsePagination } = require('../utils/helpers');
 
 exports.submitFeedback = async (req, res, next) => {
   try {
-    const { message, category, booking_id } = req.body;
+    const { category, booking_id } = req.body;
+    const message = String(req.body.message || '').trim().slice(0, 5000);
 
     if (booking_id) {
       const booking = await Booking.findOne({
@@ -23,7 +25,7 @@ exports.submitFeedback = async (req, res, next) => {
       user_id: req.user._id,
       booking_id,
       message,
-      category: category || 'other',
+      category: ['ux', 'payment', 'communication', 'features', 'other'].includes(category) ? category : 'other',
     });
 
     res.status(201).json({
@@ -37,30 +39,29 @@ exports.submitFeedback = async (req, res, next) => {
 
 exports.getAllFeedback = async (req, res, next) => {
   try {
-    const { status, category, sort_by, page = 1, limit = 10 } = req.query;
+    const { status, category, sort_by } = req.query;
+    const { page, limit, skip } = parsePagination(req.query, { defaultLimit: 10 });
 
     const query = { tenant_id: req.tenantId };
 
-    if (status) query.status = status;
-    if (category) query.category = category;
+    if (status) query.status = String(status);
+    if (category) query.category = String(category);
 
     let sortOption = { created_at: -1 };
     if (sort_by === 'oldest') sortOption = { created_at: 1 };
-
-    const skip = (Number(page) - 1) * Number(limit);
 
     const [feedback, total_count] = await Promise.all([
       Feedback.find(query)
         .sort(sortOption)
         .skip(skip)
-        .limit(Number(limit))
+        .limit(limit)
         .populate('user_id', 'name email'),
       Feedback.countDocuments(query),
     ]);
 
     res.json({
       success: true,
-      data: { feedback, total_count, page: Number(page), per_page: Number(limit) },
+      data: { feedback, total_count, page, per_page: limit },
     });
   } catch (error) {
     next(error);
@@ -78,7 +79,7 @@ exports.respondToFeedback = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Feedback not found' });
     }
 
-    feedback.admin_response = req.body.response;
+    feedback.admin_response = String(req.body.response || '').slice(0, 5000);
     feedback.admin_response_by = req.user._id;
     feedback.admin_response_at = new Date();
     feedback.status = 'responded';

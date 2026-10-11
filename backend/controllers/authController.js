@@ -9,6 +9,13 @@ const env = require('../config/env');
 const { logAdminAction } = require('../utils/auditLog');
 const { notifyAdmins } = require('../utils/pushNotifications');
 
+const bcrypt = require('bcryptjs');
+
+// Hash de una contrasena aleatoria: solo se usa para igualar tiempos en login.
+const DUMMY_HASH = bcrypt.hashSync(crypto.randomBytes(16).toString('hex'), 10);
+
+const hashBackupCode = (code) => crypto.createHash('sha256').update(String(code).trim().toUpperCase()).digest('hex');
+
 const generateToken = (id) => {
   return jwt.sign({ id }, env.jwtSecret, { expiresIn: env.jwtExpire });
 };
@@ -36,12 +43,34 @@ exports.register = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Email already registered' });
     }
 
-    let tenant = await Tenant.findOne({ domain: 'elysioexperiences.com' });
+    const tenant = await Tenant.findOne({ domain: env.defaultTenantDomain });
     if (!tenant) {
-      tenant = await Tenant.create({
-        name: 'Elysio Experiences',
-        domain: 'elysioexperiences.com',
-        admin_email: 'elysio.support@gmail.com',
+      return res.status(503).json({ success: false, error: 'Tenant not configured' });
+    }
+
+    const userRole = role || 'tourist';
+
+    // Hosts y organizadores necesitan aprobacion del admin: no se les entrega
+    // sesion hasta entonces (el login tambien lo exige).
+    if (userRole !== 'tourist') {
+      const user = await User.create({
+        email,
+        password_hash: password,
+        name,
+        phone,
+        role: userRole,
+        tenant_id: tenant._id,
+      });
+
+      notifyAdmins(tenant._id, {
+        title: userRole === 'host' ? 'Nuevo anfitrion por aprobar' : 'Nuevo organizador por aprobar',
+        body: `${user.name} (${user.email}) se registro y espera aprobacion.`,
+        url: userRole === 'host' ? '/admin/users' : '/admin/organizers',
+      });
+
+      return res.status(201).json({
+        success: true,
+        data: { user_id: user._id, role: user.role, pending_approval: true },
       });
     }
 
@@ -54,7 +83,7 @@ exports.register = async (req, res, next) => {
       password_hash: password,
       name,
       phone,
-      role: role || 'tourist',
+      role: userRole,
       tenant_id: tenant._id,
       refresh_token: refreshToken,
     });
@@ -85,7 +114,12 @@ exports.login = async (req, res, next) => {
     }
 
     const user = await User.findOne({ email }).select('+password_hash');
-    if (!user) {
+    // Se compara siempre contra un hash (aunque el usuario no exista) para no
+    // revelar por tiempo de respuesta que emails estan registrados.
+    const isMatch = user
+      ? await user.comparePassword(password)
+      : await bcrypt.compare(String(password), DUMMY_HASH);
+    if (!user || !isMatch) {
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
 
@@ -99,11 +133,6 @@ exports.login = async (req, res, next) => {
 
     if (user.role === 'organizer' && user.organizer_status !== 'approved') {
       return res.status(403).json({ success: false, error: 'Your organizer account is pending admin approval. You will receive an email when approved.' });
-    }
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
 
     // Si el usuario tiene 2FA activo, no se entrega el token real todavía --
@@ -131,6 +160,7 @@ exports.login = async (req, res, next) => {
         token,
         refresh_token: refreshToken,
         role: user.role,
+        name: user.name,
         tourist_onboarding: user.tourist_onboarding,
       },
     });
@@ -144,7 +174,8 @@ exports.login = async (req, res, next) => {
 // de respaldo), y si es válido, ahí sí entrega el token real de sesión.
 exports.verifyTwoFactor = async (req, res, next) => {
   try {
-    const { pending_token, code } = req.body;
+    const { pending_token } = req.body;
+    const code = String(req.body.code || '').trim();
 
     if (!pending_token || !code) {
       return res.status(400).json({ success: false, error: 'pending_token and code are required' });
@@ -174,9 +205,12 @@ exports.verifyTwoFactor = async (req, res, next) => {
     });
 
     let usedBackupCode = false;
-    if (!isValidTotp && user.two_factor.backup_codes?.includes(code)) {
-      usedBackupCode = true;
-      user.two_factor.backup_codes = user.two_factor.backup_codes.filter((c) => c !== code);
+    if (!isValidTotp) {
+      const codeHash = hashBackupCode(code);
+      if (user.two_factor.backup_codes?.includes(codeHash)) {
+        usedBackupCode = true;
+        user.two_factor.backup_codes = user.two_factor.backup_codes.filter((c) => c !== codeHash);
+      }
     }
 
     if (!isValidTotp && !usedBackupCode) {
@@ -198,6 +232,8 @@ exports.verifyTwoFactor = async (req, res, next) => {
         token,
         refresh_token: refreshToken,
         role: user.role,
+        name: user.name,
+        tourist_onboarding: user.tourist_onboarding,
         used_backup_code: usedBackupCode,
       },
     });
@@ -210,6 +246,12 @@ exports.verifyTwoFactor = async (req, res, next) => {
 // devuelve el QR para escanear con Google Authenticator / Authy.
 exports.setupTwoFactor = async (req, res, next) => {
   try {
+    // Si ya esta activo, reconfigurarlo equivaldria a desactivarlo sin la
+    // contrasena: primero hay que pasar por /2fa/disable.
+    if (req.user.two_factor?.enabled) {
+      return res.status(400).json({ success: false, error: '2FA is already enabled. Disable it first.' });
+    }
+
     const secret = speakeasy.generateSecret({
       name: `Elysio Admin (${req.user.email})`,
     });
@@ -233,7 +275,7 @@ exports.setupTwoFactor = async (req, res, next) => {
 // ahí activa 2FA de verdad. Genera códigos de respaldo de un solo uso.
 exports.enableTwoFactor = async (req, res, next) => {
   try {
-    const { code } = req.body;
+    const code = String(req.body.code || '').trim();
 
     const user = await User.findById(req.user._id).select('+two_factor.secret');
     if (!user.two_factor?.secret) {
@@ -251,12 +293,11 @@ exports.enableTwoFactor = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Invalid code, try again' });
     }
 
-    const backupCodes = Array.from({ length: 10 }, () =>
-      Math.random().toString(36).slice(2, 10).toUpperCase()
-    );
+    const backupCodes = Array.from({ length: 10 }, () => crypto.randomBytes(5).toString('hex').toUpperCase());
 
     user.two_factor.enabled = true;
-    user.two_factor.backup_codes = backupCodes;
+    // Se guardan hasheados: se muestran una sola vez al admin.
+    user.two_factor.backup_codes = backupCodes.map(hashBackupCode);
     await user.save();
 
     await logAdminAction({
