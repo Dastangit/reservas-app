@@ -90,6 +90,8 @@ const userSchema = new mongoose.Schema({
     enabled: { type: Boolean, default: false },
     secret: { type: String, select: false },
     backup_codes: { type: [String], select: false },
+    // Ultimo paso TOTP aceptado (anti-replay).
+    last_used_step: { type: Number, select: false },
   },
   tourist_onboarding: {
     welcome_seen: { type: Boolean, default: false },

@@ -1,6 +1,6 @@
 import api from '../api.js';
 import auth from '../auth.js';
-import { formatExperiencePrice } from '../utils/formatters.js';
+import { formatExperiencePrice, formatExperienceDate, formatExperienceTime } from '../utils/formatters.js';
 import { validateInternationalPhone, sanitizePhone } from '../utils/validators.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
@@ -45,7 +45,7 @@ const ExperienceBookingPage = {
                 <img loading="lazy" src="${escapeHtml(exp.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(exp.title)}">
                 <div>
                   <h3>${escapeHtml(exp.title)}</h3>
-                  <p>${escapeHtml(exp.location?.city || '')} · ${new Date(exp.date).toLocaleDateString()}</p>
+                  <p>${escapeHtml(exp.location?.city || '')} · ${formatExperienceDate(exp.date)} ${formatExperienceTime(exp.date)}</p>
                 </div>
               </div>
 

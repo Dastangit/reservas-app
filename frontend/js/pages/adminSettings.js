@@ -56,72 +56,27 @@ const AdminSettingsPage = {
             </div>
             
             <div class="form-section">
-              <h2>${t('admin.regionalSettingsSection')}</h2>
-              
+              <h2>${t('admin.contactSection')}</h2>
               <div class="form-group">
-                <label>${t('admin.currencyLabel')}</label>
-                <select id="currency">
-                  <option value="USD">USD - US Dollar</option>
-                  <option value="EUR">EUR - Euro</option>
-                  <option value="CUP">CUP - Cuban Peso</option>
-                </select>
+                <label>${t('admin.contactEmailLabel')}</label>
+                <input type="email" id="admin_email">
               </div>
-              
               <div class="form-group">
-                <label>${t('admin.timezoneLabel')}</label>
-                <select id="timezone">
-                  <option value="UTC">UTC</option>
-                  <option value="America/Havana">America/Havana</option>
-                  <option value="America/New_York">America/New_York</option>
-                  <option value="Europe/Madrid">Europe/Madrid</option>
-                </select>
+                <label>${t('admin.contactWhatsappLabel')}</label>
+                <input type="tel" id="admin_whatsapp" placeholder="+53...">
               </div>
             </div>
-            
-            <div class="form-section">
-              <h2>${t('admin.paymentSettingsSection')}</h2>
-              
-              <div class="form-group">
-                <label>${t('admin.paymentGatewayLabel')}</label>
-                <select id="gateway">
-                  <option value="qvapay">QvaPay</option>
-                </select>
-              </div>
-              
-              <div class="form-row">
-                <div class="form-group">
-                  <label>${t('admin.feeAmountLabel')}</label>
-                  <input type="number" id="fee_amount" min="0" step="0.01" value="7">
-                </div>
-                <div class="form-group">
-                  <label>${t('admin.feeCurrencyLabel')}</label>
-                  <select id="fee_currency">
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label>QvaPay App ID</label>
-                <input type="text" id="qvapay_app_id" placeholder="${t('admin.leaveBlankHint')}">
-              </div>
-              
-              <div class="form-group">
-                <label>QvaPay App Secret</label>
-                <input type="text" id="qvapay_app_secret" placeholder="${t('admin.leaveBlankHint')}">
-              </div>
-            </div>
-            
+
             <div class="form-section">
               <h2>${t('admin.brandingSection')}</h2>
-              
               <div class="form-group">
                 <label>${t('admin.faviconUrlLabel')}</label>
                 <input type="url" id="favicon_url" placeholder="https://...">
               </div>
             </div>
-            
+
+            <p class="field-hint">${t('admin.settingsPaymentNote')}</p>
+
             <div id="error-message" class="error-message" style="display:none;"></div>
             <div id="success-message" class="success-message" style="display:none;"></div>
             
@@ -140,6 +95,33 @@ const AdminSettingsPage = {
         await this.handleSave();
       });
     }
+    this.loadSettings();
+  },
+
+  // Carga los valores guardados: antes el formulario mostraba siempre valores
+  // por defecto y al guardar los sobrescribia.
+  async loadSettings() {
+    try {
+      const response = await api.get('/admin/settings');
+      const settings = response.data?.settings || {};
+      const setValue = (id, value) => {
+        const el = document.getElementById(id);
+        if (el && value !== undefined && value !== null && value !== '') el.value = value;
+      };
+      ['logo_url', 'favicon_url', 'primary_color', 'secondary_color', 'default_language', 'admin_email', 'admin_whatsapp']
+        .forEach((id) => setValue(id, settings[id]));
+      if (Array.isArray(settings.languages) && settings.languages.length) {
+        document.querySelectorAll('input[name="languages"]').forEach((el) => {
+          el.checked = settings.languages.includes(el.value);
+        });
+      }
+    } catch (error) {
+      const errorEl = document.getElementById('error-message');
+      if (errorEl) {
+        errorEl.textContent = error.message;
+        errorEl.style.display = 'block';
+      }
+    }
   },
 
   async handleSave() {
@@ -153,13 +135,8 @@ const AdminSettingsPage = {
       favicon_url: document.getElementById('favicon_url')?.value,
       languages,
       default_language: document.getElementById('default_language')?.value,
-      currency: document.getElementById('currency')?.value,
-      timezone: document.getElementById('timezone')?.value,
-      gateway: document.getElementById('gateway')?.value,
-      fee_amount: parseFloat(document.getElementById('fee_amount')?.value) || 7,
-      fee_currency: document.getElementById('fee_currency')?.value,
-      qvapay_app_id: document.getElementById('qvapay_app_id')?.value || undefined,
-      qvapay_app_secret: document.getElementById('qvapay_app_secret')?.value || undefined,
+      admin_email: document.getElementById('admin_email')?.value,
+      admin_whatsapp: document.getElementById('admin_whatsapp')?.value,
     };
 
     const errorEl = document.getElementById('error-message');

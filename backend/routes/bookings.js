@@ -14,8 +14,9 @@ const MAX_STAY_NIGHTS = 365;
 
 const router = express.Router();
 
-router.use(setTenant);
+// protect primero: asi setTenant usa el tenant del usuario autenticado.
 router.use(protect);
+router.use(setTenant);
 
 router.post('/', authorize('tourist'), [
   body('property_id').notEmpty().withMessage('Property ID is required'),
@@ -46,7 +47,7 @@ router.get('/', getMyBookings);
 router.get('/host', authorize('host'), getHostBookings);
 router.get('/:id', getBookingById);
 router.post('/:id/cancel', cancelBooking);
-router.post('/:id/complete', authorize('host'), completeBooking);
+router.post('/:id/complete', authorize('host', 'admin'), completeBooking);
 
 router.post('/:id/approve', authorize('admin'), approveBooking);
 router.post('/:id/reject', authorize('admin'), rejectBooking);

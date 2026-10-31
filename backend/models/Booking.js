@@ -93,6 +93,13 @@ const bookingSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  // Datos que el turista aporta al pulsar "Ya pague" (PayPal manual) para que
+  // el admin pueda identificar el deposito.
+  payment_reference: String,
+  payer_email: String,
+  payment_reported_at: Date,
+  // Ultimo aviso al admin de que la reserva lleva >24 h sin aprobar (jobs/approvalReminder.js).
+  approval_reminder_sent_at: Date,
   invoice_id: {
     type: String,
   },
@@ -132,5 +139,7 @@ bookingSchema.index({ tenant_id: 1, status: 1 });
 bookingSchema.index({ tourist_id: 1 });
 bookingSchema.index({ host_id: 1 });
 bookingSchema.index({ property_id: 1, check_in: 1, check_out: 1 });
+bookingSchema.index({ status: 1, hold_expires_at: 1 });
+bookingSchema.index({ status: 1, check_out: 1 });
 
 module.exports = mongoose.model('Booking', bookingSchema);

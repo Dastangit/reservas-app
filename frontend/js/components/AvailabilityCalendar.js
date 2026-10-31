@@ -1,5 +1,6 @@
 import api from '../api.js';
 import { escapeHtml } from '../utils/escape.js';
+import i18n from '../i18n.js';
 
 // Componente de calendario de disponibilidad reutilizable.
 // Uso: AvailabilityCalendar.mount('#calendar-root', { propertyId, mode: 'host' | 'admin' })
@@ -7,8 +8,20 @@ import { escapeHtml } from '../utils/escape.js';
 // mode 'host'   -> usa /properties/:id/availability/...
 // mode 'admin'  -> usa /admin/properties/:id/availability/...
 
-const MONTHS_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-const WEEKDAYS_ES = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'];
+const t = (key) => i18n.t(key);
+
+// Nombres de mes y dia en el idioma activo (Intl), en vez de listas fijas en espanol.
+const monthName = (year, month) => {
+  const name = new Date(year, month, 1).toLocaleDateString(i18n.currentLang, { month: 'long' });
+  return name.charAt(0).toUpperCase() + name.slice(1);
+};
+const weekdayNames = () => [0, 1, 2, 3, 4, 5, 6].map((i) => (
+  // 2023-01-01 fue domingo
+  new Date(2023, 0, 1 + i).toLocaleDateString(i18n.currentLang, { weekday: 'short' }).slice(0, 2)
+));
+const REASONS = ['maintenance', 'personal', 'external_booking', 'other'];
+const reasonLabel = (reason) => (REASONS.includes(reason) ? t(`calendar.reason.${reason}`) : reason);
+const formatDay = (date) => date.toLocaleDateString(i18n.currentLang);
 
 function toISODate(date) {
   const y = date.getFullYear();
@@ -56,9 +69,10 @@ const AvailabilityCalendar = {
       blockedDates: [],
       bookings: [],
       error: null,
+      actionError: null,
     };
 
-    container.innerHTML = '<p class="loading">Cargando disponibilidad...</p>';
+    container.innerHTML = `<p class="loading">${t('calendar.loading')}</p>`;
     await this.loadAndRender();
   },
 
@@ -76,7 +90,7 @@ const AvailabilityCalendar = {
       this._state.bookings = response.data?.bookings || [];
       this._state.error = null;
     } catch (error) {
-      this._state.error = 'No se pudo cargar la disponibilidad.';
+      this._state.error = t('calendar.loadError');
     }
 
     this.render();
@@ -141,9 +155,9 @@ const AvailabilityCalendar = {
 
     return `
       <div class="avail-month">
-        <h4>${MONTHS_ES[month]} ${year}</h4>
+        <h4>${escapeHtml(monthName(year, month))} ${year}</h4>
         <div class="avail-grid avail-grid-header">
-          ${WEEKDAYS_ES.map((w) => `<div class="avail-weekday">${w}</div>`).join('')}
+          ${weekdayNames().map((w) => `<div class="avail-weekday">${escapeHtml(w)}</div>`).join('')}
         </div>
         <div class="avail-grid">${cells}</div>
       </div>
@@ -168,25 +182,25 @@ const AvailabilityCalendar = {
     container.innerHTML = `
       <div class="availability-calendar">
         ${this._state.error ? `<p class="error-message">${escapeHtml(this._state.error)}</p>` : ''}
-        <div id="avail-inline-error"></div>
+        <div id="avail-inline-error">${this._state.actionError ? `<p class="error-message">${escapeHtml(this._state.actionError)}</p>` : ''}</div>
         <div class="avail-legend">
-          <span class="avail-legend-item"><i class="avail-swatch avail-swatch-free"></i> Libre</span>
-          <span class="avail-legend-item"><i class="avail-swatch avail-swatch-blocked-host"></i> Bloqueado por ti</span>
-          <span class="avail-legend-item"><i class="avail-swatch avail-swatch-blocked-admin"></i> Bloqueado por admin</span>
-          <span class="avail-legend-item"><i class="avail-swatch avail-swatch-reserved"></i> Reservado</span>
+          <span class="avail-legend-item"><i class="avail-swatch avail-swatch-free"></i> ${t('calendar.free')}</span>
+          <span class="avail-legend-item"><i class="avail-swatch avail-swatch-blocked-host"></i> ${t('calendar.blockedByHost')}</span>
+          <span class="avail-legend-item"><i class="avail-swatch avail-swatch-blocked-admin"></i> ${t('calendar.blockedByAdmin')}</span>
+          <span class="avail-legend-item"><i class="avail-swatch avail-swatch-reserved"></i> ${t('calendar.reserved')}</span>
         </div>
-        <p class="avail-hint">${this._state.selectionStart ? 'Selecciona el día final del rango a bloquear.' : 'Selecciona el día de inicio del rango a bloquear.'}</p>
+        <p class="avail-hint">${this._state.selectionStart ? t('calendar.pickEnd') : t('calendar.pickStart')}</p>
         <div class="avail-months">${monthsHtml}</div>
 
         <div class="avail-block-list">
-          <h3>Fechas bloqueadas manualmente</h3>
-          ${manualBlocks.length === 0 ? '<p class="no-results">No hay fechas bloqueadas.</p>' : manualBlocks.map((b) => `
+          <h3>${t('calendar.manualBlocks')}</h3>
+          ${manualBlocks.length === 0 ? `<p class="no-results">${t('calendar.noBlocks')}</p>` : manualBlocks.map((b) => `
             <div class="avail-block-item">
-              <span>${dateOnly(b.start_date).toLocaleDateString()} — ${new Date(dateOnly(b.end_date).getTime() - 86400000).toLocaleDateString()}
-                ${b.reason ? `<em>(${escapeHtml(b.reason)})</em>` : ''}
-                <small>· bloqueado por ${b.blocked_by === 'admin' ? 'admin' : 'ti'}</small>
+              <span>${formatDay(dateOnly(b.start_date))} — ${formatDay(new Date(dateOnly(b.end_date).getTime() - 86400000))}
+                ${b.reason ? `<em>(${escapeHtml(reasonLabel(b.reason))})</em>` : ''}
+                <small>· ${b.blocked_by === 'admin' ? t('calendar.blockedByAdmin') : t('calendar.blockedByHost')}</small>
               </span>
-              <button class="avail-block-remove" data-block-id="${b._id}" title="Eliminar bloqueo">×</button>
+              <button class="avail-block-remove" data-block-id="${b._id}" title="${t('calendar.removeBlock')}" aria-label="${t('calendar.removeBlock')}">×</button>
             </div>
           `).join('')}
         </div>
@@ -240,20 +254,17 @@ const AvailabilityCalendar = {
     modal.className = 'avail-modal-overlay';
     modal.innerHTML = `
       <div class="avail-modal">
-        <h3>Confirmar bloqueo</h3>
-        <p>¿Confirmas bloquear del <strong>${start.toLocaleDateString()}</strong> al <strong>${end.toLocaleDateString()}</strong>?</p>
+        <h3>${t('calendar.confirmTitle')}</h3>
+        <p>${t('calendar.confirmText').replace('{start}', `<strong>${formatDay(start)}</strong>`).replace('{end}', `<strong>${formatDay(end)}</strong>`)}</p>
         <div class="form-group">
-          <label>Motivo (opcional)</label>
+          <label for="avail-block-reason">${t('calendar.reasonLabel')}</label>
           <select id="avail-block-reason">
-            <option value="maintenance">Mantenimiento</option>
-            <option value="personal">Uso personal</option>
-            <option value="external_booking">Reserva fuera de la plataforma</option>
-            <option value="other">Otro</option>
+            ${REASONS.map((r) => `<option value="${r}">${t(`calendar.reason.${r}`)}</option>`).join('')}
           </select>
         </div>
         <div class="avail-modal-actions">
-          <button class="btn btn-outline" id="avail-modal-cancel">Cancelar</button>
-          <button class="btn btn-primary" id="avail-modal-confirm">Confirmar bloqueo</button>
+          <button class="btn btn-outline" id="avail-modal-cancel">${t('calendar.cancel')}</button>
+          <button class="btn btn-primary" id="avail-modal-confirm">${t('calendar.confirmTitle')}</button>
         </div>
       </div>
     `;
@@ -273,7 +284,6 @@ const AvailabilityCalendar = {
 
   async handleBlock(start, endExclusive, reason) {
     const { propertyId, mode } = this._state;
-    const inlineError = document.getElementById('avail-inline-error');
 
     try {
       await api.post(`${this.basePath(mode, propertyId)}/availability/block`, {
@@ -281,14 +291,12 @@ const AvailabilityCalendar = {
         end_date: toISODate(endExclusive),
         reason,
       });
+      this._state.actionError = null;
       await this.loadAndRender();
     } catch (error) {
-      const message = error.message === 'DATE_CONFLICT'
-        ? 'No se puede bloquear: ese rango choca con una reserva activa de la plataforma.'
-        : 'No se pudo bloquear el rango seleccionado.';
-      if (inlineError) {
-        inlineError.innerHTML = `<p class="error-message">${escapeHtml(message)}</p>`;
-      }
+      // Se guarda en el estado: antes se escribia en el DOM y el render()
+      // siguiente lo borraba, asi que el host nunca veia el error.
+      this._state.actionError = error.message === 'DATE_CONFLICT' ? t('calendar.conflictError') : t('calendar.blockError');
       this.render();
     }
   },
@@ -297,12 +305,11 @@ const AvailabilityCalendar = {
     const { propertyId, mode } = this._state;
     try {
       await api.delete(`${this.basePath(mode, propertyId)}/availability/block/${blockId}`);
+      this._state.actionError = null;
       await this.loadAndRender();
     } catch (error) {
-      const inlineError = document.getElementById('avail-inline-error');
-      if (inlineError) {
-        inlineError.innerHTML = '<p class="error-message">No se pudo eliminar el bloqueo.</p>';
-      }
+      this._state.actionError = t('calendar.unblockError');
+      this.render();
     }
   },
 };

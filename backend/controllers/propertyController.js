@@ -1,7 +1,9 @@
 const Property = require('../models/Property');
+const { withPropertyLock } = require('../utils/propertyLock');
 const Booking = require('../models/Booking');
 const { notifyAdmins } = require('../utils/pushNotifications');
-const { escapeRegex } = require('../utils/helpers');
+const { escapeRegex, parsePagination } = require('../utils/helpers');
+const { sanitizeImages } = require('../utils/images');
 
 // Campos que un host puede enviar al crear/editar una propiedad. Todo lo demas
 // (status, suspended, rating, reviews_count, approval_date, admin_notes,
@@ -15,12 +17,23 @@ const pickFields = (source, keys) => Object.fromEntries(
   keys.filter((k) => source[k] !== undefined).map((k) => [k, source[k]]),
 );
 
+// Cambios que el admin debe volver a revisar en una propiedad ya aprobada
+// (un host podia cambiar fotos/descripcion o meter su contacto sin control).
+const REVIEWABLE_FIELDS = ['name', 'type', 'description', 'location', 'images'];
+
+// Campos internos que no se muestran a quien no es dueno ni admin.
+const INTERNAL_FIELDS = ['admin_notes', 'rejection_reason', 'suspension_reason', 'changes_pending_review'];
+
+const canSeeInternal = (req, hostId) => Boolean(req.user)
+  && (req.user.role === 'admin' || String(req.user._id) === String(hostId?._id || hostId));
+
 exports.getProperties = async (req, res, next) => {
   try {
     const {
       city, min_price, max_price, type, amenities,
-      rating_min, sort, page = 1, limit = 10,
+      rating_min, sort,
     } = req.query;
+    const { page, limit, skip } = parsePagination(req.query, { defaultLimit: 10, maxLimit: 50 });
 
     const query = { tenant_id: req.tenantId, status: 'active', suspended: { $ne: true } };
 
@@ -30,8 +43,8 @@ exports.getProperties = async (req, res, next) => {
       if (min_price) query.price_per_night.$gte = Number(min_price);
       if (max_price) query.price_per_night.$lte = Number(max_price);
     }
-    if (type) query.type = type;
-    if (amenities) query.amenities = { $in: amenities.split(',') };
+    if (type) query.type = String(type);
+    if (amenities) query.amenities = { $in: String(amenities).split(',') };
     if (rating_min) query.rating = { $gte: Number(rating_min) };
 
     let sortOption = { created_at: -1 };
@@ -39,10 +52,9 @@ exports.getProperties = async (req, res, next) => {
     if (sort === 'price_desc') sortOption = { price_per_night: -1 };
     if (sort === 'rating_desc') sortOption = { rating: -1 };
 
-    const skip = (Number(page) - 1) * Number(limit);
-
     const [properties, total_count] = await Promise.all([
-      Property.find(query).sort(sortOption).skip(skip).limit(Number(limit)).populate('host_id', 'name'),
+      Property.find(query).select(INTERNAL_FIELDS.map((f) => `-${f}`).join(' '))
+        .sort(sortOption).skip(skip).limit(limit).populate('host_id', 'name'),
       Property.countDocuments(query),
     ]);
 
@@ -51,8 +63,8 @@ exports.getProperties = async (req, res, next) => {
       data: {
         properties,
         total_count,
-        page: Number(page),
-        per_page: Number(limit),
+        page,
+        per_page: limit,
       },
     });
   } catch (error) {
@@ -87,7 +99,17 @@ exports.getPropertyById = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Property not found' });
     }
 
-    res.json({ success: true, data: { property } });
+    const privileged = canSeeInternal(req, property.host_id);
+    const isPublic = property.status === 'active' && !property.suspended;
+    // Las propiedades pendientes, rechazadas o suspendidas solo las ve su host o el admin.
+    if (!isPublic && !privileged) {
+      return res.status(404).json({ success: false, error: 'Property not found' });
+    }
+
+    const data = property.toObject();
+    if (!privileged) INTERNAL_FIELDS.forEach((f) => delete data[f]);
+
+    res.json({ success: true, data: { property: data } });
   } catch (error) {
     next(error);
   }
@@ -95,8 +117,11 @@ exports.getPropertyById = async (req, res, next) => {
 
 exports.createProperty = async (req, res, next) => {
   try {
+    const fields = pickFields(req.body, HOST_EDITABLE_FIELDS);
+    if (fields.images !== undefined) fields.images = sanitizeImages(fields.images, req.user._id);
+
     const property = await Property.create({
-      ...pickFields(req.body, HOST_EDITABLE_FIELDS),
+      ...fields,
       tenant_id: req.tenantId,
       host_id: req.user._id,
       status: 'pending_approval',
@@ -130,6 +155,18 @@ exports.updateProperty = async (req, res, next) => {
     }
 
     const allowedUpdates = pickFields(req.body, HOST_EDITABLE_FIELDS);
+    if (allowedUpdates.images !== undefined) {
+      allowedUpdates.images = sanitizeImages(allowedUpdates.images, req.user._id, property.images);
+    }
+
+    // Si la propiedad ya estaba publicada y cambia contenido visible, sigue
+    // publicada pero queda marcada para que el admin la revise.
+    const current = property.toObject();
+    const changedReviewable = property.status === 'active' && REVIEWABLE_FIELDS.some((field) => (
+      allowedUpdates[field] !== undefined
+      && JSON.stringify(allowedUpdates[field]) !== JSON.stringify(current[field])
+    ));
+    if (changedReviewable) allowedUpdates.changes_pending_review = true;
 
     property = await Property.findByIdAndUpdate(req.params.id, allowedUpdates, {
       new: true,
@@ -137,6 +174,14 @@ exports.updateProperty = async (req, res, next) => {
     });
 
     res.json({ success: true, data: { property } });
+
+    if (changedReviewable) {
+      notifyAdmins(req.tenantId, {
+        title: 'Propiedad editada por revisar',
+        body: `"${property.name}" cambio su contenido publicado.`,
+        url: '/admin/properties',
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -162,34 +207,47 @@ exports.blockDates = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'start_date and end_date are required' });
     }
 
-    const conflictingBooking = await Booking.findOne({
-      property_id: property._id,
-      tenant_id: req.tenantId,
-      status: { $in: ['pending_payment', 'pending_approval', 'approved'] },
-      check_in: { $lt: new Date(end_date) },
-      check_out: { $gt: new Date(start_date) },
+    // Con la propiedad bloqueada: no puede entrar una reserva entre la
+    // comprobacion de conflictos y el guardado del bloqueo.
+    const result = await withPropertyLock(property._id, async () => {
+      const conflictingBooking = await Booking.findOne({
+        property_id: property._id,
+        tenant_id: req.tenantId,
+        status: { $in: ['pending_payment', 'pending_approval', 'approved'] },
+        check_in: { $lt: new Date(end_date) },
+        check_out: { $gt: new Date(start_date) },
+      });
+      if (conflictingBooking) return { conflict: conflictingBooking._id };
+
+      const updated = await Property.findByIdAndUpdate(
+        property._id,
+        {
+          $push: {
+            blocked_dates: {
+              start_date,
+              end_date,
+              reason: reason ? String(reason).slice(0, 200) : undefined,
+              blocked_by: 'host',
+              blocked_by_user: req.user._id,
+            },
+          },
+        },
+        { new: true, runValidators: true },
+      );
+      return { block: updated.blocked_dates[updated.blocked_dates.length - 1] };
     });
 
-    if (conflictingBooking) {
+    if (result.conflict) {
       return res.status(409).json({
         success: false,
         error: 'DATE_CONFLICT',
-        conflicting_booking_id: conflictingBooking._id,
+        conflicting_booking_id: result.conflict,
       });
     }
 
-    property.blocked_dates.push({
-      start_date,
-      end_date,
-      reason,
-      blocked_by: 'host',
-      blocked_by_user: req.user._id,
-    });
-    await property.save();
-
     res.status(201).json({
       success: true,
-      data: { block: property.blocked_dates[property.blocked_dates.length - 1] },
+      data: { block: result.block },
     });
   } catch (error) {
     next(error);
@@ -228,6 +286,9 @@ exports.unblockDates = async (req, res, next) => {
 exports.getAvailabilityCalendar = async (req, res, next) => {
   try {
     const property = await Property.findOne({ _id: req.params.id, tenant_id: req.tenantId });
+    if (property && property.status !== 'active' && !canSeeInternal(req, property.host_id)) {
+      return res.status(404).json({ success: false, error: 'Property not found' });
+    }
 
     if (!property) {
       return res.status(404).json({ success: false, error: 'Property not found' });

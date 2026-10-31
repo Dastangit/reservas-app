@@ -1,6 +1,6 @@
 import api from '../api.js';
 import i18n from '../i18n.js';
-import { formatExperiencePrice } from '../utils/formatters.js';
+import { formatExperiencePrice, formatExperienceDate, formatExperienceTime } from '../utils/formatters.js';
 import { escapeHtml } from '../utils/escape.js';
 
 const ExperiencesPage = {
@@ -126,7 +126,7 @@ const ExperiencesPage = {
             <img loading="lazy" src="${escapeHtml(exp.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(exp.title)}">
             <div class="property-card-body">
               <h3>${escapeHtml(exp.title)}</h3>
-              <p>${escapeHtml(exp.location?.city || '')} · ${new Date(exp.date).toLocaleDateString(i18n.currentLang)}</p>
+              <p>${escapeHtml(exp.location?.city || '')} · ${formatExperienceDate(exp.date)} ${formatExperienceTime(exp.date)}</p>
               <p>${escapeHtml(priceLabel)}</p>
               <p style="font-size:0.85rem;color:var(--text-light);">${spotsLeft} ${i18n.t('experience.spotsAvailable')}</p>
             </div>

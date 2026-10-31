@@ -3,15 +3,12 @@ const Booking = require('../models/Booking');
 const HostMonthlyCommission = require('../models/HostMonthlyCommission');
 const { notifyAdmins } = require('../utils/pushNotifications');
 
-// Recalcula (upsert) la comisi\u00f3n del mes en curso por host, sumando las
-// reservas Opci\u00f3n B (pre_booking) ya completadas. Solo el mes actual -- no
-// hace falta reconstruir historial viejo, el objetivo es poder cobrarle al
-// host lo que va acumulando este mes.
-const recomputeCommissions = async () => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
-
+// Recalcula (upsert) la comision de un mes por host, sumando las reservas
+// Opcion B (pre_booking) completadas con check-out en ese mes. Se recalcula el
+// mes en curso Y el anterior: una reserva que sale el 31 y se completa el 1-2
+// del mes siguiente (a mano o por jobs/bookingLifecycle.js) antes no entraba
+// en ninguna comision.
+const recomputeCommissionsForMonth = async (year, month) => {
   const rangeStart = new Date(year, month - 1, 1);
   const rangeEnd = new Date(year, month, 1);
 
@@ -43,10 +40,15 @@ const recomputeCommissions = async () => {
     });
 
     if (existing) {
-      // Si ya est\u00e1 paid/waived no se toca el status ni los recordatorios,
-      // solo se refrescan los montos por si aparecieron reservas nuevas.
+      const grew = commission_amount > existing.commission_amount;
       existing.bookings = g.bookings;
       existing.total_amount = g.total_amount;
+      // Si ya estaba pagada y aparecieron reservas nuevas, la diferencia
+      // queda pendiente de cobro (antes se marcaba todo como pagado).
+      if (grew && existing.status === 'paid') {
+        existing.notes = `${existing.notes ? `${existing.notes} | ` : ''}Pagado ${existing.commission_amount}; nuevo total ${commission_amount}`;
+        existing.status = 'pending';
+      }
       existing.commission_amount = commission_amount;
       await existing.save();
     } else {
@@ -62,6 +64,13 @@ const recomputeCommissions = async () => {
       });
     }
   }
+};
+
+const recomputeCommissions = async () => {
+  const now = new Date();
+  const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  await recomputeCommissionsForMonth(prev.getFullYear(), prev.getMonth() + 1);
+  await recomputeCommissionsForMonth(now.getFullYear(), now.getMonth() + 1);
 };
 
 // Avanza el status de las comisiones de meses ya cerrados seg\u00fan d\u00edas

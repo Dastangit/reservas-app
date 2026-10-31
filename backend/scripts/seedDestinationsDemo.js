@@ -5,11 +5,13 @@ dotenv.config();
 const Tenant = require('../models/Tenant');
 const User = require('../models/User');
 const Property = require('../models/Property');
+const { assertDemoSeedAllowed } = require('./demoGuard');
 
 // Seed minimo para probar el carrusel de destinos del home (GET
 // /search/destinations). Sigue el mismo patron que seedProperties.js:
 // mismo tenant/host, idempotente por nombre.
 const seed = async () => {
+  assertDemoSeedAllowed();
   try {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('MongoDB connected for seeding destination demo properties');
@@ -20,7 +22,7 @@ const seed = async () => {
       process.exit(1);
     }
 
-    let host = await User.findOne({ email: 'host@elysioexperiences.com' });
+    const host = await User.findOne({ email: 'host@elysioexperiences.com' });
     if (!host) {
       console.error('Host de prueba no encontrado. Corre seedProperties.js primero.');
       process.exit(1);

@@ -80,7 +80,7 @@ const AdminFeedbackPage = {
             ${f.admin_response ? `<p><strong>${i18n.t('admin.adminResponseLabel')}</strong> ${escapeHtml(f.admin_response)}</p>` : ''}
           </div>
           <div class="property-actions">
-            ${!f.admin_response ? `<button onclick="respondFeedback('${f._id}')" class="btn btn-primary btn-sm">${i18n.t('admin.respondBtn')}</button>` : ''}
+            ${!f.admin_response ? `<button data-action="respondFeedback" data-arg="${f._id}" class="btn btn-primary btn-sm">${i18n.t('admin.respondBtn')}</button>` : ''}
           </div>
         </div>
       `).join('');

@@ -1,6 +1,6 @@
 import api from '../api.js';
 import i18n from '../i18n.js';
-import { formatExperiencePrice } from '../utils/formatters.js';
+import { formatExperiencePrice, formatExperienceDate, formatExperienceTime } from '../utils/formatters.js';
 import auth from '../auth.js';
 import { escapeHtml } from '../utils/escape.js';
 
@@ -91,7 +91,7 @@ const ExperienceDetailPage = {
               <p class="property-location">${escapeHtml(exp.location?.city || '')}${exp.location?.address ? `, ${escapeHtml(exp.location.address)}` : ''}</p>
 
               <div class="property-meta">
-                <span>${new Date(exp.date).toLocaleDateString(i18n.currentLang)} ${new Date(exp.date).toLocaleTimeString(i18n.currentLang, { hour: '2-digit', minute: '2-digit' })}</span>
+                <span>${formatExperienceDate(exp.date)} ${formatExperienceTime(exp.date)} (${i18n.t('experience.cubaTime')})</span>
                 ${exp.duration_hours ? `<span>${exp.duration_hours}${t('experience.hoursDurationSuffix')}</span>` : ''}
                 <span>${escapeHtml(this.spotsAvailable)} ${t('experience.spotsAvailable')}</span>
                 ${exp.allows_mixed_audience ? `<span>${t('experience.mixedGroupsBadge')}</span>` : ''}

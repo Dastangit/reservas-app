@@ -8,7 +8,7 @@ module.exports = {
   mongodbUri: process.env.MONGODB_URI,
   jwtSecret: process.env.JWT_SECRET,
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
-  jwtExpire: process.env.JWT_EXPIRE || '24h',
+  jwtExpire: process.env.JWT_EXPIRE || '1h',
   jwtRefreshExpire: process.env.JWT_REFRESH_EXPIRE || '7d',
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
@@ -32,4 +32,19 @@ module.exports = {
     subject: process.env.VAPID_SUBJECT || 'mailto:admin@example.com',
   },
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+  // Dominio del tenant por defecto cuando el hostname no coincide con ninguno.
+  defaultTenantDomain: process.env.DEFAULT_TENANT_DOMAIN || 'elysioexperiences.com',
+};
+
+// Falla al arrancar si falta algo imprescindible, en vez de romper en la
+// primera peticion (p. ej. jwt.sign sin secreto).
+module.exports.validateEnv = () => {
+  const required = ['MONGODB_URI', 'JWT_SECRET', 'JWT_REFRESH_SECRET'];
+  const missing = required.filter((key) => !process.env[key]);
+  if (missing.length > 0) {
+    throw new Error(`Faltan variables de entorno: ${missing.join(', ')}`);
+  }
+  if (process.env.JWT_SECRET === process.env.JWT_REFRESH_SECRET) {
+    throw new Error('JWT_SECRET y JWT_REFRESH_SECRET deben ser distintos');
+  }
 };

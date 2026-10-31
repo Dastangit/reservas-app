@@ -1,5 +1,16 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /host/
+Disallow: /organizer/
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /booking/
+Disallow: /payment/
+Disallow: /review/
+Disallow: /experience-bookings
+Disallow: /reset-password
 
 User-agent: GPTBot
 Allow: /

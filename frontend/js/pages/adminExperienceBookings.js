@@ -18,9 +18,9 @@ const AdminExperienceBookingsPage = {
           <h1>${t('admin.experienceBookingsTitle')}</h1>
 
           <div class="dashboard-tabs">
-            <button class="tab-btn active" onclick="filterExpBookings('')">${t('dashboard.all')}</button>
-            <button class="tab-btn" onclick="filterExpBookings('pending_approval')">${t('dashboard.pending')}</button>
-            <button class="tab-btn" onclick="filterExpBookings('approved')">${t('dashboard.approved')}</button>
+            <button class="tab-btn active" data-action="filterExpBookings" data-arg="">${t('dashboard.all')}</button>
+            <button class="tab-btn" data-action="filterExpBookings" data-arg="pending_approval">${t('dashboard.pending')}</button>
+            <button class="tab-btn" data-action="filterExpBookings" data-arg="approved">${t('dashboard.approved')}</button>
           </div>
 
           <div id="exp-bookings-list">
@@ -117,15 +117,15 @@ const AdminExperienceBookingsPage = {
             </div>
             <div class="property-actions">
               ${b.status === 'pending_approval' ? `
-                <button onclick="approveExpBooking('${b._id}')" class="btn btn-success btn-sm">${i18n.t('admin.approveBtn')}</button>
-                <button onclick="rejectExpBooking('${b._id}')" class="btn btn-danger btn-sm">${i18n.t('admin.rejectBtn')}</button>
+                <button data-action="approveExpBooking" data-arg="${b._id}" class="btn btn-success btn-sm">${i18n.t('admin.approveBtn')}</button>
+                <button data-action="rejectExpBooking" data-arg="${b._id}" class="btn btn-danger btn-sm">${i18n.t('admin.rejectBtn')}</button>
               ` : ''}
               ${b.status === 'approved' ? `
-                <button onclick="contactOrganizerAboutBooking('${b._id}')" class="btn btn-outline btn-sm">${i18n.t('admin.whatsappOrganizerBtn')}</button>
-                <button onclick="contactTouristAboutBooking('${b._id}')" class="btn btn-outline btn-sm">${i18n.t('admin.notifyTouristBtn')}</button>
+                <button data-action="contactOrganizerAboutBooking" data-arg="${b._id}" class="btn btn-outline btn-sm">${i18n.t('admin.whatsappOrganizerBtn')}</button>
+                <button data-action="contactTouristAboutBooking" data-arg="${b._id}" class="btn btn-outline btn-sm">${i18n.t('admin.notifyTouristBtn')}</button>
               ` : ''}
               ${b.status === 'rejected' ? `
-                <button onclick="contactTouristAboutBooking('${b._id}')" class="btn btn-outline btn-sm">${i18n.t('admin.notifyTouristBtn')}</button>
+                <button data-action="contactTouristAboutBooking" data-arg="${b._id}" class="btn btn-outline btn-sm">${i18n.t('admin.notifyTouristBtn')}</button>
               ` : ''}
             </div>
           </div>

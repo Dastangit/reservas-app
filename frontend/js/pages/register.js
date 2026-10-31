@@ -34,7 +34,7 @@ const RegisterPage = {
               <div class="form-group">
                 <label for="password">${t('auth.password')}</label>
                 <div class="password-field-wrapper">
-                  <input type="password" id="password" required placeholder="${t('auth.passwordMinPlaceholder')}" minlength="6">
+                  <input type="password" id="password" required placeholder="${t('auth.passwordMinPlaceholder')}" minlength="8">
                   ${passwordToggleButton('password')}
                 </div>
               </div>
@@ -108,6 +108,19 @@ const RegisterPage = {
         role,
       });
 
+      // Hosts y organizadores quedan pendientes de aprobacion: sin sesion todavia.
+      if (response.success && response.data.pending_approval) {
+        const form = document.getElementById('register-form');
+        if (form) {
+          form.innerHTML = '';
+          const msg = document.createElement('p');
+          msg.className = 'success-message';
+          msg.textContent = i18n.t('auth.pendingApprovalRegistered');
+          form.appendChild(msg);
+        }
+        return;
+      }
+
       if (response.success) {
         auth.setAuth(response.data.token, response.data.refresh_token, {
           id: response.data.user_id,
@@ -116,7 +129,7 @@ const RegisterPage = {
           tourist_onboarding: response.data.tourist_onboarding,
         });
 
-        window.location.href = role === 'host' ? '/host/dashboard' : role === 'organizer' ? '/organizer/dashboard' : '/dashboard';
+        window.location.href = '/dashboard';
       }
     } catch (error) {
       errorEl.textContent = error.message || i18n.t('auth.registrationFailed');

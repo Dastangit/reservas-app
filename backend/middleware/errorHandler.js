@@ -1,27 +1,42 @@
 const errorHandler = (err, req, res, _next) => {
-  const error = { ...err };
-  error.message = err.message;
+  let statusCode = err.statusCode || 500;
+  let message = err.message;
 
   console.error(err.stack);
 
   if (err.name === 'CastError') {
-    error.message = 'Resource not found';
-    error.statusCode = 404;
+    message = 'Resource not found';
+    statusCode = 404;
   }
 
   if (err.code === 11000) {
-    error.message = 'Duplicate field value entered';
-    error.statusCode = 400;
+    message = 'Duplicate field value entered';
+    statusCode = 400;
   }
 
   if (err.name === 'ValidationError') {
-    error.message = Object.values(err.errors).map((val) => val.message);
-    error.statusCode = 400;
+    message = Object.values(err.errors).map((val) => val.message).join(', ');
+    statusCode = 400;
   }
 
-  res.status(error.statusCode || 500).json({
+  // body-parser: JSON mal formado o demasiado grande.
+  if (err.type === 'entity.parse.failed') {
+    message = 'Invalid JSON body';
+    statusCode = 400;
+  }
+  if (err.type === 'entity.too.large') {
+    message = 'Request body too large';
+    statusCode = 413;
+  }
+
+  // En produccion un 500 nunca expone detalles internos (stack, mensajes de Mongo, etc.).
+  if (statusCode >= 500 && process.env.NODE_ENV === 'production') {
+    message = 'Server Error';
+  }
+
+  res.status(statusCode).json({
     success: false,
-    error: error.message || 'Server Error',
+    error: message || 'Server Error',
   });
 };
 

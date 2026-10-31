@@ -70,7 +70,7 @@ const CreateRecurrencePage = {
               </div>
 
               <div class="form-group">
-                <label>${t('createRecurrence.timeLabel')}</label>
+                <label>${t('createRecurrence.timeLabel')} (${t('experience.cubaTime')})</label>
                 <input type="time" id="rec-time" value="09:00" required>
               </div>
 

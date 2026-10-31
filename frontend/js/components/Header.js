@@ -18,7 +18,7 @@ const Header = {
 
     let navLinks = '';
     const experiencesEnabled = window.APP_CONFIG?.features?.experiences_module;
-    const experiencesLink = experiencesEnabled ? '<a href="/experiences" data-link>Excursiones</a>' : '';
+    const experiencesLink = experiencesEnabled ? `<a href="/experiences" data-link>${t('header.experiences')}</a>` : '';
 
     if (!isLoggedIn) {
       navLinks = `
@@ -34,7 +34,7 @@ const Header = {
         ${experiencesLink}
         <a href="/dashboard" data-link>${t('nav.myBookings')}</a>
         <a href="/profile" data-link class="nav-user">${escapeHtml(user?.name || t('common.profile'))}</a>
-        <button onclick="logout()" class="btn btn-outline">${t('common.logout')}</button>
+        <button data-action="logout" class="btn btn-outline">${t('common.logout')}</button>
       `;
     } else if (role === 'host') {
       navLinks = `
@@ -43,51 +43,51 @@ const Header = {
         <a href="/host/bookings" data-link>${t('nav.myBookings')}</a>
         <a href="/host/earnings" data-link>${t('host.earnings')}</a>
         <a href="/host/profile" data-link class="nav-user">${escapeHtml(user?.name || t('common.profile'))}</a>
-        <button onclick="logout()" class="btn btn-outline">${t('common.logout')}</button>
+        <button data-action="logout" class="btn btn-outline">${t('common.logout')}</button>
       `;
     } else if (role === 'organizer') {
       navLinks = `
-        <a href="/organizer/dashboard" data-link>Panel</a>
-        <a href="/organizer/experiences" data-link>Mis excursiones</a>
-        <a href="/organizer/recurrences" data-link>Recurrentes</a>
-        <a href="/organizer/bookings" data-link>Reservas</a>
+        <a href="/organizer/dashboard" data-link>${t('header.organizerDashboard')}</a>
+        <a href="/organizer/experiences" data-link>${t('header.myExperiences')}</a>
+        <a href="/organizer/recurrences" data-link>${t('header.recurrences')}</a>
+        <a href="/organizer/bookings" data-link>${t('header.bookings')}</a>
         <a href="/profile" data-link class="nav-user">${escapeHtml(user?.name || t('common.profile'))}</a>
-        <button onclick="logout()" class="btn btn-outline">${t('common.logout')}</button>
+        <button data-action="logout" class="btn btn-outline">${t('common.logout')}</button>
       `;
     } else if (role === 'admin') {
       navLinks = `
         <a href="/admin/dashboard" data-link>${t('admin.dashboard')}</a>
-        <a href="/admin/bookings" data-link>${t('nav.myBookings')}</a>
-        <a href="/admin/properties" data-link>${t('host.myProperties')}</a>
-        <a href="/admin/users" data-link>Users</a>
+        <a href="/admin/bookings" data-link>${t('header.bookings')}</a>
+        <a href="/admin/properties" data-link>${t('header.properties')}</a>
+        <a href="/admin/users" data-link>${t('header.hosts')}</a>
         <div class="nav-dropdown">
-          <button type="button" class="nav-bell" onclick="toggleNotifBell(event)" aria-label="Notificaciones">
+          <button type="button" class="nav-bell" data-action="toggleNotifBell" aria-label="${t('header.notifications')}">
             🔔<span class="notif-badge" id="notif-badge" style="display:none;">0</span>
           </button>
           <div class="nav-dropdown-menu notif-menu" id="notif-menu">
-            <p class="loading">Cargando...</p>
+            <p class="loading">${t('common.loading')}</p>
           </div>
         </div>
         <div class="nav-dropdown">
-          <button type="button" class="nav-dropdown-toggle" onclick="toggleNavDropdown(event)">Más ▾</button>
+          <button type="button" class="nav-dropdown-toggle" data-action="toggleNavDropdown">${t('header.more')} ▾</button>
           <div class="nav-dropdown-menu">
-            <a href="/admin/availability" data-link>Disponibilidad</a>
-            <a href="/admin/orphaned-payments" data-link>Pagos huérfanos</a>
-            <a href="/admin/host-commissions" data-link>Comisiones hosts</a>
+            <a href="/admin/availability" data-link>${t('header.availability')}</a>
+            <a href="/admin/orphaned-payments" data-link>${t('header.orphanedPayments')}</a>
+            <a href="/admin/host-commissions" data-link>${t('header.hostCommissions')}</a>
             ${experiencesEnabled ? `
-              <a href="/admin/organizers" data-link>Organizadores</a>
-              <a href="/admin/experiences" data-link>Excursiones pendientes</a>
-              <a href="/admin/experience-bookings" data-link>Reservas de excursiones</a>
-              <a href="/admin/organizer-commissions" data-link>Comisiones organizadores</a>
+              <a href="/admin/organizers" data-link>${t('header.organizers')}</a>
+              <a href="/admin/experiences" data-link>${t('header.pendingExperiences')}</a>
+              <a href="/admin/experience-bookings" data-link>${t('header.experienceBookings')}</a>
+              <a href="/admin/organizer-commissions" data-link>${t('header.organizerCommissions')}</a>
             ` : ''}
-            <a href="/admin/password-resets" data-link>Reset contraseñas</a>
-            <a href="/admin/audit-log" data-link>Registro de acciones</a>
+            <a href="/admin/password-resets" data-link>${t('header.passwordResets')}</a>
+            <a href="/admin/audit-log" data-link>${t('header.auditLog')}</a>
             <a href="/admin/feedback" data-link>${t('nav.feedback')}</a>
             <a href="/admin/reports" data-link>${t('nav.reports')}</a>
             <a href="/admin/settings" data-link>${t('nav.settings')}</a>
           </div>
         </div>
-        <button onclick="logout()" class="btn btn-outline">${t('common.logout')}</button>
+        <button data-action="logout" class="btn btn-outline">${t('common.logout')}</button>
       `;
     }
 
@@ -95,7 +95,7 @@ const Header = {
       <header class="header">
         <div class="container">
           <div class="header-left">
-            <button type="button" class="nav-back-btn" onclick="history.back()" aria-label="${t('common.back')}" title="${t('common.back')}">
+            <button type="button" class="nav-back-btn" data-action="historyBack" aria-label="${t('common.back')}" title="${t('common.back')}">
               ←
             </button>
             <a href="/" data-link class="logo">
@@ -104,11 +104,11 @@ const Header = {
           </div>
           <nav class="nav">
             ${navLinks}
-            <select class="lang-select" onchange="changeLang(this.value)">
+            <select class="lang-select" data-change-action="changeLang">
               ${langOptions}
             </select>
           </nav>
-          <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+          <button class="mobile-menu-btn" data-action="toggleMobileMenu">
             <span></span>
             <span></span>
             <span></span>
@@ -150,28 +150,32 @@ window.changeLang = function (lang) {
   }
 };
 
-window.toggleNavDropdown = function (event) {
-  event.stopPropagation();
-  const menu = event.currentTarget.nextElementSibling;
+window.toggleNavDropdown = function () {
+  // `this` es el boton (eventos delegados desde app.js, ver data-action).
+  const menu = this.nextElementSibling;
   const wasOpen = menu.classList.contains('open');
   document.querySelectorAll('.nav-dropdown-menu.open').forEach((m) => m.classList.remove('open'));
   if (!wasOpen) menu.classList.add('open');
 };
 
-document.addEventListener('click', () => {
+// Cierra los menus al hacer clic fuera. Los botones que los abren se ignoran:
+// su propia accion decide si abrir o cerrar.
+document.addEventListener('click', (event) => {
+  if (event.target.closest('.nav-dropdown-toggle, .nav-bell')) return;
   document.querySelectorAll('.nav-dropdown-menu.open').forEach((m) => m.classList.remove('open'));
 });
 
-const notifLabels = {
-  bookings: { label: 'Reservas pendientes', url: '/admin/bookings' },
-  properties: { label: 'Propiedades pendientes', url: '/admin/properties' },
-  password_resets: { label: 'Resets de contraseña', url: '/admin/password-resets' },
-  orphaned_payments: { label: 'Pagos huérfanos', url: '/admin/orphaned-payments' },
-  overdue_commissions: { label: 'Comisiones vencidas', url: '/admin/host-commissions' },
-  pending_experiences: { label: 'Excursiones pendientes', url: '/admin/experiences' },
-  pending_experience_bookings: { label: 'Reservas de excursiones pendientes', url: '/admin/experience-bookings' },
-  overdue_organizer_commissions: { label: 'Comisiones de organizadores vencidas', url: '/admin/organizer-commissions' },
-  manual_payments_pending: { label: 'Pagos manuales de PayPal por confirmar', url: '/admin/bookings' },
+// Clave i18n (header.notif.<clave>) y destino de cada contador pendiente.
+const notifUrls = {
+  bookings: '/admin/bookings',
+  properties: '/admin/properties',
+  password_resets: '/admin/password-resets',
+  orphaned_payments: '/admin/orphaned-payments',
+  overdue_commissions: '/admin/host-commissions',
+  pending_experiences: '/admin/experiences',
+  pending_experience_bookings: '/admin/experience-bookings',
+  overdue_organizer_commissions: '/admin/organizer-commissions',
+  manual_payments_pending: '/admin/bookings',
 };
 
 async function loadPendingCounts() {
@@ -190,24 +194,23 @@ async function loadPendingCounts() {
       badge.style.display = 'none';
     }
 
-    const items = Object.entries(notifLabels)
+    const items = Object.entries(notifUrls)
       .filter(([key]) => counts[key] > 0)
-      .map(([key, meta]) => `<a href="${escapeHtml(meta.url)}" data-link>${escapeHtml(meta.label)} <strong>(${counts[key]})</strong></a>`)
+      .map(([key, url]) => `<a href="${escapeHtml(url)}" data-link>${escapeHtml(i18n.t(`header.notif.${key}`))} <strong>(${counts[key]})</strong></a>`)
       .join('');
 
     const { subscribed } = await syncAdminPushSubscription();
     const subscribeRow = !subscribed
-      ? '<button type="button" class="notif-enable-btn" onclick="enableAdminPush()">🔔 Activar notificaciones push</button>'
+      ? `<button type="button" class="notif-enable-btn" data-action="enableAdminPush">🔔 ${i18n.t('header.enablePush')}</button>`
       : '';
 
-    menu.innerHTML = (items || '<p class="no-results" style="padding:8px 12px;">Nada pendiente por ahora.</p>') + subscribeRow;
+    menu.innerHTML = (items || `<p class="no-results" style="padding:8px 12px;">${i18n.t('header.nothingPending')}</p>`) + subscribeRow;
   } catch (error) {
-    menu.innerHTML = '<p class="error" style="padding:8px 12px;">Error cargando notificaciones</p>';
+    menu.innerHTML = `<p class="error" style="padding:8px 12px;">${i18n.t('header.notifError')}</p>`;
   }
 }
 
-window.toggleNotifBell = function (event) {
-  event.stopPropagation();
+window.toggleNotifBell = function () {
   const menu = document.getElementById('notif-menu');
   const wasOpen = menu.classList.contains('open');
   document.querySelectorAll('.nav-dropdown-menu.open').forEach((m) => m.classList.remove('open'));
@@ -220,14 +223,14 @@ window.toggleNotifBell = function (event) {
 window.enableAdminPush = async function () {
   const result = await subscribeAdminToPush();
   if (result.ok) {
-    alert('¡Notificaciones activadas! Recibirás un aviso cuando algo necesite tu atención.');
+    alert(i18n.t('header.pushEnabled'));
     loadPendingCounts();
   } else if (result.reason === 'denied') {
-    alert('Bloqueaste el permiso de notificaciones. Actívalo desde la configuración del navegador si cambias de opinión.');
+    alert(i18n.t('header.pushDenied'));
   } else if (result.reason === 'unsupported') {
-    alert('Tu navegador no soporta notificaciones push.');
+    alert(i18n.t('header.pushUnsupported'));
   } else {
-    alert('No se pudo activar la notificación, intenta de nuevo.');
+    alert(i18n.t('header.pushFailed'));
   }
 };
 

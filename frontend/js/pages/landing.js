@@ -37,7 +37,7 @@ const LandingPage = {
               <label for="check-out">${t('booking.checkOut')}</label>
               <input type="date" id="check-out">
             </div>
-            <button onclick="handleSearch()" class="btn btn-secondary">${t('hero.searchBtn')}</button>
+            <button data-action="handleSearch" class="btn btn-secondary">${t('hero.searchBtn')}</button>
           </div>
           <a href="/how-it-works" data-link class="btn hero-how-it-works-btn">${t('howItWorks.title')}</a>
         </div>

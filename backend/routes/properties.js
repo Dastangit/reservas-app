@@ -5,12 +5,14 @@ const {
   updateProperty, checkAvailability,
   blockDates, unblockDates, getAvailabilityCalendar,
 } = require('../controllers/propertyController');
-const { protect, authorize } = require('../middleware/auth');
+const { protect, authorize, optionalAuth } = require('../middleware/auth');
 const { setTenant } = require('../middleware/tenant');
 const validate = require('../middleware/validate');
 
 const router = express.Router();
 
+// optionalAuth antes de setTenant: con sesion, el tenant sale del usuario.
+router.use(optionalAuth);
 router.use(setTenant);
 
 router.get('/my', protect, authorize('host'), getMyProperties);

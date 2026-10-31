@@ -4,7 +4,7 @@ import { escapeHtml } from './escape.js';
 // data-target apuntando al id del input.
 
 export function passwordToggleButton(inputId) {
-  return `<button type="button" class="password-toggle-btn" data-target="${escapeHtml(inputId)}" onclick="togglePasswordVisibility('${escapeHtml(inputId)}')" aria-label="Mostrar contraseña" tabindex="-1">\u{1F441}\u{FE0F}</button>`;
+  return `<button type="button" class="password-toggle-btn" data-target="${escapeHtml(inputId)}" data-action="togglePasswordVisibility" data-arg="${escapeHtml(inputId)}" aria-label="Mostrar contraseña" tabindex="-1">\u{1F441}\u{FE0F}</button>`;
 }
 
 if (typeof window !== 'undefined' && !window.togglePasswordVisibility) {

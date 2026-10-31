@@ -118,9 +118,9 @@ const AdminOrganizerCommissionsPage = {
           </div>
           ${!['paid', 'waived'].includes(c.status) ? `
             <div class="commission-actions">
-              <button onclick="notifyOrganizerCommissionWhatsApp('${c._id}')" class="btn btn-outline btn-sm">${i18n.t('admin.whatsappOrganizerBtn')}</button>
-              <button onclick="markOrganizerCommissionPaid('${c._id}')" class="btn btn-success btn-sm">${i18n.t('admin.markPaidBtn')}</button>
-              <button onclick="waiveOrganizerCommission('${c._id}')" class="btn btn-outline btn-sm">${i18n.t('admin.waiveBtn')}</button>
+              <button data-action="notifyOrganizerCommissionWhatsApp" data-arg="${c._id}" class="btn btn-outline btn-sm">${i18n.t('admin.whatsappOrganizerBtn')}</button>
+              <button data-action="markOrganizerCommissionPaid" data-arg="${c._id}" class="btn btn-success btn-sm">${i18n.t('admin.markPaidBtn')}</button>
+              <button data-action="waiveOrganizerCommission" data-arg="${c._id}" class="btn btn-outline btn-sm">${i18n.t('admin.waiveBtn')}</button>
             </div>
           ` : ''}
         </div>

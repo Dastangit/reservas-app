@@ -2,14 +2,67 @@ const Experience = require('../models/Experience');
 const ExperienceBooking = require('../models/ExperienceBooking');
 const ExperienceWaitlist = require('../models/ExperienceWaitlist');
 const { promoteNextWaitlistEntry } = require('../utils/experienceWaitlist');
-const { escapeRegex } = require('../utils/helpers');
+const { escapeRegex, parsePagination } = require('../utils/helpers');
+
+// Una reserva de excursion no cuesta nada y retiene cupos 24 h: se limita cuantas
+// pendientes puede tener un turista y cuantos cupos pide de una vez.
+const MAX_PENDING_EXPERIENCE_BOOKINGS = 3;
+const MAX_SPOTS_PER_BOOKING = 20;
+
+const INTERNAL_FIELDS = ['admin_notes', 'rejection_reason'];
+
+const toSpots = (value) => {
+  const n = Number(value);
+  return Number.isInteger(n) ? n : NaN;
+};
+
+const pickTouristData = (data = {}) => ({
+  name: String(data.name || '').trim().slice(0, 100),
+  email: String(data.email || '').trim().toLowerCase().slice(0, 200),
+  phone: String(data.phone || '').trim(),
+  contact_method: ['whatsapp', 'email'].includes(data.contact_method) ? data.contact_method : undefined,
+  language: ['es', 'en', 'fr'].includes(data.language) ? data.language : 'es',
+});
+
+// Calcula payment_info a partir del pricing de la excursion (nunca del
+// monto que manda el cliente). Devuelve { error } o { payment_info, num_spots }.
+function buildPaymentInfo(experience, rawPaymentInfo) {
+  if (!Array.isArray(rawPaymentInfo) || rawPaymentInfo.length === 0) {
+    return { error: 'payment_info is required' };
+  }
+  if (!experience.allows_mixed_audience && rawPaymentInfo.length > 1) {
+    return { error: 'This experience does not allow mixing local and tourist bookings' };
+  }
+
+  const payment_info = [];
+  let num_spots = 0;
+  for (const entry of rawPaymentInfo) {
+    const audience = entry?.audience;
+    const currency = entry?.currency;
+    const spots = toSpots(entry?.num_spots);
+    if (!audience || !currency || !(spots >= 1)) {
+      return { error: 'Invalid payment_info entry' };
+    }
+    const pricingRule = experience.pricing.find((p) => p.audience === audience && p.currency === currency);
+    if (!pricingRule) {
+      return { error: `No pricing available for ${audience}/${currency} on this experience` };
+    }
+    payment_info.push({ audience, currency, num_spots: spots, amount: pricingRule.amount * spots });
+    num_spots += spots;
+  }
+
+  if (num_spots > MAX_SPOTS_PER_BOOKING) {
+    return { error: `Maximum ${MAX_SPOTS_PER_BOOKING} spots per booking` };
+  }
+  return { payment_info, num_spots };
+}
 
 exports.getExperiences = async (req, res, next) => {
   try {
     const {
       city, category, date_from, date_to, audience, currency,
-      page = 1, limit = 10,
     } = req.query;
+    const { page, limit, skip } = parsePagination(req.query, { defaultLimit: 10, maxLimit: 50 });
 
     const query = {
       tenant_id: req.tenantId,
@@ -18,10 +71,11 @@ exports.getExperiences = async (req, res, next) => {
     };
 
     if (city) query['location.city'] = new RegExp(escapeRegex(city), 'i');
-    if (category) query.category = category;
+    if (category) query.category = String(category);
     if (date_from || date_to) {
       query.date = query.date || {};
-      if (date_from) query.date.$gte = new Date(date_from);
+      // Nunca se listan excursiones pasadas, aunque date_from sea anterior.
+      if (date_from) query.date.$gte = new Date(Math.max(new Date(date_from).getTime() || 0, Date.now()));
       if (date_to) query.date.$lte = new Date(date_to);
     }
     if (audience || currency) {
@@ -33,16 +87,15 @@ exports.getExperiences = async (req, res, next) => {
       };
     }
 
-    const skip = (Number(page) - 1) * Number(limit);
-
     const [experiences, total_count] = await Promise.all([
-      Experience.find(query).sort({ date: 1 }).skip(skip).limit(Number(limit)).populate('organizer_id', 'name'),
+      Experience.find(query).select(INTERNAL_FIELDS.map((f) => `-${f}`).join(' '))
+        .sort({ date: 1 }).skip(skip).limit(limit).populate('organizer_id', 'name'),
       Experience.countDocuments(query),
     ]);
 
     res.json({
       success: true,
-      data: { experiences, total_count, page: Number(page), per_page: Number(limit) },
+      data: { experiences, total_count, page, per_page: limit },
     });
   } catch (error) {
     next(error);
@@ -60,10 +113,20 @@ exports.getExperienceById = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Experience not found' });
     }
 
+    const privileged = Boolean(req.user) && (req.user.role === 'admin'
+      || String(req.user._id) === String(experience.organizer_id?._id || experience.organizer_id));
+    // Pendientes/rechazadas/canceladas solo las ve su organizador o el admin.
+    if (!['active', 'full', 'completed'].includes(experience.status) && !privileged) {
+      return res.status(404).json({ success: false, error: 'Experience not found' });
+    }
+
+    const data = experience.toObject();
+    if (!privileged) INTERNAL_FIELDS.forEach((f) => delete data[f]);
+
     res.json({
       success: true,
       data: {
-        experience,
+        experience: data,
         spots_available: Math.max(experience.max_participants - experience.current_participants, 0),
       },
     });
@@ -84,53 +147,28 @@ exports.createExperienceBooking = async (req, res, next) => {
       _id: req.params.id,
       tenant_id: req.tenantId,
       status: 'active',
+      date: { $gt: new Date() },
     });
 
     if (!experience) {
       return res.status(404).json({ success: false, error: 'Experience not found' });
     }
 
-    if (!Array.isArray(rawPaymentInfo) || rawPaymentInfo.length === 0) {
-      return res.status(400).json({ success: false, error: 'payment_info is required' });
+    const built = buildPaymentInfo(experience, rawPaymentInfo);
+    if (built.error) {
+      return res.status(400).json({ success: false, error: built.error });
     }
+    const { payment_info, num_spots } = built;
 
-    if (!experience.allows_mixed_audience && rawPaymentInfo.length > 1) {
-      return res.status(400).json({
+    const pendingCount = await ExperienceBooking.countDocuments({
+      tourist_id: req.user._id,
+      status: 'pending_approval',
+    });
+    if (pendingCount >= MAX_PENDING_EXPERIENCE_BOOKINGS) {
+      return res.status(429).json({
         success: false,
-        error: 'This experience does not allow mixing local and tourist bookings',
+        error: 'You have too many bookings waiting for approval. Wait for them or cancel one first.',
       });
-    }
-
-    // El monto se recalcula server-side a partir del pricing[] de la
-    // excursión -- nunca se confía en el amount que manda el cliente.
-    const payment_info = [];
-    let num_spots = 0;
-
-    for (const entry of rawPaymentInfo) {
-      const { audience, currency, num_spots: entry_spots } = entry;
-
-      if (!audience || !currency || !entry_spots || entry_spots < 1) {
-        return res.status(400).json({ success: false, error: 'Invalid payment_info entry' });
-      }
-
-      const pricingRule = experience.pricing.find(
-        (p) => p.audience === audience && p.currency === currency
-      );
-
-      if (!pricingRule) {
-        return res.status(400).json({
-          success: false,
-          error: `No pricing available for ${audience}/${currency} on this experience`,
-        });
-      }
-
-      payment_info.push({
-        audience,
-        currency,
-        num_spots: entry_spots,
-        amount: pricingRule.amount * entry_spots,
-      });
-      num_spots += entry_spots;
     }
 
     // Incremento atómico -- solo si no se excede max_participants. Evita
@@ -163,7 +201,7 @@ exports.createExperienceBooking = async (req, res, next) => {
       organizer_id: experience.organizer_id,
       num_spots,
       payment_info,
-      tourist_data,
+      tourist_data: pickTouristData(tourist_data),
       hold_expires_at,
       status: 'pending_approval',
       status_history: [{ status: 'pending_approval', changed_at: new Date(), changed_by: 'system' }],
@@ -184,15 +222,36 @@ exports.createExperienceBooking = async (req, res, next) => {
 
 exports.joinWaitlist = async (req, res, next) => {
   try {
-    const { num_spots_requested = 1 } = req.body;
+    const numSpots = toSpots(req.body.num_spots_requested ?? 1);
 
     const experience = await Experience.findOne({
       _id: req.params.id,
       tenant_id: req.tenantId,
+      status: { $in: ['active', 'full'] },
+      date: { $gt: new Date() },
     });
 
     if (!experience) {
       return res.status(404).json({ success: false, error: 'Experience not found' });
+    }
+
+    // Antes se aceptaba cualquier numero (incluso negativo, que al promoverse
+    // bajaba current_participants y permitia sobrevender).
+    if (!(numSpots >= 1) || numSpots > Math.min(experience.max_participants, MAX_SPOTS_PER_BOOKING)) {
+      return res.status(400).json({ success: false, error: 'Invalid number of spots' });
+    }
+
+    if (experience.current_participants + numSpots <= experience.max_participants) {
+      return res.status(400).json({ success: false, error: 'There are spots available, book directly instead' });
+    }
+
+    const alreadyWaiting = await ExperienceWaitlist.exists({
+      experience_id: experience._id,
+      tourist_id: req.user._id,
+      status: { $in: ['waiting', 'notified'] },
+    });
+    if (alreadyWaiting) {
+      return res.status(400).json({ success: false, error: 'You are already on the waitlist for this experience' });
     }
 
     const lastEntry = await ExperienceWaitlist.findOne({
@@ -206,7 +265,7 @@ exports.joinWaitlist = async (req, res, next) => {
       tenant_id: req.tenantId,
       experience_id: experience._id,
       tourist_id: req.user._id,
-      num_spots_requested,
+      num_spots_requested: numSpots,
       position,
     });
 
@@ -290,40 +349,27 @@ exports.claimWaitlistSpot = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Experience not found' });
     }
 
-    if (!Array.isArray(rawPaymentInfo) || rawPaymentInfo.length === 0) {
-      return res.status(400).json({ success: false, error: 'payment_info is required' });
+    const built = buildPaymentInfo(experience, rawPaymentInfo);
+    if (built.error) {
+      return res.status(400).json({ success: false, error: built.error });
     }
-    if (!experience.allows_mixed_audience && rawPaymentInfo.length > 1) {
-      return res.status(400).json({
-        success: false,
-        error: 'This experience does not allow mixing local and tourist bookings',
-      });
-    }
-
-    const payment_info = [];
-    let num_spots = 0;
-
-    for (const p of rawPaymentInfo) {
-      const { audience, currency, num_spots: entry_spots } = p;
-
-      if (!audience || !currency || !entry_spots || entry_spots < 1) {
-        return res.status(400).json({ success: false, error: 'Invalid payment_info entry' });
-      }
-
-      const pricingRule = experience.pricing.find((pr) => pr.audience === audience && pr.currency === currency);
-      if (!pricingRule) {
-        return res.status(400).json({ success: false, error: `No pricing available for ${audience}/${currency}` });
-      }
-
-      payment_info.push({ audience, currency, num_spots: entry_spots, amount: pricingRule.amount * entry_spots });
-      num_spots += entry_spots;
-    }
+    const { payment_info, num_spots } = built;
 
     if (num_spots !== entry.num_spots_requested) {
       return res.status(400).json({
         success: false,
         error: `num_spots must equal ${entry.num_spots_requested}`,
       });
+    }
+
+    // Se marca reclamado de forma atomica antes de crear la reserva: si el
+    // cron lo vencio en paralelo, no se crea una reserva sobre un cupo liberado.
+    const claimed = await ExperienceWaitlist.updateOne(
+      { _id: entry._id, status: 'notified' },
+      { $set: { status: 'claimed' } },
+    );
+    if (claimed.modifiedCount !== 1) {
+      return res.status(410).json({ success: false, error: 'Claim window expired' });
     }
 
     const hold_expires_at = new Date();
@@ -336,14 +382,11 @@ exports.claimWaitlistSpot = async (req, res, next) => {
       organizer_id: experience.organizer_id,
       num_spots,
       payment_info,
-      tourist_data,
+      tourist_data: pickTouristData(tourist_data),
       hold_expires_at,
       status: 'pending_approval',
       status_history: [{ status: 'pending_approval', changed_at: new Date(), changed_by: 'system' }],
     });
-
-    entry.status = 'claimed';
-    await entry.save();
 
     res.status(201).json({
       success: true,
@@ -370,13 +413,17 @@ exports.cancelExperienceBooking = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Cannot cancel booking in current status' });
     }
 
-    booking.status = 'cancelled';
-    booking.status_history.push({
-      status: 'cancelled',
-      changed_at: new Date(),
-      changed_by: req.user._id,
-    });
-    await booking.save();
+    // Atomico: dos cancelaciones simultaneas liberaban los cupos dos veces.
+    const result = await ExperienceBooking.updateOne(
+      { _id: booking._id, status: { $in: ['pending_approval', 'approved'] } },
+      {
+        $set: { status: 'cancelled' },
+        $push: { status_history: { status: 'cancelled', changed_at: new Date(), changed_by: String(req.user._id) } },
+      },
+    );
+    if (result.modifiedCount !== 1) {
+      return res.status(409).json({ success: false, error: 'Booking status changed, reload and try again' });
+    }
 
     await Experience.findOneAndUpdate(
       { _id: booking.experience_id, tenant_id: req.tenantId },

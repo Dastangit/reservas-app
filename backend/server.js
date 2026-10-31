@@ -1,100 +1,38 @@
 require('./instrument');
 console.log('[Server] Starting...');
 
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const mongoSanitize = require('express-mongo-sanitize');
+const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const env = require('./config/env');
-const { loginLimiter, apiLimiter } = require('./middleware/rateLimiter');
-const { startHoldExpiryCron } = require('./jobs/holdExpiry');
-const { startHostCommissionCron } = require('./jobs/hostCommissionCron');
-const { startOrganizerCommissionCron } = require('./jobs/organizerCommissionCron');
-const { startExperienceRecurrenceCron } = require('./jobs/experienceRecurrenceCron');
-
-const app = express();
-
-// Confiamos solo en el primer salto de proxy (el de Render) -- "true"
-// confiaba en toda la cadena, lo cual permite falsificar X-Forwarded-For y
-// saltarse el rate limiting de login. "1" es el valor correcto para un
-// servicio detrás de exactamente un proxy inverso.
-app.set('trust proxy', 1);
-
-// Morgan PRIMERO — para capturar TODAS las requests (incluyendo OPTIONS
-// de CORS preflight) antes de que cors/helmet las consuman.
-app.use(morgan('dev'));
-
-app.use(helmet());
-
-// El frontend se sirve desde Vercel con proxy (/api/* → backend), asi que en
-// produccion el navegador habla siempre con el mismo origen. Solo se permiten
-// el frontend oficial y, fuera de produccion, los origenes de desarrollo local.
-const allowedOrigins = [env.frontendUrl, 'https://reservas-app-blue.vercel.app']
-  .filter(Boolean)
-  .map((url) => url.replace(/\/+$/, ''));
-
-const localDevOrigin = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}):\d+$/;
-app.use(cors({
-  origin: (origin, callback) => {
-    // Sin Origin: peticiones servidor a servidor (proxy de Vercel, middleware,
-    // health checks, curl). No son peticiones CORS de navegador.
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    if (env.nodeEnv !== 'production' && localDevOrigin.test(origin)) {
-      return callback(null, true);
-    }
-    return callback(null, false);
-  },
-  credentials: true,
-}));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
-// Limpia cualquier operador Mongo ($gt, $ne, etc.) de body/query/params antes
-// de que llegue a Mongoose -- previene NoSQL injection.
-app.use(mongoSanitize());
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-app.use('/api/auth', apiLimiter, require('./routes/auth'));
-app.use('/api/properties', apiLimiter, require('./routes/properties'));
-app.use('/api/bookings', apiLimiter, require('./routes/bookings'));
-app.use('/api/reviews', apiLimiter, require('./routes/reviews'));
-app.use('/api/feedback', apiLimiter, require('./routes/feedback'));
-app.use('/api/users', apiLimiter, require('./routes/users'));
-app.use('/api/admin', apiLimiter, require('./routes/admin'));
-app.use('/api/search', apiLimiter, require('./routes/search'));
-app.use('/api/contact', apiLimiter, require('./routes/contact'));
-app.use('/api/payments', apiLimiter, require('./routes/payments'));
-app.use('/api/uploads', apiLimiter, require('./routes/uploads'));
-app.use('/api/push', apiLimiter, require('./routes/push'));
-app.use('/api/experiences', apiLimiter, require('./routes/experiences'));
-app.use('/api/experience-bookings', apiLimiter, require('./routes/experienceBookings'));
-app.use('/api/organizer', apiLimiter, require('./routes/organizer'));
-app.use('/api/webhooks', require('./routes/webhooks'));
-
-app.use('/api/*', (req, res) => {
-  res.status(404).json({ success: false, error: 'API route not found' });
-});
-
-const errorHandler = require('./middleware/errorHandler');
-app.use(errorHandler);
+const { startAllJobs } = require('./jobs');
+const app = require('./app');
 
 const startServer = async () => {
+  env.validateEnv();
   await connectDB();
 
   const PORT = env.port;
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`Server running in ${env.nodeEnv} mode on port ${PORT}`);
-    startHoldExpiryCron();
-    startHostCommissionCron();
-    startOrganizerCommissionCron();
-    startExperienceRecurrenceCron();
+    // RUN_JOBS=false cuando los crons corren en worker.js (proceso aparte).
+    if (process.env.RUN_JOBS !== 'false') {
+      startAllJobs();
+    } else {
+      console.log('[Server] Crons desactivados (RUN_JOBS=false), los corre worker.js');
+    }
   });
+
+  // Apagado limpio en redeploys: deja terminar las peticiones en curso y
+  // cierra la conexion a Mongo antes de salir.
+  const shutdown = (signal) => {
+    console.log(`[Server] ${signal} recibido, cerrando...`);
+    server.close(() => {
+      mongoose.connection.close(false).finally(() => process.exit(0));
+    });
+    setTimeout(() => process.exit(1), 10000).unref();
+  };
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 };
 
 startServer().catch((err) => {

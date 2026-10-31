@@ -1,5 +1,6 @@
 const Booking = require('../models/Booking');
 const Property = require('../models/Property');
+const { withPropertyLock } = require('../utils/propertyLock');
 const Feedback = require('../models/Feedback');
 const User = require('../models/User');
 const Payment = require('../models/Payment');
@@ -15,6 +16,16 @@ const { buildMailtoLink } = require('../utils/mailto');
 const { buildTouristMessage } = require('../utils/touristMessages');
 const { logAdminAction } = require('../utils/auditLog');
 const env = require('../config/env');
+const { parsePagination } = require('../utils/helpers');
+
+const ACTIVE_BOOKING_STATUSES = ['pending_payment', 'pending_approval', 'approved'];
+
+// Campos que el admin puede editar en una propiedad (nunca tenant_id/host_id/_id).
+const ADMIN_PROPERTY_FIELDS = [
+  'name', 'type', 'description', 'location', 'max_guests', 'bedrooms', 'bathrooms', 'bed_types',
+  'price_per_night', 'currency', 'amenities', 'images', 'payment_options', 'status', 'admin_notes',
+  'suspended', 'suspension_reason', 'rejection_reason',
+];
 
 exports.getDashboard = async (req, res, next) => {
   try {
@@ -37,7 +48,9 @@ exports.getDashboard = async (req, res, next) => {
       Property.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),
       Feedback.countDocuments({ tenant_id: tenantId, status: 'new' }),
       Booking.aggregate([
-        { $match: { tenant_id: tenantId, status: 'approved' } },
+        // Fees cobrados: incluye reservas completadas (antes solo 'approved',
+        // asi que el ingreso "desaparecia" al completarse la reserva).
+        { $match: { tenant_id: tenantId, fee_paid: true, status: { $in: ['pending_approval', 'approved', 'completed'] } } },
         { $group: { _id: null, total: { $sum: '$fee_amount' } } },
       ]),
       Property.countDocuments({ tenant_id: tenantId }),
@@ -89,6 +102,7 @@ exports.approveProperty = async (req, res, next) => {
 
     property.status = 'active';
     property.approval_date = new Date();
+    property.changes_pending_review = false;
     await property.save();
 
     res.json({ success: true, data: { property_id: property._id, status: 'active', email_sent: true } });
@@ -162,23 +176,22 @@ exports.rejectProperty = async (req, res, next) => {
 
 exports.getAllBookings = async (req, res, next) => {
   try {
-    const { status, property_id, sort_by, page = 1, limit = 10 } = req.query;
+    const { status, property_id, sort_by } = req.query;
+    const { page, limit, skip } = parsePagination(req.query, { defaultLimit: 10 });
 
     const query = { tenant_id: req.tenantId };
 
-    if (status) query.status = status;
-    if (property_id) query.property_id = property_id;
+    if (status) query.status = String(status);
+    if (property_id) query.property_id = String(property_id);
 
     let sortOption = { created_at: -1 };
     if (sort_by === 'oldest') sortOption = { created_at: 1 };
-
-    const skip = (Number(page) - 1) * Number(limit);
 
     const [bookings, total_count] = await Promise.all([
       Booking.find(query)
         .sort(sortOption)
         .skip(skip)
-        .limit(Number(limit))
+        .limit(limit)
         .populate('property_id', 'name')
         .populate('tourist_id', 'name email')
         .populate('host_id', 'name'),
@@ -187,7 +200,7 @@ exports.getAllBookings = async (req, res, next) => {
 
     res.json({
       success: true,
-      data: { bookings, total_count, page: Number(page), per_page: Number(limit) },
+      data: { bookings, total_count, page, per_page: limit },
     });
   } catch (error) {
     next(error);
@@ -215,18 +228,23 @@ exports.confirmManualPayment = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Booking is not pending payment' });
     }
 
-    booking.status = 'pending_approval';
-    booking.payment_stage = 'paid';
-    booking.fee_paid = true;
-    booking.fee_paid_at = new Date();
-    booking.fee_transaction_id = req.body.reference || 'manual-paypal';
-    booking.payment_needs_review = false;
-    booking.status_history.push({
-      status: 'pending_approval',
-      changed_at: new Date(),
-      changed_by: req.user._id,
-    });
-    await booking.save();
+    const result = await Booking.updateOne(
+      { _id: booking._id, status: 'pending_payment' },
+      {
+        $set: {
+          status: 'pending_approval',
+          payment_stage: 'paid',
+          fee_paid: true,
+          fee_paid_at: new Date(),
+          fee_transaction_id: String(req.body.reference || booking.payment_reference || 'manual-paypal').slice(0, 200),
+          payment_needs_review: false,
+        },
+        $push: { status_history: { status: 'pending_approval', changed_at: new Date(), changed_by: String(req.user._id) } },
+      },
+    );
+    if (result.modifiedCount !== 1) {
+      return res.status(409).json({ success: false, error: 'Booking status changed, reload and try again' });
+    }
 
     await Payment.findOneAndUpdate(
       { booking_id: booking._id, method: 'paypal_manual' },
@@ -249,54 +267,28 @@ exports.confirmManualPayment = async (req, res, next) => {
   }
 };
 
-exports.getHostPayouts = async (req, res, next) => {
+// Solo se exponen/editan los ajustes que de verdad usa la app. Los antiguos
+// campos de pasarela (NOWPayments) y fee no tenian efecto: el fee esta fijo
+// en $7 (Booking.fee_amount) y las credenciales de QvaPay van por variables de entorno.
+const pickSettings = (tenant) => ({
+  logo_url: tenant.settings?.branding?.logo_url || '',
+  favicon_url: tenant.settings?.branding?.favicon_url || '',
+  primary_color: tenant.settings?.branding?.primary_color || '',
+  secondary_color: tenant.settings?.branding?.secondary_color || '',
+  languages: tenant.settings?.languages || [],
+  default_language: tenant.settings?.default_language || 'en',
+  admin_email: tenant.admin_email || '',
+  admin_whatsapp: tenant.admin_whatsapp || '',
+});
+
+exports.getSettings = async (req, res, next) => {
   try {
-    const { year, month } = req.query;
-    const matchStage = {
-      tenant_id: req.tenantId,
-      booking_type: 'full_online',
-      status: { $in: ['approved', 'completed'] },
-    };
-
-    if (year && month) {
-      const rangeStart = new Date(Number(year), Number(month) - 1, 1);
-      const rangeEnd = new Date(Number(year), Number(month), 1);
-      matchStage.check_out = { $gte: rangeStart, $lt: rangeEnd };
+    const Tenant = require('../models/Tenant');
+    const tenant = await Tenant.findById(req.tenantId);
+    if (!tenant) {
+      return res.status(404).json({ success: false, error: 'Tenant not found' });
     }
-
-    const payouts = await Booking.aggregate([
-      { $match: matchStage },
-      {
-        $group: {
-          _id: '$host_id',
-          total_bookings: { $sum: 1 },
-          total_amount: { $sum: '$total_amount' },
-        },
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'host',
-        },
-      },
-      { $unwind: { path: '$host', preserveNullAndEmptyArrays: true } },
-      {
-        $project: {
-          host_id: '$_id',
-          host_name: { $ifNull: ['$host.name', 'Unknown'] },
-          host_email: { $ifNull: ['$host.email', ''] },
-          total_bookings: 1,
-          total_amount: 1,
-          commission: { $multiply: ['$total_amount', 0.10] },
-          net_payable: { $multiply: ['$total_amount', 0.90] },
-        },
-      },
-      { $sort: { host_name: 1 } },
-    ]);
-
-    res.json({ success: true, data: { payouts } });
+    res.json({ success: true, data: { settings: pickSettings(tenant) } });
   } catch (error) {
     next(error);
   }
@@ -313,24 +305,30 @@ exports.updateSettings = async (req, res, next) => {
     }
 
     const s = tenant.settings;
+    const str = (value) => String(value ?? '').trim().slice(0, 500);
 
-    if (req.body.logo_url !== undefined) s.branding.logo_url = req.body.logo_url;
-    if (req.body.primary_color !== undefined) s.branding.primary_color = req.body.primary_color;
-    if (req.body.secondary_color !== undefined) s.branding.secondary_color = req.body.secondary_color;
-    if (req.body.favicon_url !== undefined) s.branding.favicon_url = req.body.favicon_url;
-    if (req.body.languages !== undefined) s.languages = req.body.languages;
-    if (req.body.default_language !== undefined) s.default_language = req.body.default_language;
-    if (req.body.currency !== undefined) s.currency = req.body.currency;
-    if (req.body.timezone !== undefined) s.timezone = req.body.timezone;
-    if (req.body.gateway !== undefined) s.payment.gateway = req.body.gateway;
-    if (req.body.nowpayments_api_key !== undefined) s.payment.nowpayments_api_key = req.body.nowpayments_api_key;
-    if (req.body.nowpayments_ipn_key !== undefined) s.payment.nowpayments_ipn_key = req.body.nowpayments_ipn_key;
-    if (req.body.fee_amount !== undefined) s.payment.fee_amount = req.body.fee_amount;
-    if (req.body.fee_currency !== undefined) s.payment.fee_currency = req.body.fee_currency;
+    if (req.body.logo_url !== undefined) s.branding.logo_url = str(req.body.logo_url);
+    if (req.body.favicon_url !== undefined) s.branding.favicon_url = str(req.body.favicon_url);
+    if (req.body.primary_color !== undefined) s.branding.primary_color = str(req.body.primary_color);
+    if (req.body.secondary_color !== undefined) s.branding.secondary_color = str(req.body.secondary_color);
+    if (Array.isArray(req.body.languages)) {
+      s.languages = req.body.languages.filter((l) => ['en', 'es', 'fr'].includes(l));
+    }
+    if (['en', 'es', 'fr'].includes(req.body.default_language)) s.default_language = req.body.default_language;
+    if (req.body.admin_email !== undefined && str(req.body.admin_email)) tenant.admin_email = str(req.body.admin_email);
+    if (req.body.admin_whatsapp !== undefined) tenant.admin_whatsapp = str(req.body.admin_whatsapp);
 
     await tenant.save();
 
-    res.json({ success: true, data: { tenant_id: tenant._id, settings: tenant.settings } });
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'update_settings',
+      target_type: 'Tenant',
+      target_id: tenant._id,
+    });
+
+    res.json({ success: true, data: { tenant_id: tenant._id, settings: pickSettings(tenant) } });
   } catch (error) {
     next(error);
   }
@@ -338,20 +336,21 @@ exports.updateSettings = async (req, res, next) => {
 
 exports.getHosts = async (req, res, next) => {
   try {
-    const { host_status, page = 1, limit = 20 } = req.query;
+    const { host_status } = req.query;
+    const { page, limit, skip } = parsePagination(req.query);
     const filter = { tenant_id: req.tenantId, role: 'host' };
-    if (host_status) filter.host_status = host_status;
+    if (host_status) filter.host_status = String(host_status);
 
     const total = await User.countDocuments(filter);
     const hosts = await User.find(filter)
       .select('-password_hash')
-      .skip((page - 1) * limit)
-      .limit(Number(limit))
+      .skip(skip)
+      .limit(limit)
       .sort({ created_at: -1 });
 
     res.json({
       success: true,
-      data: { hosts, total, page: Number(page), pages: Math.ceil(total / limit) },
+      data: { hosts, total, page, pages: Math.ceil(total / limit) },
     });
   } catch (error) {
     next(error);
@@ -417,7 +416,14 @@ exports.suspendHost = async (req, res, next) => {
     }
 
     host.status = 'suspended';
+    host.refresh_token = null;
     await host.save();
+
+    // Antes sus propiedades seguian publicadas y reservables.
+    await Property.updateMany(
+      { host_id: host._id, tenant_id: req.tenantId, suspended: { $ne: true } },
+      { $set: { suspended: true, suspension_reason: 'host_suspended', suspended_at: new Date() } },
+    );
 
     logAdminAction({
       tenant_id: req.tenantId,
@@ -428,6 +434,37 @@ exports.suspendHost = async (req, res, next) => {
     });
 
     res.json({ success: true, data: { host_id: host._id, status: 'suspended' } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Reactiva un host suspendido y vuelve a publicar las propiedades que se
+// suspendieron por su suspension (no las que el admin suspendio aparte).
+exports.reactivateHost = async (req, res, next) => {
+  try {
+    const host = await User.findOne({ _id: req.params.id, tenant_id: req.tenantId, role: 'host' });
+    if (!host) {
+      return res.status(404).json({ success: false, error: 'Host not found' });
+    }
+
+    host.status = 'active';
+    await host.save();
+
+    await Property.updateMany(
+      { host_id: host._id, tenant_id: req.tenantId, suspended: true, suspension_reason: 'host_suspended' },
+      { $set: { suspended: false }, $unset: { suspension_reason: '', suspended_at: '' } },
+    );
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'reactivate_host',
+      target_type: 'User',
+      target_id: host._id,
+    });
+
+    res.json({ success: true, data: { host_id: host._id, status: 'active' } });
   } catch (error) {
     next(error);
   }
@@ -470,18 +507,19 @@ exports.deleteHost = async (req, res, next) => {
 
 exports.getAllProperties = async (req, res, next) => {
   try {
-    const { status, page = 1, limit = 20 } = req.query;
+    const { status } = req.query;
+    const { page, limit, skip } = parsePagination(req.query);
     const filter = { tenant_id: req.tenantId };
-    if (status) filter.status = status;
+    if (status) filter.status = String(status);
 
     const total = await Property.countDocuments(filter);
     const properties = await Property.find(filter)
       .populate('host_id', 'name email phone whatsapp_phone created_at')
-      .skip((page - 1) * limit)
-      .limit(Number(limit))
+      .skip(skip)
+      .limit(limit)
       .sort({ created_at: -1 });
 
-    res.json({ success: true, data: { properties, total, page: Number(page), pages: Math.ceil(total / limit) } });
+    res.json({ success: true, data: { properties, total, page, pages: Math.ceil(total / limit) } });
   } catch (error) {
     next(error);
   }
@@ -494,8 +532,22 @@ exports.adminEditProperty = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Property not found' });
     }
 
-    const updated = await Property.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const updates = Object.fromEntries(
+      ADMIN_PROPERTY_FIELDS.filter((k) => req.body[k] !== undefined).map((k) => [k, req.body[k]]),
+    );
+    if (updates.suspended === true && !property.suspended) updates.suspended_at = new Date();
+
+    const updated = await Property.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
     res.json({ success: true, data: { property: updated } });
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'edit_property',
+      target_type: 'Property',
+      target_id: property._id,
+      metadata: { fields: Object.keys(updates) },
+    });
   } catch (error) {
     next(error);
   }
@@ -508,8 +560,26 @@ exports.adminDeleteProperty = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Property not found' });
     }
 
+    const activeBookings = await Booking.countDocuments({
+      property_id: property._id,
+      tenant_id: req.tenantId,
+      status: { $in: ACTIVE_BOOKING_STATUSES },
+    });
+    if (activeBookings > 0) {
+      return res.status(400).json({ success: false, error: 'Cannot delete a property with active bookings. Suspend it instead.' });
+    }
+
     await Property.findByIdAndDelete(req.params.id);
     res.json({ success: true, data: {} });
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'delete_property',
+      target_type: 'Property',
+      target_id: property._id,
+      metadata: { name: property.name, host_id: property.host_id },
+    });
   } catch (error) {
     next(error);
   }
@@ -529,34 +599,47 @@ exports.adminBlockDates = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'start_date and end_date are required' });
     }
 
-    const conflictingBooking = await Booking.findOne({
-      property_id: property._id,
-      tenant_id: req.tenantId,
-      status: { $in: ['pending_payment', 'pending_approval', 'approved'] },
-      check_in: { $lt: new Date(end_date) },
-      check_out: { $gt: new Date(start_date) },
+    // Con la propiedad bloqueada: no puede entrar una reserva entre la
+    // comprobacion de conflictos y el guardado del bloqueo.
+    const result = await withPropertyLock(property._id, async () => {
+      const conflictingBooking = await Booking.findOne({
+        property_id: property._id,
+        tenant_id: req.tenantId,
+        status: { $in: ['pending_payment', 'pending_approval', 'approved'] },
+        check_in: { $lt: new Date(end_date) },
+        check_out: { $gt: new Date(start_date) },
+      });
+      if (conflictingBooking) return { conflict: conflictingBooking._id };
+
+      const updated = await Property.findByIdAndUpdate(
+        property._id,
+        {
+          $push: {
+            blocked_dates: {
+              start_date,
+              end_date,
+              reason: reason ? String(reason).slice(0, 200) : undefined,
+              blocked_by: 'admin',
+              blocked_by_user: req.user._id,
+            },
+          },
+        },
+        { new: true, runValidators: true },
+      );
+      return { block: updated.blocked_dates[updated.blocked_dates.length - 1] };
     });
 
-    if (conflictingBooking) {
+    if (result.conflict) {
       return res.status(409).json({
         success: false,
         error: 'DATE_CONFLICT',
-        conflicting_booking_id: conflictingBooking._id,
+        conflicting_booking_id: result.conflict,
       });
     }
 
-    property.blocked_dates.push({
-      start_date,
-      end_date,
-      reason,
-      blocked_by: 'admin',
-      blocked_by_user: req.user._id,
-    });
-    await property.save();
-
     res.status(201).json({
       success: true,
-      data: { block: property.blocked_dates[property.blocked_dates.length - 1] },
+      data: { block: result.block },
     });
   } catch (error) {
     next(error);
@@ -778,22 +861,23 @@ exports.reviewOrphanedPayment = async (req, res, next) => {
 exports.getAuditLog = async (req, res, next) => {
   try {
     const AdminActionLog = require('../models/AdminActionLog');
-    const { action, target_type, page = 1, limit = 50 } = req.query;
+    const { action, target_type } = req.query;
+    const { page, limit, skip } = parsePagination(req.query, { defaultLimit: 50 });
 
     const filter = { tenant_id: req.tenantId };
-    if (action) filter.action = action;
-    if (target_type) filter.target_type = target_type;
+    if (action) filter.action = String(action);
+    if (target_type) filter.target_type = String(target_type);
 
     const [logs, total] = await Promise.all([
       AdminActionLog.find(filter)
         .populate('admin_id', 'name email')
         .sort({ created_at: -1 })
-        .skip((page - 1) * limit)
-        .limit(Number(limit)),
+        .skip(skip)
+        .limit(limit),
       AdminActionLog.countDocuments(filter),
     ]);
 
-    res.json({ success: true, data: { logs, total, page: Number(page), pages: Math.ceil(total / limit) } });
+    res.json({ success: true, data: { logs, total, page, pages: Math.ceil(total / limit) } });
   } catch (error) {
     next(error);
   }
@@ -949,6 +1033,16 @@ exports.getPasswordResetDeliveryLinks = async (req, res, next) => {
     user.password_reset_token = crypto.createHash('sha256').update(rawToken).digest('hex');
     await user.save();
 
+    // Con este link el admin puede entrar en la cuenta: queda registrado.
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'generate_password_reset_link',
+      target_type: 'User',
+      target_id: user._id,
+      metadata: { email: user.email },
+    });
+
     const resetLink = `${env.frontendUrl}/reset-password?token=${rawToken}`;
     const message = `Hola ${user.name}, recibimos tu solicitud para restablecer tu contraseña en Elysio Experiences. `
       + `Usa este link para crear una nueva contraseña (válido por 1 hora): ${resetLink}\n\n`
@@ -969,20 +1063,21 @@ exports.getPasswordResetDeliveryLinks = async (req, res, next) => {
 
 exports.getOrganizers = async (req, res, next) => {
   try {
-    const { organizer_status, page = 1, limit = 20 } = req.query;
+    const { organizer_status } = req.query;
+    const { page, limit, skip } = parsePagination(req.query);
     const filter = { tenant_id: req.tenantId, role: 'organizer' };
-    if (organizer_status) filter.organizer_status = organizer_status;
+    if (organizer_status) filter.organizer_status = String(organizer_status);
 
     const total = await User.countDocuments(filter);
     const organizers = await User.find(filter)
       .select('-password_hash')
-      .skip((page - 1) * limit)
-      .limit(Number(limit))
+      .skip(skip)
+      .limit(limit)
       .sort({ created_at: -1 });
 
     res.json({
       success: true,
-      data: { organizers, total, page: Number(page), pages: Math.ceil(total / limit) },
+      data: { organizers, total, page, pages: Math.ceil(total / limit) },
     });
   } catch (error) {
     next(error);
@@ -1048,7 +1143,14 @@ exports.suspendOrganizer = async (req, res, next) => {
     }
 
     organizer.status = 'suspended';
+    organizer.refresh_token = null;
     await organizer.save();
+
+    // Sus excursiones futuras dejan de estar publicadas.
+    await Experience.updateMany(
+      { organizer_id: organizer._id, tenant_id: req.tenantId, status: 'active', date: { $gt: new Date() } },
+      { $set: { status: 'cancelled', admin_notes: 'Organizador suspendido' } },
+    );
 
     logAdminAction({
       tenant_id: req.tenantId,
@@ -1059,6 +1161,43 @@ exports.suspendOrganizer = async (req, res, next) => {
     });
 
     res.json({ success: true, data: { organizer_id: organizer._id, status: 'suspended' } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Reactiva un organizador. Sus excursiones futuras canceladas por la
+// suspension vuelven a revision del admin (no se publican solas).
+exports.reactivateOrganizer = async (req, res, next) => {
+  try {
+    const organizer = await User.findOne({ _id: req.params.id, tenant_id: req.tenantId, role: 'organizer' });
+    if (!organizer) {
+      return res.status(404).json({ success: false, error: 'Organizer not found' });
+    }
+
+    organizer.status = 'active';
+    await organizer.save();
+
+    await Experience.updateMany(
+      {
+        organizer_id: organizer._id,
+        tenant_id: req.tenantId,
+        status: 'cancelled',
+        admin_notes: 'Organizador suspendido',
+        date: { $gt: new Date() },
+      },
+      { $set: { status: 'pending_approval' }, $unset: { admin_notes: '' } },
+    );
+
+    logAdminAction({
+      tenant_id: req.tenantId,
+      admin_id: req.user._id,
+      action: 'reactivate_organizer',
+      target_type: 'User',
+      target_id: organizer._id,
+    });
+
+    res.json({ success: true, data: { organizer_id: organizer._id, status: 'active' } });
   } catch (error) {
     next(error);
   }
@@ -1202,17 +1341,16 @@ exports.rejectExperience = async (req, res, next) => {
 
 exports.getAllExperienceBookings = async (req, res, next) => {
   try {
-    const { status, page = 1, limit = 20 } = req.query;
+    const { status } = req.query;
+    const { page, limit, skip } = parsePagination(req.query);
     const filter = { tenant_id: req.tenantId };
-    if (status) filter.status = status;
-
-    const skip = (Number(page) - 1) * Number(limit);
+    if (status) filter.status = String(status);
 
     const [bookings, total_count] = await Promise.all([
       ExperienceBooking.find(filter)
         .sort({ created_at: -1 })
         .skip(skip)
-        .limit(Number(limit))
+        .limit(limit)
         .populate('experience_id', 'title date')
         .populate('tourist_id', 'name email')
         .populate('organizer_id', 'name'),
@@ -1221,7 +1359,7 @@ exports.getAllExperienceBookings = async (req, res, next) => {
 
     res.json({
       success: true,
-      data: { bookings, total_count, page: Number(page), per_page: Number(limit) },
+      data: { bookings, total_count, page, per_page: limit },
     });
   } catch (error) {
     next(error);
@@ -1243,12 +1381,15 @@ exports.approveExperienceBooking = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Booking is not pending approval' });
     }
 
-    booking.status = 'approved';
-    booking.approved_by = req.user._id;
-    booking.approved_at = new Date();
-    if (req.body.notes) booking.admin_notes = req.body.notes;
-    booking.status_history.push({ status: 'approved', changed_at: new Date(), changed_by: req.user._id });
-    await booking.save();
+    const set = { status: 'approved', approved_by: req.user._id, approved_at: new Date() };
+    if (req.body.notes) set.admin_notes = String(req.body.notes).slice(0, 2000);
+    const approved = await ExperienceBooking.updateOne(
+      { _id: booking._id, status: 'pending_approval' },
+      { $set: set, $push: { status_history: { status: 'approved', changed_at: new Date(), changed_by: String(req.user._id) } } },
+    );
+    if (approved.modifiedCount !== 1) {
+      return res.status(409).json({ success: false, error: 'Booking status changed, reload and try again' });
+    }
 
     res.json({ success: true, data: { booking_id: booking._id, status: 'approved' } });
 
@@ -1276,10 +1417,17 @@ exports.rejectExperienceBooking = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Booking is not pending approval' });
     }
 
-    booking.status = 'rejected';
-    booking.rejection_reason = req.body.reason;
-    booking.status_history.push({ status: 'rejected', changed_at: new Date(), changed_by: req.user._id });
-    await booking.save();
+    // Atomico: si el cron la vencio en paralelo, no se liberan los cupos dos veces.
+    const rejected = await ExperienceBooking.updateOne(
+      { _id: booking._id, status: 'pending_approval' },
+      {
+        $set: { status: 'rejected', rejection_reason: String(req.body.reason || '').slice(0, 2000) },
+        $push: { status_history: { status: 'rejected', changed_at: new Date(), changed_by: String(req.user._id) } },
+      },
+    );
+    if (rejected.modifiedCount !== 1) {
+      return res.status(409).json({ success: false, error: 'Booking status changed, reload and try again' });
+    }
 
     // Libera los cupos que se habían descontado atómicamente al reservar.
     await Experience.findOneAndUpdate(
@@ -1358,7 +1506,7 @@ exports.getExperienceBookingTouristContactLinks = async (req, res, next) => {
     }
 
     let message;
-    let subject = `Tu reserva en "${booking.experience_id.title}" - Elysio Experiences`;
+    const subject = `Tu reserva en "${booking.experience_id.title}" - Elysio Experiences`;
 
     if (booking.status === 'approved') {
       message = `Hola ${booking.tourist_data?.name || ''}, tu reserva en "${booking.experience_id.title}" `

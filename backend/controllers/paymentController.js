@@ -27,6 +27,21 @@ exports.createInvoice = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Booking is not pending payment' });
     }
 
+    // Reutiliza la factura abierta: crear una nueva en cada clic permitia pagar
+    // dos veces la misma reserva (el segundo pago se perdia sin aviso).
+    const existing = await Payment.findOne({
+      booking_id: booking._id,
+      method: 'qvapay',
+      payment_status: 'waiting',
+      invoice_url: { $exists: true, $ne: null },
+    }).sort({ created_at: -1 });
+    if (existing) {
+      return res.status(200).json({
+        success: true,
+        data: { invoice_url: existing.invoice_url, invoice_id: existing.invoice_id, payment_id: existing._id },
+      });
+    }
+
     const invoice = await createQvaPayInvoice({
       amount: booking.fee_amount,
       description: 'Elysio Experiences - Booking Service Fee',
@@ -131,6 +146,13 @@ exports.createManualPaypalRequest = async (req, res, next) => {
 exports.notifyManualPaymentSent = async (req, res, next) => {
   try {
     const { booking_id } = req.body;
+    // Todas las reservas pagan lo mismo: sin el ID de transaccion o el email
+    // del pagador el admin no puede saber que deposito corresponde a cual.
+    const reference = String(req.body.reference || '').trim().slice(0, 200);
+    const payerEmail = String(req.body.payer_email || '').trim().toLowerCase().slice(0, 200);
+    if (!reference && !payerEmail) {
+      return res.status(400).json({ success: false, error: 'Please provide the PayPal transaction ID or the email you paid from' });
+    }
 
     const booking = await Booking.findOne({
       _id: booking_id,
@@ -143,12 +165,19 @@ exports.notifyManualPaymentSent = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Booking not found' });
     }
 
+    if (booking.status !== 'pending_payment') {
+      return res.status(400).json({ success: false, error: 'Booking is not pending payment' });
+    }
+
     booking.payment_needs_review = true;
+    booking.payment_reference = reference || undefined;
+    booking.payer_email = payerEmail || undefined;
+    booking.payment_reported_at = new Date();
     await booking.save();
 
     notifyAdmins(booking.tenant_id, {
       title: 'Pago manual de PayPal por confirmar',
-      body: `Reserva ${booking._id.toString().slice(-6)}: el turista dice haber pagado el fee. Revisa la cuenta de PayPal y confirma en el panel.`,
+      body: `Reserva ${booking._id.toString().slice(-6)}: el turista dice haber pagado (ref: ${reference || '-'}, pagador: ${payerEmail || '-'}). Revisa PayPal y confirma en el panel.`,
       url: '/admin/bookings',
     });
 

@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { toExperienceInputValue } from '../utils/formatters.js';
 
 const CreateExperiencePage = {
   editId: null,
@@ -65,8 +66,8 @@ const CreateExperiencePage = {
               </div>
 
               <div class="form-group">
-                <label>${t('createExperience.dateLabel')}</label>
-                <input type="datetime-local" id="exp-date" value="${existing?.date ? new Date(existing.date).toISOString().slice(0, 16) : ''}" required>
+                <label>${t('createExperience.dateLabel')} (${t('experience.cubaTime')})</label>
+                <input type="datetime-local" id="exp-date" value="${existing?.date ? toExperienceInputValue(existing.date) : ''}" required>
               </div>
 
               <div class="form-group">

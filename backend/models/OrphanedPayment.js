@@ -19,7 +19,7 @@ const orphanedPaymentSchema = new mongoose.Schema({
   pay_currency: String,
   reason: {
     type: String,
-    enum: ['missing_order_id', 'booking_not_found'],
+    enum: ['missing_order_id', 'booking_not_found', 'booking_not_pending', 'amount_mismatch'],
     required: true,
   },
   raw_payload: {

@@ -1,0 +1,30 @@
+# Backend de reservas en el VPS compartido con Up (ver docs/MUDANZA-VPS.md).
+# En el servidor vive en /opt/reservas: este archivo, el codigo en app/ y el .env.
+# Sin `ports`: solo el Caddy de Up lo alcanza, por la red `sitios`.
+services:
+  reservas:
+    build: ./app
+    image: reservas-backend
+    # Nombre fijo: es el que usa reservas.caddy (reverse_proxy reservas:3000).
+    container_name: reservas
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+    # Up tiene prioridad de memoria; esto evita que reservas se coma la del servidor.
+    mem_limit: 512m
+    # /health responde 503 si Mongo no esta conectado (wget falla con 503).
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    logging:
+      options: { max-size: "10m", max-file: "3" }
+    networks: [sitios]
+
+networks:
+  sitios:
+    external: true
