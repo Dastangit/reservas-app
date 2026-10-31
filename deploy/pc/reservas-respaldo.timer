@@ -1,0 +1,10 @@
+# Todos los dias a las 14:00; si la PC estaba apagada, corre al encenderla.
+[Unit]
+Description=Respaldo diario de la base de reservas
+
+[Timer]
+OnCalendar=*-*-* 14:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

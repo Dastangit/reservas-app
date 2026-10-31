@@ -14,19 +14,25 @@ Multi-tenant vacation rental platform (Cuba focus). Tourists search/book propert
 ### Backend (run from `backend/`)
 
 ```bash
-npm test            # Jest — export smoke tests + logic tests (tests/logic.test.js), ~2s
-npm run lint        # ESLint
+npm test            # Jest: smoke, logic, notifications, backup/restore and integration (in-memory MongoDB)
+npx jest tests/backup.test.js -t 'restaurar'   # one file / one test
+npm run lint        # ESLint 10, flat config in eslint.config.js
 npm run lint:fix    # ESLint auto-fix
 npm run dev         # Nodemon dev server (port 3000)
 npm run dev:local   # Full local stack: API :3000 + in-memory MongoDB with demo users + web :5500 (never touches prod)
 npm run worker      # Cron jobs only (use with RUN_JOBS=false on the web service)
-npm run backup      # Dump every collection to backend/backups/<date>/ (EJSON, gitignored)
+npm run backup      # Dump every collection to $BACKUP_DIR/<date>/ (EJSON .jsonl.gz + manifest; default backend/backups/, gitignored)
+node scripts/restore.js <dir> [--only a,b] [--replace]   # Restore a backup into MONGODB_URI (docs/RESPALDOS.md)
 npm run reviews:dedupe [-- --fix]  # Find/remove duplicate reviews and sync Review indexes
 ```
 
 ### Frontend
 
 No build step. Serve `frontend/` with any static server (e.g. `npx serve frontend`); in local dev `api.js` calls the backend on port 3000.
+Jest loads `tests/setupEnv.js` first: it blanks `TELEGRAM_*` so tests never message the real group. `otplib` stays on v12 on purpose (v13 depends on an ESM-only package that Jest cannot load without Babel).
+Admin alerts (`utils/pushNotifications.js` `notifyAdmins`) go to web push and to the Telegram group; a `body` with emails, people's names or payment references needs a `telegramBody` without them (`tests/notifications.test.js` enforces it).
+Daily backups of Atlas (M0, no built-in backups) run on the owner's PC via a systemd user timer (`deploy/pc/`); see `docs/RESPALDOS.md`.
+
 CI (`.github/workflows/ci.yml`) runs lint, tests and `npm audit` for the backend, and checks i18n keys, the backend URL (`frontend/scripts/api-base.js`) and JS syntax for the frontend.
 
 ## Key Constraints

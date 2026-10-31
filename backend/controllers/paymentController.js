@@ -178,6 +178,7 @@ exports.notifyManualPaymentSent = async (req, res, next) => {
     notifyAdmins(booking.tenant_id, {
       title: 'Pago manual de PayPal por confirmar',
       body: `Reserva ${booking._id.toString().slice(-6)}: el turista dice haber pagado (ref: ${reference || '-'}, pagador: ${payerEmail || '-'}). Revisa PayPal y confirma en el panel.`,
+      telegramBody: `Reserva ${booking._id.toString().slice(-6)}: el turista dice haber pagado por PayPal. Revisa PayPal y confirma en el panel.`,
       url: '/admin/bookings',
     });
 

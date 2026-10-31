@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
+// otplib 12 a proposito: la 13 depende de un paquete solo ESM (@scure/base),
+// que exige Node >= 20.19/22.12 en produccion y no carga en jest sin babel.
 const { authenticator } = require('otplib');
 
 // TOTP estandar (RFC 6238, 30 s, 6 digitos). window 1 tolera 30 s de desfase.
@@ -9,11 +11,16 @@ const TOTP_STEP_SECONDS = 30;
 
 // Devuelve el paso de tiempo del codigo si es valido, o null. Sirve para
 // impedir reutilizar un mismo codigo (replay) dentro de su ventana.
+// Un secreto danado cuenta como codigo invalido, nunca como error 500.
 const verifyTotpStep = (code, secret) => {
   if (!secret || !/^\d{6}$/.test(code)) return null;
-  const delta = authenticator.checkDelta(code, secret);
-  if (delta === null) return null;
-  return Math.floor(Date.now() / 1000 / TOTP_STEP_SECONDS) + delta;
+  try {
+    const delta = authenticator.checkDelta(code, secret);
+    if (delta === null) return null;
+    return Math.floor(Date.now() / 1000 / TOTP_STEP_SECONDS) + delta;
+  } catch {
+    return null;
+  }
 };
 const qrcode = require('qrcode');
 const User = require('../models/User');
@@ -78,6 +85,7 @@ exports.register = async (req, res, next) => {
       notifyAdmins(tenant._id, {
         title: userRole === 'host' ? 'Nuevo anfitrion por aprobar' : 'Nuevo organizador por aprobar',
         body: `${user.name} (${user.email}) se registro y espera aprobacion.`,
+        telegramBody: 'Una cuenta nueva espera aprobacion.',
         url: userRole === 'host' ? '/admin/users' : '/admin/organizers',
       });
 
@@ -448,6 +456,7 @@ exports.forgotPassword = async (req, res, next) => {
     notifyAdmins(user.tenant_id, {
       title: 'Solicitud de restablecimiento de contraseña',
       body: `${user.name} (${user.email}) solicitó recuperar su contraseña.`,
+      telegramBody: 'Un usuario solicitó recuperar su contraseña.',
       url: '/admin/password-resets',
     });
 

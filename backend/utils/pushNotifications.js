@@ -11,22 +11,23 @@ if (env.vapid.publicKey && env.vapid.privateKey) {
 const isPushConfigured = () => Boolean(env.vapid.publicKey && env.vapid.privateKey);
 
 // Le manda una notificacion a TODOS los admins del tenant: web push a todos sus
-// dispositivos suscritos y, si `urgent`, tambien por Telegram (segundo canal
-// para los avisos que tienen plazo). Nunca debe romper el flujo principal:
-// los call sites no usan await y aqui se atrapa cualquier error.
-// Devuelve un resumen ({ push_sent, push_failed, push_devices, telegram }) que
-// usa el boton "Enviar notificacion de prueba" del panel.
-async function notifyAdmins(tenantId, { title, body, url }, { urgent = false } = {}) {
+// dispositivos suscritos y, si esta configurado, tambien al grupo de Telegram
+// (segundo canal: el push depende de que el navegador siga suscrito).
+// Telegram guarda los mensajes en sus servidores y los ve todo el grupo, asi
+// que nunca lleva datos personales: si `body` tiene nombres, correos o
+// referencias de pago, pasa `telegramBody` con un texto sin ellos.
+// Nunca debe romper el flujo principal: los call sites no usan await y aqui se
+// atrapa cualquier error. Devuelve un resumen ({ push_sent, push_failed,
+// push_devices, telegram }).
+async function notifyAdmins(tenantId, { title, body, url, telegramBody }) {
   const summary = { push_sent: 0, push_failed: 0, push_devices: 0, telegram: 'skipped' };
   try {
-    if (urgent) {
-      const tg = await sendTelegram(`${title}\n${body}${url ? `\n${env.frontendUrl}${url}` : ''}`);
-      summary.telegram = tg.ok ? 'sent' : tg.reason;
-    }
+    const tg = await sendTelegram(`${title}\n${telegramBody ?? body}${url ? `\n${env.frontendUrl}${url}` : ''}`);
+    summary.telegram = tg.ok ? 'sent' : tg.reason;
 
     if (!isPushConfigured()) {
       console.warn('[Push] VAPID keys no configuradas, notificacion push omitida.');
-      if (!urgent || summary.telegram !== 'sent') {
+      if (summary.telegram !== 'sent') {
         console.error(`[Avisos] Ningun canal entrego: "${title}"`);
       }
       return summary;

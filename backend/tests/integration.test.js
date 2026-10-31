@@ -300,27 +300,88 @@ describe('bloqueo por propiedad', () => {
   });
 });
 
+// TOTP calculado a mano segun RFC 6238 (lo que hacen Google Authenticator y
+// Authy), sin otplib: si otplib cambia de comportamiento, estas pruebas fallan.
+const crypto = require('crypto');
+const base32Decode = (text) => {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let bits = '';
+  for (const ch of text.replace(/=+$/, '').toUpperCase()) bits += alphabet.indexOf(ch).toString(2).padStart(5, '0');
+  return Buffer.from(bits.match(/.{8}/g).map((b) => parseInt(b, 2)));
+};
+const totpAt = (secretBase32, unixSeconds) => {
+  const counter = Buffer.alloc(8);
+  counter.writeBigUInt64BE(BigInt(Math.floor(unixSeconds / 30)));
+  const h = crypto.createHmac('sha1', base32Decode(secretBase32)).update(counter).digest();
+  const o = h[h.length - 1] & 0xf;
+  return String((h.readUInt32BE(o) & 0x7fffffff) % 1e6).padStart(6, '0');
+};
+const now = () => Date.now() / 1000;
+
 describe('2FA (otplib)', () => {
+  const login = async (user) => (await request(app).post('/api/auth/login')
+    .send({ email: user.email, password: 'password123' })).body.data.pending_token;
+  const verify = async (user, code) => request(app).post('/api/auth/verify-2fa').send({ pending_token: await login(user), code });
+
+  test('el calculo manual coincide con el vector oficial del RFC 6238', () => {
+    // RFC 6238, apendice B: secreto ASCII "12345678901234567890", T=59 -> 94287082 (8 digitos).
+    expect(totpAt('GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', 59)).toBe('287082');
+  });
+
   test('login con codigo valido y el mismo codigo no se puede reutilizar', async () => {
     const { authenticator } = require('otplib');
     const secret = authenticator.generateSecret(20);
     const user = await makeUser('admin', { two_factor: { enabled: true, secret } });
 
-    const login = async () => (await request(app).post('/api/auth/login')
-      .send({ email: user.email, password: 'password123' })).body.data.pending_token;
-
     const code = authenticator.generate(secret);
-    const ok = await request(app).post('/api/auth/verify-2fa').send({ pending_token: await login(), code });
+    expect(code).toBe(totpAt(secret, now()));
+    const ok = await verify(user, code);
     expect(ok.status).toBe(200);
     expect(ok.body.data.token).toBeTruthy();
 
-    const replay = await request(app).post('/api/auth/verify-2fa').send({ pending_token: await login(), code });
-    expect(replay.status).toBe(401);
+    expect((await verify(user, code)).status).toBe(401);
+  });
+
+  test('tolera 30 s de desfase del telefono, pero no 90 s', async () => {
+    const secret = require('otplib').authenticator.generateSecret(20);
+    const user = await makeUser('admin', { two_factor: { enabled: true, secret } });
+    expect((await verify(user, totpAt(secret, now() - 90))).status).toBe(401);
+    expect((await verify(user, totpAt(secret, now() - 30))).status).toBe(200);
+  });
+
+  test('secretos de antes de la actualizacion (speakeasy, 32 bytes) siguen sirviendo', async () => {
+    const secret = crypto.randomBytes(32).toString('hex').slice(0, 32); // 32 bytes ASCII como speakeasy
+    const base32 = (() => {
+      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+      const bits = [...Buffer.from(secret)].map((b) => b.toString(2).padStart(8, '0')).join('');
+      return bits.match(/.{1,5}/g).map((c) => alphabet[parseInt(c.padEnd(5, '0'), 2)]).join('');
+    })();
+    const user = await makeUser('admin', { two_factor: { enabled: true, secret: base32 } });
+    expect((await verify(user, totpAt(base32, now()))).status).toBe(200);
+  });
+
+  test('un secreto danado da 401, no 500', async () => {
+    const user = await makeUser('admin', { two_factor: { enabled: true, secret: 'NO-ES-BASE32!' } });
+    expect((await verify(user, '123456')).status).toBe(401);
+  });
+
+  test('activar: setup da el QR y la clave, y enable acepta el codigo de la app', async () => {
+    const user = await makeUser('admin');
+    const setup = await request(app).post('/api/auth/2fa/setup').set(auth(user));
+    expect(setup.status).toBe(200);
+    expect(setup.body.data.qr_code).toMatch(/^data:image\/png;base64,/);
+    const key = setup.body.data.manual_entry_key;
+    expect(key).toMatch(/^[A-Z2-7]{32}$/); // 20 bytes
+
+    const wrong = await request(app).post('/api/auth/2fa/enable').set(auth(user)).send({ code: '000000' });
+    expect(wrong.status).toBe(400);
+    const enable = await request(app).post('/api/auth/2fa/enable').set(auth(user)).send({ code: totpAt(key, now()) });
+    expect(enable.status).toBe(200);
+    expect(enable.body.data.backup_codes.length).toBeGreaterThan(0);
   });
 
   test('setup no reemplaza un 2FA ya activo', async () => {
-    const { authenticator } = require('otplib');
-    const user = await makeUser('admin', { two_factor: { enabled: true, secret: authenticator.generateSecret(20) } });
+    const user = await makeUser('admin', { two_factor: { enabled: true, secret: require('otplib').authenticator.generateSecret(20) } });
     const res = await request(app).post('/api/auth/2fa/setup').set(auth(user));
     expect(res.status).toBe(400);
   });
