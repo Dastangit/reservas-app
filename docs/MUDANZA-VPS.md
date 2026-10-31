@@ -54,7 +54,7 @@ Con el KVM 1 (4 GB) y n8n también, quedaría muy justo: no recomendado.
 
 ### Antes de mudar
 - [ ] Elegir el dominio del backend, p. ej. `api.elysioexperiences.com`, y confirmar dónde se maneja el DNS de `elysioexperiences.com`.
-- [ ] Ver si el plan de MongoDB Atlas tiene respaldos automáticos (el gratis, M0, no). Si no, decidir dónde guardar `npm run backup`.
+- [x] Respaldos: Atlas es M0 (sin respaldos automáticos). Desde el 31 oct 2026 hay respaldo diario en la PC; ver `docs/RESPALDOS.md`.
 - [ ] Antes de cada despliegue, commit de lo que haya en `backend/`: `desplegar.sh` no sube lo que no está en git.
 
 ### El día de la mudanza (con Up ya desplegado)
@@ -69,7 +69,7 @@ Con el KVM 1 (4 GB) y n8n también, quedaría muy justo: no recomendado.
 - [ ] Probar todo el flujo: entrar, buscar, reservar, pagar con QvaPay y avisos push.
 - [ ] CORS no necesita cambios: el navegador llama a `/api` en el mismo dominio de Vercel y Vercel lo reenvía. Solo si algún día el frontend llama directo al backend, agregar su dominio a `FRONTEND_URL` o `allowedOrigins` (`app.js`).
 - [ ] Las tareas programadas (`jobs/`) corren en el mismo proceso web. No hace falta `worker.js`; debe haber **un solo** contenedor.
-- [ ] **Respaldos:** los de Up no cubren esta base (está en Atlas). Según lo que se decidió antes de mudar.
+- [ ] **Respaldos:** los de Up no cubren esta base (está en Atlas). Pasar el respaldo diario al VPS con copia a R2 (`docs/RESPALDOS.md`, «Pendiente: con el VPS»).
 - [ ] Monitor de UptimeRobot a `https://api.elysioexperiences.com/health`.
 - [ ] Cuando todo funcione unos días, apagar el servicio de Render. Mientras siga encendido, los pagos de QvaPay que se crearon antes de la mudanza avisan allí.
 

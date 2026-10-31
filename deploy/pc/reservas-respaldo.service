@@ -1,0 +1,14 @@
+# Respaldo diario de la base de reservas (MongoDB Atlas M0 no tiene respaldos).
+# Instalar: deploy/pc/instalar-respaldo.sh. Ver docs/RESPALDOS.md.
+[Unit]
+Description=Respaldo de la base de reservas (MongoDB Atlas)
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/Dastan/Projects/reservas-app/backend
+Environment=BACKUP_DIR=%h/Dastan/respaldos/reservas
+Environment=BACKUP_KEEP=14
+# Al encender la PC la red tarda: espera hasta 5 min a que haya DNS.
+ExecStartPre=/bin/sh -c 'for i in $(seq 30); do getent hosts cloud.mongodb.com >/dev/null && exit 0; sleep 10; done; exit 0'
+ExecStart=%h/.local/share/mise/shims/node scripts/backup.js
+Nice=10
