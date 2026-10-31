@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
           cache-dependency-path: backend/package-lock.json
       - run: npm ci
@@ -29,8 +29,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - name: i18n keys in sync
         run: node frontend/scripts/check-i18n-keys.js
+      - name: Backend URL matches in vercel.json and middleware.js
+        run: node frontend/scripts/api-base.js
       - name: JS modules parse
         run: for f in frontend/js/*.js frontend/js/*/*.js; do node --input-type=module --check < "$f" || exit 1; done

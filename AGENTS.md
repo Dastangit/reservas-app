@@ -6,7 +6,8 @@ Multi-tenant vacation rental platform (Cuba focus). Tourists search/book propert
 
 - **Backend**: Express + Mongoose (MongoDB), single `backend/` directory. Entry: `backend/server.js`
 - **Frontend**: Vanilla JS SPA (no framework, no build step). Entry: `frontend/index.html` → `frontend/js/app.js`
-- **Deployment**: Frontend on Vercel. Vercel proxies `/api/*` to the backend URL hardcoded in `frontend/vercel.json` and `frontend/middleware.js` (currently Render, `booking-platform-f8co.onrender.com`). If the backend moves, update both files.
+- **Deployment**: Frontend on Vercel. Vercel proxies `/api/*` to the backend URL hardcoded in `frontend/vercel.json` and `frontend/middleware.js` (currently Render, `booking-platform-f8co.onrender.com`). If the backend moves, run `node frontend/scripts/api-base.js <https-origin>` (updates both; CI checks they match).
+- **Planned move**: the backend will move from Render to the VPS shared with Up. Pending steps and context: `docs/MUDANZA-VPS.md` (read it first when working on deployment). Server files (compose, Caddy site, `.env` template) and the deploy script live in `deploy/` (`deploy/desplegar.sh`; it deploys git HEAD of `backend/`). Docker image and CI use Node 24.
 
 ## Commands
 
@@ -26,7 +27,7 @@ npm run reviews:dedupe [-- --fix]  # Find/remove duplicate reviews and sync Revi
 ### Frontend
 
 No build step. Serve `frontend/` with any static server (e.g. `npx serve frontend`); in local dev `api.js` calls the backend on port 3000.
-CI (`.github/workflows/ci.yml`) runs lint, tests and `npm audit` for the backend, and checks i18n keys and JS syntax for the frontend.
+CI (`.github/workflows/ci.yml`) runs lint, tests and `npm audit` for the backend, and checks i18n keys, the backend URL (`frontend/scripts/api-base.js`) and JS syntax for the frontend.
 
 ## Key Constraints
 
