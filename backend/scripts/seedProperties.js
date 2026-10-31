@@ -5,11 +5,13 @@ dotenv.config();
 const Tenant = require('../models/Tenant');
 const User = require('../models/User');
 const Property = require('../models/Property');
+const { assertDemoSeedAllowed } = require('./demoGuard');
 
-// Datos DEMO: nunca correr contra la base de produccion.
+// Datos DEMO: nunca correr contra la base de produccion (ver demoGuard.js).
 const seed = async () => {
-  if (process.env.NODE_ENV === 'production' || !process.env.SEED_DEMO_HOST_PASSWORD) {
-    console.error('Seed demo bloqueado: no se corre en produccion y requiere SEED_DEMO_HOST_PASSWORD.');
+  assertDemoSeedAllowed();
+  if (!process.env.SEED_DEMO_HOST_PASSWORD) {
+    console.error('Seed demo bloqueado: requiere SEED_DEMO_HOST_PASSWORD.');
     process.exit(1);
   }
   try {
