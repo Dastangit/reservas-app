@@ -185,6 +185,34 @@ exports.completeExperienceBooking = async (req, res, next) => {
 
 // ===== Excursiones recurrentes =====
 
+exports.getMyRecurrences = async (req, res, next) => {
+  try {
+    const recurrences = await ExperienceRecurrence.find({
+      tenant_id: req.tenantId,
+      organizer_id: req.user._id,
+    }).sort({ created_at: -1 }).lean();
+
+    // Cuantas ocurrencias lleva cada serie (son documentos Experience normales).
+    const counts = await Experience.aggregate([
+      { $match: {
+        tenant_id: req.tenantId,
+        recurrence_id: { $in: recurrences.map((r) => r._id) },
+      } },
+      { $group: { _id: '$recurrence_id', count: { $sum: 1 } } },
+    ]);
+    const countById = new Map(counts.map((c) => [String(c._id), c.count]));
+
+    res.json({
+      success: true,
+      data: {
+        recurrences: recurrences.map((r) => ({ ...r, occurrences_generated: countById.get(String(r._id)) || 0 })),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.createRecurrence = async (req, res, next) => {
   try {
     const recurrence = await ExperienceRecurrence.create({

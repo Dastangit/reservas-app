@@ -292,7 +292,8 @@
     "passwordUpdated": "Mot de passe mis à jour. Vous pouvez maintenant vous connecter.",
     "resetLinkExpired": "Le lien a peut-être expiré. Veuillez en demander un nouveau.",
     "repeatPassword": "Répétez le mot de passe",
-    "pendingApprovalRegistered": "Compte créé ! Notre équipe va l’examiner et vous contactera une fois approuvé. Vous pourrez vous connecter après l’approbation."
+    "pendingApprovalRegistered": "Compte créé ! Notre équipe va l’examiner et vous contactera une fois approuvé. Vous pourrez vous connecter après l’approbation.",
+    "accountPendingApproval": "Votre compte est en attente d'approbation. Nous vous préviendrons par WhatsApp ou email une fois approuvé."
   },
   "dashboard": {
     "myBookings": "Mes Réservations",
@@ -305,12 +306,46 @@
     "errorLoading": "Erreur lors du chargement des réservations"
   },
   "confirmation": {
-    "title": "Réservation Confirmée!",
-    "subtitle": "Votre paiement a été reçu",
     "whatNext": "Et ensuite?",
-    "pendingMessage": "Votre réservation est en attente d'approbation. Vous recevrez un email une fois approuvée.",
     "contactAdmin": "Contacter l'Administrateur",
-    "adminContact": "L'administrateur vous contactera avec les détails d'enregistrement."
+    "reason": "Motif :",
+    "status": {
+      "pending_payment": {
+        "title": "Réservation créée",
+        "subtitle": "Les frais de réservation ne sont pas encore payés",
+        "message": "Payez les frais de 7 $ USD pour que nous examinions votre réservation. Tant qu'ils ne sont pas payés, les dates ne vous sont pas réservées."
+      },
+      "verifying": {
+        "title": "Réservation créée",
+        "subtitle": "Nous vérifions votre paiement",
+        "message": "Dès que le paiement sera confirmé, nous examinerons votre réservation. Vous pouvez suivre son statut dans Mes réservations."
+      },
+      "pending_approval": {
+        "title": "Réservation reçue !",
+        "subtitle": "Votre paiement a été reçu",
+        "message": "Votre réservation est en attente d'approbation. Nous l'examinons généralement en moins de 24 heures et vous préviendrons par WhatsApp ou email. Vous pouvez aussi suivre son statut dans Mes réservations."
+      },
+      "approved": {
+        "title": "Réservation approuvée !",
+        "subtitle": "Votre séjour est confirmé",
+        "message": "L'administrateur vous contactera avec les détails d'enregistrement."
+      },
+      "completed": {
+        "title": "Séjour terminé",
+        "subtitle": "Merci d'avoir séjourné chez nous",
+        "message": "Vous pouvez laisser un avis depuis Mes réservations."
+      },
+      "rejected": {
+        "title": "Réservation refusée",
+        "subtitle": "Votre réservation n'a pas été approuvée",
+        "message": "Pour toute question, contactez l'administrateur."
+      },
+      "cancelled": {
+        "title": "Réservation annulée",
+        "subtitle": "Cette réservation n'est plus active",
+        "message": "Vous pouvez faire une nouvelle réservation quand vous le souhaitez."
+      }
+    }
   },
   "host": {
     "becomeHost": "Vous êtes Hôte?",
@@ -573,7 +608,7 @@
       "touristStep2Title": "Réserver et Payer les Frais",
       "touristStep2Desc": "Lorsque vous trouvez la propriété parfaite, sélectionnez vos dates et le nombre d'hôtes. Vous paierez des <strong>frais de réservation de 7 $ USD</strong> pour sécuriser votre réservation. Ces frais ne sont pas remboursables. Le reste de votre paiement sera effectué directement à l'hébergement.",
       "touristStep3Title": "Approbation de l'Admin",
-      "touristStep3Desc": "Après votre réservation, notre équipe examine votre réservation. Cela prend généralement moins de 24 heures. Vous recevrez une notification par email une fois votre réservation approuvée ou en cas de problème.",
+      "touristStep3Desc": "Après votre réservation, notre équipe examine votre réservation. Cela prend généralement moins de 24 heures. Nous vous préviendrons par WhatsApp ou email une fois votre réservation approuvée ou en cas de problème, et vous pouvez suivre son statut dans Mes réservations.",
       "touristStep4Title": "Profitez de Votre Séjour",
       "touristStep4Desc": "Une fois approuvée, vous recevrez les détails d'enregistrement. Payez le reste de votre séjour directement à l'hébergement. Après votre séjour, laissez un avis pour aider d'autres voyageurs!",
       "hostStep1Title": "S'inscrire en tant qu'Hôte",
@@ -596,7 +631,7 @@
       "remainderDaily": "<strong>Paiement journalier:</strong> Payez jour par jour pendant votre séjour (option flexible)",
       "cancellationImportant": "Important",
       "cancellationDesc": "Les frais de réservation de 7 $ USD sont <strong>non remboursables</strong> si vous annulez ou si votre réservation est rejetée pour non-respect des exigences. <strong>Exception:</strong> si le rejet est dû à une erreur de notre part, nous organiserons un remboursement avec vous.",
-      "cancellationRejected": "Si votre réservation est rejetée par l'admin, vous serez notifié par email. Si le rejet est dû à une erreur de notre part, nous organiserons un remboursement; sinon, les frais couvrent le service de traitement et d'examen de votre réservation.",
+      "cancellationRejected": "Si votre réservation est rejetée par l'admin, nous vous préviendrons par WhatsApp ou email. Si le rejet est dû à une erreur de notre part, nous organiserons un remboursement; sinon, les frais couvrent le service de traitement et d'examen de votre réservation.",
       "dastanName": "Équipe de Support",
       "dastanEmail": "Email: <a href='mailto:elysio.support@gmail.com'>elysio.support@gmail.com</a><br>WhatsApp: <a href='https://wa.me/16055003653' target='_blank' rel='noopener'>+1 6055003653</a>"
     },
@@ -741,10 +776,10 @@
       "q1Answer": "Le processus de réservation est simple:",
       "q1Step1": "<strong>Recherchez:</strong> Parcourez les propriétés sans vous connecter. Utilisez les filtres pour la localisation, le prix, les hôtes et les équipements.",
       "q1Step2": "<strong>Réservez:</strong> Sélectionnez vos dates et payez des <strong>frais de réservation de 7 $ USD</strong> via QvaPay ou PayPal pour sécuriser votre réservation.",
-      "q1Step3": "<strong>Approbation:</strong> Notre équipe examine votre réservation dans les 24 heures. Vous recevrez une notification par email.",
+      "q1Step3": "<strong>Approbation:</strong> Notre équipe examine votre réservation dans les 24 heures. Nous vous préviendrons par WhatsApp ou email, et vous pouvez suivre son statut dans Mes réservations.",
       "q1Step4": "<strong>Séjour:</strong> Une fois approuvée, vous recevez les coordonnées de l'hôte et les détails d'enregistrement. Payez le reste directement à l'hébergement.",
       "q2Question": "Que se passe-t-il si ma réservation est rejetée?",
-      "q2Answer": "Si l'admin rejette votre réservation, vous recevrez une notification par email avec le motif (si fourni). Si le rejet est dû à <strong>une erreur de notre part</strong>, nous organiserons un remboursement des frais de 7 $ USD. Dans tout autre cas, les <strong>frais de réservation de 7 $ USD ne sont pas remboursables</strong>.",
+      "q2Answer": "Si l'admin rejette votre réservation, nous vous préviendrons par WhatsApp ou email avec le motif (si fourni), et vous le verrez aussi dans Mes réservations. Si le rejet est dû à <strong>une erreur de notre part</strong>, nous organiserons un remboursement des frais de 7 $ USD. Dans tout autre cas, les <strong>frais de réservation de 7 $ USD ne sont pas remboursables</strong>.",
       "q2Contact": "Vous pouvez contacter notre équipe d'administration si vous avez des questions sur le rejet.",
       "q3Question": "Puis-je annuler ma réservation? Obtiens-je un remboursement?",
       "q3Answer": "Vous pouvez annuler votre réservation avant qu'elle ne soit approuvée par l'admin. Cependant, les <strong>frais de réservation de 7 $ USD ne sont pas remboursables</strong> en aucune circonstance.",

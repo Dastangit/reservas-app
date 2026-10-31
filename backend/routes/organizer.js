@@ -3,7 +3,7 @@ const { body } = require('express-validator');
 const {
   createExperience, updateExperience, getMyExperiences,
   getOrganizerExperienceBookings, completeExperienceBooking,
-  createRecurrence, updateRecurrence, pauseRecurrence, endRecurrence,
+  getMyRecurrences, createRecurrence, updateRecurrence, pauseRecurrence, endRecurrence,
   getRecurrenceOccurrences,
 } = require('../controllers/organizerController');
 const { protect, authorize } = require('../middleware/auth');
@@ -37,6 +37,7 @@ router.get('/experience-bookings', getOrganizerExperienceBookings);
 router.post('/experience-bookings/:id/complete', completeExperienceBooking);
 
 // Excursiones recurrentes
+router.get('/recurrences', getMyRecurrences);
 router.post('/recurrences', [
   ...experienceValidators,
   body('recurrence.start_date').isISO8601().withMessage('recurrence.start_date is required'),

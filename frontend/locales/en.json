@@ -292,7 +292,8 @@
     "passwordUpdated": "Password updated. You can now log in.",
     "resetLinkExpired": "The link may have expired. Please request a new one.",
     "repeatPassword": "Repeat password",
-    "pendingApprovalRegistered": "Account created! Our team will review it and contact you once it is approved. You will be able to log in after approval."
+    "pendingApprovalRegistered": "Account created! Our team will review it and contact you once it is approved. You will be able to log in after approval.",
+    "accountPendingApproval": "Your account is pending approval. We'll let you know by WhatsApp or email once it's approved."
   },
   "dashboard": {
     "myBookings": "My Bookings",
@@ -305,12 +306,46 @@
     "errorLoading": "Error loading bookings"
   },
   "confirmation": {
-    "title": "Booking Confirmed!",
-    "subtitle": "Your payment has been received",
     "whatNext": "What happens next?",
-    "pendingMessage": "Your booking is pending admin approval. You will receive an email once it's approved.",
     "contactAdmin": "Contact Administrator",
-    "adminContact": "The admin will contact you with check-in details."
+    "reason": "Reason:",
+    "status": {
+      "pending_payment": {
+        "title": "Booking created",
+        "subtitle": "The booking fee is still unpaid",
+        "message": "Pay the $7 USD fee so we can review your booking. Until it is paid, the dates are not held for you."
+      },
+      "verifying": {
+        "title": "Booking created",
+        "subtitle": "We are verifying your payment",
+        "message": "As soon as we confirm the payment, we will review your booking. You can check its status in My bookings."
+      },
+      "pending_approval": {
+        "title": "Booking received!",
+        "subtitle": "Your payment has been received",
+        "message": "Your booking is pending approval. We usually review it within 24 hours and will let you know by WhatsApp or email. You can also check its status in My bookings."
+      },
+      "approved": {
+        "title": "Booking approved!",
+        "subtitle": "Your stay is confirmed",
+        "message": "The admin will contact you with check-in details."
+      },
+      "completed": {
+        "title": "Stay completed",
+        "subtitle": "Thank you for staying with us",
+        "message": "You can leave a review from My bookings."
+      },
+      "rejected": {
+        "title": "Booking rejected",
+        "subtitle": "Your booking was not approved",
+        "message": "If you have questions, contact the admin."
+      },
+      "cancelled": {
+        "title": "Booking cancelled",
+        "subtitle": "This booking is no longer active",
+        "message": "You can make a new booking whenever you like."
+      }
+    }
   },
   "host": {
     "becomeHost": "Are you a Host?",
@@ -573,7 +608,7 @@
       "touristStep2Title": "Book & Pay Fee",
       "touristStep2Desc": "When you find the perfect property, select your dates and number of guests. You'll pay a <strong>$7 USD booking fee</strong> to secure your reservation. This fee is non-refundable. The remainder of your payment will be made directly at the accommodation.",
       "touristStep3Title": "Admin Approval",
-      "touristStep3Desc": "After you book, our admin team reviews your reservation. This typically takes less than 24 hours. You'll receive an email notification once your booking is approved or if there are any issues.",
+      "touristStep3Desc": "After you book, our admin team reviews your reservation. This typically takes less than 24 hours. We'll let you know by WhatsApp or email once your booking is approved or if there are any issues, and you can check its status in My bookings.",
       "touristStep4Title": "Enjoy Your Stay",
       "touristStep4Desc": "Once approved, you'll receive check-in details. Pay the remainder of your stay directly at the accommodation. After your stay, leave a review to help other travelers!",
       "hostStep1Title": "Register as Host",
@@ -596,7 +631,7 @@
       "remainderDaily": "<strong>Daily payment:</strong> Pay day by day during your stay (flexible option)",
       "cancellationImportant": "Important",
       "cancellationDesc": "The $7 USD booking fee is <strong>non-refundable</strong> if you cancel or if your booking is rejected for not meeting requirements. <strong>Exception:</strong> if the rejection is due to our own error, we will arrange a refund with you.",
-      "cancellationRejected": "If your booking is rejected by the admin, you will be notified by email. If the rejection was due to our own error, we will arrange a refund; otherwise, the fee covers the service of processing and reviewing your reservation.",
+      "cancellationRejected": "If your booking is rejected by the admin, we will let you know by WhatsApp or email. If the rejection was due to our own error, we will arrange a refund; otherwise, the fee covers the service of processing and reviewing your reservation.",
       "dastanName": "Support Team",
       "dastanEmail": "Email: <a href='mailto:elysio.support@gmail.com'>elysio.support@gmail.com</a><br>WhatsApp: <a href='https://wa.me/16055003653' target='_blank' rel='noopener'>+1 6055003653</a>"
     },
@@ -741,10 +776,10 @@
       "q1Answer": "The booking process is simple:",
       "q1Step1": "<strong>Search:</strong> Browse properties without logging in. Use filters for location, price, guests, and amenities.",
       "q1Step2": "<strong>Book:</strong> Select your dates and pay a <strong>$7 USD booking fee</strong> via QvaPay or PayPal to secure your reservation.",
-      "q1Step3": "<strong>Approval:</strong> Our admin team reviews your booking within 24 hours. You'll receive an email notification.",
+      "q1Step3": "<strong>Approval:</strong> Our admin team reviews your booking within 24 hours. We'll let you know by WhatsApp or email, and you can check its status in My bookings.",
       "q1Step4": "<strong>Stay:</strong> Once approved, you receive the host's contact info and check-in details. Pay the remainder directly at the accommodation.",
       "q2Question": "What happens if my booking is rejected?",
-      "q2Answer": "If the admin rejects your booking, you will receive an email notification with the reason (if provided). If the rejection is due to <strong>our own error</strong>, we will arrange a refund of the $7 USD fee. In any other case, the <strong>$7 USD booking fee is non-refundable</strong>.",
+      "q2Answer": "If the admin rejects your booking, we'll let you know by WhatsApp or email with the reason (if provided), and you'll also see it in My bookings. If the rejection is due to <strong>our own error</strong>, we will arrange a refund of the $7 USD fee. In any other case, the <strong>$7 USD booking fee is non-refundable</strong>.",
       "q2Contact": "You can contact our admin team if you have questions about the rejection.",
       "q3Question": "Can I cancel my booking? Do I get a refund?",
       "q3Answer": "You can cancel your booking before it is approved by the admin. However, the <strong>$7 USD booking fee is non-refundable</strong> under any circumstances.",

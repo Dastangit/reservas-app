@@ -47,7 +47,7 @@ const AdminFeedbackPage = {
       const response = prompt(i18n.t('admin.enterYourResponse'));
       if (response) {
         try {
-          await api.post(`/admin/feedback/${id}/respond`, { response });
+          await api.post(`/feedback/${id}/respond`, { response });
           alert(i18n.t('admin.responseSent'));
           this.loadFeedback(document.querySelector('.tab-btn.active')?.dataset.tab || '');
         } catch (error) {
@@ -62,7 +62,7 @@ const AdminFeedbackPage = {
     list.innerHTML = `<p class="loading">${i18n.t('common.loading')}</p>`;
 
     try {
-      const url = status ? `/admin/feedback?status=${status}` : '/admin/feedback';
+      const url = status ? `/feedback?status=${status}` : '/feedback';
       const response = await api.get(url);
       const feedback = response.data?.feedback || [];
 

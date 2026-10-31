@@ -149,11 +149,11 @@ exports.login = async (req, res, next) => {
     }
 
     if (user.role === 'host' && user.host_status !== 'approved') {
-      return res.status(403).json({ success: false, error: 'Your host account is pending admin approval. You will receive an email when approved.' });
+      return res.status(403).json({ success: false, error: 'Your host account is pending admin approval.', code: 'pending_approval' });
     }
 
     if (user.role === 'organizer' && user.organizer_status !== 'approved') {
-      return res.status(403).json({ success: false, error: 'Your organizer account is pending admin approval. You will receive an email when approved.' });
+      return res.status(403).json({ success: false, error: 'Your organizer account is pending admin approval.', code: 'pending_approval' });
     }
 
     // Si el usuario tiene 2FA activo, no se entrega el token real todavía --
