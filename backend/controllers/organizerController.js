@@ -4,24 +4,29 @@ const ExperienceBooking = require('../models/ExperienceBooking');
 const { notifyAdmins } = require('../utils/pushNotifications');
 const { generateOccurrences } = require('../utils/experienceRecurrence');
 const { sanitizeImages } = require('../utils/images');
-const { parseLocalDateTime } = require('../utils/timezone');
+const { parseLocalDateTime, EXPERIENCE_TIMEZONE } = require('../utils/timezone');
+const { normalizeCountry } = require('../utils/countries');
 
 // Lista blanca de lo que un organizador puede enviar (antes se copiaba todo el
 // body menos unos pocos campos: admin_notes, rejection_reason, etc. eran editables).
 const EXPERIENCE_FIELDS = [
-  'title', 'description', 'category', 'location', 'date', 'duration_hours', 'max_participants',
+  'title', 'description', 'category', 'location', 'timezone', 'date', 'duration_hours', 'max_participants',
   'pricing', 'allows_mixed_audience', 'images', 'includes', 'requirements', 'cancellation_policy',
 ];
 const RECURRENCE_FIELDS = EXPERIENCE_FIELDS.filter((f) => f !== 'date').concat(['recurrence']);
-const REVIEWABLE_FIELDS = ['title', 'description', 'location', 'images', 'pricing', 'date'];
+const REVIEWABLE_FIELDS = ['title', 'description', 'location', 'timezone', 'images', 'pricing', 'date'];
 
 const pickFields = (source, keys) => Object.fromEntries(
   keys.filter((k) => source[k] !== undefined).map((k) => [k, source[k]]),
 );
 
-// Normaliza fechas y limpia images; `existing` son las imagenes que ya tenia el documento.
-function normalizeExperienceInput(fields, userId, existingImages) {
-  if (fields.date !== undefined) fields.date = parseLocalDateTime(fields.date);
+// Normaliza fechas, pais e images. `existing` es el documento que se edita (si hay):
+// la fecha se interpreta en la zona nueva o, si no cambia, en la que ya tenia.
+function normalizeExperienceInput(fields, userId, existing) {
+  if (fields.location?.country !== undefined) fields.location.country = normalizeCountry(fields.location.country);
+  const timeZone = fields.timezone || existing?.timezone || EXPERIENCE_TIMEZONE;
+  if (fields.date !== undefined) fields.date = parseLocalDateTime(fields.date, timeZone);
+  const existingImages = existing?.images;
   if (fields.images !== undefined) fields.images = sanitizeImages(fields.images, userId, existingImages);
   if (fields.recurrence) {
     const r = fields.recurrence;
@@ -81,7 +86,7 @@ exports.updateExperience = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Experience not found' });
     }
 
-    const allowedUpdates = normalizeExperienceInput(pickFields(req.body, EXPERIENCE_FIELDS), req.user._id, experience.images);
+    const allowedUpdates = normalizeExperienceInput(pickFields(req.body, EXPERIENCE_FIELDS), req.user._id, experience);
 
     if (allowedUpdates.max_participants !== undefined
       && Number(allowedUpdates.max_participants) < experience.current_participants) {
@@ -139,7 +144,7 @@ exports.getOrganizerExperienceBookings = async (req, res, next) => {
       tenant_id: req.tenantId,
       organizer_id: req.user._id,
     })
-      .populate('experience_id', 'title date')
+      .populate('experience_id', 'title date timezone')
       .sort({ created_at: -1 });
 
     res.json({ success: true, data: { bookings, count: bookings.length } });
@@ -250,7 +255,7 @@ exports.updateRecurrence = async (req, res, next) => {
 
     // Solo afecta instancias futuras aún no generadas -- las ya generadas
     // (algunas con reservas activas) no se tocan retroactivamente.
-    const allowedUpdates = normalizeExperienceInput(pickFields(req.body, RECURRENCE_FIELDS), req.user._id, recurrence.images);
+    const allowedUpdates = normalizeExperienceInput(pickFields(req.body, RECURRENCE_FIELDS), req.user._id, recurrence);
 
     const updated = await ExperienceRecurrence.findByIdAndUpdate(req.params.id, allowedUpdates, {
       new: true,

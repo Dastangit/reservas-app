@@ -2,6 +2,7 @@ import api from '../api.js';
 import i18n from '../i18n.js';
 import { formatExperiencePrice, formatExperienceDate, formatExperienceTime } from '../utils/formatters.js';
 import { escapeHtml } from '../utils/escape.js';
+import { formatPlace, countryOptions } from '../utils/places.js';
 
 const ExperiencesPage = {
   meta() {
@@ -14,6 +15,7 @@ const ExperiencesPage = {
     const t = (key) => i18n.t(key);
     const params = new URLSearchParams(window.location.search);
     this.currentFilters = {
+      country: params.get('country') || '',
       city: params.get('city') || '',
       category: params.get('category') || '',
       audience: params.get('audience') || '',
@@ -31,6 +33,10 @@ const ExperiencesPage = {
             <aside class="search-filters">
               <h3>${t('experience.filters')}</h3>
               <form id="filter-form">
+                <div class="filter-group">
+                  <label>${t('places.countryLabel')}</label>
+                  <select id="filter-country">${countryOptions(this.currentFilters.country, t('places.allCountries'))}</select>
+                </div>
                 <div class="filter-group">
                   <label>${t('search.city')}</label>
                   <input type="text" id="filter-city" value="${escapeHtml(this.currentFilters.city)}" placeholder="${t('search.cityPlaceholder')}">
@@ -80,6 +86,7 @@ const ExperiencesPage = {
 
   applyFilters() {
     const filters = {
+      country: document.getElementById('filter-country')?.value || '',
       city: document.getElementById('filter-city')?.value || '',
       category: document.getElementById('filter-category')?.value || '',
       audience: document.getElementById('filter-audience')?.value || '',
@@ -126,7 +133,7 @@ const ExperiencesPage = {
             <img loading="lazy" src="${escapeHtml(exp.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(exp.title)}">
             <div class="property-card-body">
               <h3>${escapeHtml(exp.title)}</h3>
-              <p>${escapeHtml(exp.location?.city || '')} · ${formatExperienceDate(exp.date)} ${formatExperienceTime(exp.date)}</p>
+              <p>${escapeHtml(formatPlace(exp.location))} · ${formatExperienceDate(exp.date, exp.timezone)} ${formatExperienceTime(exp.date, exp.timezone)}</p>
               <p>${escapeHtml(priceLabel)}</p>
               <p style="font-size:0.85rem;color:var(--text-light);">${spotsLeft} ${i18n.t('experience.spotsAvailable')}</p>
             </div>

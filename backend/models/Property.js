@@ -27,6 +27,8 @@ const propertySchema = new mongoose.Schema({
   },
   location: {
     city: { type: String, required: true },
+    // ISO 3166-1 alfa-2 ("MX", "CU"). Obligatorio al crear (validado en la ruta).
+    country: { type: String, uppercase: true, trim: true, match: /^[A-Z]{2}$/ },
     neighborhood: String,
     address: String,
     latitude: Number,

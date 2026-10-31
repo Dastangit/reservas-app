@@ -3,6 +3,7 @@ import i18n from '../i18n.js';
 import { formatExperiencePrice, formatExperienceDate, formatExperienceTime } from '../utils/formatters.js';
 import auth from '../auth.js';
 import { escapeHtml } from '../utils/escape.js';
+import { formatPlace } from '../utils/places.js';
 
 const ExperienceDetailPage = {
   experience: null,
@@ -42,7 +43,12 @@ const ExperienceDetailPage = {
       location: {
         '@type': 'Place',
         name: exp.location?.city,
-        address: exp.location?.address || exp.location?.city,
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: exp.location?.address,
+          addressLocality: exp.location?.city,
+          addressCountry: exp.location?.country,
+        },
       },
       maximumAttendeeCapacity: exp.max_participants,
       remainingAttendeeCapacity: remaining,
@@ -88,10 +94,10 @@ const ExperienceDetailPage = {
           <div class="property-info">
             <div class="property-main">
               <h1>${escapeHtml(exp.title)}</h1>
-              <p class="property-location">${escapeHtml(exp.location?.city || '')}${exp.location?.address ? `, ${escapeHtml(exp.location.address)}` : ''}</p>
+              <p class="property-location">${escapeHtml(formatPlace(exp.location))}${exp.location?.address ? `, ${escapeHtml(exp.location.address)}` : ''}</p>
 
               <div class="property-meta">
-                <span>${formatExperienceDate(exp.date)} ${formatExperienceTime(exp.date)} (${i18n.t('experience.cubaTime')})</span>
+                <span>${formatExperienceDate(exp.date, exp.timezone)} ${formatExperienceTime(exp.date, exp.timezone)} (${i18n.t('experience.localTime')})</span>
                 ${exp.duration_hours ? `<span>${exp.duration_hours}${t('experience.hoursDurationSuffix')}</span>` : ''}
                 <span>${escapeHtml(this.spotsAvailable)} ${t('experience.spotsAvailable')}</span>
                 ${exp.allows_mixed_audience ? `<span>${t('experience.mixedGroupsBadge')}</span>` : ''}

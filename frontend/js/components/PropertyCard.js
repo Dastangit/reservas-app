@@ -1,6 +1,7 @@
 import { formatCurrency, truncateText } from '../utils/formatters.js';
 import { escapeHtml, safeUrl } from '../utils/escape.js';
 import i18n from '../i18n.js';
+import { formatPlace } from '../utils/places.js';
 
 const PropertyCard = {
   render(property) {
@@ -16,7 +17,7 @@ const PropertyCard = {
         </div>
         <div class="property-card-content">
           <h3 class="property-card-title">${escapeHtml(property.name)}</h3>
-          <p class="property-card-location">${escapeHtml(property.location?.city || t('propertyCard.locationUnknown'))}</p>
+          <p class="property-card-location">${escapeHtml(formatPlace(property.location) || t('propertyCard.locationUnknown'))}</p>
           <p class="property-card-description">${escapeHtml(truncateText(property.description, 80))}</p>
           <div class="property-card-details">
             <span class="property-guests">${t('propertyCard.maxGuests').replace('{n}', property.max_guests)}</span>

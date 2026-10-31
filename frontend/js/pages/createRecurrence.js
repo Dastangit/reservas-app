@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { countryOptions, timeZoneOptions, browserTimeZone } from '../utils/places.js';
 
 const CreateRecurrencePage = {
   images: [],
@@ -45,6 +46,17 @@ const CreateRecurrencePage = {
               </div>
 
               <div class="form-group">
+                <label>${t('places.countryLabel')}</label>
+                <select id="rec-country" required>${countryOptions('', t('places.selectCountry'))}</select>
+              </div>
+
+              <div class="form-group">
+                <label>${t('places.timeZoneLabel')}</label>
+                <select id="rec-timezone" required>${timeZoneOptions(browserTimeZone())}</select>
+                <small class="field-hint">${t('places.timeZoneHint')}</small>
+              </div>
+
+              <div class="form-group">
                 <label>${t('createExperience.durationLabel')}</label>
                 <input type="number" id="rec-duration" min="0">
               </div>
@@ -70,7 +82,7 @@ const CreateRecurrencePage = {
               </div>
 
               <div class="form-group">
-                <label>${t('createRecurrence.timeLabel')} (${t('experience.cubaTime')})</label>
+                <label>${t('createRecurrence.timeLabel')} (${t('experience.localTime')})</label>
                 <input type="time" id="rec-time" value="09:00" required>
               </div>
 
@@ -199,7 +211,11 @@ const CreateRecurrencePage = {
       title: document.getElementById('rec-title').value,
       description: document.getElementById('rec-description').value,
       category: document.getElementById('rec-category').value,
-      location: { city: document.getElementById('rec-city').value },
+      location: {
+        city: document.getElementById('rec-city').value,
+        country: document.getElementById('rec-country').value,
+      },
+      timezone: document.getElementById('rec-timezone').value,
       duration_hours: Number(document.getElementById('rec-duration').value) || undefined,
       max_participants: Number(document.getElementById('rec-max-participants').value),
       pricing,

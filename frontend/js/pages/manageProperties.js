@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { formatPlace } from '../utils/places.js';
 
 const ManagePropertiesPage = {
   async render() {
@@ -47,7 +48,7 @@ const ManagePropertiesPage = {
           <img loading="lazy" src="${escapeHtml(p.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(p.name)}">
           <div class="property-info">
             <h3>${escapeHtml(p.name)}</h3>
-            <p>${escapeHtml(p.location?.city)}</p>
+            <p>${escapeHtml(formatPlace(p.location))}</p>
             <span class="status-badge ${escapeHtml(p.status)}">${escapeHtml(p.status.replace(/_/g, ' '))}</span>
           </div>
           <div class="property-actions">

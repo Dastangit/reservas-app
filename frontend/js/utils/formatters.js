@@ -26,22 +26,24 @@ export const addDaysISO = (isoDate, days) => {
   return d.toISOString().slice(0, 10);
 };
 
-// Las excursiones son en Cuba: su hora se muestra siempre en hora de Cuba.
+// La hora de una excursion es la del lugar donde ocurre (su `timezone`), igual
+// para todos los visitantes. Excursiones antiguas sin zona eran de Cuba.
 export const EXPERIENCE_TIMEZONE = 'America/Havana';
+const zoneOf = (timeZone) => timeZone || EXPERIENCE_TIMEZONE;
 
-export const formatExperienceDate = (date) => new Date(date).toLocaleDateString(uiLocale(), {
-  timeZone: EXPERIENCE_TIMEZONE, year: 'numeric', month: 'short', day: 'numeric',
+export const formatExperienceDate = (date, timeZone) => new Date(date).toLocaleDateString(uiLocale(), {
+  timeZone: zoneOf(timeZone), year: 'numeric', month: 'short', day: 'numeric',
 });
 
-export const formatExperienceTime = (date) => new Date(date).toLocaleTimeString(uiLocale(), {
-  timeZone: EXPERIENCE_TIMEZONE, hour: '2-digit', minute: '2-digit',
+export const formatExperienceTime = (date, timeZone) => new Date(date).toLocaleTimeString(uiLocale(), {
+  timeZone: zoneOf(timeZone), hour: '2-digit', minute: '2-digit',
 });
 
-// Valor para <input type="datetime-local"> en hora de Cuba (YYYY-MM-DDTHH:mm).
-export const toExperienceInputValue = (date) => {
+// Valor para <input type="datetime-local"> en la zona de la excursion (YYYY-MM-DDTHH:mm).
+export const toExperienceInputValue = (date, timeZone) => {
   const d = new Date(date);
   if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleString('sv-SE', { timeZone: EXPERIENCE_TIMEZONE, hour12: false }).replace(' ', 'T').slice(0, 16);
+  return d.toLocaleString('sv-SE', { timeZone: zoneOf(timeZone), hour12: false }).replace(' ', 'T').slice(0, 16);
 };
 
 export const formatCurrency = (amount, currency = 'USD') => {

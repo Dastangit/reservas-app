@@ -3,6 +3,7 @@ import { formatCurrency, formatDate, localDateISO, addDaysISO } from '../utils/f
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { formatPlace } from '../utils/places.js';
 
 const PropertyDetailPage = {
   property: null,
@@ -36,6 +37,7 @@ const PropertyDetailPage = {
         '@type': 'PostalAddress',
         streetAddress: p.location?.address,
         addressLocality: p.location?.city,
+        addressCountry: p.location?.country,
         addressRegion: p.location?.neighborhood,
       },
       priceRange: `${p.price_per_night} ${p.currency}`,
@@ -94,7 +96,7 @@ const PropertyDetailPage = {
           <div class="property-info">
             <div class="property-main">
               <h1>${escapeHtml(p.name)}</h1>
-              <p class="property-location">${escapeHtml(p.location?.city)}${p.location?.neighborhood ? `, ${escapeHtml(p.location.neighborhood)}` : ''}</p>
+              <p class="property-location">${escapeHtml([p.location?.neighborhood, formatPlace(p.location)].filter(Boolean).join(', '))}</p>
               
               <div class="property-meta">
                 <span>${p.type === 'casa_particular' ? 'Casa Particular' : 'Hostel'}</span>

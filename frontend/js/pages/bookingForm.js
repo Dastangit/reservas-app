@@ -5,6 +5,7 @@ import { validateInternationalPhone, sanitizePhone } from '../utils/validators.j
 import { renderBookingReminderIfNeeded } from '../utils/onboarding.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { formatPlace } from '../utils/places.js';
 
 const BookingFormPage = {
   property: null,
@@ -52,7 +53,7 @@ const BookingFormPage = {
                 <img loading="lazy" src="${escapeHtml(p.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(p.name)}">
                 <div>
                   <h3>${escapeHtml(p.name)}</h3>
-                  <p>${escapeHtml(p.location?.city)}</p>
+                  <p>${escapeHtml(formatPlace(p.location))}</p>
                 </div>
               </div>
               
@@ -116,7 +117,7 @@ const BookingFormPage = {
                 
                 <div class="form-group">
                   <label>${t('booking.phoneLabel')}</label>
-                  <input type="tel" id="tourist-phone" placeholder="+53 5xxxxxxx" required>
+                  <input type="tel" id="tourist-phone" placeholder="+34 600 000 000" required>
                   <small class="field-hint">${t('booking.phoneHint')}</small>
                 </div>
                 

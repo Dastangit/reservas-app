@@ -17,6 +17,7 @@ const { buildTouristMessage } = require('../utils/touristMessages');
 const { logAdminAction } = require('../utils/auditLog');
 const env = require('../config/env');
 const { parsePagination } = require('../utils/helpers');
+const { formatCalendarDate, formatExperienceDateTime } = require('../utils/timezone');
 
 const ACTIVE_BOOKING_STATUSES = ['pending_payment', 'pending_approval', 'approved'];
 
@@ -719,7 +720,7 @@ exports.getBookingWhatsAppLink = async (req, res, next) => {
     }
 
     const message = `Hola ${booking.host_id.name}, tienes una nueva reserva confirmada en ${booking.property_id.name} `
-      + `del ${new Date(booking.check_in).toLocaleDateString()} al ${new Date(booking.check_out).toLocaleDateString()}. `
+      + `del ${formatCalendarDate(booking.check_in)} al ${formatCalendarDate(booking.check_out)}. `
       + `Total a cobrar en el alojamiento: $${booking.total_amount} USD.`;
 
     const url = buildWhatsAppLink(booking.host_id.phone, message);
@@ -779,8 +780,8 @@ exports.getBookingTouristContactLinks = async (req, res, next) => {
       touristName: booking.tourist_data?.name || '',
       propertyName: booking.property_id?.name || '',
       address,
-      checkIn: new Date(booking.check_in).toLocaleDateString(lang),
-      checkOut: new Date(booking.check_out).toLocaleDateString(lang),
+      checkIn: formatCalendarDate(booking.check_in, lang),
+      checkOut: formatCalendarDate(booking.check_out, lang),
       bookingType: booking.booking_type,
       totalAmount: booking.total_amount,
       feeAmount: booking.fee_amount,
@@ -1286,7 +1287,7 @@ exports.approveExperience = async (req, res, next) => {
         subject: 'Excursión aprobada - Elysio Experiences',
         html: `
           <h1>¡Excursión aprobada!</h1>
-          <p>Tu excursión <strong>${experience.title}</strong> del ${new Date(experience.date).toLocaleDateString()} fue aprobada y ya está visible para los clientes.</p>
+          <p>Tu excursión <strong>${experience.title}</strong> del ${formatExperienceDateTime(experience.date, experience.timezone)} fue aprobada y ya está visible para los clientes.</p>
         `,
       }).catch(() => {});
     }
@@ -1327,7 +1328,7 @@ exports.rejectExperience = async (req, res, next) => {
         subject: 'Excursión no aprobada - Elysio Experiences',
         html: `
           <h1>Excursión no aprobada</h1>
-          <p>Tu excursión <strong>${experience.title}</strong> del ${new Date(experience.date).toLocaleDateString()} no fue aprobada.</p>
+          <p>Tu excursión <strong>${experience.title}</strong> del ${formatExperienceDateTime(experience.date, experience.timezone)} no fue aprobada.</p>
           ${req.body.reason ? `<p><strong>Motivo:</strong> ${req.body.reason}</p>` : ''}
         `,
       }).catch(() => {});
@@ -1351,7 +1352,7 @@ exports.getAllExperienceBookings = async (req, res, next) => {
         .sort({ created_at: -1 })
         .skip(skip)
         .limit(limit)
-        .populate('experience_id', 'title date')
+        .populate('experience_id', 'title date timezone')
         .populate('tourist_id', 'name email')
         .populate('organizer_id', 'name'),
       ExperienceBooking.countDocuments(filter),
@@ -1371,7 +1372,7 @@ exports.approveExperienceBooking = async (req, res, next) => {
     const booking = await ExperienceBooking.findOne({
       _id: req.params.id,
       tenant_id: req.tenantId,
-    }).populate('experience_id', 'title date').populate('tourist_id', 'email').populate('organizer_id', 'name email phone');
+    }).populate('experience_id', 'title date timezone').populate('tourist_id', 'email').populate('organizer_id', 'name email phone');
 
     if (!booking) {
       return res.status(404).json({ success: false, error: 'Booking not found' });
@@ -1459,7 +1460,7 @@ exports.rejectExperienceBooking = async (req, res, next) => {
 exports.getExperienceBookingOrganizerWhatsAppLink = async (req, res, next) => {
   try {
     const booking = await ExperienceBooking.findOne({ _id: req.params.id, tenant_id: req.tenantId })
-      .populate('experience_id', 'title date')
+      .populate('experience_id', 'title date timezone')
       .populate('organizer_id', 'name phone')
       .populate('tourist_id', 'name');
 
@@ -1475,7 +1476,7 @@ exports.getExperienceBookingOrganizerWhatsAppLink = async (req, res, next) => {
       .join('; ');
 
     const message = `Hola ${booking.organizer_id.name}, tienes una nueva reserva confirmada en "${booking.experience_id.title}" `
-      + `del ${new Date(booking.experience_id.date).toLocaleDateString()}. `
+      + `del ${formatExperienceDateTime(booking.experience_id.date, booking.experience_id.timezone)}. `
       + `Cliente: ${booking.tourist_data?.name || booking.tourist_id?.name || 'N/A'}, contacto: ${booking.tourist_data?.phone || 'N/A'}. `
       + `Cupos: ${booking.num_spots}. A cobrar: ${paymentLines}.`;
 
@@ -1492,7 +1493,7 @@ exports.getExperienceBookingOrganizerWhatsAppLink = async (req, res, next) => {
 exports.getExperienceBookingTouristContactLinks = async (req, res, next) => {
   try {
     const booking = await ExperienceBooking.findOne({ _id: req.params.id, tenant_id: req.tenantId })
-      .populate('experience_id', 'title date')
+      .populate('experience_id', 'title date timezone')
       .populate('organizer_id', 'name phone');
 
     if (!booking) {
@@ -1510,7 +1511,7 @@ exports.getExperienceBookingTouristContactLinks = async (req, res, next) => {
 
     if (booking.status === 'approved') {
       message = `Hola ${booking.tourist_data?.name || ''}, tu reserva en "${booking.experience_id.title}" `
-        + `del ${new Date(booking.experience_id.date).toLocaleDateString()} fue confirmada. `
+        + `del ${formatExperienceDateTime(booking.experience_id.date, booking.experience_id.timezone)} fue confirmada. `
         + `El organizador ${booking.organizer_id?.name || ''} se pondrá en contacto contigo`
         + `${booking.organizer_id?.phone ? ` (${booking.organizer_id.phone})` : ''} para coordinar el pago y los detalles.`;
     } else if (booking.status === 'rejected') {

@@ -3,6 +3,7 @@ import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
 import { toExperienceInputValue } from '../utils/formatters.js';
+import { countryOptions, timeZoneOptions, browserTimeZone } from '../utils/places.js';
 
 const CreateExperiencePage = {
   editId: null,
@@ -61,13 +62,24 @@ const CreateExperiencePage = {
               </div>
 
               <div class="form-group">
+                <label>${t('places.countryLabel')}</label>
+                <select id="exp-country" required>${countryOptions(existing?.location?.country || '', t('places.selectCountry'))}</select>
+              </div>
+
+              <div class="form-group">
                 <label>${t('createExperience.addressLabel')}</label>
                 <input type="text" id="exp-address" value="${escapeHtml(existing?.location?.address || '')}">
               </div>
 
               <div class="form-group">
-                <label>${t('createExperience.dateLabel')} (${t('experience.cubaTime')})</label>
-                <input type="datetime-local" id="exp-date" value="${existing?.date ? toExperienceInputValue(existing.date) : ''}" required>
+                <label>${t('createExperience.dateLabel')} (${t('experience.localTime')})</label>
+                <input type="datetime-local" id="exp-date" value="${existing?.date ? toExperienceInputValue(existing.date, existing.timezone) : ''}" required>
+              </div>
+
+              <div class="form-group">
+                <label>${t('places.timeZoneLabel')}</label>
+                <select id="exp-timezone" required>${timeZoneOptions(existing?.timezone || browserTimeZone())}</select>
+                <small class="field-hint">${t('places.timeZoneHint')}</small>
               </div>
 
               <div class="form-group">
@@ -259,7 +271,9 @@ const CreateExperiencePage = {
       location: {
         city: document.getElementById('exp-city').value,
         address: document.getElementById('exp-address').value,
+        country: document.getElementById('exp-country').value,
       },
+      timezone: document.getElementById('exp-timezone').value,
       date: document.getElementById('exp-date').value,
       duration_hours: Number(document.getElementById('exp-duration').value) || undefined,
       max_participants: Number(document.getElementById('exp-max-participants').value),

@@ -63,7 +63,7 @@ const AdminSettingsPage = {
               </div>
               <div class="form-group">
                 <label>${t('admin.contactWhatsappLabel')}</label>
-                <input type="tel" id="admin_whatsapp" placeholder="+53...">
+                <input type="tel" id="admin_whatsapp" placeholder="+34...">
               </div>
             </div>
 

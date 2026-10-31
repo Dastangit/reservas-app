@@ -69,7 +69,6 @@ const userSchema = new mongoose.Schema({
   host_region: {
     type: String,
     enum: ['cuba', 'international'],
-    default: 'cuba',
   },
   host_fee_waived_until: Date,
   organizer_status: {

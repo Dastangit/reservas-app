@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { isValidTimeZone } = require('../utils/timezone');
 
 const experienceSchema = new mongoose.Schema({
   tenant_id: {
@@ -30,6 +31,8 @@ const experienceSchema = new mongoose.Schema({
   category: String, // tour, hiking, culinary, class, etc.
   location: {
     city: { type: String, required: true },
+    // ISO 3166-1 alfa-2 ("MX", "CU"). Obligatorio al crear (validado en la ruta).
+    country: { type: String, uppercase: true, trim: true, match: /^[A-Z]{2}$/ },
     address: String,
     latitude: Number,
     longitude: Number,
@@ -37,6 +40,12 @@ const experienceSchema = new mongoose.Schema({
   date: {
     type: Date,
     required: true,
+  },
+  // Zona IANA del lugar ("America/Havana"): la hora de la excursion es hora local
+  // de alli. Sin valor (excursiones antiguas) se usa EXPERIENCE_TIMEZONE.
+  timezone: {
+    type: String,
+    validate: { validator: (v) => !v || isValidTimeZone(v), message: 'Invalid timezone' },
   },
   duration_hours: Number,
   max_participants: {

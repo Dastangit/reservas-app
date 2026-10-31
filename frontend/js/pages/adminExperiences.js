@@ -3,6 +3,7 @@ import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { formatExperiencePrice, formatExperienceDate, formatExperienceTime } from '../utils/formatters.js';
 import { escapeHtml } from '../utils/escape.js';
+import { formatPlace } from '../utils/places.js';
 
 const AdminExperiencesPage = {
   async render() {
@@ -71,7 +72,7 @@ const AdminExperiencesPage = {
               ${escapeHtml(exp.title)}${exp.recurrence_id ? ` <span class="audit-log-badge">${i18n.t('admin.recurringOccurrenceBadge')}</span>` : ''}
               ${exp.allows_mixed_audience ? ` <span class="audit-log-badge" style="border-color:#c0392b;color:#c0392b;">${i18n.t('admin.mixedAudienceWarningBadge')}</span>` : ''}
             </h3>
-            <p>${escapeHtml(exp.location?.city || '')} · ${formatExperienceDate(exp.date)} ${formatExperienceTime(exp.date)}</p>
+            <p>${escapeHtml(formatPlace(exp.location))} · ${formatExperienceDate(exp.date, exp.timezone)} ${formatExperienceTime(exp.date, exp.timezone)}</p>
             <p>${i18n.t('admin.organizerLabel')} ${escapeHtml(exp.organizer_id?.name || i18n.t('admin.unknownFallback'))} (${escapeHtml(exp.organizer_id?.email || i18n.t('admin.noEmail'))})</p>
             <p style="font-size:var(--fs-xs);color:var(--text-light);">
               ${(exp.pricing || []).map((p) => `${p.audience === 'local' ? i18n.t('organizer.audienceLocal') : i18n.t('organizer.audienceTourist')}: ${formatExperiencePrice(p.amount, p.currency)}`).join(' · ')}

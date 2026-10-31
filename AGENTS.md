@@ -2,7 +2,7 @@
 
 ## Architecture
 
-Multi-tenant vacation rental platform (Cuba focus). Tourists search/book properties; hosts list properties; admin manages everything.
+Multi-tenant vacation rental platform (worldwide; started in Cuba). Tourists search/book properties; hosts list properties; admin manages everything.
 
 - **Backend**: Express + Mongoose (MongoDB), single `backend/` directory. Entry: `backend/server.js`
 - **Frontend**: Vanilla JS SPA (no framework, no build step). Entry: `frontend/index.html` → `frontend/js/app.js`
@@ -64,7 +64,8 @@ CI (`.github/workflows/ci.yml`) runs lint, tests and `npm audit` for the backend
 - **`.env` in backend**: Contains secrets (JWT, MongoDB URI, Cloudinary, QvaPay, VAPID). Already in `.gitignore`. Never commit it. `server.js` refuses to start without `MONGODB_URI`, `JWT_SECRET`, `JWT_REFRESH_SECRET`.
 - **Seeds**: `scripts/seed.js` needs `SEED_ADMIN_PASSWORD`; demo seeds refuse to run with `NODE_ENV=production`. Never hardcode passwords.
 - **Timezone dates**: Booking dates are calendar dates stored at UTC midnight: format them with `formatDate` (uses UTC) and compute "today" with `localDateISO()` from `utils/formatters.js` — never `toISOString()`.
-- **Experience times are Cuba time**: the organizer's `datetime-local` value is interpreted as `America/Havana` (`utils/timezone.js`); display with `formatExperienceDate/Time` and edit with `toExperienceInputValue`.
+- **Experience times are local to the place**: each experience/recurrence has an IANA `timezone` (required on create); the organizer's `datetime-local` value is interpreted in it (`utils/timezone.js`, fallback `America/Havana` for old docs). Display with `formatExperienceDate/Time(date, exp.timezone)` and edit with `toExperienceInputValue(date, exp.timezone)`; populate `timezone` along with `date`.
+- **Countries**: properties and experiences store `location.country` as an ISO 3166-1 alpha-2 code (required on create). Same code list in `backend/utils/countries.js` and `frontend/js/utils/places.js`; names come from `Intl.DisplayNames` (`countryName`, `formatPlace`).
 - **Booking overlap check**: Uses strict `$lt`/`$gt` (same-day turnover allowed). Do NOT switch to `$lte`. Check + create runs inside `withPropertyLock` (`utils/propertyLock.js`, atomic lock on the property doc, safe with several instances); date blocks use the same lock. A post-create re-check (earlier `_id` wins) remains as a second safety net.
 - **2FA**: `otplib` (TOTP, window 1) with replay protection (`two_factor.last_used_step`). Backup codes are stored hashed.
 - **Inline handlers are not allowed** (CSP `script-src 'self'`): use `data-action="fnName" data-arg="..."` (+ `data-arg2`...) and define `window.fnName`; `this` is the element and the event is the last argument. For `<select>` use `data-change-action`.

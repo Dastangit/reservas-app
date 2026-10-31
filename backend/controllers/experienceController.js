@@ -3,6 +3,7 @@ const ExperienceBooking = require('../models/ExperienceBooking');
 const ExperienceWaitlist = require('../models/ExperienceWaitlist');
 const { promoteNextWaitlistEntry } = require('../utils/experienceWaitlist');
 const { escapeRegex, parsePagination } = require('../utils/helpers');
+const { normalizeCountry } = require('../utils/countries');
 
 // Una reserva de excursion no cuesta nada y retiene cupos 24 h: se limita cuantas
 // pendientes puede tener un turista y cuantos cupos pide de una vez.
@@ -60,7 +61,7 @@ function buildPaymentInfo(experience, rawPaymentInfo) {
 exports.getExperiences = async (req, res, next) => {
   try {
     const {
-      city, category, date_from, date_to, audience, currency,
+      city, country, category, date_from, date_to, audience, currency,
     } = req.query;
     const { page, limit, skip } = parsePagination(req.query, { defaultLimit: 10, maxLimit: 50 });
 
@@ -71,6 +72,7 @@ exports.getExperiences = async (req, res, next) => {
     };
 
     if (city) query['location.city'] = new RegExp(escapeRegex(city), 'i');
+    if (normalizeCountry(country)) query['location.country'] = normalizeCountry(country);
     if (category) query.category = String(category);
     if (date_from || date_to) {
       query.date = query.date || {};
@@ -281,7 +283,7 @@ exports.getMyExperienceBookings = async (req, res, next) => {
       tenant_id: req.tenantId,
       tourist_id: req.user._id,
     })
-      .populate('experience_id', 'title date location images')
+      .populate('experience_id', 'title date timezone location images')
       .sort({ created_at: -1 });
 
     res.json({ success: true, data: { bookings, count: bookings.length } });
@@ -296,7 +298,7 @@ exports.getExperienceBookingById = async (req, res, next) => {
       _id: req.params.id,
       tenant_id: req.tenantId,
     })
-      .populate('experience_id', 'title date location images')
+      .populate('experience_id', 'title date timezone location images')
       .populate('tourist_id', 'name email')
       .populate('organizer_id', 'name email');
 

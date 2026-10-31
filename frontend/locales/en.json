@@ -88,10 +88,10 @@
     "pricePerNight": "Price per night",
     "yourInformation": "Your Information",
     "phoneLabel": "Phone (WhatsApp) *",
-    "phoneHint": "Include country code, e.g. +53, +1, +34",
+    "phoneHint": "Include country code, e.g. +1, +34, +52",
     "preferredContact": "Preferred Contact",
     "feeNotice": "* The $7 USD fee is non-refundable and secures your reservation.",
-    "invalidPhone": "Please enter a valid phone number with country code (e.g. +5355512345)",
+    "invalidPhone": "Please enter a valid phone number with country code (e.g. +34600000000)",
     "failed": "Booking failed",
     "completeYourBooking": "Complete Your Booking",
     "bookingNotFound": "Booking not found",
@@ -168,7 +168,7 @@
     "tourist": "Tourist",
     "perSpot": "/spot",
     "pageTitle": "Local Excursions & Trips",
-    "pageSubtitle": "Connect with local organizers across Latin America and the Caribbean",
+    "pageSubtitle": "Connect with local organizers around the world",
     "filters": "Filters",
     "category": "Category",
     "categoryPlaceholder": "e.g: tour, hiking",
@@ -221,13 +221,13 @@
     "claimNumSpotsHint": "Must match what you requested on the waitlist.",
     "confirmSpotBtn": "Confirm my spot",
     "claimFailed": "Could not confirm the spot — the time window may have expired",
-    "cubaTime": "Cuba time"
+    "localTime": "local time"
   },
   "search": {
     "title": "Search Properties",
     "filters": "Filters",
     "city": "City",
-    "cityPlaceholder": "e.g., Habana",
+    "cityPlaceholder": "e.g., Cancún",
     "priceRange": "Price Range",
     "min": "Min",
     "max": "Max",
@@ -604,7 +604,7 @@
       "needHelpSection": "Need Help?",
       "adminTeamAvailable": "Our admin team is available to assist you:",
       "touristStep1Title": "Search Properties",
-      "touristStep1Desc": "Browse our catalog of verified accommodations across Latin America and the Caribbean. Use filters to find the perfect place by location, price, number of guests, and amenities. You can search without logging in.",
+      "touristStep1Desc": "Browse our catalog of verified accommodations around the world. Use filters to find the perfect place by location, price, number of guests, and amenities. You can search without logging in.",
       "touristStep2Title": "Book & Pay Fee",
       "touristStep2Desc": "When you find the perfect property, select your dates and number of guests. You'll pay a <strong>$7 USD booking fee</strong> to secure your reservation. This fee is non-refundable. The remainder of your payment will be made directly at the accommodation.",
       "touristStep3Title": "Admin Approval",
@@ -647,7 +647,7 @@
       "s2Legal": "Have the legal capacity to enter into binding agreements",
       "s2Accurate": "Provide accurate and complete registration information",
       "s3Title": "3. Description of Service",
-      "s3Content": "Elysio Experiences is a platform that connects tourists seeking accommodations with hosts offering properties across Latin America and the Caribbean. We facilitate the booking process and collect a service fee.",
+      "s3Content": "Elysio Experiences is a platform that connects tourists seeking accommodations with hosts offering properties around the world. We facilitate the booking process and collect a service fee.",
       "s4Title": "4. User Accounts",
       "s4Content": "You are responsible for:",
       "s4Confidentiality": "Maintaining the confidentiality of your account credentials",
@@ -880,7 +880,7 @@
   "propertyForm": {
     "basicInfo": "Basic Information",
     "nameLabel": "Property Name *",
-    "namePlaceholder": "e.g., Casa Azul Habana",
+    "namePlaceholder": "e.g., Blue House by the Sea",
     "typeLabel": "Type *",
     "typeCasaParticular": "Casa Particular",
     "typeHostel": "Hostel",
@@ -888,7 +888,7 @@
     "descriptionPlaceholder": "Describe your property...",
     "locationSection": "Location",
     "cityLabel": "City *",
-    "cityPlaceholder": "e.g., Habana",
+    "cityPlaceholder": "e.g., Cancún",
     "neighborhoodLabel": "Neighborhood",
     "neighborhoodPlaceholder": "e.g., Vedado",
     "addressLabel": "Address",
@@ -1015,16 +1015,16 @@
   },
   "seo": {
     "landing": {
-      "title": "Vacation Rentals & Experiences in Latin America & the Caribbean",
-      "description": "Find verified vacation rentals and authentic local experiences across Latin America and the Caribbean, including Cuba. Book directly with trusted hosts."
+      "title": "Vacation Rentals & Experiences Around the World",
+      "description": "Find verified vacation rentals and authentic local experiences across Latin America, the Caribbean and the rest of the world. Book directly with trusted hosts."
     },
     "search": {
       "title": "Search Properties",
-      "description": "Browse and filter verified vacation rentals across Latin America and the Caribbean by location, price, and amenities."
+      "description": "Browse and filter verified vacation rentals around the world by location, price, and amenities."
     },
     "experiences": {
       "title": "Experiences & Local Tours",
-      "description": "Discover authentic local experiences and tours hosted by verified organizers across Latin America and the Caribbean."
+      "description": "Discover authentic local experiences and tours hosted by verified organizers around the world."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -1248,5 +1248,12 @@
       "overdue_organizer_commissions": "Overdue organizer commissions",
       "manual_payments_pending": "Manual PayPal payments to confirm"
     }
+  },
+  "places": {
+    "countryLabel": "Country",
+    "selectCountry": "Select a country",
+    "allCountries": "All countries",
+    "timeZoneLabel": "Local time zone",
+    "timeZoneHint": "The time you enter is the local time at this place. Every visitor sees the same time."
   }
 }

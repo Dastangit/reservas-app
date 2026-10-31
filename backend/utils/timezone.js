@@ -1,7 +1,19 @@
-// Las excursiones ocurren en Cuba: la hora que escribe el organizador ("09:00")
-// es hora local de Cuba, no del servidor (UTC). Antes se guardaba como 09:00 UTC
-// y cada visitante la veia desplazada segun su zona horaria.
+// La hora que escribe el organizador ("09:00") es hora local del lugar de la
+// excursion (su campo `timezone`), no del servidor (UTC) ni del visitante.
+// EXPERIENCE_TIMEZONE solo se usa para excursiones antiguas sin `timezone`
+// (todas eran de Cuba).
 const EXPERIENCE_TIMEZONE = process.env.EXPERIENCE_TIMEZONE || 'America/Havana';
+
+// Zona IANA valida ("America/Mexico_City", "Europe/Madrid"...).
+function isValidTimeZone(timeZone) {
+  if (typeof timeZone !== 'string' || !timeZone.includes('/')) return timeZone === 'UTC';
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 // Partes de calendario (y, m, d, h, min) de un instante en una zona horaria.
 function zonedParts(date, timeZone = EXPERIENCE_TIMEZONE) {
@@ -55,4 +67,13 @@ function parseLocalDateTime(value, timeZone = EXPERIENCE_TIMEZONE) {
   return zonedTimeToUtc(Number(m[1]), Number(m[2]), Number(m[3]), Number(m[4] || 0), Number(m[5] || 0), timeZone);
 }
 
-module.exports = { EXPERIENCE_TIMEZONE, zonedParts, zonedTimeToUtc, parseLocalDateTime };
+// Para textos (WhatsApp, avisos): no dependen del huso del servidor.
+// Fecha de calendario de una reserva (guardada a medianoche UTC): "31/10/2026".
+const formatCalendarDate = (date, lang = 'es') => new Date(date).toLocaleDateString(lang, { timeZone: 'UTC' });
+
+// Fecha y hora de una excursion en la zona de su lugar: "31/10/2026, 21:00".
+const formatExperienceDateTime = (date, timeZone, lang = 'es') => new Date(date).toLocaleString(lang, {
+  timeZone: timeZone || EXPERIENCE_TIMEZONE, dateStyle: 'short', timeStyle: 'short',
+});
+
+module.exports = { EXPERIENCE_TIMEZONE, isValidTimeZone, formatCalendarDate, formatExperienceDateTime, zonedParts, zonedTimeToUtc, parseLocalDateTime };
