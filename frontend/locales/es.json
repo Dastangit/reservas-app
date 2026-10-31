@@ -18,7 +18,9 @@
     "errorPrefix": "Error: ",
     "edit": "Editar",
     "pageNotFound": "Página no encontrada",
-    "goHome": "Ir al inicio"
+    "goHome": "Ir al inicio",
+    "themeToDark": "Cambiar a modo oscuro",
+    "themeToLight": "Cambiar a modo claro"
   },
   "nav": {
     "myBookings": "Mis Reservas",

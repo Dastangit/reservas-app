@@ -18,7 +18,9 @@
     "errorPrefix": "Error: ",
     "edit": "Edit",
     "pageNotFound": "Page not found",
-    "goHome": "Go Home"
+    "goHome": "Go Home",
+    "themeToDark": "Switch to dark mode",
+    "themeToLight": "Switch to light mode"
   },
   "nav": {
     "myBookings": "My Bookings",

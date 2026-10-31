@@ -60,18 +60,19 @@ export const calculateNights = (checkIn, checkOut) => {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
 
+// Rellenos para etiquetas con texto blanco (contraste >= 4.5, igual en claro y oscuro).
 export const getStatusColor = (status) => {
   const colors = {
-    pending_payment: '#F39C12',
-    pending_approval: '#F39C12',
-    approved: '#27AE60',
-    active: '#27AE60',
-    rejected: '#E74C3C',
-    cancelled: '#E74C3C',
-    completed: '#3498DB',
-    inactive: '#95A5A6',
+    pending_payment: '#B45309',
+    pending_approval: '#B45309',
+    approved: '#15803D',
+    active: '#15803D',
+    rejected: '#DC2626',
+    cancelled: '#DC2626',
+    completed: '#2563EB',
+    inactive: '#64748B',
   };
-  return colors[status] || '#95A5A6';
+  return colors[status] || '#64748B';
 };
 
 export const truncateText = (text, maxLength = 100) => {
