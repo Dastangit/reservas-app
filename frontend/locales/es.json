@@ -292,7 +292,8 @@
     "passwordUpdated": "Contraseña actualizada. Ahora puedes iniciar sesión.",
     "resetLinkExpired": "El link puede haber expirado. Solicita uno nuevo.",
     "repeatPassword": "Repite la contraseña",
-    "pendingApprovalRegistered": "¡Cuenta creada! Nuestro equipo la revisará y te contactará cuando esté aprobada. Podrás iniciar sesión después de la aprobación."
+    "pendingApprovalRegistered": "¡Cuenta creada! Nuestro equipo la revisará y te contactará cuando esté aprobada. Podrás iniciar sesión después de la aprobación.",
+    "accountPendingApproval": "Tu cuenta está pendiente de aprobación. Te avisaremos por WhatsApp o correo cuando esté aprobada."
   },
   "dashboard": {
     "myBookings": "Mis Reservas",
@@ -305,12 +306,46 @@
     "errorLoading": "Error al cargar las reservas"
   },
   "confirmation": {
-    "title": "¡Reserva Confirmada!",
-    "subtitle": "Tu pago ha sido recibido",
     "whatNext": "¿Qué sigue?",
-    "pendingMessage": "Tu reserva está pendiente de aprobación del administrador. Recibirás un correo cuando sea aprobada.",
     "contactAdmin": "Contactar Administrador",
-    "adminContact": "El administrador te contactará con los detalles del check-in."
+    "reason": "Motivo:",
+    "status": {
+      "pending_payment": {
+        "title": "Reserva creada",
+        "subtitle": "Falta pagar la tarifa de reserva",
+        "message": "Paga la tarifa de $7 USD para que revisemos tu reserva. Mientras no la pagues, las fechas no quedan apartadas."
+      },
+      "verifying": {
+        "title": "Reserva creada",
+        "subtitle": "Estamos verificando tu pago",
+        "message": "En cuanto confirmemos el pago, revisaremos tu reserva. Puedes ver su estado en Mis reservas."
+      },
+      "pending_approval": {
+        "title": "¡Reserva recibida!",
+        "subtitle": "Tu pago ha sido recibido",
+        "message": "Tu reserva está pendiente de aprobación. Normalmente la revisamos en menos de 24 horas y te avisaremos por WhatsApp o correo. También puedes ver su estado en Mis reservas."
+      },
+      "approved": {
+        "title": "¡Reserva aprobada!",
+        "subtitle": "Tu estancia está confirmada",
+        "message": "El administrador te contactará con los detalles del check-in."
+      },
+      "completed": {
+        "title": "Estancia completada",
+        "subtitle": "Gracias por alojarte con nosotros",
+        "message": "Puedes dejar una reseña desde Mis reservas."
+      },
+      "rejected": {
+        "title": "Reserva rechazada",
+        "subtitle": "Tu reserva no fue aprobada",
+        "message": "Si tienes dudas, contacta al administrador."
+      },
+      "cancelled": {
+        "title": "Reserva cancelada",
+        "subtitle": "Esta reserva ya no está activa",
+        "message": "Si quieres, puedes hacer una nueva reserva."
+      }
+    }
   },
   "host": {
     "becomeHost": "¿Eres Anfitrión?",
@@ -573,7 +608,7 @@
       "touristStep2Title": "Reserva y Paga la Tarifa",
       "touristStep2Desc": "Cuando encuentres la propiedad perfecta, selecciona tus fechas y número de huéspedes. Pagarás una <strong>tarifa de reserva de $7 USD</strong> para asegurar tu reserva. Esta tarifa no es reembolsable. El resto de tu pago se realizará directamente en el alojamiento.",
       "touristStep3Title": "Aprobación del Admin",
-      "touristStep3Desc": "Después de reservar, nuestro equipo revisa tu reserva. Esto generalmente toma menos de 24 horas. Recibirás una notificación por correo electrónico una vez que tu reserva sea aprobada o si hay algún problema.",
+      "touristStep3Desc": "Después de reservar, nuestro equipo revisa tu reserva. Esto generalmente toma menos de 24 horas. Te avisaremos por WhatsApp o correo cuando tu reserva sea aprobada o si hay algún problema, y puedes ver su estado en Mis reservas.",
       "touristStep4Title": "Disfruta Tu Estadía",
       "touristStep4Desc": "Una vez aprobada, recibirás los detalles de check-in. Paga el resto de tu estadía directamente en el alojamiento. Después de tu estadía, deja una reseña para ayudar a otros viajeros.",
       "hostStep1Title": "Regístrate como Anfitrión",
@@ -583,7 +618,7 @@
       "hostStep3Title": "Obtén Aprobación",
       "hostStep3Desc": "Nuestro equipo revisa tu listing para asegurar que cumpla con nuestros estándares de calidad. Una vez aprobada, tu propiedad se hace visible para los turistas.",
       "hostStep4Title": "Recibe Reservas",
-      "hostStep4Desc": "Cuando los turistas reserven tu propiedad, serás notificado. Después de la aprobación del admin, recibirás la información de contacto del huésped para coordinar los detalles de check-up. El pago se cobra directamente del huésped en el alojamiento.",
+      "hostStep4Desc": "Cuando los turistas reserven tu propiedad, serás notificado. Después de la aprobación del admin, recibirás la información de contacto del huésped para coordinar los detalles del check-in. El pago se cobra directamente del huésped en el alojamiento.",
       "bookingFeeTitle": "Tarifa de Pre-reserva de $7 USD",
       "bookingFeeDesc": "Se cobra una <strong>tarifa de $7 USD</strong> cuando haces una reserva. Esta tarifa:",
       "bookingFeeSecures": "Asegura tu reserva",
@@ -596,7 +631,7 @@
       "remainderDaily": "<strong>Pago diario:</strong> Paga día por día durante tu estadía (opción flexible)",
       "cancellationImportant": "Importante",
       "cancellationDesc": "La tarifa de reserva de $7 USD es <strong>no reembolsable</strong> si cancelas tú o si tu reserva es rechazada por no cumplir los requisitos. <strong>Excepción:</strong> si el rechazo se debe a un error de nuestra parte, coordinaremos el reembolso contigo.",
-      "cancellationRejected": "Si tu reserva es rechazada por el admin, serás notificado por correo electrónico. Si el rechazo se debe a un error nuestro, coordinaremos el reembolso; en los demás casos, la tarifa cubre el servicio de procesar y revisar tu reserva.",
+      "cancellationRejected": "Si tu reserva es rechazada por el admin, te avisaremos por WhatsApp o correo. Si el rechazo se debe a un error nuestro, coordinaremos el reembolso; en los demás casos, la tarifa cubre el servicio de procesar y revisar tu reserva.",
       "dastanName": "Equipo de Soporte",
       "dastanEmail": "Correo: <a href='mailto:elysio.support@gmail.com'>elysio.support@gmail.com</a><br>WhatsApp: <a href='https://wa.me/16055003653' target='_blank' rel='noopener'>+1 6055003653</a>"
     },
@@ -741,10 +776,10 @@
       "q1Answer": "El proceso de reserva es simple:",
       "q1Step1": "<strong>Busca:</strong> Explora propiedades sin iniciar sesión. Usa filtros por ubicación, precio, huéspedes y comodidades.",
       "q1Step2": "<strong>Reserva:</strong> Selecciona tus fechas y paga una <strong>tarifa de reserva de $7 USD</strong> con QvaPay o PayPal para asegurar tu reserva.",
-      "q1Step3": "<strong>Aprobación:</strong> Nuestro equipo revisa tu reserva dentro de 24 horas. Recibirás una notificación por correo electrónico.",
+      "q1Step3": "<strong>Aprobación:</strong> Nuestro equipo revisa tu reserva dentro de 24 horas. Te avisaremos por WhatsApp o correo, y puedes ver el estado en Mis reservas.",
       "q1Step4": "<strong>Estadía:</strong> Una vez aprobada, recibes la información de contacto del anfitrión y los detalles de check-in. Paga el resto directamente en el alojamiento.",
       "q2Question": "¿Qué pasa si mi reserva es rechazada?",
-      "q2Answer": "Si el admin rechaza tu reserva, recibirás una notificación por correo electrónico con el motivo (si se proporciona). Si el rechazo se debe a un <strong>error de nuestra parte</strong>, coordinaremos un reembolso de la tarifa de $7 USD. En cualquier otro caso, la <strong>tarifa de reserva de $7 USD no es reembolsable</strong>.",
+      "q2Answer": "Si el admin rechaza tu reserva, te avisaremos por WhatsApp o correo con el motivo (si se proporciona), y lo verás también en Mis reservas. Si el rechazo se debe a un <strong>error de nuestra parte</strong>, coordinaremos un reembolso de la tarifa de $7 USD. En cualquier otro caso, la <strong>tarifa de reserva de $7 USD no es reembolsable</strong>.",
       "q2Contact": "Puedes contactar a nuestro equipo de administración si tienes preguntas sobre el rechazo.",
       "q3Question": "¿Puedo cancelar mi reserva? ¿Obtengo un reembolso?",
       "q3Answer": "Puedes cancelar tu reserva antes de que sea aprobada por el admin. Sin embargo, la <strong>tarifa de reserva de $7 USD no es reembolsable</strong> bajo ninguna circunstancia.",

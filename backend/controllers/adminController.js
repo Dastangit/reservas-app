@@ -105,7 +105,7 @@ exports.approveProperty = async (req, res, next) => {
     property.changes_pending_review = false;
     await property.save();
 
-    res.json({ success: true, data: { property_id: property._id, status: 'active', email_sent: true } });
+    res.json({ success: true, data: { property_id: property._id, status: 'active' } });
 
     logAdminAction({
       tenant_id: req.tenantId,

@@ -114,7 +114,9 @@ const LoginPage = {
         this.completeLogin(response.data);
       }
     } catch (error) {
-      errorEl.textContent = error.message || i18n.t('auth.loginFailed');
+      errorEl.textContent = error.code === 'pending_approval'
+        ? i18n.t('auth.accountPendingApproval')
+        : error.message || i18n.t('auth.loginFailed');
       errorEl.style.display = 'block';
     }
   },

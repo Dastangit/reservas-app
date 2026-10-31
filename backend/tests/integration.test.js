@@ -262,6 +262,44 @@ describe('excursiones', () => {
     const saved = await Experience.findById(res.body.data.experience_id);
     expect(saved.date.toISOString()).toBe('2027-01-15T14:00:00.000Z');
   });
+
+  test('el organizador lista sus series con el numero de ocurrencias, y solo las suyas', async () => {
+    const create = await request(app).post('/api/organizer/recurrences').set(auth(organizer)).send({
+      title: 'Serie', description: 'd', location: { city: 'Habana' }, max_participants: 3,
+      pricing: [{ audience: 'tourist', currency: 'USD', amount: 10 }],
+      recurrence: { start_date: day(1), days_of_week: [0, 1, 2, 3, 4, 5, 6], time_of_day: '09:00' },
+    });
+    expect(create.status).toBe(201);
+
+    const res = await request(app).get('/api/organizer/recurrences').set(auth(organizer));
+    expect(res.status).toBe(200);
+    const serie = res.body.data.recurrences.find((r) => r._id === create.body.data.recurrence_id);
+    expect(serie.occurrences_generated).toBe(create.body.data.occurrences_generated);
+    expect(serie.occurrences_generated).toBeGreaterThan(0);
+
+    const other = await makeUser('organizer');
+    const otherRes = await request(app).get('/api/organizer/recurrences').set(auth(other));
+    expect(otherRes.body.data.recurrences).toHaveLength(0);
+  });
+});
+
+describe('feedback', () => {
+  test('el admin lista y responde el feedback en /api/feedback', async () => {
+    const t = await makeUser('tourist');
+    const sent = await request(app).post('/api/feedback').set(auth(t)).send({ message: 'Hola', category: 'other' });
+    expect(sent.status).toBe(201);
+
+    const list = await request(app).get('/api/feedback').set(auth(admin));
+    expect(list.status).toBe(200);
+    const item = list.body.data.feedback.find((f) => f.message === 'Hola');
+    expect(item).toBeDefined();
+
+    const reply = await request(app).post(`/api/feedback/${item._id}/respond`).set(auth(admin)).send({ response: 'Gracias' });
+    expect(reply.status).toBe(200);
+
+    const denied = await request(app).get('/api/feedback').set(auth(t));
+    expect(denied.status).toBe(403);
+  });
 });
 
 describe('health', () => {

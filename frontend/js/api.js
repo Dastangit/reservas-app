@@ -85,6 +85,7 @@ async function send(endpoint, buildInit, { retried = false } = {}) {
   if (!response.ok) {
     const error = new Error(errorMessage(data, response));
     error.status = response.status;
+    error.code = data.code;
     error.details = data.errors;
     throw error;
   }
