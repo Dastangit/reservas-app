@@ -102,6 +102,7 @@ test('conserva solo los ultimos N respaldos completos y no toca nada mas', () =>
 });
 
 test('los errores no muestran la contrasena de la base', () => {
-  expect(hideCredentials('fallo en mongodb+srv://user:secreto@dats.x.mongodb.net/Dats'))
-    .toBe('fallo en mongodb+srv://***@dats.x.mongodb.net/Dats');
+  // Host de ejemplo (no *.mongodb.net) para que el escaneo de secretos de GitHub no lo tome por real.
+  expect(hideCredentials('fallo en mongodb://usuario:clave@base.example.com/db'))
+    .toBe('fallo en mongodb://***@base.example.com/db');
 });
