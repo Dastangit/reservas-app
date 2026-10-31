@@ -9,6 +9,7 @@ const { protect, authorize, optionalAuth } = require('../middleware/auth');
 const { setTenant } = require('../middleware/tenant');
 const validate = require('../middleware/validate');
 const { isValidCountry } = require('../utils/countries');
+const { PROPERTY_TYPES } = require('../models/Property');
 
 const router = express.Router();
 
@@ -24,7 +25,7 @@ router.get('/:id/availability/calendar', getAvailabilityCalendar);
 
 router.post('/', protect, authorize('host'), [
   body('name').notEmpty().withMessage('Name is required'),
-  body('type').isIn(['casa_particular', 'hostel']).withMessage('Type must be casa_particular or hostel'),
+  body('type').isIn(PROPERTY_TYPES).withMessage(`Type must be one of: ${PROPERTY_TYPES.join(', ')}`),
   body('description').notEmpty().withMessage('Description is required'),
   body('location.city').notEmpty().withMessage('City is required'),
   body('location.country').custom(isValidCountry).withMessage('Country is required (ISO code, e.g. MX)'),
@@ -34,6 +35,7 @@ router.post('/', protect, authorize('host'), [
 
 router.put('/:id', protect, authorize('host'), [
   body('location.country').optional().custom(isValidCountry).withMessage('Invalid country (ISO code, e.g. MX)'),
+  body('type').optional().isIn(PROPERTY_TYPES).withMessage(`Type must be one of: ${PROPERTY_TYPES.join(', ')}`),
 ], validate, updateProperty);
 router.post('/:id/availability/block', protect, authorize('host'), [
   body('start_date').notEmpty().withMessage('start_date is required'),

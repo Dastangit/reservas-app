@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
 
+// Tipos de alojamiento. Misma lista en frontend/js/utils/propertyTypes.js.
+// Cada anuncio es una unidad que se reserva entera: un hotel u hostal publica
+// cada tipo de habitacion como un anuncio aparte.
+const PROPERTY_TYPES = [
+  'apartment', 'house', 'villa', 'cabin', 'private_room', 'guest_house', 'casa_particular', 'hostel', 'hotel',
+];
+
 const propertySchema = new mongoose.Schema({
   tenant_id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -18,7 +25,7 @@ const propertySchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['casa_particular', 'hostel'],
+    enum: PROPERTY_TYPES,
     required: true,
   },
   description: {
@@ -131,3 +138,4 @@ propertySchema.index({ tenant_id: 1, price_per_night: 1 });
 propertySchema.index({ host_id: 1 });
 
 module.exports = mongoose.model('Property', propertySchema);
+module.exports.PROPERTY_TYPES = PROPERTY_TYPES;

@@ -233,8 +233,6 @@
     "max": "Max",
     "type": "Type",
     "allTypes": "All",
-    "hostel": "Hostel",
-    "casaParticular": "Casa Particular",
     "sortBy": "Sort By",
     "newest": "Newest",
     "priceLowHigh": "Price: Low to High",
@@ -882,8 +880,6 @@
     "nameLabel": "Property Name *",
     "namePlaceholder": "e.g., Blue House by the Sea",
     "typeLabel": "Type *",
-    "typeCasaParticular": "Casa Particular",
-    "typeHostel": "Hostel",
     "descriptionLabel": "Description *",
     "descriptionPlaceholder": "Describe your property...",
     "locationSection": "Location",
@@ -924,7 +920,9 @@
     "publishTitle": "Publish New Property",
     "editTitle": "Edit Property",
     "loadingProperty": "Loading property...",
-    "errorLoadingProperty": "Error loading property"
+    "errorLoadingProperty": "Error loading property",
+    "selectType": "Select a type",
+    "typeHint": "Each listing is booked as a whole. If you run a hotel or hostel, publish each room type as a separate listing."
   },
   "organizer": {
     "accessDenied": "Access denied. Please login as an organizer.",
@@ -1052,8 +1050,6 @@
     }
   },
   "propertyCard": {
-    "typeCasa": "Casa Particular",
-    "typeHostel": "Hostel",
     "locationUnknown": "Location not specified",
     "maxGuests": "Max {n} guests",
     "new": "New",
@@ -1255,5 +1251,16 @@
     "allCountries": "All countries",
     "timeZoneLabel": "Local time zone",
     "timeZoneHint": "The time you enter is the local time at this place. Every visitor sees the same time."
+  },
+  "propertyTypes": {
+    "apartment": "Apartment",
+    "house": "House",
+    "villa": "Villa",
+    "cabin": "Cabin",
+    "private_room": "Private room",
+    "guest_house": "Guesthouse",
+    "casa_particular": "Casa particular",
+    "hostel": "Hostel",
+    "hotel": "Hotel"
   }
 }

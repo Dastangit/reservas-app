@@ -3,6 +3,7 @@ import PropertyCard from '../components/PropertyCard.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
 import { countryOptions } from '../utils/places.js';
+import { propertyTypeOptions } from '../utils/propertyTypes.js';
 
 const SearchPage = {
   meta() {
@@ -68,9 +69,7 @@ const SearchPage = {
                 <div class="filter-group">
                   <label>${t('search.type')}</label>
                   <select id="filter-type">
-                    <option value="">${t('search.allTypes')}</option>
-                    <option value="casa_particular" ${this.currentFilters.type === 'casa_particular' ? 'selected' : ''}>${t('search.casaParticular')}</option>
-                    <option value="hostel" ${this.currentFilters.type === 'hostel' ? 'selected' : ''}>${t('search.hostel')}</option>
+                    ${propertyTypeOptions(this.currentFilters.type, t('search.allTypes'))}
                   </select>
                 </div>
                 

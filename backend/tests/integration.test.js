@@ -194,6 +194,20 @@ describe('reservas de propiedades', () => {
 });
 
 describe('propiedades', () => {
+  test('acepta los tipos de alojamiento nuevos y rechaza los desconocidos', async () => {
+    const h = await makeUser('host');
+    const body = (type) => ({
+      name: `Tipo ${type}`, type, description: 'd', max_guests: 2, price_per_night: 50,
+      location: { city: 'Madrid', country: 'ES' },
+    });
+    for (const type of ['apartment', 'villa', 'private_room', 'hotel']) {
+      const res = await request(app).post('/api/properties').set(auth(h)).send(body(type));
+      expect(res.status).toBe(201);
+    }
+    const bad = await request(app).post('/api/properties').set(auth(h)).send(body('castle'));
+    expect(bad.status).toBe(400);
+  });
+
   test('publicar exige pais y la busqueda filtra por pais', async () => {
     const h = await makeUser('host');
     const base = {

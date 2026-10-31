@@ -62,7 +62,7 @@ const { MongoMemoryServer } = require(path.join(BACKEND, 'node_modules/mongodb-m
     pricing: [{ audience: 'tourist', currency: 'USD', amount: 25 }], status: 'active',
   });
   await Property.create({
-    tenant_id: tenant._id, host_id: host._id, name: 'Apartamento Roma Norte', type: 'casa_particular',
+    tenant_id: tenant._id, host_id: host._id, name: 'Apartamento Roma Norte', type: 'apartment',
     description: 'Departamento de prueba en CDMX', location: { city: 'Ciudad de México', country: 'MX' }, max_guests: 3,
     price_per_night: 60, status: 'active',
   });

@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { countryOptions } from '../utils/places.js';
+import { propertyTypeOptions } from '../utils/propertyTypes.js';
 
 const PublishPropertyPage = {
   async render() {
@@ -28,9 +29,9 @@ const PublishPropertyPage = {
               <div class="form-group">
                 <label>${t('propertyForm.typeLabel')}</label>
                 <select id="type" required>
-                  <option value="casa_particular">${t('propertyForm.typeCasaParticular')}</option>
-                  <option value="hostel">${t('propertyForm.typeHostel')}</option>
+                  ${propertyTypeOptions('', t('propertyForm.selectType'))}
                 </select>
+                <small class="field-hint">${t('propertyForm.typeHint')}</small>
               </div>
 
               <div class="form-group">

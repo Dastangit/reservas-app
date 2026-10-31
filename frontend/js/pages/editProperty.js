@@ -3,6 +3,7 @@ import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { countryOptions } from '../utils/places.js';
 import { escapeHtml } from '../utils/escape.js';
+import { propertyTypeOptions } from '../utils/propertyTypes.js';
 
 const EditPropertyPage = {
   property: null,
@@ -33,9 +34,9 @@ const EditPropertyPage = {
               <div class="form-group">
                 <label>${t('propertyForm.typeLabel')}</label>
                 <select id="type" required>
-                  <option value="casa_particular">${t('propertyForm.typeCasaParticular')}</option>
-                  <option value="hostel">${t('propertyForm.typeHostel')}</option>
+                  ${propertyTypeOptions('', t('propertyForm.selectType'))}
                 </select>
+                <small class="field-hint">${t('propertyForm.typeHint')}</small>
               </div>
 
               <div class="form-group">
@@ -152,7 +153,7 @@ const EditPropertyPage = {
   populateForm() {
     const p = this.property;
     document.getElementById('name').value = p.name || '';
-    document.getElementById('type').value = p.type || 'casa_particular';
+    document.getElementById('type').value = p.type || '';
     document.getElementById('description').value = p.description || '';
     document.getElementById('country').value = p.location?.country || '';
     document.getElementById('city').value = p.location?.city || '';

@@ -233,8 +233,6 @@
     "max": "Max",
     "type": "Type",
     "allTypes": "Tous",
-    "hostel": "Auberge",
-    "casaParticular": "Casa Particular",
     "sortBy": "Trier par",
     "newest": "Plus récent",
     "priceLowHigh": "Prix : croissant",
@@ -882,8 +880,6 @@
     "nameLabel": "Nom de la Propriété *",
     "namePlaceholder": "ex., Maison bleue face à la mer",
     "typeLabel": "Type *",
-    "typeCasaParticular": "Casa Particular",
-    "typeHostel": "Auberge",
     "descriptionLabel": "Description *",
     "descriptionPlaceholder": "Décrivez votre propriété...",
     "locationSection": "Emplacement",
@@ -924,7 +920,9 @@
     "publishTitle": "Publier une Nouvelle Propriété",
     "editTitle": "Modifier la Propriété",
     "loadingProperty": "Chargement de la propriété...",
-    "errorLoadingProperty": "Erreur lors du chargement de la propriété"
+    "errorLoadingProperty": "Erreur lors du chargement de la propriété",
+    "selectType": "Choisissez un type",
+    "typeHint": "Chaque annonce se réserve en entier. Si vous gérez un hôtel ou une auberge, publiez chaque type de chambre comme une annonce séparée."
   },
   "organizer": {
     "accessDenied": "Accès refusé. Veuillez vous connecter en tant qu'organisateur.",
@@ -1052,8 +1050,6 @@
     }
   },
   "propertyCard": {
-    "typeCasa": "Casa Particular",
-    "typeHostel": "Auberge",
     "locationUnknown": "Lieu non précisé",
     "maxGuests": "Max. {n} voyageurs",
     "new": "Nouveau",
@@ -1255,5 +1251,16 @@
     "allCountries": "Tous les pays",
     "timeZoneLabel": "Fuseau horaire du lieu",
     "timeZoneHint": "L'heure indiquée est l'heure locale de ce lieu. Tous les visiteurs voient la même heure."
+  },
+  "propertyTypes": {
+    "apartment": "Appartement",
+    "house": "Maison",
+    "villa": "Villa",
+    "cabin": "Chalet",
+    "private_room": "Chambre privée",
+    "guest_house": "Maison d'hôtes",
+    "casa_particular": "Casa particular",
+    "hostel": "Auberge de jeunesse",
+    "hotel": "Hôtel"
   }
 }

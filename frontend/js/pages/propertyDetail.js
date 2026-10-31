@@ -4,6 +4,7 @@ import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
 import { formatPlace } from '../utils/places.js';
+import { propertyTypeLabel } from '../utils/propertyTypes.js';
 
 const PropertyDetailPage = {
   property: null,
@@ -99,7 +100,7 @@ const PropertyDetailPage = {
               <p class="property-location">${escapeHtml([p.location?.neighborhood, formatPlace(p.location)].filter(Boolean).join(', '))}</p>
               
               <div class="property-meta">
-                <span>${p.type === 'casa_particular' ? 'Casa Particular' : 'Hostel'}</span>
+                <span>${escapeHtml(propertyTypeLabel(p.type))}</span>
                 <span>${t('property.max')} ${p.max_guests} ${t('property.guests')}</span>
                 <span>${p.bedrooms || 1} ${t('property.bedrooms')}</span>
                 <span>${p.bathrooms || 1} ${t('property.bathrooms')}</span>

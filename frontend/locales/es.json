@@ -233,8 +233,6 @@
     "max": "Máx",
     "type": "Tipo",
     "allTypes": "Todos",
-    "hostel": "Hostal",
-    "casaParticular": "Casa Particular",
     "sortBy": "Ordenar por",
     "newest": "Más recientes",
     "priceLowHigh": "Precio: Menor a Mayor",
@@ -882,8 +880,6 @@
     "nameLabel": "Nombre de la Propiedad *",
     "namePlaceholder": "ej., Casa Azul frente al mar",
     "typeLabel": "Tipo *",
-    "typeCasaParticular": "Casa Particular",
-    "typeHostel": "Hostal",
     "descriptionLabel": "Descripción *",
     "descriptionPlaceholder": "Describe tu propiedad...",
     "locationSection": "Ubicación",
@@ -924,7 +920,9 @@
     "publishTitle": "Publicar Nueva Propiedad",
     "editTitle": "Editar Propiedad",
     "loadingProperty": "Cargando propiedad...",
-    "errorLoadingProperty": "Error al cargar la propiedad"
+    "errorLoadingProperty": "Error al cargar la propiedad",
+    "selectType": "Elige un tipo",
+    "typeHint": "Cada anuncio se reserva completo. Si tienes un hotel u hostal, publica cada tipo de habitación como un anuncio aparte."
   },
   "organizer": {
     "accessDenied": "Acceso denegado. Inicia sesión como organizador.",
@@ -1052,8 +1050,6 @@
     }
   },
   "propertyCard": {
-    "typeCasa": "Casa Particular",
-    "typeHostel": "Hostal",
     "locationUnknown": "Ubicación no indicada",
     "maxGuests": "Máx. {n} huéspedes",
     "new": "Nuevo",
@@ -1255,5 +1251,16 @@
     "allCountries": "Todos los países",
     "timeZoneLabel": "Zona horaria del lugar",
     "timeZoneHint": "La hora que indiques es la hora local de este lugar. Todos los visitantes la verán igual."
+  },
+  "propertyTypes": {
+    "apartment": "Apartamento",
+    "house": "Casa",
+    "villa": "Villa",
+    "cabin": "Cabaña",
+    "private_room": "Habitación privada",
+    "guest_house": "Casa de huéspedes",
+    "casa_particular": "Casa particular",
+    "hostel": "Hostal",
+    "hotel": "Hotel"
   }
 }
