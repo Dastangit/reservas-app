@@ -15,6 +15,9 @@ const client = axios.create({
   },
 });
 
+// Sin credenciales no se llama a QvaPay: antes salia un 500 con el error de axios.
+const isConfigured = () => Boolean(appId && appSecret);
+
 // Devuelve los datos publicos de la app -- util para probar que las
 // credenciales estan bien configuradas (POST /v2/info, sin parametros).
 async function getAppInfo() {
@@ -76,4 +79,4 @@ async function findTransactionByRemoteId(remoteId) {
   return found.get(String(remoteId)) || null;
 }
 
-module.exports = { getAppInfo, createInvoice, findTransactionByRemoteId, findTransactionsByRemoteIds };
+module.exports = { isConfigured, getAppInfo, createInvoice, findTransactionByRemoteId, findTransactionsByRemoteIds };

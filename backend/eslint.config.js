@@ -11,11 +11,18 @@ module.exports = [
       globals: { ...globals.node, ...globals.jest },
     },
     rules: {
-      'no-console': 'warn',
+      // Los logs van a stdout (Render): se permite info/warn/error; console.log
+      // suelto queda como aviso por si es un resto de depuracion.
+      'no-console': ['warn', { allow: ['info', 'warn', 'error'] }],
       'no-unused-vars': ['error', { argsIgnorePattern: '^_', caughtErrors: 'none' }],
       'prefer-const': 'error',
       'no-var': 'error',
       eqeqeq: ['error', 'always'],
     },
+  },
+  {
+    // Scripts de consola, arranque y tests: imprimir es su trabajo.
+    files: ['scripts/**', 'server.js', 'worker.js', 'instrument.js', 'config/**', 'tests/**'],
+    rules: { 'no-console': 'off' },
   },
 ];

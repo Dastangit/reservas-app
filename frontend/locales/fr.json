@@ -149,7 +149,8 @@
     "checkoutPaypalPayerEmail": "E-mail du compte PayPal utilisé pour payer",
     "checkoutPaypalReferenceRequired": "Indiquez l’ID de la transaction PayPal ou l’e-mail utilisé pour payer, afin que nous retrouvions votre paiement.",
     "payNow": "Payer les frais de réservation",
-    "holdExpiresAt": "Dates bloquées jusqu’au :"
+    "holdExpiresAt": "Dates bloquées jusqu’au :",
+    "qvapayUnavailable": "Le paiement par carte (QvaPay) n'est pas disponible pour le moment. Veuillez payer avec PayPal."
   },
   "experience": {
     "loginRequired": "Veuillez vous <a href=\"/login\" data-link>connecter</a> pour réserver.",
@@ -848,7 +849,8 @@
     "submit": "Soumettre l'Avis",
     "selectRating": "Veuillez sélectionner une note",
     "submitSuccess": "Avis soumis avec succès !",
-    "submitFailed": "Échec de l'envoi de l'avis"
+    "submitFailed": "Échec de l'envoi de l'avis",
+    "onlyCompleted": "Vous pourrez laisser un avis une fois votre séjour terminé."
   },
   "feedback": {
     "loginPromptBefore": "Veuillez vous",

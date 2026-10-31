@@ -48,13 +48,15 @@ const HostEarningsPage = {
       const response = await api.get('/bookings/host');
       const bookings = response.data?.bookings || [];
 
-      const completed = bookings.filter(b => b.status === 'completed' || b.status === 'approved');
+      // Solo estancias ya realizadas: una reserva aprobada aun puede cancelarse.
+      const completed = bookings.filter(b => b.status === 'completed');
       const totalEarnings = completed.reduce((sum, b) => sum + (b.total_amount || 0), 0);
 
       document.getElementById('total-earnings').textContent = formatCurrency(totalEarnings);
       document.getElementById('completed-count').textContent = completed.length;
 
       const list = document.getElementById('earnings-list');
+      list.querySelector('.loading')?.remove();
       if (completed.length === 0) {
         list.innerHTML += `<p>${i18n.t('host.noCompletedBookings')}</p>`;
       } else {
@@ -68,6 +70,11 @@ const HostEarningsPage = {
       }
     } catch (error) {
       console.error('Error loading earnings:', error);
+      const loading = document.querySelector('#earnings-list .loading');
+      if (loading) {
+        loading.className = 'error';
+        loading.textContent = i18n.t('host.errorLoadingReservations');
+      }
     }
   }
 };

@@ -1,4 +1,30 @@
 {
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "continue": true,
+      "transforms": [
+        {
+          "type": "request.headers",
+          "op": "delete",
+          "target": {
+            "key": "x-elysio-proxy"
+          }
+        },
+        {
+          "type": "request.headers",
+          "op": "set",
+          "target": {
+            "key": "x-elysio-proxy"
+          },
+          "args": "$PROXY_SECRET",
+          "env": [
+            "PROXY_SECRET"
+          ]
+        }
+      ]
+    }
+  ],
   "rewrites": [
     {
       "source": "/health",

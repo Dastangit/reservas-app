@@ -1,11 +1,12 @@
 const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
+const { clientIp } = require('../utils/clientIp');
 
-// Detras de Vercel -> Render es posible que req.ip sea la IP de salida de
-// Vercel (compartida por muchos usuarios). Por eso los limites sensibles se
-// calculan por IP + cuenta: un atacante sigue limitado por cuenta, y un
-// usuario legitimo no queda bloqueado por los intentos de otros.
-const ipKey = (req) => ipKeyGenerator(req.ip || '');
+// La IP sale de utils/clientIp.js (la real del usuario cuando la peticion llega
+// por Vercel con el secreto). Aun asi los limites sensibles van por IP + cuenta:
+// un atacante sigue limitado por cuenta, y un usuario legitimo no queda
+// bloqueado por los intentos de otros si comparte IP.
+const ipKey = (req) => ipKeyGenerator(clientIp(req));
 const emailKey = (req) => String(req.body?.email || '').trim().toLowerCase();
 
 const loginLimiter = rateLimit({
@@ -29,6 +30,7 @@ const passwordResetLimiter = rateLimit({
 });
 
 const apiLimiter = rateLimit({
+  keyGenerator: ipKey,
   windowMs: 60 * 1000,
   max: 100,
   message: { success: false, error: 'Too many requests, please try again later' },
@@ -49,6 +51,7 @@ const uploadLimiter = rateLimit({
 // Cada llamada al webhook dispara una consulta saliente a QvaPay: se limita para
 // que no se pueda usar como amplificador ni agotar el cupo de la API de QvaPay.
 const webhookLimiter = rateLimit({
+  keyGenerator: ipKey,
   windowMs: 60 * 1000,
   max: 60,
   message: { success: false, error: 'Too many requests' },

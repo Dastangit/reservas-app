@@ -1,12 +1,16 @@
 const Booking = require('../models/Booking');
 const Payment = require('../models/Payment');
-const { createInvoice: createQvaPayInvoice } = require('../utils/qvapay');
+const { createInvoice: createQvaPayInvoice, isConfigured: qvapayConfigured } = require('../utils/qvapay');
 const { buildPaypalManualLink } = require('../utils/paypalManual');
 const { notifyAdmins } = require('../utils/pushNotifications');
 const env = require('../config/env');
 
 exports.createInvoice = async (req, res, next) => {
   try {
+    if (!qvapayConfigured()) {
+      return res.status(503).json({ success: false, error: 'Card payment (QvaPay) is not available right now. Please pay with PayPal.', code: 'qvapay_unavailable' });
+    }
+
     const { booking_id } = req.body;
 
     if (!booking_id) {

@@ -13,6 +13,26 @@ const ReviewFormPage = {
     const params = new URLSearchParams(window.location.search);
     const bookingId = params.get('booking_id');
 
+    // Solo se resena una estancia completada (el backend tambien lo exige):
+    // asi no se llena el formulario para recibir un error al enviarlo.
+    let booking = null;
+    try {
+      booking = bookingId ? (await api.get(`/bookings/${encodeURIComponent(bookingId)}`)).data?.booking : null;
+    } catch {
+      booking = null;
+    }
+    if (!booking || booking.status !== 'completed') {
+      return `
+        <div class="review-form-page">
+          <div class="container">
+            <h1>${t('review.title')}</h1>
+            <p>${t(booking ? 'review.onlyCompleted' : 'booking.bookingNotFound')}</p>
+            <a href="/dashboard" data-link class="btn btn-primary">${t('booking.viewMyBookings')}</a>
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <div class="review-form-page">
         <div class="container">

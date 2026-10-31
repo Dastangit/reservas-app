@@ -17,7 +17,7 @@ const runRecurrenceGeneration = async () => {
     }
 
     if (totalCreated > 0) {
-      console.log(`[Cron] Generated ${totalCreated} new experience occurrences`);
+      console.info(`[Cron] Generated ${totalCreated} new experience occurrences`);
     }
   } catch (error) {
     console.error('[Cron] Error generating experience occurrences:', error.message);
@@ -26,7 +26,7 @@ const runRecurrenceGeneration = async () => {
 
 const startExperienceRecurrenceCron = () => {
   cron.schedule('0 5 * * *', runRecurrenceGeneration);
-  console.log('[Cron] Experience recurrence job started (daily at 5am)');
+  console.info('[Cron] Experience recurrence job started (daily at 5am)');
 };
 
 module.exports = { startExperienceRecurrenceCron, runRecurrenceGeneration };

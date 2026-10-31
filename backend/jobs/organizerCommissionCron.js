@@ -156,7 +156,7 @@ const runOrganizerCommissionJob = async () => {
 const startOrganizerCommissionCron = () => {
   // Una vez al día alcanza -- es un ciclo mensual, no necesita más frecuencia.
   cron.schedule('0 6 * * *', runOrganizerCommissionJob);
-  console.log('[Cron] Organizer commission job started (daily at 6am)');
+  console.info('[Cron] Organizer commission job started (daily at 6am)');
 };
 
 module.exports = { startOrganizerCommissionCron, runOrganizerCommissionJob };

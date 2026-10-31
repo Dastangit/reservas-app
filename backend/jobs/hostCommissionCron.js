@@ -125,7 +125,7 @@ const runHostCommissionJob = async () => {
 const startHostCommissionCron = () => {
   // Una vez al d\u00eda alcanza -- es un ciclo mensual, no necesita m\u00e1s frecuencia.
   cron.schedule('0 6 * * *', runHostCommissionJob);
-  console.log('[Cron] Host commission job started (daily at 6am)');
+  console.info('[Cron] Host commission job started (daily at 6am)');
 };
 
 module.exports = { startHostCommissionCron, runHostCommissionJob };

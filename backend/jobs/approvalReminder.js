@@ -49,7 +49,7 @@ const remindPendingApprovals = async () => {
 
 const startApprovalReminderCron = () => {
   cron.schedule('30 * * * *', remindPendingApprovals);
-  console.log('[Cron] Approval reminder job started (hourly)');
+  console.info('[Cron] Approval reminder job started (hourly)');
 };
 
 module.exports = { startApprovalReminderCron, remindPendingApprovals };
