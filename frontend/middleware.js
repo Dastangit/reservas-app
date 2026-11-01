@@ -776,12 +776,15 @@ async function buildSocialHtml(pathname) {
 // ---- /api: proxy header for the backend ----
 
 const PROXY_HEADER = 'x-elysio-proxy';
+const CLIENT_IP_HEADER = 'x-elysio-client-ip';
 
 // Continues to the vercel.json rewrite (Render) with the request headers
 // replaced by `headers`: same protocol as next({ request: { headers } }) from
 // @vercel/functions, which cannot be imported here (no package.json).
-function continueWithHeaders(headers) {
-  const out = new Headers({ 'x-middleware-next': '1' });
+// x-elysio-mw (temporary, to check the deploy) says whether the secret is set,
+// never its value.
+function continueWithHeaders(headers, hasSecret) {
+  const out = new Headers({ 'x-middleware-next': '1', 'x-elysio-mw': hasSecret ? 'ok' : 'sin-secreto' });
   const names = [];
   headers.forEach((value, name) => {
     names.push(name);
@@ -793,11 +796,16 @@ function continueWithHeaders(headers) {
 
 function withProxyHeader(request) {
   const headers = new Headers(request.headers);
-  // A client could send its own value: it is always replaced.
+  // A client could send its own values: they are always replaced.
   headers.delete(PROXY_HEADER);
+  headers.delete(CLIENT_IP_HEADER);
   const secret = process.env.PROXY_SECRET;
   if (secret) headers.set(PROXY_HEADER, secret);
-  return continueWithHeaders(headers);
+  // At the edge, Vercel sets x-real-ip / x-forwarded-for to the visitor's IP
+  // (it overwrites what the client sent), so no hop counting is needed here.
+  const ip = request.headers.get('x-real-ip') || (request.headers.get('x-forwarded-for') || '').split(',')[0].trim();
+  if (ip) headers.set(CLIENT_IP_HEADER, ip);
+  return continueWithHeaders(headers, Boolean(secret));
 }
 
 export default async function middleware(request) {
