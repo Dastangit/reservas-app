@@ -58,7 +58,7 @@ const ExperienceMyBookingsPage = {
       list.innerHTML = bookings.map((b) => `
         <div class="booking-list-item">
           <span>${escapeHtml(b.experience_id?.title || i18n.t('experience.fallbackTitle'))}</span>
-          <span>${b.experience_id?.date ? `${formatExperienceDate(b.experience_id.date)} ${formatExperienceTime(b.experience_id.date)}` : ''}</span>
+          <span>${b.experience_id?.date ? `${formatExperienceDate(b.experience_id.date, b.experience_id.timezone)} ${formatExperienceTime(b.experience_id.date, b.experience_id.timezone)}` : ''}</span>
           <span>${b.num_spots} ${i18n.t('experience.spotsWord')}</span>
           <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(b.status.replace(/_/g, ' '))}</span>
           ${['pending_approval', 'approved'].includes(b.status) ? `<button class="btn btn-danger btn-sm" data-action="cancelExperienceBooking" data-arg="${b._id}">${i18n.t('common.cancel')}</button>` : ''}

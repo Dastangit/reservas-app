@@ -194,6 +194,40 @@ describe('reservas de propiedades', () => {
 });
 
 describe('propiedades', () => {
+  test('acepta los tipos de alojamiento nuevos y rechaza los desconocidos', async () => {
+    const h = await makeUser('host');
+    const body = (type) => ({
+      name: `Tipo ${type}`, type, description: 'd', max_guests: 2, price_per_night: 50,
+      location: { city: 'Madrid', country: 'ES' },
+    });
+    for (const type of ['apartment', 'villa', 'private_room', 'hotel']) {
+      const res = await request(app).post('/api/properties').set(auth(h)).send(body(type));
+      expect(res.status).toBe(201);
+    }
+    const bad = await request(app).post('/api/properties').set(auth(h)).send(body('castle'));
+    expect(bad.status).toBe(400);
+  });
+
+  test('publicar exige pais y la busqueda filtra por pais', async () => {
+    const h = await makeUser('host');
+    const base = {
+      name: 'Casa Global', type: 'casa_particular', description: 'd', max_guests: 2, price_per_night: 40,
+    };
+    const noCountry = await request(app).post('/api/properties').set(auth(h)).send({ ...base, location: { city: 'Cancun' } });
+    expect(noCountry.status).toBe(400);
+    const ok = await request(app).post('/api/properties').set(auth(h)).send({ ...base, location: { city: 'Cancun', country: 'mx' } });
+    expect(ok.status).toBe(201);
+
+    const created = await Property.findOne({ name: 'Casa Global' });
+    expect(created.location.country).toBe('MX');
+    await Property.updateOne({ _id: created._id }, { status: 'active' });
+
+    const mx = await request(app).get('/api/properties?country=MX');
+    expect(mx.body.data.properties.map((p) => p.name)).toContain('Casa Global');
+    const es = await request(app).get('/api/properties?country=ES');
+    expect(es.body.data.properties.map((p) => p.name)).not.toContain('Casa Global');
+  });
+
   test('una propiedad no publicada da 404 al publico pero no a su host', async () => {
     const pending = await Property.create({
       tenant_id: tenant._id, host_id: host._id, name: 'Pendiente', type: 'hostel', description: 'd',
@@ -253,19 +287,51 @@ describe('excursiones', () => {
     expect(res.status).toBe(400);
   });
 
-  test('una excursion creada a las 09:00 se guarda como 09:00 de Cuba', async () => {
-    const res = await request(app).post('/api/organizer/experiences').set(auth(organizer)).send({
-      title: 'Hora', description: 'd', location: { city: 'Habana' }, max_participants: 3,
-      pricing: [{ audience: 'tourist', currency: 'USD', amount: 10 }], date: '2027-01-15T09:00',
-    });
+  const experienceBody = (extra = {}) => ({
+    title: 'Hora', description: 'd', location: { city: 'Habana', country: 'cu' }, timezone: 'America/Havana',
+    max_participants: 3, pricing: [{ audience: 'tourist', currency: 'USD', amount: 10 }], date: '2027-01-15T09:00',
+    ...extra,
+  });
+
+  test('una excursion creada a las 09:00 se guarda como 09:00 de su zona horaria', async () => {
+    const res = await request(app).post('/api/organizer/experiences').set(auth(organizer)).send(experienceBody());
     expect(res.status).toBe(201);
     const saved = await Experience.findById(res.body.data.experience_id);
     expect(saved.date.toISOString()).toBe('2027-01-15T14:00:00.000Z');
+    expect(saved.location.country).toBe('CU');
+
+    const madrid = await request(app).post('/api/organizer/experiences').set(auth(organizer)).send(experienceBody({
+      location: { city: 'Madrid', country: 'ES' }, timezone: 'Europe/Madrid',
+    }));
+    expect(madrid.status).toBe(201);
+    expect((await Experience.findById(madrid.body.data.experience_id)).date.toISOString()).toBe('2027-01-15T08:00:00.000Z');
+  });
+
+  test('crear una excursion exige pais y zona horaria validos', async () => {
+    const noCountry = await request(app).post('/api/organizer/experiences').set(auth(organizer))
+      .send(experienceBody({ location: { city: 'Habana' } }));
+    expect(noCountry.status).toBe(400);
+    const badZone = await request(app).post('/api/organizer/experiences').set(auth(organizer))
+      .send(experienceBody({ timezone: 'Marte/Olympus' }));
+    expect(badZone.status).toBe(400);
+    const badCountry = await request(app).post('/api/organizer/experiences').set(auth(organizer))
+      .send(experienceBody({ location: { city: 'X', country: 'ZZ' } }));
+    expect(badCountry.status).toBe(400);
+  });
+
+  test('editar solo la fecha usa la zona horaria que ya tenia la excursion', async () => {
+    const created = await request(app).post('/api/organizer/experiences').set(auth(organizer)).send(experienceBody({
+      location: { city: 'CDMX', country: 'MX' }, timezone: 'America/Mexico_City',
+    }));
+    const id = created.body.data.experience_id;
+    const res = await request(app).put(`/api/organizer/experiences/${id}`).set(auth(organizer)).send({ date: '2027-02-10T10:00' });
+    expect(res.status).toBe(200);
+    expect((await Experience.findById(id)).date.toISOString()).toBe('2027-02-10T16:00:00.000Z');
   });
 
   test('el organizador lista sus series con el numero de ocurrencias, y solo las suyas', async () => {
     const create = await request(app).post('/api/organizer/recurrences').set(auth(organizer)).send({
-      title: 'Serie', description: 'd', location: { city: 'Habana' }, max_participants: 3,
+      title: 'Serie', description: 'd', location: { city: 'Madrid', country: 'ES' }, timezone: 'Europe/Madrid', max_participants: 3,
       pricing: [{ audience: 'tourist', currency: 'USD', amount: 10 }],
       recurrence: { start_date: day(1), days_of_week: [0, 1, 2, 3, 4, 5, 6], time_of_day: '09:00' },
     });
@@ -276,6 +342,12 @@ describe('excursiones', () => {
     const serie = res.body.data.recurrences.find((r) => r._id === create.body.data.recurrence_id);
     expect(serie.occurrences_generated).toBe(create.body.data.occurrences_generated);
     expect(serie.occurrences_generated).toBeGreaterThan(0);
+
+    // Las ocurrencias heredan la zona y caen a las 09:00 de Madrid (08:00 o 07:00 UTC segun el horario).
+    const occurrences = await Experience.find({ recurrence_id: serie._id });
+    expect(occurrences.every((o) => o.timezone === 'Europe/Madrid')).toBe(true);
+    const madridHour = (d) => Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', hour: '2-digit', hourCycle: 'h23' }).format(d));
+    expect(occurrences.every((o) => madridHour(o.date) === 9)).toBe(true);
 
     const other = await makeUser('organizer');
     const otherRes = await request(app).get('/api/organizer/recurrences').set(auth(other));

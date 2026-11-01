@@ -2,11 +2,12 @@ const Property = require('../models/Property');
 const Booking = require('../models/Booking');
 const Experience = require('../models/Experience');
 const { escapeRegex, parsePagination } = require('../utils/helpers');
+const { normalizeCountry } = require('../utils/countries');
 
 exports.search = async (req, res, next) => {
   try {
     const {
-      check_in, check_out, num_guests, city,
+      check_in, check_out, num_guests, city, country,
       min_price, max_price, type, amenities,
       rating_min, sort_by,
     } = req.query;
@@ -15,6 +16,7 @@ exports.search = async (req, res, next) => {
     const query = { tenant_id: req.tenantId, status: 'active', suspended: { $ne: true } };
 
     if (city) query['location.city'] = new RegExp(escapeRegex(city), 'i');
+    if (normalizeCountry(country)) query['location.country'] = normalizeCountry(country);
     if (num_guests) query.max_guests = { $gte: Number(num_guests) };
     if (min_price || max_price) {
       query.price_per_night = {};
@@ -61,6 +63,7 @@ exports.search = async (req, res, next) => {
 
     const filters_applied = {};
     if (city) filters_applied.city = city;
+    if (normalizeCountry(country)) filters_applied.country = normalizeCountry(country);
     if (check_in) filters_applied.check_in = check_in;
     if (check_out) filters_applied.check_out = check_out;
     if (num_guests) filters_applied.num_guests = Number(num_guests);

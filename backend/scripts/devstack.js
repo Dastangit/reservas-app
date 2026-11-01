@@ -47,17 +47,30 @@ const { MongoMemoryServer } = require(path.join(BACKEND, 'node_modules/mongodb-m
   const organizer = await mk('org@test.dev', 'organizer');
   await Property.create({
     tenant_id: tenant._id, host_id: host._id, name: 'Casa Azul', type: 'casa_particular',
-    description: 'Casa de prueba en el Vedado', location: { city: 'La Habana' }, max_guests: 4,
+    description: 'Casa de prueba en el Vedado', location: { city: 'La Habana', country: 'CU' }, max_guests: 4,
     price_per_night: 35, status: 'active',
   });
   await Property.create({
     tenant_id: tenant._id, host_id: host._id, name: 'Pendiente de revisar', type: 'hostel',
-    description: 'pendiente', location: { city: 'Trinidad' }, max_guests: 2, price_per_night: 15,
+    description: 'pendiente', location: { city: 'Trinidad', country: 'CU' }, max_guests: 2, price_per_night: 15,
   });
   await Experience.create({
     tenant_id: tenant._id, organizer_id: organizer._id, title: 'Tour Habana Vieja', description: 'Paseo',
-    location: { city: 'La Habana' }, date: new Date('2026-10-20T13:00:00Z'), max_participants: 8,
+    location: { city: 'La Habana', country: 'CU' }, timezone: 'America/Havana',
+    // Siempre en el futuro (antes era una fecha fija que ya habia pasado).
+    date: new Date(Date.now() + 14 * 24 * 3600 * 1000), max_participants: 8,
     pricing: [{ audience: 'tourist', currency: 'USD', amount: 25 }], status: 'active',
+  });
+  await Property.create({
+    tenant_id: tenant._id, host_id: host._id, name: 'Apartamento Roma Norte', type: 'apartment',
+    description: 'Departamento de prueba en CDMX', location: { city: 'Ciudad de México', country: 'MX' }, max_guests: 3,
+    price_per_night: 60, status: 'active',
+  });
+  await Experience.create({
+    tenant_id: tenant._id, organizer_id: organizer._id, title: 'Tapas por el centro', description: 'Ruta gastronómica',
+    location: { city: 'Madrid', country: 'ES' }, timezone: 'Europe/Madrid',
+    date: new Date(Date.now() + 10 * 24 * 3600 * 1000), max_participants: 10,
+    pricing: [{ audience: 'tourist', currency: 'USD', amount: 40 }], status: 'active',
   });
 
   app.listen(3000, () => console.log('API http://localhost:3000'));

@@ -1,5 +1,5 @@
 const Experience = require('../models/Experience');
-const { zonedParts, zonedTimeToUtc } = require('./timezone');
+const { zonedParts, zonedTimeToUtc, EXPERIENCE_TIMEZONE } = require('./timezone');
 
 // Nunca se generan ocurrencias mas alla de este horizonte, aunque la
 // plantilla pida mas (evita crear miles de documentos de golpe).
@@ -24,8 +24,9 @@ async function generateOccurrences(recurrence) {
     const d = new Date(date);
     return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
   };
-  const today = zonedParts(now);
-  const horizon = zonedParts(horizonEnd);
+  const timeZone = recurrence.timezone || EXPERIENCE_TIMEZONE;
+  const today = zonedParts(now, timeZone);
+  const horizon = zonedParts(horizonEnd, timeZone);
 
   const first = Math.max(dayOf(recurrence.recurrence.start_date), Date.UTC(today.year, today.month - 1, today.day));
   let last = Date.UTC(horizon.year, horizon.month - 1, horizon.day);
@@ -38,15 +39,15 @@ async function generateOccurrences(recurrence) {
   const hours = Number.isInteger(hoursRaw) && hoursRaw >= 0 && hoursRaw <= 23 ? hoursRaw : 9;
   const minutes = Number.isInteger(minutesRaw) && minutesRaw >= 0 && minutesRaw <= 59 ? minutesRaw : 0;
 
-  // Se recorre el calendario de Cuba (no el del servidor en UTC): el dia de la
-  // semana y la hora "09:00" son los de la zona de las excursiones.
+  // Se recorre el calendario del lugar de la serie (no el del servidor en UTC):
+  // el dia de la semana y la hora "09:00" son los de su zona horaria.
   let created = 0;
   let cursor = first;
 
   while (cursor <= last) {
     const day = new Date(cursor);
     if (daysOfWeek.includes(day.getUTCDay())) {
-      const occurrenceDate = zonedTimeToUtc(day.getUTCFullYear(), day.getUTCMonth() + 1, day.getUTCDate(), hours, minutes);
+      const occurrenceDate = zonedTimeToUtc(day.getUTCFullYear(), day.getUTCMonth() + 1, day.getUTCDate(), hours, minutes, timeZone);
 
       if (occurrenceDate >= now) {
         const exists = await Experience.findOne({
@@ -63,6 +64,7 @@ async function generateOccurrences(recurrence) {
             description: recurrence.description,
             category: recurrence.category,
             location: recurrence.location,
+            timezone: recurrence.timezone,
             date: occurrenceDate,
             duration_hours: recurrence.duration_hours,
             max_participants: recurrence.max_participants,

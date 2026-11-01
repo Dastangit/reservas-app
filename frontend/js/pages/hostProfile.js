@@ -37,7 +37,7 @@ const HostProfilePage = {
 
               <div class="form-group">
                 <label>${t('profile.whatsapp')}</label>
-                <input type="tel" id="whatsapp" value="${escapeHtml(user?.whatsapp_phone || '')}" placeholder="+53 123 456 789">
+                <input type="tel" id="whatsapp" value="${escapeHtml(user?.whatsapp_phone || '')}" placeholder="+34 600 000 000">
               </div>
 
               <div id="error-message" class="error-message" style="display:none;"></div>

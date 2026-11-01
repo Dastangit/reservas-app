@@ -48,7 +48,7 @@ const ExperienceWaitlistClaimPage = {
             </div>
             <div class="form-group">
               <label>${t('booking.phoneLabel')}</label>
-              <input type="tel" id="tourist-phone" placeholder="+53 5xxxxxxx" required>
+              <input type="tel" id="tourist-phone" placeholder="+34 600 000 000" required>
             </div>
             <div class="form-group">
               <label>${t('experience.claimNumSpotsLabel')}</label>

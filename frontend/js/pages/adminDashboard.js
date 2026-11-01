@@ -3,6 +3,7 @@ import { formatCurrency } from '../utils/formatters.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { formatPlace } from '../utils/places.js';
 
 const AdminDashboardPage = {
   async render() {
@@ -106,7 +107,7 @@ const AdminDashboardPage = {
           <div class="booking-list-item">
             <span>${escapeHtml(p.name)}</span>
             <span>${escapeHtml(p.host_id?.name || t('admin.hostFallback'))}</span>
-            <span>${escapeHtml(p.location?.city)}</span>
+            <span>${escapeHtml(formatPlace(p.location))}</span>
             <button data-action="approveProperty" data-arg="${p._id}" class="btn btn-success btn-sm">${t('admin.approveBtn')}</button>
             <button data-action="rejectProperty" data-arg="${p._id}" class="btn btn-danger btn-sm">${t('admin.rejectBtn')}</button>
           </div>

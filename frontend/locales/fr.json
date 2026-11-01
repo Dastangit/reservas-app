@@ -88,10 +88,10 @@
     "pricePerNight": "Prix par nuit",
     "yourInformation": "Vos Informations",
     "phoneLabel": "Téléphone (WhatsApp) *",
-    "phoneHint": "Inclure l'indicatif du pays, ex. +53, +1, +34",
+    "phoneHint": "Inclure l'indicatif du pays, ex. +1, +34, +52",
     "preferredContact": "Contact Préféré",
     "feeNotice": "* Les frais de 7 $ USD ne sont pas remboursables et sécurisent votre réservation.",
-    "invalidPhone": "Veuillez entrer un numéro de téléphone valide avec l'indicatif du pays (ex. +5355512345)",
+    "invalidPhone": "Veuillez entrer un numéro de téléphone valide avec l'indicatif du pays (ex. +34600000000)",
     "failed": "Échec de la réservation",
     "completeYourBooking": "Finalisez votre Réservation",
     "bookingNotFound": "Réservation non trouvée",
@@ -169,7 +169,7 @@
     "tourist": "Touriste",
     "perSpot": "/place",
     "pageTitle": "Excursions et voyages locaux",
-    "pageSubtitle": "Connectez-vous avec des organisateurs locaux en Amérique latine et dans les Caraïbes",
+    "pageSubtitle": "Connectez-vous avec des organisateurs locaux du monde entier",
     "filters": "Filtres",
     "category": "Catégorie",
     "categoryPlaceholder": "ex : tour, randonnée",
@@ -221,20 +221,18 @@
     "claimNumSpotsHint": "Doit correspondre à ce que vous avez demandé sur la liste d'attente.",
     "confirmSpotBtn": "Confirmer ma place",
     "claimFailed": "Impossible de confirmer la place — la fenêtre de temps a peut-être expiré",
-    "cubaTime": "heure de Cuba"
+    "localTime": "heure locale"
   },
   "search": {
     "title": "Rechercher des Propriétés",
     "filters": "Filtres",
     "city": "Ville",
-    "cityPlaceholder": "ex. La Havane",
+    "cityPlaceholder": "ex. Cancún",
     "priceRange": "Fourchette de Prix",
     "min": "Min",
     "max": "Max",
     "type": "Type",
     "allTypes": "Tous",
-    "hostel": "Auberge",
-    "casaParticular": "Casa Particular",
     "sortBy": "Trier par",
     "newest": "Plus récent",
     "priceLowHigh": "Prix : croissant",
@@ -604,7 +602,7 @@
       "needHelpSection": "Besoin d'Aide?",
       "adminTeamAvailable": "Notre équipe d'administration est disponible pour vous aider:",
       "touristStep1Title": "Rechercher des Propriétés",
-      "touristStep1Desc": "Parcourez notre catalogue d'hébergements vérifiés à travers l'Amérique latine et les Caraïbes. Utilisez les filtres pour trouver l'endroit parfait par localisation, prix, nombre d'hôtes et équipements. Vous pouvez rechercher sans vous connecter.",
+      "touristStep1Desc": "Parcourez notre catalogue d'hébergements vérifiés dans le monde entier. Utilisez les filtres pour trouver l'endroit parfait par localisation, prix, nombre d'hôtes et équipements. Vous pouvez rechercher sans vous connecter.",
       "touristStep2Title": "Réserver et Payer les Frais",
       "touristStep2Desc": "Lorsque vous trouvez la propriété parfaite, sélectionnez vos dates et le nombre d'hôtes. Vous paierez des <strong>frais de réservation de 7 $ USD</strong> pour sécuriser votre réservation. Ces frais ne sont pas remboursables. Le reste de votre paiement sera effectué directement à l'hébergement.",
       "touristStep3Title": "Approbation de l'Admin",
@@ -647,7 +645,7 @@
       "s2Legal": "Avoir la capacité juridique de conclure des accords contraignants",
       "s2Accurate": "Fournir des informations d'inscription exactes et complètes",
       "s3Title": "3. Description du Service",
-      "s3Content": "Elysio Experiences est une plateforme qui connecte les touristes recherchant des hébergements avec les hôtes offrant des propriétés à travers l'Amérique latine et les Caraïbes. Nous facilitons le processus de réservation et percevons des frais de service.",
+      "s3Content": "Elysio Experiences est une plateforme qui connecte les touristes recherchant des hébergements avec les hôtes offrant des propriétés dans le monde entier. Nous facilitons le processus de réservation et percevons des frais de service.",
       "s4Title": "4. Comptes Utilisateurs",
       "s4Content": "Vous êtes responsable de:",
       "s4Confidentiality": "Maintenir la confidentialité de vos identifiants de compte",
@@ -880,15 +878,13 @@
   "propertyForm": {
     "basicInfo": "Informations de Base",
     "nameLabel": "Nom de la Propriété *",
-    "namePlaceholder": "ex., Casa Azul Habana",
+    "namePlaceholder": "ex., Maison bleue face à la mer",
     "typeLabel": "Type *",
-    "typeCasaParticular": "Casa Particular",
-    "typeHostel": "Auberge",
     "descriptionLabel": "Description *",
     "descriptionPlaceholder": "Décrivez votre propriété...",
     "locationSection": "Emplacement",
     "cityLabel": "Ville *",
-    "cityPlaceholder": "ex., La Havane",
+    "cityPlaceholder": "ex., Cancún",
     "neighborhoodLabel": "Quartier",
     "neighborhoodPlaceholder": "ex., Vedado",
     "addressLabel": "Adresse",
@@ -924,7 +920,9 @@
     "publishTitle": "Publier une Nouvelle Propriété",
     "editTitle": "Modifier la Propriété",
     "loadingProperty": "Chargement de la propriété...",
-    "errorLoadingProperty": "Erreur lors du chargement de la propriété"
+    "errorLoadingProperty": "Erreur lors du chargement de la propriété",
+    "selectType": "Choisissez un type",
+    "typeHint": "Chaque annonce se réserve en entier. Si vous gérez un hôtel ou une auberge, publiez chaque type de chambre comme une annonce séparée."
   },
   "organizer": {
     "accessDenied": "Accès refusé. Veuillez vous connecter en tant qu'organisateur.",
@@ -1015,16 +1013,16 @@
   },
   "seo": {
     "landing": {
-      "title": "Locations de Vacances et Expériences en Amérique Latine et Caraïbes",
-      "description": "Trouvez des locations de vacances vérifiées et des expériences locales authentiques en Amérique Latine et dans les Caraïbes, y compris à Cuba. Réservez directement auprès d'hôtes de confiance."
+      "title": "Locations de Vacances et Expériences dans le monde entier",
+      "description": "Trouvez des locations de vacances vérifiées et des expériences locales authentiques en Amérique latine, dans les Caraïbes et dans le reste du monde. Réservez directement auprès d'hôtes de confiance."
     },
     "search": {
       "title": "Rechercher des Propriétés",
-      "description": "Parcourez et filtrez des locations de vacances vérifiées en Amérique Latine et dans les Caraïbes par lieu, prix et équipements."
+      "description": "Parcourez et filtrez des locations de vacances vérifiées dans le monde entier par lieu, prix et équipements."
     },
     "experiences": {
       "title": "Expériences et Excursions Locales",
-      "description": "Découvrez des expériences et excursions locales authentiques organisées par des hôtes vérifiés en Amérique Latine et dans les Caraïbes."
+      "description": "Découvrez des expériences et excursions locales authentiques organisées par des hôtes vérifiés dans le monde entier."
     },
     "howItWorks": {
       "title": "Comment ça Marche",
@@ -1052,8 +1050,6 @@
     }
   },
   "propertyCard": {
-    "typeCasa": "Casa Particular",
-    "typeHostel": "Auberge",
     "locationUnknown": "Lieu non précisé",
     "maxGuests": "Max. {n} voyageurs",
     "new": "Nouveau",
@@ -1248,5 +1244,23 @@
       "overdue_organizer_commissions": "Commissions d’organisateurs en retard",
       "manual_payments_pending": "Paiements PayPal manuels à confirmer"
     }
+  },
+  "places": {
+    "countryLabel": "Pays",
+    "selectCountry": "Choisissez un pays",
+    "allCountries": "Tous les pays",
+    "timeZoneLabel": "Fuseau horaire du lieu",
+    "timeZoneHint": "L'heure indiquée est l'heure locale de ce lieu. Tous les visiteurs voient la même heure."
+  },
+  "propertyTypes": {
+    "apartment": "Appartement",
+    "house": "Maison",
+    "villa": "Villa",
+    "cabin": "Chalet",
+    "private_room": "Chambre privée",
+    "guest_house": "Maison d'hôtes",
+    "casa_particular": "Casa particular",
+    "hostel": "Auberge de jeunesse",
+    "hotel": "Hôtel"
   }
 }

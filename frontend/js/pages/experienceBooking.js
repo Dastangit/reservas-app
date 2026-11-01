@@ -4,6 +4,7 @@ import { formatExperiencePrice, formatExperienceDate, formatExperienceTime } fro
 import { validateInternationalPhone, sanitizePhone } from '../utils/validators.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { formatPlace } from '../utils/places.js';
 
 const ExperienceBookingPage = {
   experience: null,
@@ -45,7 +46,7 @@ const ExperienceBookingPage = {
                 <img loading="lazy" src="${escapeHtml(exp.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(exp.title)}">
                 <div>
                   <h3>${escapeHtml(exp.title)}</h3>
-                  <p>${escapeHtml(exp.location?.city || '')} · ${formatExperienceDate(exp.date)} ${formatExperienceTime(exp.date)}</p>
+                  <p>${escapeHtml(formatPlace(exp.location))} · ${formatExperienceDate(exp.date, exp.timezone)} ${formatExperienceTime(exp.date, exp.timezone)}</p>
                 </div>
               </div>
 
@@ -91,7 +92,7 @@ const ExperienceBookingPage = {
 
                 <div class="form-group">
                   <label>${t('booking.phoneLabel')}</label>
-                  <input type="tel" id="tourist-phone" placeholder="+53 5xxxxxxx" required>
+                  <input type="tel" id="tourist-phone" placeholder="+34 600 000 000" required>
                   <small class="field-hint">${t('booking.phoneHint')}</small>
                 </div>
 

@@ -2,6 +2,8 @@ import api from '../api.js';
 import PropertyCard from '../components/PropertyCard.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { countryOptions } from '../utils/places.js';
+import { propertyTypeOptions } from '../utils/propertyTypes.js';
 
 const SearchPage = {
   meta() {
@@ -14,6 +16,7 @@ const SearchPage = {
     const t = (key) => i18n.t(key);
     const params = new URLSearchParams(window.location.search);
     this.currentFilters = {
+      country: params.get('country') || '',
       city: params.get('city') || '',
       check_in: params.get('check_in') || '',
       check_out: params.get('check_out') || '',
@@ -34,6 +37,11 @@ const SearchPage = {
             <aside class="search-filters">
               <h3>${t('search.filters')}</h3>
               <form id="filter-form">
+                <div class="filter-group">
+                  <label>${t('places.countryLabel')}</label>
+                  <select id="filter-country">${countryOptions(this.currentFilters.country, t('places.allCountries'))}</select>
+                </div>
+
                 <div class="filter-group">
                   <label>${t('search.city')}</label>
                   <input type="text" id="filter-city" value="${escapeHtml(this.currentFilters.city)}" placeholder="${t('search.cityPlaceholder')}">
@@ -61,9 +69,7 @@ const SearchPage = {
                 <div class="filter-group">
                   <label>${t('search.type')}</label>
                   <select id="filter-type">
-                    <option value="">${t('search.allTypes')}</option>
-                    <option value="casa_particular" ${this.currentFilters.type === 'casa_particular' ? 'selected' : ''}>${t('search.casaParticular')}</option>
-                    <option value="hostel" ${this.currentFilters.type === 'hostel' ? 'selected' : ''}>${t('search.hostel')}</option>
+                    ${propertyTypeOptions(this.currentFilters.type, t('search.allTypes'))}
                   </select>
                 </div>
                 
@@ -107,6 +113,7 @@ const SearchPage = {
 
   async applyFilters() {
     const filters = {
+      country: document.getElementById('filter-country')?.value || '',
       city: document.getElementById('filter-city')?.value || '',
       check_in: document.getElementById('filter-checkin')?.value || '',
       check_out: document.getElementById('filter-checkout')?.value || '',

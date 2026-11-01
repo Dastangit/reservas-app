@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { formatPlace } from '../utils/places.js';
 
 const AdminPropertiesPage = {
   async render() {
@@ -98,7 +99,7 @@ const AdminPropertiesPage = {
             <img loading="lazy" src="${escapeHtml(p.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(p.name)}">
             <div class="property-info">
               <h3>${escapeHtml(p.name)}</h3>
-              <p>${escapeHtml(p.location?.city)} | $${p.price_per_night}${i18n.t('property.perNight')}</p>
+              <p>${escapeHtml(formatPlace(p.location))} | $${p.price_per_night}${i18n.t('property.perNight')}</p>
               <p>${i18n.t('admin.hostLabel')} ${escapeHtml(p.host_id?.name || i18n.t('admin.unknownFallback'))}</p>
               <span class="status-badge ${escapeHtml(p.status)}">${escapeHtml(p.status.replace(/_/g, ' '))}</span>
               ${p.changes_pending_review ? `<span class="status-badge pending_approval">${i18n.t('admin.changesPendingReview')}</span>` : ''}
@@ -113,7 +114,7 @@ const AdminPropertiesPage = {
                 <p>${p.description || `<em>${i18n.t('admin.noDescription')}</em>`}</p>
 
                 <h4>${i18n.t('propertyForm.locationSection')}</h4>
-                <p>${escapeHtml([p.location?.address, p.location?.neighborhood, p.location?.city].filter(Boolean).join(', ') || i18n.t('admin.notSpecified'))}</p>
+                <p>${escapeHtml([p.location?.address, p.location?.neighborhood, formatPlace(p.location)].filter(Boolean).join(', ') || i18n.t('admin.notSpecified'))}</p>
 
                 <h4>${i18n.t('propertyForm.detailsSection')}</h4>
                 <p>${i18n.t('admin.typeLabel')} ${escapeHtml(p.type || i18n.t('admin.na'))} · ${i18n.t('admin.maxGuestsShort')} ${p.max_guests || i18n.t('admin.na')} · ${i18n.t('admin.bedroomsShort')} ${p.bedrooms ?? i18n.t('admin.na')} · ${i18n.t('admin.bathroomsShort')} ${p.bathrooms ?? i18n.t('admin.na')}</p>

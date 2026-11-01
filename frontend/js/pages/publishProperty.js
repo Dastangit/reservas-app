@@ -1,6 +1,8 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { countryOptions } from '../utils/places.js';
+import { propertyTypeOptions } from '../utils/propertyTypes.js';
 
 const PublishPropertyPage = {
   async render() {
@@ -27,9 +29,9 @@ const PublishPropertyPage = {
               <div class="form-group">
                 <label>${t('propertyForm.typeLabel')}</label>
                 <select id="type" required>
-                  <option value="casa_particular">${t('propertyForm.typeCasaParticular')}</option>
-                  <option value="hostel">${t('propertyForm.typeHostel')}</option>
+                  ${propertyTypeOptions('', t('propertyForm.selectType'))}
                 </select>
+                <small class="field-hint">${t('propertyForm.typeHint')}</small>
               </div>
 
               <div class="form-group">
@@ -40,6 +42,11 @@ const PublishPropertyPage = {
 
             <div class="form-section">
               <h2>${t('propertyForm.locationSection')}</h2>
+
+              <div class="form-group">
+                <label>${t('places.countryLabel')}</label>
+                <select id="country" required>${countryOptions('', t('places.selectCountry'))}</select>
+              </div>
 
               <div class="form-row">
                 <div class="form-group">
@@ -225,6 +232,7 @@ const PublishPropertyPage = {
       description: document.getElementById('description')?.value,
       location: {
         city: document.getElementById('city')?.value,
+        country: document.getElementById('country')?.value,
         neighborhood: document.getElementById('neighborhood')?.value,
         address: document.getElementById('address')?.value,
       },

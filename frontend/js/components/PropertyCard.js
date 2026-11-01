@@ -1,6 +1,8 @@
 import { formatCurrency, truncateText } from '../utils/formatters.js';
 import { escapeHtml, safeUrl } from '../utils/escape.js';
 import i18n from '../i18n.js';
+import { formatPlace } from '../utils/places.js';
+import { propertyTypeLabel } from '../utils/propertyTypes.js';
 
 const PropertyCard = {
   render(property) {
@@ -12,11 +14,11 @@ const PropertyCard = {
       <div class="property-card" data-id="${property._id}">
         <div class="property-card-image">
           <img src="${imageUrl}" alt="${escapeHtml(property.name)}" loading="lazy">
-          <span class="property-type">${property.type === 'casa_particular' ? t('propertyCard.typeCasa') : t('propertyCard.typeHostel')}</span>
+          <span class="property-type">${escapeHtml(propertyTypeLabel(property.type))}</span>
         </div>
         <div class="property-card-content">
           <h3 class="property-card-title">${escapeHtml(property.name)}</h3>
-          <p class="property-card-location">${escapeHtml(property.location?.city || t('propertyCard.locationUnknown'))}</p>
+          <p class="property-card-location">${escapeHtml(formatPlace(property.location) || t('propertyCard.locationUnknown'))}</p>
           <p class="property-card-description">${escapeHtml(truncateText(property.description, 80))}</p>
           <div class="property-card-details">
             <span class="property-guests">${t('propertyCard.maxGuests').replace('{n}', property.max_guests)}</span>

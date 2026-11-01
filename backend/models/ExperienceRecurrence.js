@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { isValidTimeZone } = require('../utils/timezone');
 
 // Plantilla de una excursion recurrente. Cada ocurrencia generada es un
 // documento Experience normal (ver Experience.js), independiente en cupos,
@@ -28,9 +29,17 @@ const experienceRecurrenceSchema = new mongoose.Schema({
   category: String,
   location: {
     city: { type: String, required: true },
+    // ISO 3166-1 alfa-2 ("MX", "CU"). Obligatorio al crear (validado en la ruta).
+    country: { type: String, uppercase: true, trim: true, match: /^[A-Z]{2}$/ },
     address: String,
     latitude: Number,
     longitude: Number,
+  },
+  // Zona IANA del lugar ("America/Havana"): la hora de la excursion es hora local
+  // de alli. Sin valor (excursiones antiguas) se usa EXPERIENCE_TIMEZONE.
+  timezone: {
+    type: String,
+    validate: { validator: (v) => !v || isValidTimeZone(v), message: 'Invalid timezone' },
   },
   duration_hours: Number,
   max_participants: {

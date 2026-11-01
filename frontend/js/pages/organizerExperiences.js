@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { formatPlace } from '../utils/places.js';
 import { formatExperienceDate, formatExperienceTime } from '../utils/formatters.js';
 
 const OrganizerExperiencesPage = {
@@ -44,7 +45,7 @@ const OrganizerExperiencesPage = {
         <div class="property-list-item">
           <div class="property-info">
             <h3>${escapeHtml(exp.title)}${exp.recurrence_id ? ` <span class="audit-log-badge">${i18n.t('organizer.recurringBadge')}</span>` : ''}</h3>
-            <p>${escapeHtml(exp.location?.city || '')} · ${formatExperienceDate(exp.date)} ${formatExperienceTime(exp.date)}</p>
+            <p>${escapeHtml(formatPlace(exp.location))} · ${formatExperienceDate(exp.date, exp.timezone)} ${formatExperienceTime(exp.date, exp.timezone)}</p>
             <p style="font-size:var(--fs-xs);color:var(--text-light);">
               ${escapeHtml(exp.current_participants)}/${exp.max_participants} ${i18n.t('organizer.spotsLabel')} · ${i18n.t('booking.statusLabel')} ${escapeHtml(exp.status)}
             </p>

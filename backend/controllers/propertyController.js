@@ -4,6 +4,7 @@ const Booking = require('../models/Booking');
 const { notifyAdmins } = require('../utils/pushNotifications');
 const { escapeRegex, parsePagination } = require('../utils/helpers');
 const { sanitizeImages } = require('../utils/images');
+const { normalizeCountry } = require('../utils/countries');
 
 // Campos que un host puede enviar al crear/editar una propiedad. Todo lo demas
 // (status, suspended, rating, reviews_count, approval_date, admin_notes,
@@ -30,7 +31,7 @@ const canSeeInternal = (req, hostId) => Boolean(req.user)
 exports.getProperties = async (req, res, next) => {
   try {
     const {
-      city, min_price, max_price, type, amenities,
+      city, country, min_price, max_price, type, amenities,
       rating_min, sort,
     } = req.query;
     const { page, limit, skip } = parsePagination(req.query, { defaultLimit: 10, maxLimit: 50 });
@@ -38,6 +39,7 @@ exports.getProperties = async (req, res, next) => {
     const query = { tenant_id: req.tenantId, status: 'active', suspended: { $ne: true } };
 
     if (city) query['location.city'] = new RegExp(escapeRegex(city), 'i');
+    if (normalizeCountry(country)) query['location.country'] = normalizeCountry(country);
     if (min_price || max_price) {
       query.price_per_night = {};
       if (min_price) query.price_per_night.$gte = Number(min_price);
