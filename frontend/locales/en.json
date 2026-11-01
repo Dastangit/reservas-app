@@ -149,7 +149,8 @@
     "checkoutPaypalPayerEmail": "Email of the PayPal account you paid from",
     "checkoutPaypalReferenceRequired": "Please enter the PayPal transaction ID or the email you paid from, so we can find your payment.",
     "payNow": "Pay booking fee",
-    "holdExpiresAt": "Dates held until:"
+    "holdExpiresAt": "Dates held until:",
+    "qvapayUnavailable": "Card payment (QvaPay) is not available right now. Please pay with PayPal."
   },
   "experience": {
     "loginRequired": "Please <a href=\"/login\" data-link>login</a> to book.",
@@ -848,7 +849,8 @@
     "submit": "Submit Review",
     "selectRating": "Please select a rating",
     "submitSuccess": "Review submitted successfully!",
-    "submitFailed": "Failed to submit review"
+    "submitFailed": "Failed to submit review",
+    "onlyCompleted": "You can leave a review once your stay is completed."
   },
   "feedback": {
     "loginPromptBefore": "Please",

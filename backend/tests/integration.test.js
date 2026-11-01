@@ -8,6 +8,9 @@ process.env.MONGODB_URI = 'mongodb://127.0.0.1:1/never-used';
 process.env.JWT_SECRET = 'test-secret';
 process.env.JWT_REFRESH_SECRET = 'test-refresh-secret';
 process.env.NODE_ENV = 'test';
+// Nunca llamar a QvaPay real desde los tests (el .env local puede tener credenciales).
+process.env.QVAPAY_APP_ID = '';
+process.env.QVAPAY_APP_SECRET = '';
 
 const mongoose = require('mongoose');
 const request = require('supertest');
@@ -352,6 +355,58 @@ describe('excursiones', () => {
     const other = await makeUser('organizer');
     const otherRes = await request(app).get('/api/organizer/recurrences').set(auth(other));
     expect(otherRes.body.data.recurrences).toHaveLength(0);
+  });
+});
+
+describe('sesion', () => {
+  test('dos renovaciones seguidas dan tokens distintos y el viejo queda revocado', async () => {
+    const u = await makeUser('tourist');
+    const login = await request(app).post('/api/auth/login').send({ email: u.email, password: 'password123' });
+    expect(login.status).toBe(200);
+    const first = login.body.data.refresh_token;
+
+    const r1 = await request(app).post('/api/auth/refresh').send({ refresh_token: first });
+    expect(r1.status).toBe(200);
+    const second = r1.body.data.refresh_token;
+    expect(second).not.toBe(first);
+
+    const r2 = await request(app).post('/api/auth/refresh').send({ refresh_token: second });
+    expect(r2.status).toBe(200);
+    expect(r2.body.data.refresh_token).not.toBe(second);
+
+    const reused = await request(app).post('/api/auth/refresh').send({ refresh_token: first });
+    expect(reused.status).toBe(401);
+  });
+});
+
+describe('IP del cliente detras de Vercel', () => {
+  const { clientIp } = require('../utils/clientIp');
+  const fakeReq = (headers, ip = '10.0.0.9') => ({ ip, headers });
+  const prev = process.env.PROXY_SECRET;
+  afterAll(() => { process.env.PROXY_SECRET = prev; });
+
+  test('con el secreto correcto usa la IP que puso Vercel, no lo que escribio el cliente', () => {
+    process.env.PROXY_SECRET = 'secreto-de-prueba';
+    expect(clientIp(fakeReq({ 'x-elysio-proxy': 'secreto-de-prueba', 'x-forwarded-for': '203.0.113.7, 76.76.21.1' }))).toBe('203.0.113.7');
+    // Un cliente que mete su propia cabecera queda a la izquierda y se ignora.
+    expect(clientIp(fakeReq({ 'x-elysio-proxy': 'secreto-de-prueba', 'x-forwarded-for': '1.1.1.1, 203.0.113.7, 76.76.21.1' }))).toBe('203.0.113.7');
+  });
+
+  test('sin secreto, con uno equivocado o sin configurar usa req.ip', () => {
+    process.env.PROXY_SECRET = 'secreto-de-prueba';
+    expect(clientIp(fakeReq({ 'x-forwarded-for': '1.1.1.1, 2.2.2.2' }))).toBe('10.0.0.9');
+    expect(clientIp(fakeReq({ 'x-elysio-proxy': 'otro', 'x-forwarded-for': '1.1.1.1, 2.2.2.2' }))).toBe('10.0.0.9');
+    process.env.PROXY_SECRET = '';
+    expect(clientIp(fakeReq({ 'x-elysio-proxy': '', 'x-forwarded-for': '1.1.1.1, 2.2.2.2' }))).toBe('10.0.0.9');
+  });
+});
+
+describe('pagos', () => {
+  test('sin credenciales de QvaPay, crear factura da 503 con codigo y no llama afuera', async () => {
+    const t = await makeUser('tourist');
+    const res = await request(app).post('/api/payments/create-invoice').set(auth(t)).send({ booking_id: String(new mongoose.Types.ObjectId()) });
+    expect(res.status).toBe(503);
+    expect(res.body.code).toBe('qvapay_unavailable');
   });
 });
 

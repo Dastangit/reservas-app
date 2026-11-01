@@ -149,7 +149,8 @@
     "checkoutPaypalPayerEmail": "Email de la cuenta de PayPal con la que pagaste",
     "checkoutPaypalReferenceRequired": "Indica el ID de la transacción de PayPal o el email con el que pagaste, para poder encontrar tu pago.",
     "payNow": "Pagar la tarifa de reserva",
-    "holdExpiresAt": "Fechas retenidas hasta:"
+    "holdExpiresAt": "Fechas retenidas hasta:",
+    "qvapayUnavailable": "El pago con tarjeta (QvaPay) no está disponible ahora. Paga con PayPal, por favor."
   },
   "experience": {
     "loginRequired": "Por favor <a href=\"/login\" data-link>inicia sesión</a> para reservar.",
@@ -848,7 +849,8 @@
     "submit": "Enviar Reseña",
     "selectRating": "Por favor selecciona una calificación",
     "submitSuccess": "¡Reseña enviada exitosamente!",
-    "submitFailed": "No se pudo enviar la reseña"
+    "submitFailed": "No se pudo enviar la reseña",
+    "onlyCompleted": "Podrás dejar una reseña cuando tu estancia esté completada."
   },
   "feedback": {
     "loginPromptBefore": "Por favor",

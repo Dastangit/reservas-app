@@ -1,4 +1,6 @@
 # CHECKLIST DE LANZAMIENTO
+
+> **Histórico (agosto 2026).** No se mantiene. Lo pendiente hoy está en `docs/PENDIENTES.md` y el estado de la plataforma en `docs/REVISION-2026-10-31.md`.
 ## Elysio Experiences
 
 **Fecha:** Agosto 2026

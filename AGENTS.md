@@ -54,7 +54,7 @@ CI (`.github/workflows/ci.yml`) runs lint, tests and `npm audit` for the backend
 
 ## Testing
 
-- Tests live in `backend/tests/`: `app.test.js` (export smoke tests) and `logic.test.js` (behaviour, models mocked with `jest.spyOn`). Frontend has no tests.
+- Tests live in `backend/tests/`: `app.test.js` (export smoke tests), `logic.test.js` (behaviour, models mocked with `jest.spyOn`) and `integration.test.js` (real app against in-memory MongoDB; it blanks `QVAPAY_*` so tests never call QvaPay). Frontend has no tests.
 - Add a test to `logic.test.js` for any change to booking/payment/commission logic.
 - `jest.mock()` factories **cannot** reference out-of-scope variables (Jest sandbox restriction). Use `require()` inside factories.
 
@@ -81,6 +81,8 @@ CI (`.github/workflows/ci.yml`) runs lint, tests and `npm audit` for the backend
 - **Hold expiry**: PayPal bookings where the tourist reported payment get 72 h extra before cancelling; QvaPay bookings are re-checked against QvaPay before cancelling.
 - **Status changes**: Use conditional `updateOne({ _id, status: <expected> })` for booking/experience-booking transitions (avoids double cancellations releasing spots twice).
 - **Images**: Always pass host/organizer `images` through `utils/images.js#sanitizeImages` (only own-folder `public_id`s are kept; deletion ownership depends on it).
+- **Client IP**: use `utils/clientIp.js`, never `req.ip` directly. Behind Vercel, `x-forwarded-for` is trusted only when the `x-elysio-proxy` header matches `PROXY_SECRET` (set by the `routes` transform in `frontend/vercel.json`).
+- **Colors**: only theme tokens from `frontend/css/theme.css`. Text colors (`--accent`, `--success`…) and fill colors with white text (`--accent-fill`, `--success-fill`…) are separate so both themes keep ≥ 4.5:1. The dark palette appears twice (`[data-theme="dark"]` and the `prefers-color-scheme` block) and both copies must match.
 - **API errors**: Backend returns `{ success:false, error, errors? }`. Frontend `api.js` refreshes the token on 401 automatically.
 
 ## File Reference

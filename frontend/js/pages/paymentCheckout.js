@@ -95,7 +95,7 @@ const PaymentCheckoutPage = {
         throw new Error('No invoice URL returned');
       }
     } catch (error) {
-      this.showError(error.message);
+      this.showError(error.code === 'qvapay_unavailable' ? i18n.t('booking.qvapayUnavailable') : error.message);
     }
   },
 

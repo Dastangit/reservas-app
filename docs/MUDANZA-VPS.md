@@ -6,7 +6,7 @@ Revisado el 30 de octubre de 2026. Hoy el backend corre en Render (`booking-plat
 
 ## Por qué cabe en el mismo servidor
 
-- **La base no ocupa el VPS:** está en MongoDB Atlas (`dats.4izwkww.mongodb.net`).
+- **La base no ocupa el VPS:** está en MongoDB Atlas (el clúster de `MONGODB_URI`).
 - **Las fotos tampoco:** van a Cloudinary.
 - **El backend es liviano:** Express en Docker (`backend/Dockerfile`, Node 24), con unos 100 a 200 MB de memoria.
 - **El servidor de Up ya está preparado** para otros proyectos:

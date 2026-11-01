@@ -79,7 +79,7 @@ const runBookingLifecycle = async () => {
     const completedExp = await autoCompleteExperienceBookings();
     const revealed = await revealStaleReviews();
     if (completed + completedExp + revealed > 0) {
-      console.log(`[Cron] Lifecycle: ${completed} reservas y ${completedExp} reservas de excursion completadas, ${revealed} resenas publicadas`);
+      console.info(`[Cron] Lifecycle: ${completed} reservas y ${completedExp} reservas de excursion completadas, ${revealed} resenas publicadas`);
     }
   } catch (error) {
     console.error('[Cron] Error en booking lifecycle:', error.message);
@@ -89,7 +89,7 @@ const runBookingLifecycle = async () => {
 const startBookingLifecycleCron = () => {
   // Cada hora; los cambios son idempotentes. Corre antes del cron de comisiones (6am).
   cron.schedule('15 * * * *', runBookingLifecycle);
-  console.log('[Cron] Booking lifecycle job started (hourly)');
+  console.info('[Cron] Booking lifecycle job started (hourly)');
 };
 
 module.exports = {

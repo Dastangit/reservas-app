@@ -9,8 +9,9 @@
 // necesiten tocarse -- simplemente ya no hacen nada, en vez de fallar en
 // silencio como pasaba antes con la API key placeholder.
 
-const sendEmail = async ({ to, subject }) => {
-  console.log(`[Email deshabilitado] Se habr\u00eda enviado "${subject}" a ${to} -- usar wa.me/mailto manual en su lugar.`);
+const sendEmail = async ({ subject }) => {
+  // Sin el destinatario: un email es dato personal y no debe quedar en los logs.
+  console.info(`[Email deshabilitado] Se habr\u00eda enviado "${subject}" -- usar wa.me/mailto manual en su lugar.`);
   return false;
 };
 

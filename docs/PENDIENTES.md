@@ -1,19 +1,38 @@
 # Pendientes
 
-Lista viva (31 oct 2026). Léela al retomar y marca lo que se termine. La mudanza al VPS tiene su propia lista en `docs/MUDANZA-VPS.md`.
+Lista viva (31 oct 2026). Léela al retomar y marca lo que se termine. La mudanza al VPS tiene su propia lista en `docs/MUDANZA-VPS.md`; el estado de la revisión del 31-oct está en `docs/REVISION-2026-10-31.md`.
 
-## Ahora (sin servidor)
+## Ahora
 
-- [ ] **Telegram en Render:** poner `TELEGRAM_BOT_TOKEN` (bot @daelworld_bot; el token está en `backend/.env`) y `TELEGRAM_CHAT_ID=-5274941516` (grupo «Elysio Experiences») en Render → Environment. Sin eso, producción no manda avisos a Telegram. Después, comprobar con una acción real (por ejemplo, una solicitud de cambio de contraseña) que llegue al grupo sin datos personales.
-- [ ] **Cambiar el usuario de MongoDB Atlas.** El repositorio es público y una versión vieja de `backend/.env.example` dejó a la vista el usuario `utilescuentas_db_user` y el clúster `dats.4izwkww.mongodb.net`, sin la contraseña (tenía `<db_password>`). En este orden, para no cortar el servicio:
+- [ ] **Integrar los PRs en orden: #4 → #5 → #6.** Cada uno sale del anterior. Hasta integrarlos, nada de lo hecho el 31-oct (plataforma global, tipos de alojamiento, modo oscuro, pendientes de la revisión) está en producción. Comprobar que Render despliegue el backend después de cada uno.
+- [ ] **Telegram en Render:** poner `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` (los dos valores están en `backend/.env`; el chat es el grupo «Elysio Experiences») en Render → Environment. Sin eso, producción no manda avisos a Telegram. Después, comprobar con una acción real (por ejemplo, una solicitud de cambio de contraseña) que llegue al grupo sin datos personales.
+- [ ] **Secreto del proxy (`PROXY_SECRET`)**, después de integrar el PR #6:
+  1. Generarlo con `openssl rand -hex 32`.
+  2. Ponerlo con el mismo valor en Vercel (Settings → Environment Variables, Production) y en Render. Volver a desplegar los dos.
+  3. Comprobar: abrir dos veces seguidas `https://reservas-app-blue.vercel.app/api/properties`; la cabecera `ratelimit-remaining` debe bajar (99 → 98). Si se queda en 99, la cabecera de Vercel no llega al backend (`frontend/vercel.json`, `backend/utils/clientIp.js`).
+  Sin el secreto todo funciona como antes, pero el límite de peticiones cuenta la IP de Vercel en vez de la del usuario.
+- [ ] **Cambiar el usuario de MongoDB Atlas.** El repositorio es público y una versión vieja de `backend/.env.example` dejó a la vista el nombre del usuario actual y el del clúster, sin la contraseña (tenía `<db_password>`). En este orden, para no cortar el servicio:
   1. Atlas → Database Access → usuario nuevo (p. ej. `reservas_app`), contraseña autogenerada, permisos **readWrite solo sobre la base `Dats`**.
   2. Render → Environment → `MONGODB_URI` con el usuario y la contraseña nuevos. Comprobar que `https://booking-platform-f8co.onrender.com/health` diga `"db":"connected"`.
   3. Lo mismo en `backend/.env` de la PC y probar el respaldo: `systemctl --user start reservas-respaldo.service`.
-  4. Borrar `utilescuentas_db_user` en Atlas.
+  4. Borrar el usuario viejo en Atlas.
   No hace falta reescribir el historial de git: sin la contraseña, el dato no sirve, y menos tras borrar el usuario.
-- [ ] **2FA:** los admins que lo tengan activo deben desactivarlo y volver a activarlo para recibir códigos de respaldo nuevos (los anteriores a la auditoría de octubre dejaron de valer).
-- [ ] **Opcional:** hacer privado el repositorio (GitHub → Settings → General → Danger Zone → Change visibility). Vercel y Render siguen funcionando.
+
+## Cuando se pueda
+
+- [ ] **Pago real con QvaPay:** hacer uno de prueba y confirmar cómo llega un pago «pagado» (aviso en `backend/utils/qvapay.js`).
+- [ ] **2FA en la cuenta admin** (`elysio.support@gmail.com`): activarlo desde el perfil y guardar los códigos de respaldo.
+- [ ] **Opcional:** hacer privado el repositorio (GitHub → Settings → General → Danger Zone → Change visibility). Vercel y Render siguen funcionando. Los datos internos quitados de los documentos siguen en el historial de git.
+- [ ] **Opcional:** borrar en Cloudinary las fotos de las 8 propiedades eliminadas el 31-oct (ya no se ven en la web).
 - [ ] **Opcional:** otplib 13 cuando la dependencia `@scure/base` publique CommonJS o el proyecto use ESM (ver el comentario en `controllers/authController.js`).
+- [ ] **Opcional:** las vulnerabilidades de `npm audit` que quedan son solo de herramientas de desarrollo (Jest, ESLint, nodemon); revisarlas cuando salgan versiones que las arreglen sin bajar de versión mayor.
+
+## Decisiones de negocio
+
+- [ ] **Cobro con tarjeta para turistas de cualquier país.** Hoy solo hay PayPal manual y QvaPay (pensado para Cuba). Una pasarela como Stripe exige una empresa en un país donde opere.
+- [ ] **Sanciones de EE. UU. (OFAC):** consultarlo antes de aceptar turistas o pagos de EE. UU. para propiedades en Cuba.
+- [ ] **Dominio `elysioexperiences.com`:** libre el 31-oct (~$11/año en Cloudflare). Comprarlo con una cuenta y una tarjeta de fuera de Cuba. Con él, un correo de marca (p. ej. `soporte@elysioexperiences.com`) y cambiar el contacto público en el panel admin → Ajustes.
+- [ ] **De la auditoría de octubre:** PayPal personal, entidad responsable, política de reembolso y contacto de empresa.
 
 ## Con el VPS
 
@@ -24,6 +43,9 @@ Lista viva (31 oct 2026). Léela al retomar y marca lo que se termine. La mudanz
 
 ## Hecho (31 oct 2026)
 
+- Revisión completa (`docs/REVISION-2026-10-31.md`) y sus arreglos: fechas, feedback del admin, series recurrentes, confirmación de reserva y textos sin promesas de correo (PR #3); IP real detrás de Vercel, QvaPay 503, ganancias del host, `jti` en los tokens, página de reseña, lint en 0 y documentos (PR #6).
+- Producción limpia: borradas las cuentas y propiedades de prueba; solo queda el admin, con contraseña nueva.
+- Plataforma global: país por anuncio, zona horaria por excursión, filtro por país y más tipos de alojamiento (PR #4). Modo oscuro con contraste AA en ambos temas (PR #5).
 - Auditoría de octubre, Node 24, carpeta `deploy/` y `api-base.js` en producción (PR #1).
 - Avisos del panel también por Telegram, sin datos personales; respaldo diario de Atlas en la PC con restauración probada; ESLint 10, Jest 30 y Supertest 7 (PR #2).
 - Alerta de GitHub por un secreto: era un dato de prueba inventado (falso positivo, cerrada).

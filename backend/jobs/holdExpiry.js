@@ -77,7 +77,7 @@ const expireHolds = async () => {
     }
 
     if (cancelled > 0) {
-      console.log(`[Cron] Expired ${cancelled} holds`);
+      console.info(`[Cron] Expired ${cancelled} holds`);
     }
   } catch (error) {
     console.error('[Cron] Error expiring holds:', error.message);
@@ -118,7 +118,7 @@ const expireExperienceHolds = async () => {
     }
 
     if (count > 0) {
-      console.log(`[Cron] Expired ${count} experience booking holds`);
+      console.info(`[Cron] Expired ${count} experience booking holds`);
     }
   } catch (error) {
     console.error('[Cron] Error expiring experience holds:', error.message);
@@ -153,7 +153,7 @@ const expireWaitlistClaims = async () => {
     }
 
     if (count > 0) {
-      console.log(`[Cron] Expired ${count} waitlist claims`);
+      console.info(`[Cron] Expired ${count} waitlist claims`);
     }
   } catch (error) {
     console.error('[Cron] Error expiring waitlist claims:', error.message);
@@ -168,7 +168,7 @@ const runHoldExpiry = async () => {
 
 const startHoldExpiryCron = () => {
   cron.schedule('*/5 * * * *', runHoldExpiry);
-  console.log('[Cron] Hold expiry job started (every 5 minutes)');
+  console.info('[Cron] Hold expiry job started (every 5 minutes)');
 };
 
 module.exports = { startHoldExpiryCron, runHoldExpiry, MANUAL_REVIEW_GRACE_MS };

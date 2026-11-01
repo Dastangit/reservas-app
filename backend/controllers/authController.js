@@ -40,8 +40,10 @@ const generateToken = (id) => {
   return jwt.sign({ id }, env.jwtSecret, { expiresIn: env.jwtExpire });
 };
 
+// jwtid unico: sin el, dos tokens emitidos en el mismo segundo eran identicos y
+// la rotacion no distinguia el viejo del nuevo.
 const generateRefreshToken = (id) => {
-  return jwt.sign({ id }, env.jwtRefreshSecret, { expiresIn: env.jwtRefreshExpire });
+  return jwt.sign({ id }, env.jwtRefreshSecret, { expiresIn: env.jwtRefreshExpire, jwtid: crypto.randomUUID() });
 };
 
 const generatePendingTwoFactorToken = (id) => {
