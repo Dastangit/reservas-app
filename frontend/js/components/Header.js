@@ -107,6 +107,9 @@ const Header = {
             <select class="lang-select" data-change-action="changeLang">
               ${langOptions}
             </select>
+            <button type="button" class="theme-toggle" data-action="toggleTheme" aria-label="${t(isDarkTheme() ? 'common.themeToLight' : 'common.themeToDark')}" title="${t(isDarkTheme() ? 'common.themeToLight' : 'common.themeToDark')}">
+              ${isDarkTheme() ? '☀' : '☾'}
+            </button>
           </nav>
           <button class="mobile-menu-btn" data-action="toggleMobileMenu">
             <span></span>
@@ -137,6 +140,24 @@ const Header = {
       }
     }
   }
+};
+
+// Tema efectivo: el elegido (data-theme) o, si no hay, el del sistema.
+function isDarkTheme() {
+  const chosen = document.documentElement.dataset.theme;
+  if (chosen) return chosen === 'dark';
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches || false;
+}
+
+window.toggleTheme = function () {
+  const next = isDarkTheme() ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  try {
+    localStorage.setItem('theme', next);
+  } catch {
+    // Sin localStorage el cambio dura solo esta visita.
+  }
+  Header.init();
 };
 
 window.changeLang = function (lang) {
@@ -236,6 +257,11 @@ window.enableAdminPush = async function () {
 
 window.addEventListener('langChanged', () => {
   Header.init();
+});
+
+// Sin tema elegido, el icono sigue al sistema si este cambia.
+window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', () => {
+  if (!document.documentElement.dataset.theme) Header.init();
 });
 
 export default Header;

@@ -132,7 +132,7 @@ const CreateRecurrencePage = {
                 <input type="checkbox" id="rec-mixed-audience" style="margin-top:4px;">
                 <span>
                   ${t('createRecurrence.mixedAudienceSeriesLabel')}
-                  <br><strong style="color:var(--danger, #c0392b);">${t('createExperience.mixedAudienceWarning')}</strong>
+                  <br><strong style="color:var(--error);">${t('createExperience.mixedAudienceWarning')}</strong>
                   ${t('createRecurrence.mixedAudienceSeriesNote')}
                 </span>
               </label>

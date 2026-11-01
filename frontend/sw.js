@@ -1,8 +1,12 @@
-const CACHE_NAME = 'elysio-v3';
+const CACHE_NAME = 'elysio-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/css/theme.css',
   '/css/styles.css',
+  '/js/theme-init.js',
+  '/assets/logo-elysio.svg',
+  '/assets/logo-elysio-dark.svg',
   '/manifest.json',
   '/js/app.js',
   '/js/router.js',

@@ -109,7 +109,7 @@ const CreateExperiencePage = {
                 <input type="checkbox" id="exp-mixed-audience" ${escapeHtml(existing?.allows_mixed_audience ? 'checked' : '')} style="margin-top:4px;">
                 <span>
                   ${t('createExperience.mixedAudienceLabel')}
-                  <br><strong style="color:var(--danger, #c0392b);">${t('createExperience.mixedAudienceWarning')}</strong>
+                  <br><strong style="color:var(--error);">${t('createExperience.mixedAudienceWarning')}</strong>
                   ${t('createExperience.mixedAudienceNote')}
                 </span>
               </label>

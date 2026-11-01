@@ -70,7 +70,7 @@ const AdminExperiencesPage = {
           <div class="property-info">
             <h3>
               ${escapeHtml(exp.title)}${exp.recurrence_id ? ` <span class="audit-log-badge">${i18n.t('admin.recurringOccurrenceBadge')}</span>` : ''}
-              ${exp.allows_mixed_audience ? ` <span class="audit-log-badge" style="border-color:#c0392b;color:#c0392b;">${i18n.t('admin.mixedAudienceWarningBadge')}</span>` : ''}
+              ${exp.allows_mixed_audience ? ` <span class="audit-log-badge" style="border-color:var(--error);color:var(--error);">${i18n.t('admin.mixedAudienceWarningBadge')}</span>` : ''}
             </h3>
             <p>${escapeHtml(formatPlace(exp.location))} · ${formatExperienceDate(exp.date, exp.timezone)} ${formatExperienceTime(exp.date, exp.timezone)}</p>
             <p>${i18n.t('admin.organizerLabel')} ${escapeHtml(exp.organizer_id?.name || i18n.t('admin.unknownFallback'))} (${escapeHtml(exp.organizer_id?.email || i18n.t('admin.noEmail'))})</p>
