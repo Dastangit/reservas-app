@@ -781,10 +781,8 @@ const CLIENT_IP_HEADER = 'x-elysio-client-ip';
 // Continues to the vercel.json rewrite (Render) with the request headers
 // replaced by `headers`: same protocol as next({ request: { headers } }) from
 // @vercel/functions, which cannot be imported here (no package.json).
-// x-elysio-mw (temporary, to check the deploy) says whether the secret is set,
-// never its value.
-function continueWithHeaders(headers, hasSecret) {
-  const out = new Headers({ 'x-middleware-next': '1', 'x-elysio-mw': hasSecret ? 'ok' : 'sin-secreto' });
+function continueWithHeaders(headers) {
+  const out = new Headers({ 'x-middleware-next': '1' });
   const names = [];
   headers.forEach((value, name) => {
     names.push(name);
@@ -805,7 +803,7 @@ function withProxyHeader(request) {
   // (it overwrites what the client sent), so no hop counting is needed here.
   const ip = request.headers.get('x-real-ip') || (request.headers.get('x-forwarded-for') || '').split(',')[0].trim();
   if (ip) headers.set(CLIENT_IP_HEADER, ip);
-  return continueWithHeaders(headers, Boolean(secret));
+  return continueWithHeaders(headers);
 }
 
 export default async function middleware(request) {

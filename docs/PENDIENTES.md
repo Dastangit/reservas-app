@@ -4,10 +4,6 @@ Lista viva (actualizada el 1 nov 2026). Léela al retomar y marca lo que se term
 
 ## Ahora
 
-- [ ] **Secreto del proxy (`PROXY_SECRET`): falta desplegar y comprobar.** Ya está en Vercel (Production) y en Render con el mismo valor (copia en `backend/.env`). Falta:
-  1. Volver a desplegar los dos: Render → **Save, rebuild, and deploy** (o Manual Deploy); Vercel → Deployments → el último → **⋯ → Redeploy**. Sin un despliegue nuevo no se usa.
-  2. Comprobar: abrir dos veces seguidas `https://reservas-app-blue.vercel.app/api/properties`; la cabecera `ratelimit-remaining` debe bajar (99 → 98). El 1-nov seguía en 99. Si después de desplegar sigue en 99, revisar que el valor sea idéntico en los dos lados (`frontend/middleware.js`, `backend/utils/clientIp.js`).
-  Sin el secreto todo funciona como antes, pero el límite de peticiones cuenta la IP de Vercel en vez de la del usuario.
 - [ ] **Cambiar el usuario de MongoDB Atlas.** El repositorio es público y una versión vieja de `backend/.env.example` dejó a la vista el nombre del usuario actual y el del clúster, sin la contraseña (tenía `<db_password>`). En este orden, para no cortar el servicio:
   1. Atlas → Database Access → usuario nuevo (p. ej. `reservas_app`), contraseña autogenerada, permisos **readWrite solo sobre la base `Dats`**.
   2. Render → Environment → `MONGODB_URI` con el usuario y la contraseña nuevos. Comprobar que `https://booking-platform-f8co.onrender.com/health` diga `"db":"connected"`.
@@ -40,7 +36,7 @@ Lista viva (actualizada el 1 nov 2026). Léela al retomar y marca lo que se term
 
 ## Hecho
 
-- 1-nov: PRs #4, #5 y #6 integrados; `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` puestos en Render; `PROXY_SECRET` creado y puesto en Vercel y Render.
+- 1-nov: PRs #4, #5 y #6 integrados; `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` puestos en Render; `PROXY_SECRET` en Vercel y Render, con la cabecera puesta desde `frontend/middleware.js` (PRs #7 y #8): el límite de peticiones ya cuenta la IP real del usuario y no acepta cabeceras falsificadas.
 
 - Revisión completa (`docs/REVISION-2026-10-31.md`) y sus arreglos: fechas, feedback del admin, series recurrentes, confirmación de reserva y textos sin promesas de correo (PR #3); IP real detrás de Vercel, QvaPay 503, ganancias del host, `jti` en los tokens, página de reseña, lint en 0 y documentos (PR #6).
 - Producción limpia: borradas las cuentas y propiedades de prueba; solo queda el admin, con contraseña nueva.
