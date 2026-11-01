@@ -392,6 +392,17 @@ describe('IP del cliente detras de Vercel', () => {
     expect(clientIp(fakeReq({ 'x-elysio-proxy': 'secreto-de-prueba', 'x-forwarded-for': '1.1.1.1, 203.0.113.7, 76.76.21.1' }))).toBe('203.0.113.7');
   });
 
+  test('con el secreto correcto prefiere x-elysio-client-ip del middleware de Vercel', () => {
+    process.env.PROXY_SECRET = 'secreto-de-prueba';
+    const xff = '1.1.1.1, 64.252.1.2, 76.76.21.1';
+    expect(clientIp(fakeReq({ 'x-elysio-proxy': 'secreto-de-prueba', 'x-elysio-client-ip': '203.0.113.7', 'x-forwarded-for': xff }))).toBe('203.0.113.7');
+    expect(clientIp(fakeReq({ 'x-elysio-proxy': 'secreto-de-prueba', 'x-elysio-client-ip': '2001:db8::1' }))).toBe('2001:db8::1');
+    // Un valor que no es IP se ignora y se cae a x-forwarded-for.
+    expect(clientIp(fakeReq({ 'x-elysio-proxy': 'secreto-de-prueba', 'x-elysio-client-ip': 'basura', 'x-forwarded-for': xff }))).toBe('64.252.1.2');
+    // Sin el secreto, la cabecera no vale nada.
+    expect(clientIp(fakeReq({ 'x-elysio-proxy': 'otro', 'x-elysio-client-ip': '203.0.113.7' }))).toBe('10.0.0.9');
+  });
+
   test('sin secreto, con uno equivocado o sin configurar usa req.ip', () => {
     process.env.PROXY_SECRET = 'secreto-de-prueba';
     expect(clientIp(fakeReq({ 'x-forwarded-for': '1.1.1.1, 2.2.2.2' }))).toBe('10.0.0.9');
