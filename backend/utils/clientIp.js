@@ -3,7 +3,7 @@ const crypto = require('crypto');
 // IP real del cliente. Las peticiones de la web pasan por Vercel (rewrite de
 // /api a Render), asi que req.ip es la IP de salida de Vercel, distinta en cada
 // peticion y compartida entre usuarios. Vercel agrega la cabecera
-// x-elysio-proxy con PROXY_SECRET (vercel.json, "routes" -> transforms); solo
+// x-elysio-proxy con PROXY_SECRET (frontend/middleware.js, rutas /api); solo
 // si coincide se confia en x-forwarded-for, cuyo formato aqui es
 // "<cliente segun Vercel>, <salida de Vercel>" (la ultima la agrega Render).
 // Se toma la penultima: lo que un cliente escriba en x-forwarded-for queda a la

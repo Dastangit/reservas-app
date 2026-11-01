@@ -6,9 +6,12 @@
 //    the normal SPA HTML in all cases. See RFC/Cloudflare "Markdown for Agents".
 // 2) Serves /sitemap.xml generated on the fly from live property/experience
 //    data plus the localized (/es, /fr) variants of every static page.
+// 3) Adds x-elysio-proxy = PROXY_SECRET to every /api request, so the backend
+//    trusts x-forwarded-for and sees the user's real IP (backend/utils/clientIp.js).
 
 export const config = {
   matcher: [
+    '/api/:path*',
     '/', '/es', '/fr',
     '/how-it-works', '/es/how-it-works', '/fr/how-it-works',
     '/faq', '/es/faq', '/fr/faq',
@@ -770,8 +773,37 @@ async function buildSocialHtml(pathname) {
 `;
 }
 
+// ---- /api: proxy header for the backend ----
+
+const PROXY_HEADER = 'x-elysio-proxy';
+
+// Continues to the vercel.json rewrite (Render) with the request headers
+// replaced by `headers`: same protocol as next({ request: { headers } }) from
+// @vercel/functions, which cannot be imported here (no package.json).
+function continueWithHeaders(headers) {
+  const out = new Headers({ 'x-middleware-next': '1' });
+  const names = [];
+  headers.forEach((value, name) => {
+    names.push(name);
+    out.set(`x-middleware-request-${name}`, value);
+  });
+  out.set('x-middleware-override-headers', names.join(','));
+  return new Response(null, { headers: out });
+}
+
+function withProxyHeader(request) {
+  const headers = new Headers(request.headers);
+  // A client could send its own value: it is always replaced.
+  headers.delete(PROXY_HEADER);
+  const secret = process.env.PROXY_SECRET;
+  if (secret) headers.set(PROXY_HEADER, secret);
+  return continueWithHeaders(headers);
+}
+
 export default async function middleware(request) {
   const url = new URL(request.url);
+
+  if (url.pathname.startsWith('/api/')) return withProxyHeader(request);
 
   if (url.pathname === '/sitemap.xml') {
     const { xml, complete } = await buildSitemapXml();
