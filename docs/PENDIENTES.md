@@ -1,15 +1,12 @@
 # Pendientes
 
-Lista viva (31 oct 2026). Léela al retomar y marca lo que se termine. La mudanza al VPS tiene su propia lista en `docs/MUDANZA-VPS.md`; el estado de la revisión del 31-oct está en `docs/REVISION-2026-10-31.md`.
+Lista viva (actualizada el 1 nov 2026). Léela al retomar y marca lo que se termine. La mudanza al VPS tiene su propia lista en `docs/MUDANZA-VPS.md`; el estado de la revisión del 31-oct está en `docs/REVISION-2026-10-31.md`.
 
 ## Ahora
 
-- [ ] **Integrar los PRs en orden: #4 → #5 → #6.** Cada uno sale del anterior. Hasta integrarlos, nada de lo hecho el 31-oct (plataforma global, tipos de alojamiento, modo oscuro, pendientes de la revisión) está en producción. Comprobar que Render despliegue el backend después de cada uno.
-- [ ] **Telegram en Render:** poner `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` (los dos valores están en `backend/.env`; el chat es el grupo «Elysio Experiences») en Render → Environment. Sin eso, producción no manda avisos a Telegram. Después, comprobar con una acción real (por ejemplo, una solicitud de cambio de contraseña) que llegue al grupo sin datos personales.
-- [ ] **Secreto del proxy (`PROXY_SECRET`)**, después de integrar el PR #6:
-  1. Generarlo con `openssl rand -hex 32`.
-  2. Ponerlo con el mismo valor en Vercel (Settings → Environment Variables, Production) y en Render. Volver a desplegar los dos.
-  3. Comprobar: abrir dos veces seguidas `https://reservas-app-blue.vercel.app/api/properties`; la cabecera `ratelimit-remaining` debe bajar (99 → 98). Si se queda en 99, la cabecera de Vercel no llega al backend (`frontend/vercel.json`, `backend/utils/clientIp.js`).
+- [ ] **Secreto del proxy (`PROXY_SECRET`): falta desplegar y comprobar.** Ya está en Vercel (Production) y en Render con el mismo valor (copia en `backend/.env`). Falta:
+  1. Volver a desplegar los dos: Render → **Save, rebuild, and deploy** (o Manual Deploy); Vercel → Deployments → el último → **⋯ → Redeploy**. Sin un despliegue nuevo no se usa.
+  2. Comprobar: abrir dos veces seguidas `https://reservas-app-blue.vercel.app/api/properties`; la cabecera `ratelimit-remaining` debe bajar (99 → 98). El 1-nov seguía en 99. Si después de desplegar sigue en 99, revisar que el valor sea idéntico en los dos lados (`frontend/middleware.js`, `backend/utils/clientIp.js`).
   Sin el secreto todo funciona como antes, pero el límite de peticiones cuenta la IP de Vercel en vez de la del usuario.
 - [ ] **Cambiar el usuario de MongoDB Atlas.** El repositorio es público y una versión vieja de `backend/.env.example` dejó a la vista el nombre del usuario actual y el del clúster, sin la contraseña (tenía `<db_password>`). En este orden, para no cortar el servicio:
   1. Atlas → Database Access → usuario nuevo (p. ej. `reservas_app`), contraseña autogenerada, permisos **readWrite solo sobre la base `Dats`**.
@@ -41,7 +38,9 @@ Lista viva (31 oct 2026). Léela al retomar y marca lo que se termine. La mudanz
 - [ ] Atlas → Network Access: dejar solo la IP del VPS (hoy tiene que aceptar Render y la PC, que cambian de IP).
 - [ ] Monitor de UptimeRobot sobre `/health`.
 
-## Hecho (31 oct 2026)
+## Hecho
+
+- 1-nov: PRs #4, #5 y #6 integrados; `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` puestos en Render; `PROXY_SECRET` creado y puesto en Vercel y Render.
 
 - Revisión completa (`docs/REVISION-2026-10-31.md`) y sus arreglos: fechas, feedback del admin, series recurrentes, confirmación de reserva y textos sin promesas de correo (PR #3); IP real detrás de Vercel, QvaPay 503, ganancias del host, `jti` en los tokens, página de reseña, lint en 0 y documentos (PR #6).
 - Producción limpia: borradas las cuentas y propiedades de prueba; solo queda el admin, con contraseña nueva.
