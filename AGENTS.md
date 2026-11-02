@@ -7,6 +7,7 @@ Multi-tenant vacation rental platform (worldwide; started in Cuba). Tourists sea
 - **Backend**: Express + Mongoose (MongoDB), single `backend/` directory. Entry: `backend/server.js`
 - **Frontend**: Vanilla JS SPA (no framework, no build step). Entry: `frontend/index.html` → `frontend/js/app.js`
 - **Deployment**: Frontend on Vercel. Vercel proxies `/api/*` to the backend URL hardcoded in `frontend/vercel.json` and `frontend/middleware.js` (currently Render, `booking-platform-f8co.onrender.com`). If the backend moves, run `node frontend/scripts/api-base.js <https-origin>` (updates both; CI checks they match).
+- **Site URL**: the public origin (`reservas-app-blue.vercel.app`) is hardcoded in `frontend/middleware.js` (`SITE`, the reference), `index.html`, `js/utils/seo.js`, `robots.txt`, `llms.txt` and `.well-known/api-catalog`. To move to a custom domain, run `node frontend/scripts/site-url.js <https-origin>` (CI checks they match), then update `FRONTEND_URL` on the backend; keep the old origin in CORS (`backend/app.js`) and redirect it with a 301.
 - **Planned move**: the backend will move from Render to the VPS shared with Up. Pending steps and context: `docs/MUDANZA-VPS.md` (read it first when working on deployment). Server files (compose, Caddy site, `.env` template) and the deploy script live in `deploy/` (`deploy/desplegar.sh`; it deploys git HEAD of `backend/`). Docker image and CI use Node 24.
 
 ## Commands
@@ -33,7 +34,7 @@ Jest loads `tests/setupEnv.js` first: it blanks `TELEGRAM_*` so tests never mess
 Admin alerts (`utils/pushNotifications.js` `notifyAdmins`) go to web push and to the Telegram group; a `body` with emails, people's names or payment references needs a `telegramBody` without them (`tests/notifications.test.js` enforces it).
 Daily backups of Atlas (M0, no built-in backups) run on the owner's PC via a systemd user timer (`deploy/pc/`); see `docs/RESPALDOS.md`.
 
-CI (`.github/workflows/ci.yml`) runs lint, tests and `npm audit` for the backend, and checks i18n keys, the backend URL (`frontend/scripts/api-base.js`) and JS syntax for the frontend.
+CI (`.github/workflows/ci.yml`) runs lint, tests and `npm audit` for the backend, and checks i18n keys, the backend URL (`frontend/scripts/api-base.js`), the site URL (`frontend/scripts/site-url.js`) and JS syntax for the frontend.
 
 ## Key Constraints
 

@@ -19,8 +19,9 @@ function ensureCanonical() {
   return link;
 }
 
-// Paths that are public-facing but should not appear in search results.
-const NOINDEX_PATHS = ['/login'];
+// Paths that are public-facing but should not appear in search results
+// (vercel.json also sends X-Robots-Tag: noindex for them, for crawlers without JS).
+const NOINDEX_PATHS = ['/login', '/register'];
 
 function setRobots(noindex) {
   let meta = document.querySelector('meta[name="robots"]');
