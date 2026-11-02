@@ -580,16 +580,22 @@ async function getMarkdown(pathname) {
 
 // ---- Dynamic sitemap.xml ----
 
+// lastmod: fecha del ultimo cambio del texto de la pagina (locales pages.*);
+// actualizala al editarlo. `listings` toma la fecha del anuncio activo mas
+// reciente. /login y /register no van: son noindex (vercel.json).
 const STATIC_SITEMAP_ENTRIES = [
-  { loc: '/', changefreq: 'weekly', priority: '1.0' },
-  { loc: '/search', changefreq: 'daily', priority: '0.9' },
-  { loc: '/experiences', changefreq: 'daily', priority: '0.9' },
-  { loc: '/how-it-works', changefreq: 'monthly', priority: '0.7' },
-  { loc: '/faq', changefreq: 'monthly', priority: '0.6' },
-  { loc: '/register', changefreq: 'monthly', priority: '0.6' },
-  { loc: '/terms', changefreq: 'yearly', priority: '0.3' },
-  { loc: '/privacy', changefreq: 'yearly', priority: '0.3' },
+  { loc: '/', changefreq: 'weekly', priority: '1.0', listings: ['properties', 'experiences'] },
+  { loc: '/search', changefreq: 'daily', priority: '0.9', listings: ['properties'] },
+  { loc: '/experiences', changefreq: 'daily', priority: '0.9', listings: ['experiences'] },
+  { loc: '/how-it-works', changefreq: 'monthly', priority: '0.7', lastmod: '2026-10-31' },
+  { loc: '/faq', changefreq: 'monthly', priority: '0.6', lastmod: '2026-10-31' },
+  { loc: '/terms', changefreq: 'yearly', priority: '0.3', lastmod: '2026-10-31' },
+  { loc: '/privacy', changefreq: 'yearly', priority: '0.3', lastmod: '2026-10-11' },
 ];
+
+const isoDay = (date) => (date ? String(date).slice(0, 10) : undefined);
+// Fecha (YYYY-MM-DD) mas reciente de una lista de anuncios; las ISO se comparan como texto.
+const latestDay = (items) => items.map((i) => isoDay(i.updated_at)).filter(Boolean).sort().pop();
 
 function escapeXml(str) {
   return String(str)
@@ -653,27 +659,31 @@ async function buildSitemapXml() {
     }
   }
 
-  for (const entry of STATIC_SITEMAP_ENTRIES) {
+  const listed = {
+    properties: properties.filter((p) => !p.status || p.status === 'active'),
+    experiences: experiences.filter((e) => !e.status || e.status === 'active' || e.status === 'approved'),
+  };
+
+  for (const { listings, ...entry } of STATIC_SITEMAP_ENTRIES) {
+    if (listings) entry.lastmod = latestDay(listings.flatMap((k) => listed[k]));
     pushLocaleVariants(entry);
   }
 
-  for (const p of properties) {
-    if (p.status && p.status !== 'active') continue;
+  for (const p of listed.properties) {
     pushLocaleVariants({
       loc: `/property/${p._id}`,
       changefreq: 'weekly',
       priority: '0.8',
-      lastmod: p.updated_at ? String(p.updated_at).slice(0, 10) : undefined,
+      lastmod: isoDay(p.updated_at),
     });
   }
 
-  for (const e of experiences) {
-    if (e.status && e.status !== 'active' && e.status !== 'approved') continue;
+  for (const e of listed.experiences) {
     pushLocaleVariants({
       loc: `/experiences/${e._id}`,
       changefreq: 'weekly',
       priority: '0.8',
-      lastmod: e.updated_at ? String(e.updated_at).slice(0, 10) : undefined,
+      lastmod: isoDay(e.updated_at),
     });
   }
 
