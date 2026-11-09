@@ -112,7 +112,7 @@ const ExperienceDetailPage = {
                 <div class="property-amenities">
                   <h2>${t('experience.includesHeading')}</h2>
                   <div class="amenities-grid">
-                    ${exp.includes.map((i) => `<span class="amenity">${i}</span>`).join('')}
+                    ${exp.includes.map((i) => `<span class="amenity">${escapeHtml(i)}</span>`).join('')}
                   </div>
                 </div>
               ` : ''}

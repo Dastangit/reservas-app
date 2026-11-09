@@ -424,7 +424,6 @@
     "yes": "Yes",
     "no": "No",
     "accountHeading": "Account",
-    "regionLabel": "Region:",
     "na": "N/A",
     "memberSince": "Member since:",
     "lastLogin": "Last login:",
@@ -565,7 +564,7 @@
     "waiveBtn": "Waive",
     "errorLoadingCommissions": "Error loading commissions",
     "organizerCommissionsTitle": "Monthly Organizer Commissions",
-    "organizerCommissionsSubtitle": "10% on what each organizer charged their clients -- broken down by currency (CUP/USD/USDT), without conversion between them. Day 10+ is only marked \"overdue\"; deciding what to do is a manual decision you make.",
+    "organizerCommissionsSubtitle": "10% on what each organizer charged their clients, broken down by currency with no conversion between them. From day 10 it is only marked \"overdue\"; what to do is your manual decision.",
     "organizerNoPhoneRegistered": "The organizer doesn't have a registered phone.",
     "organizerUnknownFallback": "Unknown organizer",
     "totalWord": "total",
@@ -1266,5 +1265,9 @@
     "casa_particular": "Casa particular",
     "hostel": "Hostel",
     "hotel": "Hotel"
+  },
+  "currency": {
+    "suggested": "Suggested",
+    "all": "All currencies"
   }
 }

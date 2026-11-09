@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { isValidCurrency } = require('../utils/currencies');
 
 const experienceBookingSchema = new mongoose.Schema({
   tenant_id: {
@@ -40,7 +41,9 @@ const experienceBookingSchema = new mongoose.Schema({
     },
     currency: {
       type: String,
-      enum: ['CUP', 'USD', 'USDT'],
+      uppercase: true,
+      trim: true,
+      validate: { validator: isValidCurrency, message: 'Invalid currency' },
       required: true,
     },
     amount: {

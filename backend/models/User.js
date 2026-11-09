@@ -66,10 +66,6 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
-  host_region: {
-    type: String,
-    enum: ['cuba', 'international'],
-  },
   host_fee_waived_until: Date,
   organizer_status: {
     type: String,

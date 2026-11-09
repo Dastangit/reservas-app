@@ -424,7 +424,6 @@
     "yes": "Sí",
     "no": "No",
     "accountHeading": "Cuenta",
-    "regionLabel": "Región:",
     "na": "N/A",
     "memberSince": "Miembro desde:",
     "lastLogin": "Último login:",
@@ -565,7 +564,7 @@
     "waiveBtn": "Exonerar",
     "errorLoadingCommissions": "Error cargando comisiones",
     "organizerCommissionsTitle": "Comisiones mensuales de organizadores",
-    "organizerCommissionsSubtitle": "10% sobre lo que cada organizador cobró a sus clientes -- desglosado por moneda (CUP/USD/USDT), sin conversión entre sí. El día 10+ solo queda marcado \"vencido\"; la decisión de qué hacer la tomás vos manualmente.",
+    "organizerCommissionsSubtitle": "10% sobre lo que cada organizador cobró a sus clientes, desglosado por moneda y sin conversión entre ellas. A partir del día 10 solo queda marcado \"vencido\"; qué hacer lo decides tú a mano.",
     "organizerNoPhoneRegistered": "El organizador no tiene un teléfono registrado.",
     "organizerUnknownFallback": "Organizador desconocido",
     "totalWord": "total",
@@ -1266,5 +1265,9 @@
     "casa_particular": "Casa particular",
     "hostel": "Hostal",
     "hotel": "Hotel"
+  },
+  "currency": {
+    "suggested": "Sugeridas",
+    "all": "Todas las monedas"
   }
 }

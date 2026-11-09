@@ -3,6 +3,7 @@ import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
 import { countryOptions, timeZoneOptions, browserTimeZone } from '../utils/places.js';
+import { currencyOptions, countryCurrency } from '../utils/currencies.js';
 
 const CreateRecurrencePage = {
   images: [],
@@ -110,11 +111,7 @@ const CreateRecurrencePage = {
                   </div>
                   <div style="flex:1;">
                     <label>${t('createExperience.currencyLabel')}</label>
-                    <select class="pricing-currency">
-                      <option value="USD">USD</option>
-                      <option value="USDT">USDT</option>
-                      <option value="CUP">CUP</option>
-                    </select>
+                    <select class="pricing-currency">${currencyOptions('USD')}</select>
                   </div>
                   <div style="flex:1;">
                     <label>${t('createExperience.pricePerSpotLabel')}</label>
@@ -153,6 +150,7 @@ const CreateRecurrencePage = {
     const t = (key) => i18n.t(key);
 
     document.getElementById('add-pricing-btn')?.addEventListener('click', () => {
+      const country = document.getElementById('rec-country')?.value;
       const row = document.createElement('div');
       row.className = 'form-group pricing-row';
       row.style.cssText = 'display:flex;gap:10px;align-items:end;';
@@ -161,7 +159,7 @@ const CreateRecurrencePage = {
           <select class="pricing-audience"><option value="tourist">${t('experience.tourist')}</option><option value="local">${t('experience.local')}</option></select>
         </div>
         <div style="flex:1;"><label>${t('createExperience.currencyLabel')}</label>
-          <select class="pricing-currency"><option value="USD">USD</option><option value="USDT">USDT</option><option value="CUP">CUP</option></select>
+          <select class="pricing-currency">${currencyOptions(countryCurrency(country), country)}</select>
         </div>
         <div style="flex:1;"><label>${t('createExperience.pricePerSpotLabel')}</label><input type="number" class="pricing-amount" min="0" step="0.01" required></div>
         <button type="button" class="btn btn-danger btn-sm remove-pricing-row">X</button>
@@ -170,6 +168,15 @@ const CreateRecurrencePage = {
       this.bindRemove();
     });
     this.bindRemove();
+
+    // La moneda del pais elegido va primero; las filas sin precio todavia la toman.
+    document.getElementById('rec-country')?.addEventListener('change', (e) => {
+      document.querySelectorAll('.pricing-row').forEach((row) => {
+        const select = row.querySelector('.pricing-currency');
+        const pristine = !row.querySelector('.pricing-amount')?.value;
+        select.innerHTML = currencyOptions(pristine ? countryCurrency(e.target.value) : select.value, e.target.value);
+      });
+    });
 
     document.getElementById('recurrence-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();

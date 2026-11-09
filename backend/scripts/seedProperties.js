@@ -35,7 +35,6 @@ const seed = async () => {
         phone: '+53 5555 1234',
         status: 'active',
         host_status: 'approved',
-        host_region: 'cuba',
         host_fee_waived_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         profile: { verified: true },
       });

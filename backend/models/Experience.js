@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { isValidCurrency } = require('../utils/currencies');
 const { isValidTimeZone } = require('../utils/timezone');
 
 const experienceSchema = new mongoose.Schema({
@@ -58,7 +59,8 @@ const experienceSchema = new mongoose.Schema({
     default: 0,
   },
   // Multi-moneda / multi-audiencia. El organizador define tantas
-  // combinaciones como necesite (ej: local/CUP, tourist/USD, tourist/USDT).
+  // combinaciones como necesite (ej: local/MXN, tourist/USD, tourist/USDT).
+  // Monedas admitidas: utils/currencies.js.
   pricing: [{
     audience: {
       type: String,
@@ -67,7 +69,9 @@ const experienceSchema = new mongoose.Schema({
     },
     currency: {
       type: String,
-      enum: ['CUP', 'USD', 'USDT'],
+      uppercase: true,
+      trim: true,
+      validate: { validator: isValidCurrency, message: 'Invalid currency' },
       required: true,
     },
     amount: {

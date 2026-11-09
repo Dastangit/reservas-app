@@ -424,7 +424,6 @@
     "yes": "Oui",
     "no": "Non",
     "accountHeading": "Compte",
-    "regionLabel": "Région :",
     "na": "N/A",
     "memberSince": "Membre depuis :",
     "lastLogin": "Dernière connexion :",
@@ -565,7 +564,7 @@
     "waiveBtn": "Exonérer",
     "errorLoadingCommissions": "Erreur lors du chargement des commissions",
     "organizerCommissionsTitle": "Commissions mensuelles des organisateurs",
-    "organizerCommissionsSubtitle": "10% sur ce que chaque organisateur a facturé à ses clients -- ventilé par devise (CUP/USD/USDT), sans conversion entre elles. À partir du jour 10+, il est simplement marqué \"en retard\" ; la décision de ce qu'il faut faire est une décision manuelle que vous prenez.",
+    "organizerCommissionsSubtitle": "10 % de ce que chaque organisateur a facturé à ses clients, ventilé par devise sans conversion entre elles. À partir du jour 10, il est seulement marqué « en retard » ; la suite est une décision manuelle de votre part.",
     "organizerNoPhoneRegistered": "L'organisateur n'a pas de téléphone enregistré.",
     "organizerUnknownFallback": "Organisateur inconnu",
     "totalWord": "total",
@@ -1266,5 +1265,9 @@
     "casa_particular": "Casa particular",
     "hostel": "Auberge de jeunesse",
     "hotel": "Hôtel"
+  },
+  "currency": {
+    "suggested": "Suggérées",
+    "all": "Toutes les devises"
   }
 }

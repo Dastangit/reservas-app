@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { isValidCurrency } = require('../utils/currencies');
 const { isValidTimeZone } = require('../utils/timezone');
 
 // Plantilla de una excursion recurrente. Cada ocurrencia generada es un
@@ -55,7 +56,9 @@ const experienceRecurrenceSchema = new mongoose.Schema({
     },
     currency: {
       type: String,
-      enum: ['CUP', 'USD', 'USDT'],
+      uppercase: true,
+      trim: true,
+      validate: { validator: isValidCurrency, message: 'Invalid currency' },
       required: true,
     },
     amount: {

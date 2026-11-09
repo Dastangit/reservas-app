@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { isValidCurrency } = require('../utils/currencies');
 
 // Calcado de HostMonthlyCommission.js, pero con desglose por moneda -- no
 // se puede sumar CUP + USD + USDT en un solo total_amount. Cada comisión
@@ -30,7 +31,9 @@ const organizerMonthlyCommissionSchema = new mongoose.Schema({
   totals: [{
     currency: {
       type: String,
-      enum: ['CUP', 'USD', 'USDT'],
+      uppercase: true,
+      trim: true,
+      validate: { validator: isValidCurrency, message: 'Invalid currency' },
       required: true,
     },
     total_amount: {

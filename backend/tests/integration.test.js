@@ -310,6 +310,37 @@ describe('excursiones', () => {
     expect((await Experience.findById(madrid.body.data.experience_id)).date.toISOString()).toBe('2027-01-15T08:00:00.000Z');
   });
 
+  test('el precio admite cualquier moneda ISO (y USDT) pero no codigos inventados', async () => {
+    const mx = await request(app).post('/api/organizer/experiences').set(auth(organizer)).send(experienceBody({
+      location: { city: 'Oaxaca', country: 'MX' }, timezone: 'America/Mexico_City',
+      pricing: [{ audience: 'tourist', currency: 'mxn', amount: 450 }, { audience: 'local', currency: 'USDT', amount: 20 }],
+    }));
+    expect(mx.status).toBe(201);
+    const saved = await Experience.findById(mx.body.data.experience_id);
+    expect(saved.pricing.map((p) => p.currency)).toEqual(['MXN', 'USDT']);
+
+    const fake = await request(app).post('/api/organizer/experiences').set(auth(organizer)).send(experienceBody({
+      pricing: [{ audience: 'tourist', currency: 'XYZ', amount: 10 }],
+    }));
+    expect(fake.status).toBe(400);
+  });
+
+  test('se reserva en la moneda de la excursion aunque llegue en minusculas', async () => {
+    const cop = await Experience.create({
+      tenant_id: tenant._id, organizer_id: organizer._id, title: 'Tour COP', description: 'd',
+      location: { city: 'Cartagena', country: 'CO' }, date: new Date(Date.now() + 10 * 24 * 3600 * 1000),
+      max_participants: 5, pricing: [{ audience: 'tourist', currency: 'COP', amount: 80000 }], status: 'active',
+    });
+    const t = await makeUser('tourist');
+    const res = await request(app).post(`/api/experiences/${cop._id}/book`).set(auth(t)).send({
+      payment_info: [{ audience: 'tourist', currency: 'cop', num_spots: 2 }],
+      tourist_data: { phone: '+5355512345' },
+    });
+    expect(res.status).toBe(201);
+    const booking = await ExperienceBooking.findById(res.body.data.booking_id);
+    expect(booking.payment_info[0]).toMatchObject({ currency: 'COP', amount: 160000 });
+  });
+
   test('crear una excursion exige pais y zona horaria validos', async () => {
     const noCountry = await request(app).post('/api/organizer/experiences').set(auth(organizer))
       .send(experienceBody({ location: { city: 'Habana' } }));
