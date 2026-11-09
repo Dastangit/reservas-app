@@ -80,6 +80,6 @@ const { MongoMemoryServer } = require(path.join(BACKEND, 'node_modules/mongodb-m
 
   const web = express();
   web.use(express.static(FRONTEND));
-  web.get('*', (req, res) => res.sendFile(path.join(FRONTEND, 'index.html')));
+  web.get('*', (req, res) => res.sendFile(path.join(FRONTEND, 'app.html')));
   web.listen(5500, () => console.log('WEB http://localhost:5500'));
 })().catch((e) => { console.error(e); process.exit(1); });

@@ -9,8 +9,20 @@
       "destination": "https://booking-platform-f8co.onrender.com/api/:path*"
     },
     {
+      "source": "/:page(how-it-works|faq|terms|privacy)",
+      "destination": "/prerendered/en/:page/index.html"
+    },
+    {
+      "source": "/:lang(es|fr)",
+      "destination": "/prerendered/:lang/index.html"
+    },
+    {
+      "source": "/:lang(es|fr)/:page(how-it-works|faq|terms|privacy)",
+      "destination": "/prerendered/:lang/:page/index.html"
+    },
+    {
       "source": "/((?!api/)(?!.*\\..*).*)",
-      "destination": "/index.html"
+      "destination": "/app.html"
     }
   ],
   "headers": [

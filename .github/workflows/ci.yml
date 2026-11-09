@@ -36,5 +36,7 @@ jobs:
         run: node frontend/scripts/api-base.js
       - name: Site URL matches in every static file
         run: node frontend/scripts/site-url.js
+      - name: Prerendered pages up to date
+        run: node frontend/scripts/prerender.mjs --check
       - name: JS modules parse
         run: for f in frontend/js/*.js frontend/js/*/*.js; do node --input-type=module --check < "$f" || exit 1; done
