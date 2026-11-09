@@ -4179,3 +4179,17 @@ p.offer-no {
 .booking-location-pending {
   padding: 0 var(--space-md);
 }
+
+/* Zona aproximada del alojamiento en la ficha (sin la direccion exacta) */
+.property-area {
+  margin: var(--space-lg) 0 var(--space-xl);
+}
+
+.area-map {
+  height: 300px;
+  margin: var(--space-sm) 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--border-light);
+}

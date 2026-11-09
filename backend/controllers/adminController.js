@@ -119,6 +119,12 @@ exports.approveProperty = async (req, res, next) => {
         error: 'The host must mark the property on the map before approval',
       });
     }
+    if (!String(property.location?.neighborhood || '').trim()) {
+      return res.status(400).json({
+        success: false,
+        error: 'The host must name the neighborhood before approval',
+      });
+    }
 
     property.status = 'active';
     property.approval_date = new Date();

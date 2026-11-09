@@ -72,7 +72,12 @@
     "notFound": "Property not found",
     "noAmenities": "No amenities listed",
     "noReviews": "No reviews yet",
-    "max": "Max"
+    "max": "Max",
+    "whereTitle": "Where it is",
+    "showAreaMap": "See the area on the map",
+    "areaMapLabel": "Map of the approximate area of the property",
+    "exactAddressNotice": "The property is within this area (about 300 m). The exact address is shared once the booking is approved.",
+    "exactAddressAfterApproval": "The listing shows the neighborhood and the approximate area. The exact address is shared once the booking is approved."
   },
   "booking": {
     "checkIn": "Check-in",
@@ -941,7 +946,8 @@
     "errorLoadingProperty": "Error loading property",
     "selectType": "Select a type",
     "typeHint": "Each listing is booked as a whole. If you run a hotel or hostel, publish each room type as a separate listing.",
-    "otherAmenitiesTitle": "Other services"
+    "otherAmenitiesTitle": "Other services",
+    "neighborhoodHint": "Required. Tourists see the neighborhood and the approximate area before booking; the exact address only once their booking is approved."
   },
   "organizer": {
     "accessDenied": "Access denied. Please login as an organizer.",

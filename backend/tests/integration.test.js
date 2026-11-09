@@ -231,7 +231,7 @@ describe('propiedades', () => {
     const h = await makeUser('host');
     const body = (type) => ({
       name: `Tipo ${type}`, type, description: 'd', max_guests: 2, price_per_night: 50,
-      location: { city: 'Madrid', country: 'ES', geo: pt(-3.7038, 40.4168) }, services: demoServices(),
+      location: { city: 'Madrid', country: 'ES', neighborhood: 'Sol', geo: pt(-3.7038, 40.4168) }, services: demoServices(),
     });
     for (const type of ['apartment', 'villa', 'private_room', 'hotel']) {
       const res = await request(app).post('/api/properties').set(auth(h)).send(body(type));
@@ -247,9 +247,9 @@ describe('propiedades', () => {
       name: 'Casa Global', type: 'casa_particular', description: 'd', max_guests: 2, price_per_night: 40,
       services: demoServices(),
     };
-    const noCountry = await request(app).post('/api/properties').set(auth(h)).send({ ...base, location: { city: 'Cancun', geo: pt(-86.85, 21.16) } });
+    const noCountry = await request(app).post('/api/properties').set(auth(h)).send({ ...base, location: { city: 'Cancun', neighborhood: 'Centro', geo: pt(-86.85, 21.16) } });
     expect(noCountry.status).toBe(400);
-    const ok = await request(app).post('/api/properties').set(auth(h)).send({ ...base, location: { city: 'Cancun', country: 'mx', geo: pt(-86.85, 21.16) } });
+    const ok = await request(app).post('/api/properties').set(auth(h)).send({ ...base, location: { city: 'Cancun', country: 'mx', neighborhood: 'Centro', geo: pt(-86.85, 21.16) } });
     expect(ok.status).toBe(201);
 
     const created = await Property.findOne({ name: 'Casa Global' });
@@ -266,7 +266,7 @@ describe('propiedades', () => {
     const h = await makeUser('host');
     const base = {
       name: 'Casa Servicios', type: 'house', description: 'd', max_guests: 2, price_per_night: 40,
-      location: { city: 'Lima', country: 'PE', geo: pt(-77.04, -12.05) },
+      location: { city: 'Lima', country: 'PE', neighborhood: 'Miraflores', geo: pt(-77.04, -12.05) },
     };
     const none = await request(app).post('/api/properties').set(auth(h)).send(base);
     expect(none.status).toBe(400);
@@ -284,7 +284,7 @@ describe('propiedades', () => {
     expect(saved.amenities).toEqual(['Piscina']);
   });
 
-  test('el admin no aprueba una propiedad sin todos los servicios ni sin punto en el mapa', async () => {
+  test('el admin no aprueba una propiedad sin servicios, punto en el mapa ni barrio', async () => {
     const legacy = await Property.create({
       tenant_id: tenant._id, host_id: host._id, name: 'Sin servicios', type: 'hostel', description: 'd',
       location: { city: 'X', country: 'MX' }, max_guests: 2, price_per_night: 10,
@@ -298,6 +298,11 @@ describe('propiedades', () => {
     expect(noMap.body.error).toMatch(/map/);
 
     await Property.updateOne({ _id: legacy._id }, { 'location.geo': pt(-99.13, 19.43) });
+    const noNeighborhood = await request(app).post(`/api/admin/properties/${legacy._id}/approve`).set(auth(admin));
+    expect(noNeighborhood.status).toBe(400);
+    expect(noNeighborhood.body.error).toMatch(/neighborhood/);
+
+    await Property.updateOne({ _id: legacy._id }, { 'location.neighborhood': 'Roma' });
     const ok = await request(app).post(`/api/admin/properties/${legacy._id}/approve`).set(auth(admin));
     expect(ok.status).toBe(200);
   });
@@ -516,7 +521,9 @@ describe('direccion exacta y zona aproximada', () => {
       name: 'Casa Privada', type: 'house', description: 'd', max_guests: 2, price_per_night: 40,
       services: demoServices(),
       // approx enviado por el cliente: se ignora, lo calcula el servidor.
-      location: { city: 'Cartagena', country: 'CO', address: 'Calle 1 #2-3', geo: exact, approx: exact },
+      location: {
+        city: 'Cartagena', country: 'CO', neighborhood: 'Centro', address: 'Calle 1 #2-3', geo: exact, approx: exact,
+      },
     });
     expect(res.status).toBe(201);
     id = res.body.data.property_id;
@@ -545,6 +552,19 @@ describe('direccion exacta y zona aproximada', () => {
     expect(own.body.data.property.location).toMatchObject({ address: 'Calle 1 #2-3', geo: exact });
   });
 
+  test('publicar o cambiar la ubicacion exige el barrio', async () => {
+    const res = await request(app).post('/api/properties').set(auth(h)).send({
+      name: 'Sin barrio', type: 'house', description: 'd', max_guests: 2, price_per_night: 40,
+      services: demoServices(), location: { city: 'Cartagena', country: 'CO', neighborhood: ' ', geo: exact },
+    });
+    expect(res.status).toBe(400);
+    const edit = await request(app).put(`/api/properties/${id}`).set(auth(h))
+      .send({ location: { city: 'Cartagena', country: 'CO', geo: exact } });
+    expect(edit.status).toBe(400);
+    const priceOnly = await request(app).put(`/api/properties/${id}`).set(auth(h)).send({ price_per_night: 41 });
+    expect(priceOnly.status).toBe(200);
+  });
+
   test('editar sin mover el punto conserva la zona; moverlo la recalcula', async () => {
     const before = (await Property.findById(id).lean()).location.approx;
     const same = await request(app).put(`/api/properties/${id}`).set(auth(h))
@@ -556,16 +576,16 @@ describe('direccion exacta y zona aproximada', () => {
 
     const moved = pt(-75.55, 10.40);
     await request(app).put(`/api/properties/${id}`).set(auth(h))
-      .send({ location: { city: 'Cartagena', country: 'CO', geo: moved } });
+      .send({ location: { city: 'Cartagena', country: 'CO', neighborhood: 'Manga', geo: moved } });
     const after = (await Property.findById(id).lean()).location;
     expect(after.approx).not.toEqual(before);
     expect(distanceMeters(moved, after.approx)).toBeLessThanOrEqual(301);
 
     const bad = await request(app).put(`/api/properties/${id}`).set(auth(h))
-      .send({ location: { city: 'Cartagena', country: 'CO', geo: pt(-200, 10) } });
+      .send({ location: { city: 'Cartagena', country: 'CO', neighborhood: 'Manga', geo: pt(-200, 10) } });
     expect(bad.status).toBe(400);
     await request(app).put(`/api/properties/${id}`).set(auth(h))
-      .send({ location: { city: 'Cartagena', country: 'CO', address: 'Calle 1 #2-3', geo: exact } });
+      .send({ location: { city: 'Cartagena', country: 'CO', neighborhood: 'Centro', address: 'Calle 1 #2-3', geo: exact } });
   });
 
   test('el turista recibe la direccion solo con la reserva aprobada', async () => {

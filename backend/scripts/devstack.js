@@ -55,12 +55,12 @@ const withGeo = (location, lng, lat) => {
   const organizer = await mk('org@test.dev', 'organizer');
   await Property.create({
     tenant_id: tenant._id, host_id: host._id, name: 'Casa Azul', type: 'casa_particular',
-    description: 'Casa de prueba en el Vedado', location: withGeo({ city: 'La Habana', country: 'CU' }, -82.3836, 23.1394), max_guests: 4,
+    description: 'Casa de prueba en el Vedado', location: withGeo({ city: 'La Habana', country: 'CU', neighborhood: 'Vedado' }, -82.3836, 23.1394), max_guests: 4,
     price_per_night: 35, status: 'active', services: demoServices(),
   });
   await Property.create({
     tenant_id: tenant._id, host_id: host._id, name: 'Pendiente de revisar', type: 'hostel',
-    description: 'pendiente', location: withGeo({ city: 'Trinidad', country: 'CU' }, -79.9844, 21.8044), max_guests: 2, price_per_night: 15,
+    description: 'pendiente', location: withGeo({ city: 'Trinidad', country: 'CU', neighborhood: 'Centro Histórico' }, -79.9844, 21.8044), max_guests: 2, price_per_night: 15,
     services: demoServices({ energy_backup: { kind: 'none', note: '' } }),
   });
   await Experience.create({
@@ -72,7 +72,7 @@ const withGeo = (location, lng, lat) => {
   });
   await Property.create({
     tenant_id: tenant._id, host_id: host._id, name: 'Apartamento Roma Norte', type: 'apartment',
-    description: 'Departamento de prueba en CDMX', location: withGeo({ city: 'Ciudad de México', country: 'MX' }, -99.1332, 19.4326), max_guests: 3,
+    description: 'Departamento de prueba en CDMX', location: withGeo({ city: 'Ciudad de México', country: 'MX', neighborhood: 'Roma Norte' }, -99.1332, 19.4326), max_guests: 3,
     price_per_night: 60, status: 'active',
     services: demoServices({ items: { kitchen: 'included', parking: 'included' } }),
   });

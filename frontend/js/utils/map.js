@@ -53,3 +53,40 @@ export function directionsUrl(point) {
   if (/iPhone|iPad|iPod/i.test(ua)) return `https://maps.apple.com/?daddr=${lat},${lng}`;
   return `https://www.openstreetmap.org/directions?to=${lat}%2C${lng}#map=17/${lat}/${lng}`;
 }
+
+// Radio del circulo de la zona: la zona aproximada (`approx`) queda a 150-300 m
+// del punto exacto (backend/utils/geo.js), asi que la casa siempre cae dentro.
+export const AREA_RADIUS_M = 300;
+
+// Poligono que aproxima un circulo de `radius` metros alrededor de `point`.
+function circlePolygon(point, radius, steps = 64) {
+  const [lng, lat] = point.coordinates;
+  const dLat = radius / 111320;
+  const dLng = radius / (111320 * Math.max(Math.cos((lat * Math.PI) / 180), 0.01));
+  const ring = Array.from({ length: steps + 1 }, (_, i) => {
+    const a = (i / steps) * 2 * Math.PI;
+    return [lng + dLng * Math.cos(a), lat + dLat * Math.sin(a)];
+  });
+  return { type: 'Feature', geometry: { type: 'Polygon', coordinates: [ring] }, properties: {} };
+}
+
+// Mapa de solo lectura con la zona aproximada de un alojamiento: un circulo,
+// nunca un marcador (el punto exacto no se publica).
+export async function showAreaMap(container, point) {
+  const maplibregl = await loadMapLibre();
+  const color = getComputedStyle(document.documentElement).getPropertyValue('--accent-fill').trim();
+  const map = new maplibregl.Map({
+    container,
+    style: MAP_STYLE,
+    center: point.coordinates,
+    zoom: 14.5,
+    cooperativeGestures: true,
+  });
+  map.addControl(new maplibregl.NavigationControl({ showCompass: false }));
+  map.on('load', () => {
+    map.addSource('area', { type: 'geojson', data: circlePolygon(point, AREA_RADIUS_M) });
+    map.addLayer({ id: 'area-fill', type: 'fill', source: 'area', paint: { 'fill-color': color, 'fill-opacity': 0.18 } });
+    map.addLayer({ id: 'area-line', type: 'line', source: 'area', paint: { 'line-color': color, 'line-width': 2 } });
+  });
+  return map;
+}

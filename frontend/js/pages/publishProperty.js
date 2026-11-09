@@ -57,7 +57,8 @@ const PublishPropertyPage = {
                 </div>
                 <div class="form-group">
                   <label>${t('propertyForm.neighborhoodLabel')}</label>
-                  <input type="text" id="neighborhood" placeholder="${t('propertyForm.neighborhoodPlaceholder')}">
+                  <input type="text" id="neighborhood" required placeholder="${t('propertyForm.neighborhoodPlaceholder')}">
+                  <small class="field-hint">${t('propertyForm.neighborhoodHint')}</small>
                 </div>
               </div>
 

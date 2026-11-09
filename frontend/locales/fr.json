@@ -72,7 +72,12 @@
     "notFound": "Propriété non trouvée",
     "noAmenities": "Aucun équipement listé",
     "noReviews": "Aucun avis pour le moment",
-    "max": "Max"
+    "max": "Max",
+    "whereTitle": "Où se trouve le logement",
+    "showAreaMap": "Voir la zone sur la carte",
+    "areaMapLabel": "Carte de la zone approximative du logement",
+    "exactAddressNotice": "Le logement se trouve dans cette zone (environ 300 m). L'adresse exacte est communiquée une fois la réservation approuvée.",
+    "exactAddressAfterApproval": "L'annonce indique le quartier et la zone approximative. L'adresse exacte est communiquée une fois la réservation approuvée."
   },
   "booking": {
     "checkIn": "Arrivée",
@@ -941,7 +946,8 @@
     "errorLoadingProperty": "Erreur lors du chargement de la propriété",
     "selectType": "Choisissez un type",
     "typeHint": "Chaque annonce se réserve en entier. Si vous gérez un hôtel ou une auberge, publiez chaque type de chambre comme une annonce séparée.",
-    "otherAmenitiesTitle": "Autres services"
+    "otherAmenitiesTitle": "Autres services",
+    "neighborhoodHint": "Obligatoire. Les voyageurs voient le quartier et la zone approximative avant de réserver ; l'adresse exacte, seulement une fois leur réservation approuvée."
   },
   "organizer": {
     "accessDenied": "Accès refusé. Veuillez vous connecter en tant qu'organisateur.",

@@ -6,6 +6,7 @@ import { escapeHtml } from '../utils/escape.js';
 import { formatPlace } from '../utils/places.js';
 import { propertyTypeLabel } from '../utils/propertyTypes.js';
 import { servicesDetailHtml } from '../utils/propertyServices.js';
+import { isPoint, showAreaMap } from '../utils/map.js';
 
 const PropertyDetailPage = {
   property: null,
@@ -122,6 +123,16 @@ const PropertyDetailPage = {
                 ${p.services?.items?.length ? `<p class="field-hint">${t('services.detailHint')}</p>` : ''}
               </div>
               
+              <div class="property-area">
+                <h2>${t('property.whereTitle')}</h2>
+                <p>${escapeHtml([p.location?.neighborhood, formatPlace(p.location)].filter(Boolean).join(', '))}</p>
+                ${isPoint(p.location?.approx) ? `
+                  <button type="button" class="btn btn-outline btn-sm" id="show-area-map">${t('property.showAreaMap')}</button>
+                  <div class="area-map" id="area-map" hidden role="img" aria-label="${t('property.areaMapLabel')}"></div>
+                ` : ''}
+                <p class="field-hint">${t('property.exactAddressNotice')}</p>
+              </div>
+
               <div class="property-reviews">
                 <h2>${t('property.reviews')}</h2>
                 <p>${p.rating > 0 ? `&#9733; ${p.rating} (${p.reviews_count} ${t('property.reviews').toLowerCase()})` : t('property.noReviews')}</p>
@@ -185,6 +196,16 @@ const PropertyDetailPage = {
   },
 
   init() {
+    // El mapa solo se descarga si el turista lo pide (ahorra datos en el movil).
+    document.getElementById('show-area-map')?.addEventListener('click', (e) => {
+      const container = document.getElementById('area-map');
+      e.currentTarget.remove();
+      container.hidden = false;
+      showAreaMap(container, this.property.location.approx).catch(() => {
+        container.outerHTML = `<p class="error">${i18n.t('locationPicker.mapFailed')}</p>`;
+      });
+    });
+
     const form = document.getElementById('booking-form');
     if (form) {
       form.addEventListener('submit', (e) => {

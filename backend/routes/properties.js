@@ -39,6 +39,8 @@ router.post('/', protect, authorize('host'), [
   body('location.city').notEmpty().withMessage('City is required'),
   body('location.country').custom(isValidCountry).withMessage('Country is required (ISO code, e.g. MX)'),
   body('location.geo').custom(isValidPoint).withMessage('Location point is required (GeoJSON Point, [lng, lat])'),
+  // El barrio es lo que el turista lee antes de reservar (la direccion exacta no se publica).
+  body('location.neighborhood').isString().trim().notEmpty().withMessage('Neighborhood is required'),
   body('max_guests').isInt({ min: 1 }).withMessage('Max guests must be at least 1'),
   body('price_per_night').isFloat({ min: 0 }).withMessage('Price must be a positive number'),
   body('services').custom(validServices),
@@ -47,6 +49,9 @@ router.post('/', protect, authorize('host'), [
 router.put('/:id', protect, authorize('host'), [
   body('location.country').optional().custom(isValidCountry).withMessage('Invalid country (ISO code, e.g. MX)'),
   body('location.geo').optional().custom(isValidPoint).withMessage('Invalid location point (GeoJSON Point, [lng, lat])'),
+  // `location` se reemplaza entero: si llega, trae el barrio.
+  body('location.neighborhood').if(body('location').exists())
+    .isString().trim().notEmpty().withMessage('Neighborhood is required'),
   body('type').optional().isIn(PROPERTY_TYPES).withMessage(`Type must be one of: ${PROPERTY_TYPES.join(', ')}`),
   body('services').optional().custom(validServices),
 ], validate, updateProperty);

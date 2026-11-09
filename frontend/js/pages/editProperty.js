@@ -62,7 +62,8 @@ const EditPropertyPage = {
                 </div>
                 <div class="form-group">
                   <label>${t('propertyForm.neighborhoodLabel')}</label>
-                  <input type="text" id="neighborhood">
+                  <input type="text" id="neighborhood" required>
+                  <small class="field-hint">${t('propertyForm.neighborhoodHint')}</small>
                 </div>
               </div>
 
