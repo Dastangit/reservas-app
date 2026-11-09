@@ -108,6 +108,18 @@ const experienceSchema = new mongoose.Schema({
 });
 
 experienceSchema.index({ tenant_id: 1, status: 1, date: 1, 'location.city': 1 });
-experienceSchema.index({ recurrence_id: 1, date: 1 }, { unique: true, sparse: true });
+// Una serie no genera dos ocurrencias el mismo dia y hora. Solo para ocurrencias
+// de series: con `sparse` entraban tambien las de fecha unica (recurrence_id
+// null) y dos organizadores no podian publicar excursiones a la misma hora.
+// En una base existente, borrar el indice viejo con
+// `npm run experiences:sync-indexes`.
+experienceSchema.index(
+  { recurrence_id: 1, date: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { recurrence_id: { $type: 'objectId' } },
+    name: 'recurrence_occurrence_unique',
+  },
+);
 
 module.exports = mongoose.model('Experience', experienceSchema);
