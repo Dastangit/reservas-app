@@ -40,8 +40,8 @@ const PropertyDetailPage = {
       description: p.description,
       image: (p.images || []).map((img) => img.url),
       address: {
+        // Sin la calle: la direccion exacta solo se da con la reserva aprobada.
         '@type': 'PostalAddress',
-        streetAddress: p.location?.address,
         addressLocality: p.location?.city,
         addressCountry: p.location?.country,
         addressRegion: p.location?.neighborhood,

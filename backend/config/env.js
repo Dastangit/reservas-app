@@ -32,6 +32,9 @@ module.exports = {
     subject: process.env.VAPID_SUBJECT || 'mailto:admin@example.com',
   },
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+  // Buscador de direcciones (OpenStreetMap). Su politica pide un User-Agent
+  // propio y como maximo 1 peticion por segundo (utils/nominatim.js).
+  nominatimUrl: process.env.NOMINATIM_URL || 'https://nominatim.openstreetmap.org',
   // Dominio del tenant por defecto cuando el hostname no coincide con ninguno.
   defaultTenantDomain: process.env.DEFAULT_TENANT_DOMAIN || 'elysioexperiences.com',
 };

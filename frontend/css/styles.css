@@ -4090,3 +4090,92 @@ p.offer-no {
     padding: 60px var(--section-px) 30px;
   }
 }
+
+/* ===== Selector de ubicacion (mapa en los formularios) ===== */
+.location-picker {
+  margin-top: var(--space-md);
+}
+
+.location-picker-search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.location-picker-search input {
+  flex: 1 1 220px;
+  width: auto;
+  min-width: 0;
+}
+
+.location-picker-results {
+  list-style: none;
+  margin: var(--space-sm) 0 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.location-picker-results li + li {
+  border-top: 1px solid var(--border-light);
+}
+
+.location-picker-results button {
+  display: block;
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.location-picker-results button:hover,
+.location-picker-results button:focus-visible {
+  background: var(--accent-soft);
+}
+
+.location-picker-map {
+  height: 320px;
+  margin-top: var(--space-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--border-light);
+}
+
+.location-picker.invalid .location-picker-map {
+  border: 2px solid var(--error);
+}
+
+.location-picker-status {
+  margin-top: var(--space-xs);
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.location-picker-status.error {
+  color: var(--error);
+}
+
+/* Direccion exacta en la reserva aprobada del turista */
+.booking-location {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.booking-location p {
+  margin: 0;
+}
+
+.booking-location-pending {
+  padding: 0 var(--space-md);
+}

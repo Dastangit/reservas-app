@@ -84,6 +84,7 @@ app.use('/api/push', apiLimiter, require('./routes/push'));
 app.use('/api/experiences', apiLimiter, require('./routes/experiences'));
 app.use('/api/experience-bookings', apiLimiter, require('./routes/experienceBookings'));
 app.use('/api/organizer', apiLimiter, require('./routes/organizer'));
+app.use('/api/geo', apiLimiter, require('./routes/geo'));
 app.use('/api/webhooks', webhookLimiter, require('./routes/webhooks'));
 
 app.use('/api/*', (req, res) => {

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { pointSchema } = require('../utils/geo');
 const {
   SERVICE_ITEMS, ITEM_STATUSES, ENERGY_KINDS, SCHEDULE_MODES,
 } = require('../utils/propertyServices');
@@ -72,9 +73,11 @@ const propertySchema = new mongoose.Schema({
     // ISO 3166-1 alfa-2 ("MX", "CU"). Obligatorio al crear (validado en la ruta).
     country: { type: String, uppercase: true, trim: true, match: /^[A-Z]{2}$/ },
     neighborhood: String,
+    // Direccion y punto exactos: solo para el dueno, el admin y el turista con
+    // la reserva aprobada. En publico va `approx` (ver utils/geo.js).
     address: String,
-    latitude: Number,
-    longitude: Number,
+    geo: pointSchema,
+    approx: pointSchema,
   },
   max_guests: {
     type: Number,
@@ -173,6 +176,8 @@ const propertySchema = new mongoose.Schema({
 propertySchema.index({ tenant_id: 1, status: 1, suspended: 1, 'location.city': 1 });
 propertySchema.index({ tenant_id: 1, price_per_night: 1 });
 propertySchema.index({ host_id: 1 });
+propertySchema.index({ 'location.geo': '2dsphere' });
+propertySchema.index({ 'location.approx': '2dsphere' });
 
 module.exports = mongoose.model('Property', propertySchema);
 module.exports.PROPERTY_TYPES = PROPERTY_TYPES;

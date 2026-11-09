@@ -2,6 +2,26 @@ import { formatDate, formatCurrency, getStatusColor } from '../utils/formatters.
 import { escapeHtml } from '../utils/escape.js';
 import i18n from '../i18n.js';
 import { offerChangedNoticeHtml, canComplain, complaintUrl } from '../utils/propertyServices.js';
+import { directionsUrl, isPoint } from '../utils/map.js';
+
+// La direccion exacta llega del backend solo con la reserva aprobada; antes,
+// el turista sabe cuando la recibira (evita dudas y reclamos).
+const exactLocationHtml = (booking) => {
+  const t = (key) => i18n.t(key);
+  const location = booking.property_id?.location;
+  if (['pending_payment', 'pending_approval'].includes(booking.status)) {
+    return `<p class="booking-location-pending field-hint">${t('bookingCard.addressAfterApproval')}</p>`;
+  }
+  if (booking.status !== 'approved' || !(location?.address || isPoint(location?.geo))) return '';
+  const url = isPoint(location.geo) ? directionsUrl(location.geo) : '';
+  const external = url.startsWith('http');
+  return `
+    <div class="booking-location">
+      ${location.address ? `<p><strong>${t('bookingCard.address')}:</strong> ${escapeHtml(location.address)}</p>` : ''}
+      ${url ? `<a href="${escapeHtml(url)}" class="btn btn-outline btn-sm"${external ? ' target="_blank" rel="noopener"' : ''}>${t('bookingCard.directions')}</a>` : ''}
+    </div>
+  `;
+};
 
 const BookingCard = {
   render(booking, mode = 'tourist') {
@@ -77,6 +97,7 @@ const BookingCard = {
             <button data-action="notifyTouristEmail" data-arg="${booking._id}" class="btn btn-outline btn-sm">${t('bookingCard.emailTourist')}</button>
           </div>
         ` : ''}
+        ${!isAdmin && !isHost ? exactLocationHtml(booking) : ''}
         ${!isAdmin && !isHost ? offerChangedNoticeHtml(booking) : ''}
         ${!isAdmin && !isHost ? `
           <div class="booking-card-actions">

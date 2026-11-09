@@ -25,6 +25,13 @@ process.env.QVAPAY_APP_SECRET = '';
 const express = require(path.join(BACKEND, 'node_modules/express'));
 const mongoose = require(path.join(BACKEND, 'node_modules/mongoose'));
 const { MongoMemoryServer } = require(path.join(BACKEND, 'node_modules/mongodb-memory-server'));
+const { approximatePoint } = require('../utils/geo');
+
+// Punto exacto y zona aproximada, como los guarda el servidor (utils/geo.js).
+const withGeo = (location, lng, lat) => {
+  const geo = { type: 'Point', coordinates: [lng, lat] };
+  return { ...location, geo, approx: approximatePoint(geo) };
+};
 
 (async () => {
   const mongod = await MongoMemoryServer.create();
@@ -48,30 +55,30 @@ const { MongoMemoryServer } = require(path.join(BACKEND, 'node_modules/mongodb-m
   const organizer = await mk('org@test.dev', 'organizer');
   await Property.create({
     tenant_id: tenant._id, host_id: host._id, name: 'Casa Azul', type: 'casa_particular',
-    description: 'Casa de prueba en el Vedado', location: { city: 'La Habana', country: 'CU' }, max_guests: 4,
+    description: 'Casa de prueba en el Vedado', location: withGeo({ city: 'La Habana', country: 'CU' }, -82.3836, 23.1394), max_guests: 4,
     price_per_night: 35, status: 'active', services: demoServices(),
   });
   await Property.create({
     tenant_id: tenant._id, host_id: host._id, name: 'Pendiente de revisar', type: 'hostel',
-    description: 'pendiente', location: { city: 'Trinidad', country: 'CU' }, max_guests: 2, price_per_night: 15,
+    description: 'pendiente', location: withGeo({ city: 'Trinidad', country: 'CU' }, -79.9844, 21.8044), max_guests: 2, price_per_night: 15,
     services: demoServices({ energy_backup: { kind: 'none', note: '' } }),
   });
   await Experience.create({
     tenant_id: tenant._id, organizer_id: organizer._id, title: 'Tour Habana Vieja', description: 'Paseo',
-    location: { city: 'La Habana', country: 'CU' }, timezone: 'America/Havana',
+    location: withGeo({ city: 'La Habana', country: 'CU' }, -82.3836, 23.1394), timezone: 'America/Havana',
     // Siempre en el futuro (antes era una fecha fija que ya habia pasado).
     date: new Date(Date.now() + 14 * 24 * 3600 * 1000), max_participants: 8,
     pricing: [{ audience: 'tourist', currency: 'USD', amount: 25 }], status: 'active',
   });
   await Property.create({
     tenant_id: tenant._id, host_id: host._id, name: 'Apartamento Roma Norte', type: 'apartment',
-    description: 'Departamento de prueba en CDMX', location: { city: 'Ciudad de México', country: 'MX' }, max_guests: 3,
+    description: 'Departamento de prueba en CDMX', location: withGeo({ city: 'Ciudad de México', country: 'MX' }, -99.1332, 19.4326), max_guests: 3,
     price_per_night: 60, status: 'active',
     services: demoServices({ items: { kitchen: 'included', parking: 'included' } }),
   });
   await Experience.create({
     tenant_id: tenant._id, organizer_id: organizer._id, title: 'Tapas por el centro', description: 'Ruta gastronómica',
-    location: { city: 'Madrid', country: 'ES' }, timezone: 'Europe/Madrid',
+    location: withGeo({ city: 'Madrid', country: 'ES' }, -3.7038, 40.4168), timezone: 'Europe/Madrid',
     date: new Date(Date.now() + 10 * 24 * 3600 * 1000), max_participants: 10,
     pricing: [{ audience: 'tourist', currency: 'USD', amount: 40 }], status: 'active',
   });
@@ -79,6 +86,19 @@ const { MongoMemoryServer } = require(path.join(BACKEND, 'node_modules/mongodb-m
   app.listen(3000, () => console.log('API http://localhost:3000'));
 
   const web = express();
+  // Mismas cabeceras de seguridad que Vercel (CSP, Permissions-Policy...) para
+  // ver aqui lo que produccion bloquearia. La API va en otro puerto y es http.
+  const securityHeaders = require(path.join(FRONTEND, 'vercel.json')).headers
+    .find((h) => h.source === '/(.*)')?.headers || [];
+  web.use((req, res, next) => {
+    securityHeaders.forEach(({ key, value }) => {
+      res.setHeader(key, key === 'Content-Security-Policy'
+        ? value.replace("connect-src 'self'", "connect-src 'self' http://localhost:3000")
+          .replace(/;\s*upgrade-insecure-requests/, '')
+        : value);
+    });
+    next();
+  });
   web.use(express.static(FRONTEND));
   web.get('*', (req, res) => res.sendFile(path.join(FRONTEND, 'app.html')));
   web.listen(5500, () => console.log('WEB http://localhost:5500'));

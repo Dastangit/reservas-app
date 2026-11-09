@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { pointSchema } = require('../utils/geo');
 const { isValidCurrency } = require('../utils/currencies');
 const { isValidTimeZone } = require('../utils/timezone');
 
@@ -34,9 +35,9 @@ const experienceSchema = new mongoose.Schema({
     city: { type: String, required: true },
     // ISO 3166-1 alfa-2 ("MX", "CU"). Obligatorio al crear (validado en la ruta).
     country: { type: String, uppercase: true, trim: true, match: /^[A-Z]{2}$/ },
+    // Punto de encuentro: es publico (la gente tiene que llegar).
     address: String,
-    latitude: Number,
-    longitude: Number,
+    geo: pointSchema,
   },
   date: {
     type: Date,
@@ -108,6 +109,7 @@ const experienceSchema = new mongoose.Schema({
 });
 
 experienceSchema.index({ tenant_id: 1, status: 1, date: 1, 'location.city': 1 });
+experienceSchema.index({ 'location.geo': '2dsphere' });
 // Una serie no genera dos ocurrencias el mismo dia y hora. Solo para ocurrencias
 // de series: con `sparse` entraban tambien las de fecha unica (recurrence_id
 // null) y dos organizadores no podian publicar excursiones a la misma hora.

@@ -5,6 +5,7 @@ import { countryOptions } from '../utils/places.js';
 import { escapeHtml } from '../utils/escape.js';
 import { propertyTypeOptions } from '../utils/propertyTypes.js';
 import { servicesFormHtml, bindServicesForm, readServicesForm } from '../utils/propertyServices.js';
+import { locationPickerHtml, bindLocationPicker, fillEmptyFields } from '../utils/locationPicker.js';
 
 const EditPropertyPage = {
   property: null,
@@ -69,6 +70,8 @@ const EditPropertyPage = {
                 <label>${t('propertyForm.addressLabel')}</label>
                 <input type="text" id="address">
               </div>
+
+              ${locationPickerHtml()}
             </div>
 
             <div class="form-section">
@@ -174,6 +177,11 @@ const EditPropertyPage = {
     // Los servicios se pintan con lo guardado (los anuncios viejos, sin responder).
     document.getElementById('services-slot').outerHTML = servicesFormHtml(p.services || {}, { editing: true });
     bindServicesForm();
+    this.picker = bindLocationPicker({
+      initial: this.property.location?.geo,
+      fill: (result) => fillEmptyFields(result),
+      getCountry: () => document.getElementById('country')?.value,
+    });
 
     const paymentOptions = p.payment_options || ['full_payment', 'daily_payment'];
     document.querySelectorAll('input[name="payment_options"]').forEach(cb => {
@@ -311,6 +319,9 @@ const EditPropertyPage = {
       })
       .filter(img => img.url);
 
+    const geo = this.picker?.getPoint();
+    if (!geo) return;
+
     const propertyData = {
       name: document.getElementById('name')?.value,
       type: document.getElementById('type')?.value,
@@ -320,6 +331,7 @@ const EditPropertyPage = {
         country: document.getElementById('country')?.value,
         neighborhood: document.getElementById('neighborhood')?.value,
         address: document.getElementById('address')?.value,
+        geo,
       },
       max_guests: parseInt(document.getElementById('max_guests')?.value),
       bedrooms: parseInt(document.getElementById('bedrooms')?.value),

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { pointSchema } = require('../utils/geo');
 const { isValidCurrency } = require('../utils/currencies');
 const { isValidTimeZone } = require('../utils/timezone');
 
@@ -32,9 +33,9 @@ const experienceRecurrenceSchema = new mongoose.Schema({
     city: { type: String, required: true },
     // ISO 3166-1 alfa-2 ("MX", "CU"). Obligatorio al crear (validado en la ruta).
     country: { type: String, uppercase: true, trim: true, match: /^[A-Z]{2}$/ },
+    // Punto de encuentro: es publico (la gente tiene que llegar).
     address: String,
-    latitude: Number,
-    longitude: Number,
+    geo: pointSchema,
   },
   // Zona IANA del lugar ("America/Havana"): la hora de la excursion es hora local
   // de alli. Sin valor (excursiones antiguas) se usa EXPERIENCE_TIMEZONE.

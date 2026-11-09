@@ -7,6 +7,7 @@ const { sanitizeImages } = require('../utils/images');
 const { normalizeCountry } = require('../utils/countries');
 const { normalizeServices } = require('../utils/propertyServices');
 const { flagOfferChanges } = require('../utils/offerChanges');
+const { prepareLocation } = require('../utils/geo');
 
 // Campos que un host puede enviar al crear/editar una propiedad. Todo lo demas
 // (status, suspended, rating, reviews_count, approval_date, admin_notes,
@@ -44,6 +45,11 @@ const storedValue = (field, current) => (field === 'services'
 // Campos internos que no se muestran a quien no es dueno ni admin.
 const INTERNAL_FIELDS = ['admin_notes', 'rejection_reason', 'suspension_reason', 'changes_pending_review'];
 
+// Direccion y punto exactos: en publico solo la zona aproximada (`approx`).
+// El turista los recibe con la reserva aprobada (bookingController).
+const PRIVATE_LOCATION_FIELDS = ['location.address', 'location.geo'];
+const PUBLIC_PROPERTY_SELECT = [...INTERNAL_FIELDS, ...PRIVATE_LOCATION_FIELDS].map((f) => `-${f}`).join(' ');
+
 const canSeeInternal = (req, hostId) => Boolean(req.user)
   && (req.user.role === 'admin' || String(req.user._id) === String(hostId?._id || hostId));
 
@@ -74,7 +80,7 @@ exports.getProperties = async (req, res, next) => {
     if (sort === 'rating_desc') sortOption = { rating: -1 };
 
     const [properties, total_count] = await Promise.all([
-      Property.find(query).select(INTERNAL_FIELDS.map((f) => `-${f}`).join(' '))
+      Property.find(query).select(PUBLIC_PROPERTY_SELECT)
         .sort(sortOption).skip(skip).limit(limit).populate('host_id', 'name'),
       Property.countDocuments(query),
     ]);
@@ -128,7 +134,13 @@ exports.getPropertyById = async (req, res, next) => {
     }
 
     const data = property.toObject();
-    if (!privileged) INTERNAL_FIELDS.forEach((f) => delete data[f]);
+    if (!privileged) {
+      INTERNAL_FIELDS.forEach((f) => delete data[f]);
+      if (data.location) {
+        delete data.location.address;
+        delete data.location.geo;
+      }
+    }
 
     res.json({ success: true, data: { property: data } });
   } catch (error) {
@@ -140,6 +152,7 @@ exports.createProperty = async (req, res, next) => {
   try {
     const fields = normalizeOffer(pickFields(req.body, HOST_EDITABLE_FIELDS));
     if (fields.images !== undefined) fields.images = sanitizeImages(fields.images, req.user._id);
+    fields.location = prepareLocation(fields.location, null, { withApprox: true });
 
     const property = await Property.create({
       ...fields,
@@ -178,6 +191,9 @@ exports.updateProperty = async (req, res, next) => {
     const allowedUpdates = normalizeOffer(pickFields(req.body, HOST_EDITABLE_FIELDS));
     if (allowedUpdates.images !== undefined) {
       allowedUpdates.images = sanitizeImages(allowedUpdates.images, req.user._id, property.images);
+    }
+    if (allowedUpdates.location !== undefined) {
+      allowedUpdates.location = prepareLocation(allowedUpdates.location, property.location, { withApprox: true });
     }
 
     // Si la propiedad ya estaba publicada y cambia contenido visible, sigue

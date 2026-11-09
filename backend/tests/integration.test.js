@@ -44,6 +44,8 @@ let property;
 let seq = 0;
 
 const tokenFor = (user) => jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+// Punto GeoJSON ([lng, lat]) para el mapa de los formularios.
+const pt = (lng, lat) => ({ type: 'Point', coordinates: [lng, lat] });
 const auth = (user) => ({ Authorization: `Bearer ${tokenFor(user)}` });
 
 const makeUser = (role, extra = {}) => {
@@ -229,7 +231,7 @@ describe('propiedades', () => {
     const h = await makeUser('host');
     const body = (type) => ({
       name: `Tipo ${type}`, type, description: 'd', max_guests: 2, price_per_night: 50,
-      location: { city: 'Madrid', country: 'ES' }, services: demoServices(),
+      location: { city: 'Madrid', country: 'ES', geo: pt(-3.7038, 40.4168) }, services: demoServices(),
     });
     for (const type of ['apartment', 'villa', 'private_room', 'hotel']) {
       const res = await request(app).post('/api/properties').set(auth(h)).send(body(type));
@@ -245,9 +247,9 @@ describe('propiedades', () => {
       name: 'Casa Global', type: 'casa_particular', description: 'd', max_guests: 2, price_per_night: 40,
       services: demoServices(),
     };
-    const noCountry = await request(app).post('/api/properties').set(auth(h)).send({ ...base, location: { city: 'Cancun' } });
+    const noCountry = await request(app).post('/api/properties').set(auth(h)).send({ ...base, location: { city: 'Cancun', geo: pt(-86.85, 21.16) } });
     expect(noCountry.status).toBe(400);
-    const ok = await request(app).post('/api/properties').set(auth(h)).send({ ...base, location: { city: 'Cancun', country: 'mx' } });
+    const ok = await request(app).post('/api/properties').set(auth(h)).send({ ...base, location: { city: 'Cancun', country: 'mx', geo: pt(-86.85, 21.16) } });
     expect(ok.status).toBe(201);
 
     const created = await Property.findOne({ name: 'Casa Global' });
@@ -264,7 +266,7 @@ describe('propiedades', () => {
     const h = await makeUser('host');
     const base = {
       name: 'Casa Servicios', type: 'house', description: 'd', max_guests: 2, price_per_night: 40,
-      location: { city: 'Lima', country: 'PE' },
+      location: { city: 'Lima', country: 'PE', geo: pt(-77.04, -12.05) },
     };
     const none = await request(app).post('/api/properties').set(auth(h)).send(base);
     expect(none.status).toBe(400);
@@ -282,7 +284,7 @@ describe('propiedades', () => {
     expect(saved.amenities).toEqual(['Piscina']);
   });
 
-  test('el admin no aprueba una propiedad sin todos los servicios', async () => {
+  test('el admin no aprueba una propiedad sin todos los servicios ni sin punto en el mapa', async () => {
     const legacy = await Property.create({
       tenant_id: tenant._id, host_id: host._id, name: 'Sin servicios', type: 'hostel', description: 'd',
       location: { city: 'X', country: 'MX' }, max_guests: 2, price_per_night: 10,
@@ -291,6 +293,11 @@ describe('propiedades', () => {
     expect(denied.status).toBe(400);
 
     await Property.updateOne({ _id: legacy._id }, { services: demoServices() });
+    const noMap = await request(app).post(`/api/admin/properties/${legacy._id}/approve`).set(auth(admin));
+    expect(noMap.status).toBe(400);
+    expect(noMap.body.error).toMatch(/map/);
+
+    await Property.updateOne({ _id: legacy._id }, { 'location.geo': pt(-99.13, 19.43) });
     const ok = await request(app).post(`/api/admin/properties/${legacy._id}/approve`).set(auth(admin));
     expect(ok.status).toBe(200);
   });
@@ -386,7 +393,7 @@ describe('excursiones', () => {
   });
 
   const experienceBody = (extra = {}) => ({
-    title: 'Hora', description: 'd', location: { city: 'Habana', country: 'cu' }, timezone: 'America/Havana',
+    title: 'Hora', description: 'd', location: { city: 'Habana', country: 'cu', geo: pt(-82.36, 23.13) }, timezone: 'America/Havana',
     max_participants: 3, pricing: [{ audience: 'tourist', currency: 'USD', amount: 10 }], date: '2027-01-15T09:00',
     ...extra,
   });
@@ -399,7 +406,7 @@ describe('excursiones', () => {
     expect(saved.location.country).toBe('CU');
 
     const madrid = await request(app).post('/api/organizer/experiences').set(auth(organizer)).send(experienceBody({
-      location: { city: 'Madrid', country: 'ES' }, timezone: 'Europe/Madrid',
+      location: { city: 'Madrid', country: 'ES', geo: pt(-3.7038, 40.4168) }, timezone: 'Europe/Madrid',
     }));
     expect(madrid.status).toBe(201);
     expect((await Experience.findById(madrid.body.data.experience_id)).date.toISOString()).toBe('2027-01-15T08:00:00.000Z');
@@ -407,7 +414,7 @@ describe('excursiones', () => {
 
   test('el precio admite cualquier moneda ISO (y USDT) pero no codigos inventados', async () => {
     const mx = await request(app).post('/api/organizer/experiences').set(auth(organizer)).send(experienceBody({
-      location: { city: 'Oaxaca', country: 'MX' }, timezone: 'America/Mexico_City',
+      location: { city: 'Oaxaca', country: 'MX', geo: pt(-96.72, 17.06) }, timezone: 'America/Mexico_City',
       pricing: [{ audience: 'tourist', currency: 'mxn', amount: 450 }, { audience: 'local', currency: 'USDT', amount: 20 }],
     }));
     expect(mx.status).toBe(201);
@@ -446,19 +453,19 @@ describe('excursiones', () => {
 
   test('crear una excursion exige pais y zona horaria validos', async () => {
     const noCountry = await request(app).post('/api/organizer/experiences').set(auth(organizer))
-      .send(experienceBody({ location: { city: 'Habana' } }));
+      .send(experienceBody({ location: { city: 'Habana', geo: pt(-82.36, 23.13) } }));
     expect(noCountry.status).toBe(400);
     const badZone = await request(app).post('/api/organizer/experiences').set(auth(organizer))
       .send(experienceBody({ timezone: 'Marte/Olympus' }));
     expect(badZone.status).toBe(400);
     const badCountry = await request(app).post('/api/organizer/experiences').set(auth(organizer))
-      .send(experienceBody({ location: { city: 'X', country: 'ZZ' } }));
+      .send(experienceBody({ location: { city: 'X', country: 'ZZ', geo: pt(-82.36, 23.13) } }));
     expect(badCountry.status).toBe(400);
   });
 
   test('editar solo la fecha usa la zona horaria que ya tenia la excursion', async () => {
     const created = await request(app).post('/api/organizer/experiences').set(auth(organizer)).send(experienceBody({
-      location: { city: 'CDMX', country: 'MX' }, timezone: 'America/Mexico_City',
+      location: { city: 'CDMX', country: 'MX', geo: pt(-99.13, 19.43) }, timezone: 'America/Mexico_City',
     }));
     const id = created.body.data.experience_id;
     const res = await request(app).put(`/api/organizer/experiences/${id}`).set(auth(organizer)).send({ date: '2027-02-10T10:00' });
@@ -468,7 +475,7 @@ describe('excursiones', () => {
 
   test('el organizador lista sus series con el numero de ocurrencias, y solo las suyas', async () => {
     const create = await request(app).post('/api/organizer/recurrences').set(auth(organizer)).send({
-      title: 'Serie', description: 'd', location: { city: 'Madrid', country: 'ES' }, timezone: 'Europe/Madrid', max_participants: 3,
+      title: 'Serie', description: 'd', location: { city: 'Madrid', country: 'ES', geo: pt(-3.7038, 40.4168) }, timezone: 'Europe/Madrid', max_participants: 3,
       pricing: [{ audience: 'tourist', currency: 'USD', amount: 10 }],
       recurrence: { start_date: day(1), days_of_week: [0, 1, 2, 3, 4, 5, 6], time_of_day: '09:00' },
     });
@@ -489,6 +496,146 @@ describe('excursiones', () => {
     const other = await makeUser('organizer');
     const otherRes = await request(app).get('/api/organizer/recurrences').set(auth(other));
     expect(otherRes.body.data.recurrences).toHaveLength(0);
+  });
+});
+
+describe('direccion exacta y zona aproximada', () => {
+  const { distanceMeters } = require('../utils/geo');
+  const exact = pt(-75.5144, 10.4236);
+  const hidden = (location) => {
+    expect(location.address).toBeUndefined();
+    expect(location.geo).toBeUndefined();
+    expect(location.approx.type).toBe('Point');
+  };
+
+  let h;
+  let id;
+  beforeAll(async () => {
+    h = await makeUser('host');
+    const res = await request(app).post('/api/properties').set(auth(h)).send({
+      name: 'Casa Privada', type: 'house', description: 'd', max_guests: 2, price_per_night: 40,
+      services: demoServices(),
+      // approx enviado por el cliente: se ignora, lo calcula el servidor.
+      location: { city: 'Cartagena', country: 'CO', address: 'Calle 1 #2-3', geo: exact, approx: exact },
+    });
+    expect(res.status).toBe(201);
+    id = res.body.data.property_id;
+    await Property.updateOne({ _id: id }, { status: 'active' });
+  });
+
+  test('la zona aproximada queda a 150-300 m del punto exacto', async () => {
+    const saved = await Property.findById(id).lean();
+    expect(saved.location.geo.coordinates).toEqual(exact.coordinates);
+    const d = distanceMeters(saved.location.geo, saved.location.approx);
+    expect(d).toBeGreaterThanOrEqual(149);
+    expect(d).toBeLessThanOrEqual(301);
+  });
+
+  test('el publico no ve la direccion ni el punto exacto; el dueno si', async () => {
+    const list = await request(app).get('/api/properties?country=CO');
+    hidden(list.body.data.properties.find((p) => p._id === id).location);
+    const search = await request(app).get('/api/search?city=Cartagena');
+    hidden(search.body.data.results.find((p) => p._id === id).location);
+    const detail = await request(app).get(`/api/properties/${id}`);
+    hidden(detail.body.data.property.location);
+    const otherTourist = await makeUser('tourist');
+    hidden((await request(app).get(`/api/properties/${id}`).set(auth(otherTourist))).body.data.property.location);
+
+    const own = await request(app).get(`/api/properties/${id}`).set(auth(h));
+    expect(own.body.data.property.location).toMatchObject({ address: 'Calle 1 #2-3', geo: exact });
+  });
+
+  test('editar sin mover el punto conserva la zona; moverlo la recalcula', async () => {
+    const before = (await Property.findById(id).lean()).location.approx;
+    const same = await request(app).put(`/api/properties/${id}`).set(auth(h))
+      .send({ location: { city: 'Cartagena', country: 'CO', address: 'Calle 1 #2-3', neighborhood: 'Getsemani' } });
+    expect(same.status).toBe(200);
+    const kept = (await Property.findById(id).lean()).location;
+    expect(kept.geo.coordinates).toEqual(exact.coordinates);
+    expect(kept.approx).toEqual(before);
+
+    const moved = pt(-75.55, 10.40);
+    await request(app).put(`/api/properties/${id}`).set(auth(h))
+      .send({ location: { city: 'Cartagena', country: 'CO', geo: moved } });
+    const after = (await Property.findById(id).lean()).location;
+    expect(after.approx).not.toEqual(before);
+    expect(distanceMeters(moved, after.approx)).toBeLessThanOrEqual(301);
+
+    const bad = await request(app).put(`/api/properties/${id}`).set(auth(h))
+      .send({ location: { city: 'Cartagena', country: 'CO', geo: pt(-200, 10) } });
+    expect(bad.status).toBe(400);
+    await request(app).put(`/api/properties/${id}`).set(auth(h))
+      .send({ location: { city: 'Cartagena', country: 'CO', address: 'Calle 1 #2-3', geo: exact } });
+  });
+
+  test('el turista recibe la direccion solo con la reserva aprobada', async () => {
+    const t = await makeUser('tourist');
+    const booking = await Booking.create({
+      tenant_id: tenant._id, property_id: id, tourist_id: t._id, host_id: h._id,
+      check_in: new Date(day(600)), check_out: new Date(day(602)), num_nights: 2, num_guests: 1,
+      booking_type: 'pre_booking', total_amount: 80, payment_option: 'full_payment',
+      tourist_data: { phone: '+5355512345' }, status: 'pending_approval',
+    });
+    const mine = async () => (await request(app).get('/api/bookings').set(auth(t))).body.data.bookings
+      .find((b) => b._id === String(booking._id)).property_id.location;
+    const one = async () => (await request(app).get(`/api/bookings/${booking._id}`).set(auth(t)))
+      .body.data.booking.property_id.location;
+
+    hidden(await mine());
+    hidden(await one());
+    const forHost = await request(app).get(`/api/bookings/${booking._id}`).set(auth(h));
+    expect(forHost.body.data.booking.property_id.location.address).toBe('Calle 1 #2-3');
+
+    await Booking.updateOne({ _id: booking._id }, { status: 'approved' });
+    expect(await mine()).toMatchObject({ address: 'Calle 1 #2-3', geo: exact });
+    expect(await one()).toMatchObject({ address: 'Calle 1 #2-3', geo: exact });
+  });
+});
+
+describe('buscador de direcciones', () => {
+  const { resetForTests } = require('../utils/nominatim');
+  const nominatimItem = {
+    lat: '19.4326', lon: '-99.1332', display_name: 'Zocalo, Ciudad de Mexico, Mexico',
+    address: { road: 'Plaza de la Constitucion', house_number: '1', suburb: 'Centro', city: 'Ciudad de Mexico', country_code: 'mx' },
+  };
+  let fetchSpy;
+  beforeEach(() => {
+    resetForTests();
+    fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValue({ ok: true, json: async () => [nominatimItem] });
+  });
+  afterEach(() => fetchSpy.mockRestore());
+
+  test('devuelve el punto y los datos del lugar, con User-Agent propio y en cache', async () => {
+    const h = await makeUser('host');
+    const res = await request(app).get('/api/geo/search?q=Zocalo&country=MX&lang=es').set(auth(h));
+    expect(res.status).toBe(200);
+    expect(res.body.data.results[0]).toMatchObject({
+      geo: pt(-99.1332, 19.4326), address: 'Plaza de la Constitucion 1', neighborhood: 'Centro',
+      city: 'Ciudad de Mexico', country: 'MX',
+    });
+    const [url, options] = fetchSpy.mock.calls[0];
+    expect(url).toMatch(/countrycodes=mx/);
+    expect(url).toMatch(/accept-language=es/);
+    expect(options.headers['User-Agent']).toMatch(/^ElysioExperiences\//);
+
+    await request(app).get('/api/geo/search?q=zocalo&country=MX&lang=es').set(auth(h));
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test('solo para quien publica, y con una busqueda de al menos 3 letras', async () => {
+    const t = await makeUser('tourist');
+    expect((await request(app).get('/api/geo/search?q=Zocalo').set(auth(t))).status).toBe(403);
+    expect((await request(app).get('/api/geo/search?q=Zocalo')).status).toBe(401);
+    const h = await makeUser('host');
+    expect((await request(app).get('/api/geo/search?q=ab').set(auth(h))).status).toBe(400);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  test('si Nominatim falla responde 502 sin romper', async () => {
+    fetchSpy.mockResolvedValue({ ok: false, status: 503 });
+    const h = await makeUser('host');
+    const res = await request(app).get('/api/geo/search?q=Calle falsa').set(auth(h));
+    expect(res.status).toBe(502);
   });
 });
 

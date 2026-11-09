@@ -1108,7 +1108,10 @@
       "completed": "Completed",
       "cancelled": "Cancelled"
     },
-    "viewDetails": "View details"
+    "viewDetails": "View details",
+    "address": "Address",
+    "directions": "Get directions",
+    "addressAfterApproval": "The exact address will appear here once the booking is approved."
   },
   "calendar": {
     "loading": "Loading availability...",
@@ -1366,5 +1369,36 @@
       "amenities": "other services"
     },
     "changedBodyUnpaid": "Since you booked, this changed: {changes}. You have not paid the fee yet: if it no longer suits you, you can cancel the booking at no cost."
+  },
+  "locationPicker": {
+    "searchPlaceholder": "Street, number, neighborhood or place",
+    "search": "Search",
+    "mapLabel": "Map to mark the location",
+    "pointSet": "Point marked",
+    "searching": "Searching…",
+    "searchTooShort": "Type at least 3 letters to search.",
+    "noResults": "We couldn't find that address. Try fewer words or mark the point on the map.",
+    "pickResult": "Pick a result.",
+    "searchFailed": "The address search failed. Mark the point on the map.",
+    "mapFailed": "The map couldn't load. Check your connection and reload the page.",
+    "locating": "Finding your location…",
+    "geoUnavailable": "Your browser can't provide your location.",
+    "geoDenied": "Your location couldn't be found. Check the browser permission or mark the point on the map.",
+    "property": {
+      "label": "Exact location on the map",
+      "hint": "Mark the property's entrance. It isn't published: tourists only see the approximate area (about 300 m) until their booking is approved.",
+      "here": "I'm at the property",
+      "noPoint": "You haven't marked the point yet.",
+      "adjust": "Check the pin and drag it to the exact entrance if needed.",
+      "required": "Mark on the map where the property is."
+    },
+    "meeting": {
+      "label": "Meeting point on the map",
+      "hint": "Mark the exact place where the experience starts. It is public: participants use it to get there.",
+      "here": "I'm at the meeting point",
+      "noPoint": "You haven't marked the meeting point yet.",
+      "adjust": "Check the pin and drag it to the exact spot if needed.",
+      "required": "Mark the meeting point on the map."
+    }
   }
 }

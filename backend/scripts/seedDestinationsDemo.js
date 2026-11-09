@@ -7,6 +7,13 @@ const User = require('../models/User');
 const Property = require('../models/Property');
 const { assertDemoSeedAllowed } = require('./demoGuard');
 const { demoServices } = require('./demoServices');
+const { approximatePoint } = require('../utils/geo');
+
+// Punto exacto y zona aproximada, como los guarda el servidor (utils/geo.js).
+const withGeo = (location, lng, lat) => {
+  const geo = { type: 'Point', coordinates: [lng, lat] };
+  return { ...location, geo, approx: approximatePoint(geo) };
+};
 
 // Seed minimo para probar el carrusel de destinos del home (GET
 // /search/destinations). Sigue el mismo patron que seedProperties.js:
@@ -36,7 +43,7 @@ const seed = async () => {
         name: 'Casa del Mar - Varadero (demo)',
         type: 'casa_particular',
         description: 'Propiedad de prueba para el carrusel de destinos de la home. Cerca de la playa de Varadero.',
-        location: { city: 'Varadero', country: 'CU', neighborhood: 'Centro', address: 'Av. 1ra' },
+        location: withGeo({ city: 'Varadero', country: 'CU', neighborhood: 'Centro', address: 'Av. 1ra' }, -81.2449, 23.154),
         max_guests: 4,
         bedrooms: 2,
         bathrooms: 1,
@@ -57,7 +64,7 @@ const seed = async () => {
         name: 'Casa Malecón - Cienfuegos (demo)',
         type: 'casa_particular',
         description: 'Propiedad de prueba para el carrusel de destinos de la home. En el centro historico de Cienfuegos.',
-        location: { city: 'Cienfuegos', country: 'CU', neighborhood: 'Centro Historico', address: 'Malecon' },
+        location: withGeo({ city: 'Cienfuegos', country: 'CU', neighborhood: 'Centro Historico', address: 'Malecon' }, -80.4502, 22.146),
         max_guests: 3,
         bedrooms: 1,
         bathrooms: 1,
@@ -78,7 +85,7 @@ const seed = async () => {
         name: 'Casa Colonial - Trinidad (demo)',
         type: 'casa_particular',
         description: 'Propiedad de prueba para el carrusel de destinos de la home. A pasos de la Plaza Mayor de Trinidad.',
-        location: { city: 'Trinidad', country: 'CU', neighborhood: 'Centro Historico', address: 'Calle Real' },
+        location: withGeo({ city: 'Trinidad', country: 'CU', neighborhood: 'Centro Historico', address: 'Calle Real' }, -79.9844, 21.8044),
         max_guests: 4,
         bedrooms: 2,
         bathrooms: 1,
