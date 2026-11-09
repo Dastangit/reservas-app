@@ -5,3 +5,6 @@ coverage/
 *.log
 deploy/.destino.json
 presentation/
+
+# Documentos de trabajo: solo en local, nunca en el repositorio
+docs/*.md
