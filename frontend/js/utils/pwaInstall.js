@@ -7,6 +7,8 @@
 // es manual (Compartir \u2192 Agregar a pantalla de inicio), as\u00ed que mostramos
 // instrucciones en vez de un bot\u00f3n funcional.
 
+import i18n from '../i18n.js';
+
 let deferredPrompt = null;
 
 function isStandalone() {
@@ -18,6 +20,23 @@ function isIos() {
   return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
 }
 
+// En escritorio no se muestra: el texto habla del telefono y el navegador ya
+// ofrece instalar desde la barra de direcciones.
+function isDesktop() {
+  return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+}
+
+// Mientras el banner esta visible, el body deja ese espacio abajo para que el
+// banner no tape el final de la pagina (precio, boton de reservar...).
+function reserveSpace(banner) {
+  document.body.style.paddingBottom = `${banner.offsetHeight}px`;
+}
+
+function removeBanner(banner) {
+  banner.remove();
+  document.body.style.paddingBottom = '';
+}
+
 function createInstallBanner({ onInstallClick, iosMode }) {
   if (document.getElementById('pwa-install-banner')) return;
 
@@ -27,21 +46,22 @@ function createInstallBanner({ onInstallClick, iosMode }) {
 
   if (iosMode) {
     banner.innerHTML = `
-      <span>Instala esta app: toca <strong>Compartir</strong> \u2b06\ufe0f y luego <strong>"Agregar a pantalla de inicio"</strong>.</span>
-      <button type="button" id="pwa-install-dismiss" class="pwa-install-dismiss" aria-label="Cerrar">\u2715</button>
+      <span>${i18n.t('pwa.installIos')}</span>
+      <button type="button" id="pwa-install-dismiss" class="pwa-install-dismiss" aria-label="${i18n.t('common.close')}">\u2715</button>
     `;
   } else {
     banner.innerHTML = `
-      <span>Instala la app en tu tel\u00e9fono para un acceso m\u00e1s r\u00e1pido.</span>
-      <button type="button" id="pwa-install-btn" class="btn btn-primary btn-sm">Instalar</button>
-      <button type="button" id="pwa-install-dismiss" class="pwa-install-dismiss" aria-label="Cerrar">\u2715</button>
+      <span>${i18n.t('pwa.install')}</span>
+      <button type="button" id="pwa-install-btn" class="btn btn-primary btn-sm">${i18n.t('pwa.installBtn')}</button>
+      <button type="button" id="pwa-install-dismiss" class="pwa-install-dismiss" aria-label="${i18n.t('common.close')}">\u2715</button>
     `;
   }
 
   document.body.appendChild(banner);
+  reserveSpace(banner);
 
   document.getElementById('pwa-install-dismiss').addEventListener('click', () => {
-    banner.remove();
+    removeBanner(banner);
     sessionStorage.setItem('pwa_install_dismissed', '1');
   });
 
@@ -50,19 +70,20 @@ function createInstallBanner({ onInstallClick, iosMode }) {
       if (!onInstallClick) return;
       const outcome = await onInstallClick();
       if (outcome === 'accepted') {
-        banner.remove();
+        removeBanner(banner);
       }
     });
   }
 }
 
-export function initPwaInstall() {
+export function initPwaInstall(ready = Promise.resolve()) {
   if (isStandalone()) return; // ya está instalada, no molestar
   if (sessionStorage.getItem('pwa_install_dismissed')) return;
+  if (isDesktop()) return;
 
   if (isIos()) {
     // En iOS no hay evento que esperar -- mostramos las instrucciones directo.
-    createInstallBanner({ iosMode: true });
+    ready.then(() => createInstallBanner({ iosMode: true }));
     return;
   }
 
@@ -70,7 +91,7 @@ export function initPwaInstall() {
     event.preventDefault();
     deferredPrompt = event;
 
-    createInstallBanner({
+    ready.then(() => createInstallBanner({
       iosMode: false,
       onInstallClick: async () => {
         if (!deferredPrompt) return null;
@@ -79,6 +100,6 @@ export function initPwaInstall() {
         deferredPrompt = null;
         return outcome;
       },
-    });
+    }));
   });
 }

@@ -22,7 +22,8 @@
     "themeToDark": "Cambiar a modo oscuro",
     "themeToLight": "Cambiar a modo claro",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "close": "Cerrar"
   },
   "nav": {
     "myBookings": "Mis Reservas",
@@ -1406,5 +1407,17 @@
       "adjust": "Revisa el marcador y arrástralo hasta el punto exacto si hace falta.",
       "required": "Marca en el mapa el punto de encuentro."
     }
+  },
+  "onboarding": {
+    "welcomeTitle": "¡Bienvenido a Elysio Experiences!",
+    "welcomeBody": "Nos gustaría que leyeras nuestra sección <strong>Cómo funciona</strong> para que entiendas bien el proceso de reserva, el pago de la tarifa de reserva y cómo se paga el resto en el alojamiento. Gracias por elegirnos.",
+    "welcomeCta": "Leer cómo funciona",
+    "welcomeDismiss": "Entendido",
+    "reminder": "Antes de reservar, te recomendamos leer nuestra sección <a href=\"/how-it-works\" data-link>Cómo funciona</a>: ahí explicamos la tarifa de reserva y cómo se paga el resto."
+  },
+  "pwa": {
+    "install": "Instala la app en tu teléfono para un acceso más rápido.",
+    "installBtn": "Instalar",
+    "installIos": "Instala esta app: toca <strong>Compartir</strong> y luego <strong>«Agregar a pantalla de inicio»</strong>."
   }
 }

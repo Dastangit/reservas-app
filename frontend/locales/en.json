@@ -22,7 +22,8 @@
     "themeToDark": "Switch to dark mode",
     "themeToLight": "Switch to light mode",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "close": "Close"
   },
   "nav": {
     "myBookings": "My Bookings",
@@ -1406,5 +1407,17 @@
       "adjust": "Check the pin and drag it to the exact spot if needed.",
       "required": "Mark the meeting point on the map."
     }
+  },
+  "onboarding": {
+    "welcomeTitle": "Welcome to Elysio Experiences!",
+    "welcomeBody": "We’d like you to read our <strong>How It Works</strong> section so you understand the booking process, the booking fee, and how the remaining payment at the accommodation works. Thank you for choosing us.",
+    "welcomeCta": "Read How It Works",
+    "welcomeDismiss": "Got it",
+    "reminder": "Before booking, we recommend reading our <a href=\"/how-it-works\" data-link>How It Works</a> section: it explains the booking fee and how the remainder is paid."
+  },
+  "pwa": {
+    "install": "Install the app on your phone for quicker access.",
+    "installBtn": "Install",
+    "installIos": "Install this app: tap <strong>Share</strong> and then <strong>“Add to Home Screen”</strong>."
   }
 }

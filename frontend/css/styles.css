@@ -1976,8 +1976,14 @@ p:last-child { margin-bottom: 0; }
   color: var(--on-color);
 }
 
-.status-badge.pending {
+.status-badge.pending,
+.status-badge.pending_payment,
+.status-badge.pending_approval {
   background: var(--warning-fill);
+}
+
+.status-badge.rejected {
+  background: var(--error-fill);
 }
 
 .status-badge.approved {
@@ -2729,6 +2735,25 @@ p:last-child { margin-bottom: 0; }
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
   max-width: 480px;
+  margin: 0 auto;
+}
+
+/* .checkout-page es flex: sin ancho, el contenedor crecia hasta el texto
+   sin cortar de los botones y la tarjeta se salia de la pantalla en movil. */
+.checkout-page > .container {
+  width: 100%;
+  min-width: 0;
+}
+
+.checkout-methods .btn,
+.checkout-info .btn {
+  white-space: normal;
+}
+
+@media (max-width: 480px) {
+  .checkout-info {
+    padding: var(--space-lg) var(--space-md);
+  }
 }
 
 .checkout-methods {
