@@ -5,22 +5,41 @@ const { notifyAdmins } = require('../utils/pushNotifications');
 const { escapeRegex, parsePagination } = require('../utils/helpers');
 const { sanitizeImages } = require('../utils/images');
 const { normalizeCountry } = require('../utils/countries');
+const { normalizeServices } = require('../utils/propertyServices');
+const { flagOfferChanges } = require('../utils/offerChanges');
 
 // Campos que un host puede enviar al crear/editar una propiedad. Todo lo demas
 // (status, suspended, rating, reviews_count, approval_date, admin_notes,
 // blocked_dates...) lo controla el servidor o el admin, nunca el cliente.
 const HOST_EDITABLE_FIELDS = [
   'name', 'type', 'description', 'location', 'max_guests', 'bedrooms', 'bathrooms',
-  'bed_types', 'price_per_night', 'currency', 'amenities', 'images', 'payment_options',
+  'bed_types', 'price_per_night', 'currency', 'amenities', 'services', 'images', 'payment_options',
 ];
 
 const pickFields = (source, keys) => Object.fromEntries(
   keys.filter((k) => source[k] !== undefined).map((k) => [k, source[k]]),
 );
 
+// Servicios "otros" en texto libre: sin vacios ni repetidos, con tope.
+const cleanAmenities = (list) => [...new Set((Array.isArray(list) ? list : [])
+  .map((a) => String(a ?? '').trim().slice(0, 60)).filter(Boolean))].slice(0, 30);
+
+// Deja services y amenities en forma canonica (la ruta ya valido services).
+function normalizeOffer(fields) {
+  if (fields.services !== undefined) fields.services = normalizeServices(fields.services).value;
+  if (fields.amenities !== undefined) fields.amenities = cleanAmenities(fields.amenities);
+  return fields;
+}
+
 // Cambios que el admin debe volver a revisar en una propiedad ya aprobada
 // (un host podia cambiar fotos/descripcion o meter su contacto sin control).
-const REVIEWABLE_FIELDS = ['name', 'type', 'description', 'location', 'images'];
+// Lo que ofrece (services, amenities) tambien: evita reclamos de turistas.
+const REVIEWABLE_FIELDS = ['name', 'type', 'description', 'location', 'images', 'services', 'amenities'];
+
+// Valor guardado comparable con el que llega ya normalizado.
+const storedValue = (field, current) => (field === 'services'
+  ? normalizeServices(current.services).value ?? null
+  : current[field]);
 
 // Campos internos que no se muestran a quien no es dueno ni admin.
 const INTERNAL_FIELDS = ['admin_notes', 'rejection_reason', 'suspension_reason', 'changes_pending_review'];
@@ -119,7 +138,7 @@ exports.getPropertyById = async (req, res, next) => {
 
 exports.createProperty = async (req, res, next) => {
   try {
-    const fields = pickFields(req.body, HOST_EDITABLE_FIELDS);
+    const fields = normalizeOffer(pickFields(req.body, HOST_EDITABLE_FIELDS));
     if (fields.images !== undefined) fields.images = sanitizeImages(fields.images, req.user._id);
 
     const property = await Property.create({
@@ -156,7 +175,7 @@ exports.updateProperty = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Property not found' });
     }
 
-    const allowedUpdates = pickFields(req.body, HOST_EDITABLE_FIELDS);
+    const allowedUpdates = normalizeOffer(pickFields(req.body, HOST_EDITABLE_FIELDS));
     if (allowedUpdates.images !== undefined) {
       allowedUpdates.images = sanitizeImages(allowedUpdates.images, req.user._id, property.images);
     }
@@ -166,7 +185,7 @@ exports.updateProperty = async (req, res, next) => {
     const current = property.toObject();
     const changedReviewable = property.status === 'active' && REVIEWABLE_FIELDS.some((field) => (
       allowedUpdates[field] !== undefined
-      && JSON.stringify(allowedUpdates[field]) !== JSON.stringify(current[field])
+      && JSON.stringify(allowedUpdates[field]) !== JSON.stringify(storedValue(field, current))
     ));
     if (changedReviewable) allowedUpdates.changes_pending_review = true;
 
@@ -174,6 +193,11 @@ exports.updateProperty = async (req, res, next) => {
       new: true,
       runValidators: true,
     });
+
+    // Antes de responder: el turista debe ver el aviso en su reserva en cuanto
+    // el cambio esta guardado. Un fallo aqui no deshace la edicion.
+    await flagOfferChanges(req.tenantId, current, allowedUpdates)
+      .catch((err) => console.error('[Oferta] No se pudieron marcar las reservas afectadas:', err.message));
 
     res.json({ success: true, data: { property } });
 

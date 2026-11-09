@@ -4,6 +4,7 @@ const ExperienceWaitlist = require('../models/ExperienceWaitlist');
 const { promoteNextWaitlistEntry } = require('../utils/experienceWaitlist');
 const { escapeRegex, parsePagination } = require('../utils/helpers');
 const { normalizeCountry } = require('../utils/countries');
+const { normalizeCurrency } = require('../utils/currencies');
 
 // Una reserva de excursion no cuesta nada y retiene cupos 24 h: se limita cuantas
 // pendientes puede tener un turista y cuantos cupos pide de una vez.
@@ -39,7 +40,7 @@ function buildPaymentInfo(experience, rawPaymentInfo) {
   let num_spots = 0;
   for (const entry of rawPaymentInfo) {
     const audience = entry?.audience;
-    const currency = entry?.currency;
+    const currency = normalizeCurrency(entry?.currency);
     const spots = toSpots(entry?.num_spots);
     if (!audience || !currency || !(spots >= 1)) {
       return { error: 'Invalid payment_info entry' };
@@ -84,7 +85,7 @@ exports.getExperiences = async (req, res, next) => {
       query.pricing = {
         $elemMatch: {
           ...(audience ? { audience } : {}),
-          ...(currency ? { currency } : {}),
+          ...(currency ? { currency: String(currency).toUpperCase() } : {}),
         },
       };
     }

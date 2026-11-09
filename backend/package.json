@@ -10,6 +10,7 @@
     "worker": "node worker.js",
     "backup": "node scripts/backup.js",
     "reviews:dedupe": "node scripts/dedupeReviews.js",
+    "experiences:sync-indexes": "node scripts/syncExperienceIndexes.js",
     "test": "jest --coverage",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"

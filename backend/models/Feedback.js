@@ -21,7 +21,8 @@ const feedbackSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ['ux', 'payment', 'communication', 'features', 'other'],
+    // complaint: reclamo sobre una reserva (booking_id obligatorio).
+    enum: ['ux', 'payment', 'communication', 'features', 'other', 'complaint'],
     default: 'other',
   },
   admin_response: String,

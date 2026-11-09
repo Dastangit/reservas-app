@@ -6,6 +6,7 @@ const Tenant = require('../models/Tenant');
 const User = require('../models/User');
 const Property = require('../models/Property');
 const { assertDemoSeedAllowed } = require('./demoGuard');
+const { demoServices } = require('./demoServices');
 
 // Datos DEMO: nunca correr contra la base de produccion (ver demoGuard.js).
 const seed = async () => {
@@ -35,7 +36,6 @@ const seed = async () => {
         phone: '+53 5555 1234',
         status: 'active',
         host_status: 'approved',
-        host_region: 'cuba',
         host_fee_waived_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         profile: { verified: true },
       });
@@ -140,7 +140,7 @@ const seed = async () => {
     for (const prop of properties) {
       const existing = await Property.findOne({ name: prop.name });
       if (!existing) {
-        await Property.create(prop);
+        await Property.create({ ...prop, services: demoServices() });
         console.log(`Created: ${prop.name}`);
       } else {
         console.log(`Exists: ${prop.name}`);

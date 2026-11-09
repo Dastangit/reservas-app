@@ -4,6 +4,7 @@ import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
 import { toExperienceInputValue } from '../utils/formatters.js';
 import { countryOptions, timeZoneOptions, browserTimeZone } from '../utils/places.js';
+import { currencyOptions, countryCurrency } from '../utils/currencies.js';
 
 const CreateExperiencePage = {
   editId: null,
@@ -98,7 +99,7 @@ const CreateExperiencePage = {
               <p style="color:var(--text-light);font-size:0.9rem;">${t('createExperience.pricingHint')}</p>
 
               <div id="pricing-rows">
-                ${(existing?.pricing?.length ? existing.pricing : [{ audience: 'tourist', currency: 'USD', amount: '' }]).map((p) => this.pricingRowHtml(p)).join('')}
+                ${(existing?.pricing?.length ? existing.pricing : [{ audience: 'tourist', amount: '' }]).map((p) => this.pricingRowHtml(p, existing?.location?.country)).join('')}
               </div>
               <button type="button" id="add-pricing-btn" class="btn btn-outline btn-sm">${t('createExperience.addPriceBtn')}</button>
             </div>
@@ -155,7 +156,7 @@ const CreateExperiencePage = {
     `;
   },
 
-  pricingRowHtml(p = {}) {
+  pricingRowHtml(p = {}, country = '') {
     const t = (key) => i18n.t(key);
     return `
       <div class="form-group pricing-row" style="display:flex;gap:10px;align-items:end;">
@@ -168,11 +169,7 @@ const CreateExperiencePage = {
         </div>
         <div style="flex:1;">
           <label>${t('createExperience.currencyLabel')}</label>
-          <select class="pricing-currency">
-            <option value="USD" ${p.currency === 'USD' ? 'selected' : ''}>USD</option>
-            <option value="USDT" ${p.currency === 'USDT' ? 'selected' : ''}>USDT</option>
-            <option value="CUP" ${p.currency === 'CUP' ? 'selected' : ''}>CUP</option>
-          </select>
+          <select class="pricing-currency">${currencyOptions(p.currency || countryCurrency(country), country)}</select>
         </div>
         <div style="flex:1;">
           <label>${t('createExperience.pricePerSpotLabel')}</label>
@@ -189,8 +186,16 @@ const CreateExperiencePage = {
     this.renderImagePreview();
 
     document.getElementById('add-pricing-btn')?.addEventListener('click', () => {
-      document.getElementById('pricing-rows').insertAdjacentHTML('beforeend', this.pricingRowHtml());
+      document.getElementById('pricing-rows').insertAdjacentHTML('beforeend', this.pricingRowHtml({}, document.getElementById('exp-country')?.value));
       this.bindRemoveButtons();
+    });
+    // La moneda del pais elegido va primero; las filas sin precio todavia la toman.
+    document.getElementById('exp-country')?.addEventListener('change', (e) => {
+      document.querySelectorAll('.pricing-row').forEach((row) => {
+        const select = row.querySelector('.pricing-currency');
+        const pristine = !row.querySelector('.pricing-amount')?.value;
+        select.innerHTML = currencyOptions(pristine ? countryCurrency(e.target.value) : select.value, e.target.value);
+      });
     });
     document.getElementById('add-includes-btn')?.addEventListener('click', () => {
       document.getElementById('includes-rows').insertAdjacentHTML('beforeend', '<div class="form-group list-row"><input type="text" class="includes-input"></div>');

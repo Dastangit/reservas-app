@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { isValidCurrency } = require('../utils/currencies');
 const { isValidTimeZone } = require('../utils/timezone');
 
 const experienceSchema = new mongoose.Schema({
@@ -58,7 +59,8 @@ const experienceSchema = new mongoose.Schema({
     default: 0,
   },
   // Multi-moneda / multi-audiencia. El organizador define tantas
-  // combinaciones como necesite (ej: local/CUP, tourist/USD, tourist/USDT).
+  // combinaciones como necesite (ej: local/MXN, tourist/USD, tourist/USDT).
+  // Monedas admitidas: utils/currencies.js.
   pricing: [{
     audience: {
       type: String,
@@ -67,7 +69,9 @@ const experienceSchema = new mongoose.Schema({
     },
     currency: {
       type: String,
-      enum: ['CUP', 'USD', 'USDT'],
+      uppercase: true,
+      trim: true,
+      validate: { validator: isValidCurrency, message: 'Invalid currency' },
       required: true,
     },
     amount: {
@@ -104,6 +108,18 @@ const experienceSchema = new mongoose.Schema({
 });
 
 experienceSchema.index({ tenant_id: 1, status: 1, date: 1, 'location.city': 1 });
-experienceSchema.index({ recurrence_id: 1, date: 1 }, { unique: true, sparse: true });
+// Una serie no genera dos ocurrencias el mismo dia y hora. Solo para ocurrencias
+// de series: con `sparse` entraban tambien las de fecha unica (recurrence_id
+// null) y dos organizadores no podian publicar excursiones a la misma hora.
+// En una base existente, borrar el indice viejo con
+// `npm run experiences:sync-indexes`.
+experienceSchema.index(
+  { recurrence_id: 1, date: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { recurrence_id: { $type: 'objectId' } },
+    name: 'recurrence_occurrence_unique',
+  },
+);
 
 module.exports = mongoose.model('Experience', experienceSchema);

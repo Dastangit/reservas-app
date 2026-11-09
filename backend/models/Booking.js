@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { servicesSchema } = require('./Property');
 
 const bookingSchema = new mongoose.Schema({
   tenant_id: {
@@ -83,6 +84,18 @@ const bookingSchema = new mongoose.Schema({
       default: 'es',
     },
   },
+  // Copia de lo que el anfitrion declaraba ofrecer cuando se hizo la reserva.
+  // Manda sobre la ficha actual: es la prueba ante un reclamo.
+  offer_snapshot: {
+    services: servicesSchema,
+    amenities: [String],
+  },
+  // Cuando el turista marco "He leido lo que incluye y lo que no".
+  offer_accepted_at: Date,
+  // El anfitrion cambio la oferta despues de reservar (sin ser una mejora
+  // clara): el turista lo ve en su reserva y puede presentar un reclamo.
+  offer_changed_at: Date,
+  offer_changes: [String],
   hold_expires_at: Date,
   payment_stage: {
     type: String,

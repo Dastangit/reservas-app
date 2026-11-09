@@ -81,12 +81,18 @@ export const truncateText = (text, maxLength = 100) => {
   return text.substring(0, maxLength) + '...';
 };
 
-// formatCurrency() usa Intl.NumberFormat con style:'currency', que solo
-// acepta codigos ISO 4217 -- USDT no es un codigo ISO valido y rompe con
-// RangeError. Usado en las paginas de excursiones, donde el pricing es
-// multi-moneda (CUP/USD/USDT).
+// Precios de excursiones, en cualquier moneda (utils/currencies.js). Se muestra
+// el codigo ("1.500 MXN") y no el simbolo: "$" seria ambiguo entre USD, MXN,
+// COP... USDT no es ISO 4217 e Intl lo rechaza: va como texto.
 export const formatExperiencePrice = (amount, currency) => {
-  if (currency === 'USDT') return `${amount} USDT`;
-  if (currency === 'CUP') return `${amount} CUP`;
-  return formatCurrency(amount, currency);
+  try {
+    return new Intl.NumberFormat(uiLocale(), {
+      style: 'currency',
+      currency,
+      currencyDisplay: 'code',
+      maximumFractionDigits: Number.isInteger(Number(amount)) ? 0 : 2,
+    }).format(amount);
+  } catch {
+    return `${amount} ${currency}`;
+  }
 };

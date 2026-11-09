@@ -26,6 +26,7 @@ npm run worker      # Cron jobs only (use with RUN_JOBS=false on the web service
 npm run backup      # Dump every collection to $BACKUP_DIR/<date>/ (EJSON .jsonl.gz + manifest; default backend/backups/, gitignored)
 node scripts/restore.js <dir> [--only a,b] [--replace]   # Restore a backup into MONGODB_URI (docs/RESPALDOS.md)
 npm run reviews:dedupe [-- --fix]  # Find/remove duplicate reviews and sync Review indexes
+npm run experiences:sync-indexes [-- --fix]  # Drop the old sparse { recurrence_id, date } index (run once on Atlas)
 ```
 
 ### Frontend
@@ -67,6 +68,8 @@ CI (`.github/workflows/ci.yml`) runs lint, tests and `npm audit` for the backend
 - **Seeds**: `scripts/seed.js` needs `SEED_ADMIN_PASSWORD`; demo seeds refuse to run with `NODE_ENV=production`. Never hardcode passwords.
 - **Timezone dates**: Booking dates are calendar dates stored at UTC midnight: format them with `formatDate` (uses UTC) and compute "today" with `localDateISO()` from `utils/formatters.js` — never `toISOString()`.
 - **Experience times are local to the place**: each experience/recurrence has an IANA `timezone` (required on create); the organizer's `datetime-local` value is interpreted in it (`utils/timezone.js`, fallback `America/Havana` for old docs). Display with `formatExperienceDate/Time(date, exp.timezone)` and edit with `toExperienceInputValue(date, exp.timezone)`; populate `timezone` along with `date`.
+- **What a property offers** (`services`): the host must answer every item, even "no" (`backend/utils/propertyServices.js`, same lists in `frontend/js/utils/propertyServices.js`); routes reject incomplete answers and `approveProperty` refuses a property without them. `amenities` is only the free-text "other" list. Each booking stores `offer_snapshot` (what was offered at booking time, it prevails over the current listing) and `offer_accepted_at`; `POST /bookings` needs `offer_accepted: true`. Changes that worsen the offer go to admin review and flag future bookings (`utils/offerChanges.js`). Complaints are `Feedback` with `category: 'complaint'` and the tourist's `booking_id`. The $7 fee is refunded only when the problem is the platform's fault; the stay is paid to the host and never refunded by the platform.
+- **Currencies**: experience prices accept any ISO 4217 code plus USDT (`backend/utils/currencies.js`, `frontend/js/utils/currencies.js`); never hardcode a currency list. Show them with `formatExperiencePrice` (code, not symbol).
 - **Countries**: properties and experiences store `location.country` as an ISO 3166-1 alpha-2 code (required on create). Same code list in `backend/utils/countries.js` and `frontend/js/utils/places.js`; names come from `Intl.DisplayNames` (`countryName`, `formatPlace`).
 - **Booking overlap check**: Uses strict `$lt`/`$gt` (same-day turnover allowed). Do NOT switch to `$lte`. Check + create runs inside `withPropertyLock` (`utils/propertyLock.js`, atomic lock on the property doc, safe with several instances); date blocks use the same lock. A post-create re-check (earlier `_id` wins) remains as a second safety net.
 - **2FA**: `otplib` (TOTP, window 1) with replay protection (`two_factor.last_used_step`). Backup codes are stored hashed.

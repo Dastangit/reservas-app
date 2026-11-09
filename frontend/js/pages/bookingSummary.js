@@ -3,6 +3,9 @@ import { formatCurrency, formatDate, getStatusColor } from '../utils/formatters.
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import {
+  servicesDetailHtml, offerChangedNoticeHtml, canComplain, complaintUrl,
+} from '../utils/propertyServices.js';
 
 const BookingSummaryPage = {
   async render() {
@@ -37,6 +40,8 @@ const BookingSummaryPage = {
                 </span>
               </div>
               
+              ${offerChangedNoticeHtml(booking)}
+
               <div class="booking-body">
                 <div class="detail-section">
                   <h3>${t('booking.dates')}</h3>
@@ -83,6 +88,20 @@ const BookingSummaryPage = {
                 ${booking.status === 'completed' ? `
                   <div class="booking-actions">
                     <a href="/review/new?booking_id=${booking._id}" data-link class="btn btn-primary">${t('booking.writeReview')}</a>
+                  </div>
+                ` : ''}
+
+                ${booking.offer_snapshot ? `
+                  <div class="detail-section property-offer">
+                    <h3>${t('services.snapshotTitle')}</h3>
+                    <p class="field-hint">${t('services.snapshotHint')}</p>
+                    ${servicesDetailHtml(booking.offer_snapshot.services, booking.offer_snapshot.amenities, { headingTag: 'h4' })}
+                  </div>
+                ` : ''}
+
+                ${canComplain(booking) && auth.getRole() === 'tourist' ? `
+                  <div class="booking-actions">
+                    <a href="${complaintUrl(booking)}" data-link class="btn btn-outline">${t('services.complainBtn')}</a>
                   </div>
                 ` : ''}
               </div>

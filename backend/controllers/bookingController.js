@@ -83,6 +83,8 @@ exports.createBooking = async (req, res, next) => {
     }
 
     const total_amount = num_nights * property.price_per_night;
+    // Lo que el anfitrion declara hoy: se copia en la reserva (ver Booking.offer_snapshot).
+    const offer = property.toObject();
 
     // Comprobar disponibilidad y crear la reserva con la propiedad bloqueada:
     // asi dos peticiones simultaneas (aunque lleguen a instancias distintas
@@ -123,6 +125,8 @@ exports.createBooking = async (req, res, next) => {
         total_amount,
         payment_option,
         tourist_data: pickTouristData(tourist_data),
+        offer_snapshot: { services: offer.services, amenities: offer.amenities },
+        offer_accepted_at: new Date(),
         hold_expires_at,
         status: 'pending_payment',
         status_history: [{ status: 'pending_payment', changed_at: new Date(), changed_by: 'system' }],

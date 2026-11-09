@@ -7,7 +7,7 @@ const TermsPage = {
   },
 
   render() {
-    const lastUpdated = 'July 8, 2026';
+    const lastUpdated = 'November 9, 2026';
     return `
       <div class="legal-page">
         <div class="container">
@@ -82,6 +82,7 @@ const TermsPage = {
               <li>${i18n.t('pages.terms.s7Cancel')}</li>
               <li>${i18n.t('pages.terms.s7AfterApproval')}</li>
               <li>${i18n.t('pages.terms.s7Rejected')}</li>
+              <li>${i18n.t('pages.terms.s7Complaint')}</li>
             </ul>
           </section>
 
@@ -92,6 +93,7 @@ const TermsPage = {
               <li>${i18n.t('pages.terms.s8Accurate')}</li>
               <li>${i18n.t('pages.terms.s8Maintain')}</li>
               <li>${i18n.t('pages.terms.s8Honor')}</li>
+              <li>${i18n.t('pages.terms.s8Offer')}</li>
               <li>${i18n.t('pages.terms.s8Comply')}</li>
               <li>${i18n.t('pages.terms.s8Respond')}</li>
             </ul>

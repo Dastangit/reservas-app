@@ -12,6 +12,13 @@ process.env.NODE_ENV = 'test';
 process.env.QVAPAY_APP_ID = '';
 process.env.QVAPAY_APP_SECRET = '';
 
+// La suite ronda las 100 peticiones por minuto desde la misma IP, el tope del
+// limite general de la API (apiLimiter): con unos tests mas, cortaria los ultimos.
+jest.mock('../middleware/rateLimiter', () => ({
+  ...jest.requireActual('../middleware/rateLimiter'),
+  apiLimiter: (req, res, next) => next(),
+}));
+
 const mongoose = require('mongoose');
 const request = require('supertest');
 const jwt = require('jsonwebtoken');
@@ -24,6 +31,8 @@ const Property = require('../models/Property');
 const Booking = require('../models/Booking');
 const Experience = require('../models/Experience');
 const ExperienceBooking = require('../models/ExperienceBooking');
+const Feedback = require('../models/Feedback');
+const { demoServices } = require('../scripts/demoServices');
 
 jest.setTimeout(60000);
 
@@ -66,6 +75,7 @@ const bookingBody = (checkIn, checkOut, extra = {}) => ({
   booking_type: 'pre_booking',
   payment_option: 'full_payment',
   tourist_data: { name: 'T', email: 't@test.dev', phone: '+5355512345' },
+  offer_accepted: true,
   ...extra,
 });
 
@@ -85,6 +95,8 @@ beforeAll(async () => {
     max_guests: 4,
     price_per_night: 30,
     status: 'active',
+    services: demoServices(),
+    amenities: ['Terraza'],
   });
 });
 
@@ -182,6 +194,22 @@ describe('reservas de propiedades', () => {
     expect(blocked).toBeTruthy();
   });
 
+  test('reservar exige aceptar lo que incluye y guarda una copia de la oferta', async () => {
+    const t = await makeUser('tourist');
+    const noAccept = await request(app).post('/api/bookings').set(auth(t))
+      .send(bookingBody(day(500), day(502), { offer_accepted: undefined }));
+    expect(noAccept.status).toBe(400);
+    expect(noAccept.body.error).toMatch(/includes/);
+
+    const ok = await request(app).post('/api/bookings').set(auth(t)).send(bookingBody(day(500), day(502)));
+    expect(ok.status).toBe(201);
+    const saved = await Booking.findById(ok.body.data.booking_id);
+    expect(saved.offer_accepted_at).toBeInstanceOf(Date);
+    expect(saved.offer_snapshot.amenities).toEqual(['Terraza']);
+    expect(saved.offer_snapshot.services.items.find((i) => i.key === 'wifi').status).toBe('included');
+    expect(saved.offer_snapshot.services.air_conditioning.schedule).toMatchObject({ mode: 'hours', from: '20:00' });
+  });
+
   test('el admin puede completar una reserva aprobada tras el check-in', async () => {
     const t = await makeUser('tourist');
     const booking = await Booking.create({
@@ -201,7 +229,7 @@ describe('propiedades', () => {
     const h = await makeUser('host');
     const body = (type) => ({
       name: `Tipo ${type}`, type, description: 'd', max_guests: 2, price_per_night: 50,
-      location: { city: 'Madrid', country: 'ES' },
+      location: { city: 'Madrid', country: 'ES' }, services: demoServices(),
     });
     for (const type of ['apartment', 'villa', 'private_room', 'hotel']) {
       const res = await request(app).post('/api/properties').set(auth(h)).send(body(type));
@@ -215,6 +243,7 @@ describe('propiedades', () => {
     const h = await makeUser('host');
     const base = {
       name: 'Casa Global', type: 'casa_particular', description: 'd', max_guests: 2, price_per_night: 40,
+      services: demoServices(),
     };
     const noCountry = await request(app).post('/api/properties').set(auth(h)).send({ ...base, location: { city: 'Cancun' } });
     expect(noCountry.status).toBe(400);
@@ -229,6 +258,72 @@ describe('propiedades', () => {
     expect(mx.body.data.properties.map((p) => p.name)).toContain('Casa Global');
     const es = await request(app).get('/api/properties?country=ES');
     expect(es.body.data.properties.map((p) => p.name)).not.toContain('Casa Global');
+  });
+
+  test('publicar exige contestar cada servicio, aunque sea "no tiene"', async () => {
+    const h = await makeUser('host');
+    const base = {
+      name: 'Casa Servicios', type: 'house', description: 'd', max_guests: 2, price_per_night: 40,
+      location: { city: 'Lima', country: 'PE' },
+    };
+    const none = await request(app).post('/api/properties').set(auth(h)).send(base);
+    expect(none.status).toBe(400);
+    const partial = demoServices();
+    partial.items.pop();
+    const missing = await request(app).post('/api/properties').set(auth(h)).send({ ...base, services: partial });
+    expect(missing.status).toBe(400);
+    expect(missing.body.error).toMatch(/city_guide/);
+
+    const ok = await request(app).post('/api/properties').set(auth(h))
+      .send({ ...base, services: demoServices(), amenities: ['Piscina', ' ', 'Piscina'] });
+    expect(ok.status).toBe(201);
+    const saved = await Property.findById(ok.body.data.property_id);
+    expect(saved.services.items).toHaveLength(10);
+    expect(saved.amenities).toEqual(['Piscina']);
+  });
+
+  test('el admin no aprueba una propiedad sin todos los servicios', async () => {
+    const legacy = await Property.create({
+      tenant_id: tenant._id, host_id: host._id, name: 'Sin servicios', type: 'hostel', description: 'd',
+      location: { city: 'X', country: 'MX' }, max_guests: 2, price_per_night: 10,
+    });
+    const denied = await request(app).post(`/api/admin/properties/${legacy._id}/approve`).set(auth(admin));
+    expect(denied.status).toBe(400);
+
+    await Property.updateOne({ _id: legacy._id }, { services: demoServices() });
+    const ok = await request(app).post(`/api/admin/properties/${legacy._id}/approve`).set(auth(admin));
+    expect(ok.status).toBe(200);
+  });
+
+  test('empeorar la oferta marca revision y avisa a las reservas futuras; mejorarla no', async () => {
+    const offered = await Property.create({
+      tenant_id: tenant._id, host_id: host._id, name: 'Casa Oferta', type: 'house', description: 'd',
+      location: { city: 'Quito', country: 'EC' }, max_guests: 2, price_per_night: 25, status: 'active',
+      services: demoServices(), amenities: ['Piscina'],
+    });
+    const t = await makeUser('tourist');
+    const mk = (offset, status) => Booking.create({
+      tenant_id: tenant._id, property_id: offered._id, tourist_id: t._id, host_id: host._id,
+      check_in: new Date(day(offset)), check_out: new Date(day(offset + 2)), num_nights: 2, num_guests: 1,
+      booking_type: 'pre_booking', total_amount: 50, payment_option: 'full_payment',
+      tourist_data: { phone: '+5355512345' }, status,
+    });
+    const future = await mk(30, 'approved');
+    const past = await mk(-10, 'completed');
+
+    const better = await request(app).put(`/api/properties/${offered._id}`).set(auth(host))
+      .send({ services: demoServices({ items: { laundry: 'included' } }) });
+    expect(better.status).toBe(200);
+    expect(better.body.data.property.changes_pending_review).toBe(true);
+    expect((await Booking.findById(future._id)).offer_changed_at).toBeUndefined();
+
+    const worse = await request(app).put(`/api/properties/${offered._id}`).set(auth(host))
+      .send({ services: demoServices({ items: { laundry: 'included', wifi: 'unavailable' } }), amenities: [] });
+    expect(worse.status).toBe(200);
+    const flagged = await Booking.findById(future._id);
+    expect(flagged.offer_changed_at).toBeInstanceOf(Date);
+    expect(flagged.offer_changes).toEqual(expect.arrayContaining(['items.wifi', 'amenities']));
+    expect((await Booking.findById(past._id)).offer_changed_at).toBeUndefined();
   });
 
   test('una propiedad no publicada da 404 al publico pero no a su host', async () => {
@@ -308,6 +403,45 @@ describe('excursiones', () => {
     }));
     expect(madrid.status).toBe(201);
     expect((await Experience.findById(madrid.body.data.experience_id)).date.toISOString()).toBe('2027-01-15T08:00:00.000Z');
+  });
+
+  test('el precio admite cualquier moneda ISO (y USDT) pero no codigos inventados', async () => {
+    const mx = await request(app).post('/api/organizer/experiences').set(auth(organizer)).send(experienceBody({
+      location: { city: 'Oaxaca', country: 'MX' }, timezone: 'America/Mexico_City',
+      pricing: [{ audience: 'tourist', currency: 'mxn', amount: 450 }, { audience: 'local', currency: 'USDT', amount: 20 }],
+    }));
+    expect(mx.status).toBe(201);
+    const saved = await Experience.findById(mx.body.data.experience_id);
+    expect(saved.pricing.map((p) => p.currency)).toEqual(['MXN', 'USDT']);
+
+    const fake = await request(app).post('/api/organizer/experiences').set(auth(organizer)).send(experienceBody({
+      pricing: [{ audience: 'tourist', currency: 'XYZ', amount: 10 }],
+    }));
+    expect(fake.status).toBe(400);
+  });
+
+  test('se reserva en la moneda de la excursion aunque llegue en minusculas', async () => {
+    const cop = await Experience.create({
+      tenant_id: tenant._id, organizer_id: organizer._id, title: 'Tour COP', description: 'd',
+      location: { city: 'Cartagena', country: 'CO' }, date: new Date(Date.now() + 10 * 24 * 3600 * 1000),
+      max_participants: 5, pricing: [{ audience: 'tourist', currency: 'COP', amount: 80000 }], status: 'active',
+    });
+    const t = await makeUser('tourist');
+    const res = await request(app).post(`/api/experiences/${cop._id}/book`).set(auth(t)).send({
+      payment_info: [{ audience: 'tourist', currency: 'cop', num_spots: 2 }],
+      tourist_data: { phone: '+5355512345' },
+    });
+    expect(res.status).toBe(201);
+    const booking = await ExperienceBooking.findById(res.body.data.booking_id);
+    expect(booking.payment_info[0]).toMatchObject({ currency: 'COP', amount: 160000 });
+  });
+
+  test('dos excursiones de fecha unica a la misma hora se pueden publicar', async () => {
+    const other = await makeUser('organizer');
+    const body = experienceBody({ date: '2027-03-01T10:00' });
+    const first = await request(app).post('/api/organizer/experiences').set(auth(organizer)).send(body);
+    const second = await request(app).post('/api/organizer/experiences').set(auth(other)).send(body);
+    expect([first.status, second.status]).toEqual([201, 201]);
   });
 
   test('crear una excursion exige pais y zona horaria validos', async () => {
@@ -437,6 +571,35 @@ describe('feedback', () => {
 
     const denied = await request(app).get('/api/feedback').set(auth(t));
     expect(denied.status).toBe(403);
+  });
+
+  test('un reclamo va sobre una reserva propia y el admin la ve con lo ofrecido', async () => {
+    const t = await makeUser('tourist');
+    const other = await makeUser('tourist');
+    const booking = await Booking.create({
+      tenant_id: tenant._id, property_id: property._id, tourist_id: t._id, host_id: host._id,
+      check_in: new Date(day(520)), check_out: new Date(day(522)), num_nights: 2, num_guests: 1,
+      booking_type: 'pre_booking', total_amount: 60, payment_option: 'full_payment',
+      tourist_data: { phone: '+5355512345' }, status: 'approved',
+      offer_snapshot: { services: demoServices(), amenities: ['Terraza'] },
+    });
+
+    const noBooking = await request(app).post('/api/feedback').set(auth(t))
+      .send({ category: 'complaint', message: 'No habia wifi' });
+    expect(noBooking.status).toBe(400);
+    const notMine = await request(app).post('/api/feedback').set(auth(other))
+      .send({ category: 'complaint', booking_id: String(booking._id), message: 'No habia wifi' });
+    expect(notMine.status).toBe(404);
+
+    const sent = await request(app).post('/api/feedback').set(auth(t))
+      .send({ category: 'complaint', booking_id: String(booking._id), message: 'No habia wifi' });
+    expect(sent.status).toBe(201);
+    expect((await Feedback.findById(sent.body.data.feedback_id)).category).toBe('complaint');
+
+    const list = await request(app).get('/api/feedback?category=complaint').set(auth(admin));
+    const item = list.body.data.feedback.find((f) => f.message === 'No habia wifi');
+    expect(item.booking_id.property_id.name).toBe('Casa Test');
+    expect(item.booking_id.offer_snapshot.services.items).toHaveLength(10);
   });
 });
 

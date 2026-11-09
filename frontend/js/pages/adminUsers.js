@@ -141,7 +141,6 @@ const AdminUsersPage = {
 
               <div>
                 <h4>${i18n.t('admin.accountHeading')}</h4>
-                <p>${i18n.t('admin.regionLabel')} ${escapeHtml(h.host_region || i18n.t('admin.na'))}</p>
                 <p>${i18n.t('admin.memberSince')} ${h.created_at ? new Date(h.created_at).toLocaleDateString(i18n.currentLang) : i18n.t('admin.na')}</p>
                 <p>${i18n.t('admin.lastLogin')} ${h.auth?.last_login ? new Date(h.auth.last_login).toLocaleDateString(i18n.currentLang) : i18n.t('admin.never')}</p>
                 ${h.host_status === 'rejected' && h.host_status_reason ? `<h4>${i18n.t('admin.rejectionReasonHeading')}</h4><p>${escapeHtml(h.host_status_reason)}</p>` : ''}

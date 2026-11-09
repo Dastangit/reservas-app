@@ -3,6 +3,7 @@ import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { countryOptions } from '../utils/places.js';
 import { propertyTypeOptions } from '../utils/propertyTypes.js';
+import { servicesFormHtml, bindServicesForm, readServicesForm } from '../utils/propertyServices.js';
 
 const PublishPropertyPage = {
   async render() {
@@ -89,16 +90,21 @@ const PublishPropertyPage = {
               </div>
 
               <div class="form-group">
-                <label>${t('propertyForm.amenitiesLabel')}</label>
-                <input type="text" id="amenities" placeholder="${t('propertyForm.amenitiesPlaceholder')}">
-              </div>
-
-              <div class="form-group">
                 <label>${t('propertyForm.paymentOptionsLabel')}</label>
                 <div class="checkbox-group">
                   <label><input type="checkbox" name="payment_options" value="full_payment" checked> ${t('propertyForm.fullPaymentOption')}</label>
                   <label><input type="checkbox" name="payment_options" value="daily_payment"> ${t('propertyForm.dailyPaymentOption')}</label>
                 </div>
+              </div>
+            </div>
+
+            ${servicesFormHtml()}
+
+            <div class="form-section">
+              <h2>${t('propertyForm.otherAmenitiesTitle')}</h2>
+              <div class="form-group">
+                <label for="amenities">${t('propertyForm.amenitiesLabel')}</label>
+                <input type="text" id="amenities" placeholder="${t('propertyForm.amenitiesPlaceholder')}">
               </div>
             </div>
 
@@ -139,6 +145,7 @@ const PublishPropertyPage = {
     }
 
     this.attachImageUploadHandlers(document.getElementById('image-inputs'));
+    bindServicesForm();
 
     const addImageBtn = document.getElementById('add-image-btn');
     if (addImageBtn) {
@@ -241,6 +248,7 @@ const PublishPropertyPage = {
       bathrooms: parseInt(document.getElementById('bathrooms')?.value),
       price_per_night: parseFloat(document.getElementById('price_per_night')?.value),
       amenities,
+      services: readServicesForm(),
       payment_options: paymentOptions,
       images: imageUrls,
     };
