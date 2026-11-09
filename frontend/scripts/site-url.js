@@ -23,7 +23,7 @@ const SITE_RE = /^const SITE = '([^']*)';/m;
 const SEO_RE = /^const SITE_URL = '([^']*)';/m;
 // Archivos que deben contener la direccion actual (ademas de middleware.js).
 const FILES = [
-  'index.html',
+  'app.html',
   'js/utils/seo.js',
   'robots.txt',
   'llms.txt',
@@ -89,4 +89,4 @@ if (errores.length) {
   errores.forEach((e) => console.error(`  ${e}`));
   fail('no se pudo cambiar en todos los archivos');
 }
-console.log(`OK: web -> ${origen}. Despliega el frontend en Vercel y actualiza FRONTEND_URL del backend.`);
+console.log(`OK: web -> ${origen}. Regenera las paginas (node scripts/prerender.mjs), despliega el frontend y actualiza FRONTEND_URL del backend.`);
