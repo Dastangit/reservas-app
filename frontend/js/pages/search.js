@@ -38,43 +38,43 @@ const SearchPage = {
               <h3>${t('search.filters')}</h3>
               <form id="filter-form">
                 <div class="filter-group">
-                  <label>${t('places.countryLabel')}</label>
+                  <label for="filter-country">${t('places.countryLabel')}</label>
                   <select id="filter-country">${countryOptions(this.currentFilters.country, t('places.allCountries'))}</select>
                 </div>
 
                 <div class="filter-group">
-                  <label>${t('search.city')}</label>
+                  <label for="filter-city">${t('search.city')}</label>
                   <input type="text" id="filter-city" value="${escapeHtml(this.currentFilters.city)}" placeholder="${t('search.cityPlaceholder')}">
                 </div>
                 
                 <div class="filter-group">
-                  <label>${t('booking.checkIn')}</label>
+                  <label for="filter-checkin">${t('booking.checkIn')}</label>
                   <input type="date" id="filter-checkin" value="${escapeHtml(this.currentFilters.check_in)}">
                 </div>
                 
                 <div class="filter-group">
-                  <label>${t('booking.checkOut')}</label>
+                  <label for="filter-checkout">${t('booking.checkOut')}</label>
                   <input type="date" id="filter-checkout" value="${escapeHtml(this.currentFilters.check_out)}">
                 </div>
                 
                 <div class="filter-group">
                   <label>${t('search.priceRange')}</label>
                   <div class="price-range">
-                    <input type="number" id="filter-min-price" value="${escapeHtml(this.currentFilters.min_price)}" placeholder="${t('search.min')}">
+                    <input type="number" id="filter-min-price" value="${escapeHtml(this.currentFilters.min_price)}" placeholder="${t('search.min')}" aria-label="${t('search.priceRange')}: ${t('search.min')}">
                     <span>-</span>
-                    <input type="number" id="filter-max-price" value="${escapeHtml(this.currentFilters.max_price)}" placeholder="${t('search.max')}">
+                    <input type="number" id="filter-max-price" value="${escapeHtml(this.currentFilters.max_price)}" placeholder="${t('search.max')}" aria-label="${t('search.priceRange')}: ${t('search.max')}">
                   </div>
                 </div>
                 
                 <div class="filter-group">
-                  <label>${t('search.type')}</label>
+                  <label for="filter-type">${t('search.type')}</label>
                   <select id="filter-type">
                     ${propertyTypeOptions(this.currentFilters.type, t('search.allTypes'))}
                   </select>
                 </div>
                 
                 <div class="filter-group">
-                  <label>${t('search.sortBy')}</label>
+                  <label for="filter-sort">${t('search.sortBy')}</label>
                   <select id="filter-sort">
                     <option value="newest" ${this.currentFilters.sort_by === 'newest' ? 'selected' : ''}>${t('search.newest')}</option>
                     <option value="price_asc" ${this.currentFilters.sort_by === 'price_asc' ? 'selected' : ''}>${t('search.priceLowHigh')}</option>

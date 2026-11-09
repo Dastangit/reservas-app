@@ -24,12 +24,12 @@ const PublishPropertyPage = {
               <h2>${t('propertyForm.basicInfo')}</h2>
 
               <div class="form-group">
-                <label>${t('propertyForm.nameLabel')}</label>
+                <label for="name">${t('propertyForm.nameLabel')}</label>
                 <input type="text" id="name" required placeholder="${t('propertyForm.namePlaceholder')}">
               </div>
 
               <div class="form-group">
-                <label>${t('propertyForm.typeLabel')}</label>
+                <label for="type">${t('propertyForm.typeLabel')}</label>
                 <select id="type" required>
                   ${propertyTypeOptions('', t('propertyForm.selectType'))}
                 </select>
@@ -37,7 +37,7 @@ const PublishPropertyPage = {
               </div>
 
               <div class="form-group">
-                <label>${t('propertyForm.descriptionLabel')}</label>
+                <label for="description">${t('propertyForm.descriptionLabel')}</label>
                 <textarea id="description" rows="5" required placeholder="${t('propertyForm.descriptionPlaceholder')}"></textarea>
               </div>
             </div>
@@ -46,24 +46,24 @@ const PublishPropertyPage = {
               <h2>${t('propertyForm.locationSection')}</h2>
 
               <div class="form-group">
-                <label>${t('places.countryLabel')}</label>
+                <label for="country">${t('places.countryLabel')}</label>
                 <select id="country" required>${countryOptions('', t('places.selectCountry'))}</select>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
-                  <label>${t('propertyForm.cityLabel')}</label>
+                  <label for="city">${t('propertyForm.cityLabel')}</label>
                   <input type="text" id="city" required placeholder="${t('propertyForm.cityPlaceholder')}">
                 </div>
                 <div class="form-group">
-                  <label>${t('propertyForm.neighborhoodLabel')}</label>
+                  <label for="neighborhood">${t('propertyForm.neighborhoodLabel')}</label>
                   <input type="text" id="neighborhood" required placeholder="${t('propertyForm.neighborhoodPlaceholder')}">
                   <small class="field-hint">${t('propertyForm.neighborhoodHint')}</small>
                 </div>
               </div>
 
               <div class="form-group">
-                <label>${t('propertyForm.addressLabel')}</label>
+                <label for="address">${t('propertyForm.addressLabel')}</label>
                 <input type="text" id="address" placeholder="${t('propertyForm.addressPlaceholder')}">
               </div>
 
@@ -75,21 +75,21 @@ const PublishPropertyPage = {
 
               <div class="form-row">
                 <div class="form-group">
-                  <label>${t('propertyForm.maxGuestsLabel')}</label>
+                  <label for="max_guests">${t('propertyForm.maxGuestsLabel')}</label>
                   <input type="number" id="max_guests" min="1" value="2" required>
                 </div>
                 <div class="form-group">
-                  <label>${t('propertyForm.bedroomsLabel')}</label>
+                  <label for="bedrooms">${t('propertyForm.bedroomsLabel')}</label>
                   <input type="number" id="bedrooms" min="1" value="1">
                 </div>
                 <div class="form-group">
-                  <label>${t('propertyForm.bathroomsLabel')}</label>
+                  <label for="bathrooms">${t('propertyForm.bathroomsLabel')}</label>
                   <input type="number" id="bathrooms" min="1" value="1">
                 </div>
               </div>
 
               <div class="form-group">
-                <label>${t('propertyForm.priceLabel')}</label>
+                <label for="price_per_night">${t('propertyForm.priceLabel')}</label>
                 <input type="number" id="price_per_night" min="1" required placeholder="${t('propertyForm.pricePlaceholder')}">
               </div>
 

@@ -34,21 +34,21 @@ const ExperiencesPage = {
               <h3>${t('experience.filters')}</h3>
               <form id="filter-form">
                 <div class="filter-group">
-                  <label>${t('places.countryLabel')}</label>
+                  <label for="filter-country">${t('places.countryLabel')}</label>
                   <select id="filter-country">${countryOptions(this.currentFilters.country, t('places.allCountries'))}</select>
                 </div>
                 <div class="filter-group">
-                  <label>${t('search.city')}</label>
+                  <label for="filter-city">${t('search.city')}</label>
                   <input type="text" id="filter-city" value="${escapeHtml(this.currentFilters.city)}" placeholder="${t('search.cityPlaceholder')}">
                 </div>
 
                 <div class="filter-group">
-                  <label>${t('experience.category')}</label>
+                  <label for="filter-category">${t('experience.category')}</label>
                   <input type="text" id="filter-category" value="${escapeHtml(this.currentFilters.category)}" placeholder="${t('experience.categoryPlaceholder')}">
                 </div>
 
                 <div class="filter-group">
-                  <label>${t('experience.audienceLabel')}</label>
+                  <label for="filter-audience">${t('experience.audienceLabel')}</label>
                   <select id="filter-audience">
                     <option value="">${t('experience.allAudiences')}</option>
                     <option value="tourist" ${this.currentFilters.audience === 'tourist' ? 'selected' : ''}>${t('experience.tourist')}</option>

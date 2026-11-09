@@ -1,5 +1,8 @@
 import api from '../api.js';
 import i18n from '../i18n.js';
+import { escapeHtml } from '../utils/escape.js';
+import { formatCurrency, formatDate } from '../utils/formatters.js';
+import { paymentSplitHtml } from '../utils/paymentSplit.js';
 
 const PaymentCheckoutPage = {
   bookingId: null,
@@ -13,18 +16,48 @@ const PaymentCheckoutPage = {
       return `<div class="container"><p class="error">${t('booking.checkoutNoBooking')}</p></div>`;
     }
 
+    // Resumen de lo que se paga. Si no se puede cargar, el pago sigue
+    // funcionando: solo falta el resumen.
+    let booking = null;
+    try {
+      const response = await api.get(`/bookings/${encodeURIComponent(this.bookingId)}`);
+      booking = response.data?.booking || null;
+    } catch (error) {
+      console.error('Error loading booking:', error);
+    }
+    const fee = formatCurrency(booking?.fee_amount ?? 7, booking?.fee_currency || 'USD');
+
     return `
       <div class="checkout-page">
         <div class="container">
           <div class="checkout-info">
             <h1>${t('booking.checkoutTitle')}</h1>
 
+            ${booking ? `
+            <div class="checkout-summary">
+              <p class="checkout-summary-name">${escapeHtml(booking.property_id?.name || t('booking.propertyFallback'))}</p>
+              <p class="checkout-summary-dates">${escapeHtml(formatDate(booking.check_in))} – ${escapeHtml(formatDate(booking.check_out))}</p>
+              ${paymentSplitHtml({
+                fee,
+                stayAmount: formatCurrency(booking.total_amount),
+                stayDetail: `${booking.num_nights} × ${formatCurrency(booking.property_id?.price_per_night ?? booking.total_amount / booking.num_nights)}`,
+              })}
+            </div>` : ''}
+
             <div id="checkout-choice">
-              <p>${t('booking.checkoutChoosePayment')}</p>
-              <div class="checkout-methods">
-                <button id="method-qvapay" class="btn btn-primary">${t('booking.checkoutQvapay')}</button>
-                <button id="method-paypal" class="btn btn-outline">${t('booking.checkoutPaypal')}</button>
-              </div>
+              <fieldset class="checkout-methods">
+                <legend>${t('booking.checkoutChoosePayment')}</legend>
+                <label class="checkout-method">
+                  <input type="radio" name="checkout-method" value="qvapay" checked>
+                  <span><strong>${t('booking.checkoutQvapay')}</strong><small>${t('booking.checkoutQvapayHint')}</small></span>
+                </label>
+                <label class="checkout-method">
+                  <input type="radio" name="checkout-method" value="paypal">
+                  <span><strong>${t('booking.checkoutPaypal')}</strong><small>${t('booking.checkoutPaypalHint')}</small></span>
+                </label>
+              </fieldset>
+              <button type="button" id="checkout-pay" class="btn btn-cta btn-block">${t('booking.checkoutPay')} ${escapeHtml(fee)}</button>
+              <p class="fee-note">${t('booking.feeRefundNote')}</p>
             </div>
 
             <div id="checkout-loading" style="display:none;">
@@ -61,8 +94,11 @@ const PaymentCheckoutPage = {
   init() {
     if (!this.bookingId) return;
 
-    document.getElementById('method-qvapay')?.addEventListener('click', () => this.payWithQvaPay());
-    document.getElementById('method-paypal')?.addEventListener('click', () => this.payWithPaypalManual());
+    document.getElementById('checkout-pay')?.addEventListener('click', () => {
+      const method = document.querySelector('input[name="checkout-method"]:checked')?.value;
+      if (method === 'paypal') this.payWithPaypalManual();
+      else this.payWithQvaPay();
+    });
   },
 
   showLoading() {

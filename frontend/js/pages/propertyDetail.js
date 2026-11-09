@@ -7,6 +7,7 @@ import { formatPlace } from '../utils/places.js';
 import { propertyTypeLabel } from '../utils/propertyTypes.js';
 import { servicesDetailHtml } from '../utils/propertyServices.js';
 import { isPoint, showAreaMap } from '../utils/map.js';
+import { paymentSplitHtml } from '../utils/paymentSplit.js';
 
 const PropertyDetailPage = {
   property: null,
@@ -94,7 +95,7 @@ const PropertyDetailPage = {
     return `
       <div class="property-detail">
         <div class="container">
-          <div class="property-gallery">
+          <div class="property-gallery${(p.images?.length || 0) <= 1 ? ' property-gallery--single' : ''}">
             ${p.images?.map((img, i) => `
               <img src="${escapeHtml(img.url)}" alt="${escapeHtml(img.title || p.name)}" class="${i === 0 ? 'main' : 'thumb'}" loading="${i === 0 ? 'eager' : 'lazy'}">
             `).join('') || `<img src="/assets/placeholder.svg" alt="${escapeHtml(p.name)}">`}
@@ -149,44 +150,35 @@ const PropertyDetailPage = {
                 <form id="booking-form">
                   <div class="form-row date-range-row">
                     <div class="form-group">
-                      <label>${t('booking.checkIn')}</label>
+                      <label for="check-in">${t('booking.checkIn')}</label>
                       <input type="date" id="check-in" required>
                     </div>
                     <div class="form-group">
-                      <label>${t('booking.checkOut')}</label>
+                      <label for="check-out">${t('booking.checkOut')}</label>
                       <input type="date" id="check-out" required>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label>${t('booking.guests')}</label>
+                    <label for="num-guests">${t('booking.guests')}</label>
                     <input type="number" id="num-guests" min="1" max="${p.max_guests}" value="1" required>
                   </div>
                   
                   <div class="booking-summary" id="booking-summary" style="display:none;">
-                    <div class="summary-row">
-                      <span>${t('booking.nights')}</span>
-                      <span id="nights-count">0</span>
-                    </div>
-                    <div class="summary-row">
-                      <span>${t('booking.total')}</span>
-                      <span id="total-amount">$0</span>
-                    </div>
-                    <div class="summary-row fee">
-                      <span>${t('booking.fee')}</span>
-                      <span>$7 USD</span>
-                    </div>
-                    <p class="fee-note">${t('booking.feeNote')}</p>
+                    ${paymentSplitHtml()}
+                    <p class="fee-note">${t('booking.feeRefundNote')}</p>
                   </div>
                   
-                  <button type="submit" class="btn btn-primary btn-block" id="book-btn">
+                  <button type="submit" class="btn btn-cta btn-block" id="book-btn">
                     ${auth.isLoggedIn() ? t('property.reserveNow') : t('property.loginToBook')}
                   </button>
                 </form>
                 
-                <div class="contact-info">
-                  <p><strong>${t('confirmation.contactAdmin')}:</strong></p>
-                  <p>Email: ${escapeHtml(window.APP_CONFIG?.admin_email || 'elysio.support@gmail.com')}</p>
-                </div>
+                <a class="booking-help" href="mailto:${escapeHtml(window.APP_CONFIG?.admin_email || 'elysio.support@gmail.com')}">${t('property.questionsContact')}</a>
+                ${p.host_id?.name ? `
+                <div class="booking-host">
+                  <span class="booking-host-avatar" aria-hidden="true">${escapeHtml(p.host_id.name.trim().charAt(0).toUpperCase())}</span>
+                  <span>${t('property.hostLabel')}<br><strong>${escapeHtml(p.host_id.name)}</strong></span>
+                </div>` : ''}
               </div>
             </div>
           </div>
@@ -247,7 +239,7 @@ const PropertyDetailPage = {
       const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
       const total = nights * this.property.price_per_night;
 
-      document.getElementById('nights-count').textContent = nights;
+      document.getElementById('stay-detail').textContent = `${nights} × ${formatCurrency(this.property.price_per_night)}`;
       document.getElementById('total-amount').textContent = formatCurrency(total);
       summary.style.display = 'block';
     } else {

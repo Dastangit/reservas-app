@@ -1,4 +1,4 @@
-import { formatDate, formatCurrency, getStatusColor } from '../utils/formatters.js';
+import { formatDate, formatCurrency } from '../utils/formatters.js';
 import { escapeHtml } from '../utils/escape.js';
 import i18n from '../i18n.js';
 import { offerChangedNoticeHtml, canComplain, complaintUrl } from '../utils/propertyServices.js';
@@ -27,7 +27,6 @@ const BookingCard = {
   render(booking, mode = 'tourist') {
     const t = (key) => i18n.t(key);
     const property = booking.property_id;
-    const statusColor = getStatusColor(booking.status);
     const isAdmin = mode === 'admin';
     const isHost = mode === 'host';
     const statusKey = `bookingCard.status.${booking.status}`;
@@ -37,9 +36,7 @@ const BookingCard = {
       <div class="booking-card" data-id="${booking._id}">
         <div class="booking-card-header">
           <h3>${escapeHtml(property?.name || t('bookingCard.property'))}</h3>
-          <span class="booking-status" style="background-color: ${statusColor}">
-            ${escapeHtml(statusLabel.toUpperCase())}
-          </span>
+          <span class="booking-status ${escapeHtml(booking.status)}">${escapeHtml(statusLabel)}</span>
           <span class="booking-type-badge pre_booking">${t('bookingCard.preBooking')}</span>
         </div>
         <div class="booking-card-body">
