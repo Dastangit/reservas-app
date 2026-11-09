@@ -12,6 +12,8 @@ const { generateOccurrences } = require('../utils/experienceRecurrence');
 const { settleQvaPayTransaction } = require('../utils/qvapaySettlement');
 const validate = require('../middleware/validate');
 const errorHandler = require('../middleware/errorHandler');
+const { normalizeServices, offerChanges, removedAmenities } = require('../utils/propertyServices');
+const { demoServices } = require('../scripts/demoServices');
 
 const mockRes = () => {
   const res = {};
@@ -189,5 +191,64 @@ describe('approvalReminder', () => {
     expect(count).toBe(3);
     expect(notifyAdmins).toHaveBeenCalledTimes(2);
     expect(updateMany.mock.calls[0][0]._id.$in).toEqual(['a', 'b', 'c']);
+  });
+});
+
+describe('servicios declarados por el anfitrion', () => {
+  const norm = (input) => normalizeServices(input).value;
+
+  test('exige contestar todo, aunque sea "no tiene"', () => {
+    expect(normalizeServices(undefined).error).toBeDefined();
+    const missing = demoServices();
+    missing.items = missing.items.filter((i) => i.key !== 'wifi');
+    expect(normalizeServices(missing).error).toMatch(/wifi/);
+    expect(normalizeServices(demoServices({ air_conditioning: { available: 'si' } })).error).toMatch(/Air conditioning/);
+    expect(normalizeServices(demoServices({
+      house_rules: { quiet_hours: { enabled: true, from: '23:00' }, lights_out: { enabled: false } },
+    })).error).toMatch(/Quiet hours/);
+  });
+
+  test('con A/C, el respaldo debe decir si lo mantiene encendido', () => {
+    const energy = { kind: 'generator', schedule: { mode: 'always' } };
+    expect(normalizeServices(demoServices({ energy_backup: energy })).error).toMatch(/air conditioning/);
+    const noAc = demoServices({ energy_backup: energy, air_conditioning: { available: false } });
+    expect(normalizeServices(noAc).value.energy_backup.powers_ac).toBeUndefined();
+  });
+
+  test('normaliza: orden fijo, sin claves extra y notas acotadas', () => {
+    const input = demoServices();
+    input.items.reverse();
+    input.items[0].note = 'x'.repeat(500);
+    input.extra = 'ignorado';
+    const { value } = normalizeServices(input);
+    expect(value.items[0].key).toBe('wifi');
+    expect(value.items.find((i) => i.key === 'city_guide').note).toHaveLength(200);
+    expect(value.extra).toBeUndefined();
+  });
+
+  test('las mejoras no se avisan; quitar, cobrar aparte o recortar si', () => {
+    const before = norm(demoServices());
+    const better = norm(demoServices({
+      items: { laundry: 'included', kitchen: 'included' },
+      house_rules: { quiet_hours: { enabled: false }, lights_out: { enabled: false } },
+    }));
+    expect(offerChanges(before, better)).toEqual([]);
+
+    const worse = norm(demoServices({
+      items: { wifi: 'extra_cost' },
+      air_conditioning: { available: true, schedule: { mode: 'hours', from: '22:00', to: '06:00' } },
+      energy_backup: { kind: 'none' },
+      house_rules: { quiet_hours: { enabled: true, from: '23:00', to: '07:00' }, lights_out: { enabled: true, at: '23:30' } },
+    }));
+    expect(offerChanges(before, worse)).toEqual(['energy_backup', 'air_conditioning', 'items.wifi', 'house_rules.lights_out']);
+
+    const noteOnly = demoServices();
+    noteOnly.items[0].note = 'Solo en la sala';
+    expect(offerChanges(before, norm(noteOnly))).toEqual(['items.wifi']);
+  });
+
+  test('quitar un servicio de la lista libre cuenta, cambiar mayusculas no', () => {
+    expect(removedAmenities(['Piscina', 'Terraza'], ['piscina '])).toEqual(['Terraza']);
+    expect(removedAmenities(['Piscina'], ['PISCINA', 'Jardin'])).toEqual([]);
   });
 });

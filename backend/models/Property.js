@@ -1,4 +1,7 @@
 const mongoose = require('mongoose');
+const {
+  SERVICE_ITEMS, ITEM_STATUSES, ENERGY_KINDS, SCHEDULE_MODES,
+} = require('../utils/propertyServices');
 
 // Tipos de alojamiento. Misma lista en frontend/js/utils/propertyTypes.js.
 // Cada anuncio es una unidad que se reserva entera: un hotel u hostal publica
@@ -6,6 +9,38 @@ const mongoose = require('mongoose');
 const PROPERTY_TYPES = [
   'apartment', 'house', 'villa', 'cabin', 'private_room', 'guest_house', 'casa_particular', 'hostel', 'hotel',
 ];
+
+const scheduleDef = {
+  mode: { type: String, enum: SCHEDULE_MODES },
+  from: String,
+  to: String,
+};
+
+// Lo que el anfitrion declara que ofrece (utils/propertyServices.js valida que
+// conteste todo al publicar y editar). Tambien se copia en cada reserva.
+const servicesSchema = new mongoose.Schema({
+  energy_backup: {
+    kind: { type: String, enum: ENERGY_KINDS },
+    schedule: scheduleDef,
+    powers_ac: Boolean,
+    note: String,
+  },
+  air_conditioning: {
+    available: Boolean,
+    schedule: scheduleDef,
+    note: String,
+  },
+  items: [{
+    _id: false,
+    key: { type: String, enum: SERVICE_ITEMS },
+    status: { type: String, enum: ITEM_STATUSES },
+    note: String,
+  }],
+  house_rules: {
+    quiet_hours: { enabled: Boolean, from: String, to: String },
+    lights_out: { enabled: Boolean, at: String },
+  },
+}, { _id: false });
 
 const propertySchema = new mongoose.Schema({
   tenant_id: {
@@ -64,7 +99,9 @@ const propertySchema = new mongoose.Schema({
     type: String,
     default: 'USD',
   },
+  // Otros servicios, en texto libre ("Piscina", "Terraza"...).
   amenities: [String],
+  services: servicesSchema,
   images: [{
     url: String,
     public_id: String,
@@ -139,3 +176,4 @@ propertySchema.index({ host_id: 1 });
 
 module.exports = mongoose.model('Property', propertySchema);
 module.exports.PROPERTY_TYPES = PROPERTY_TYPES;
+module.exports.servicesSchema = servicesSchema;

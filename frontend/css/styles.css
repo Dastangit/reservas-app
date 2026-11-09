@@ -3375,6 +3375,211 @@ p:last-child { margin-bottom: 0; }
   outline: none;
 }
 
+/* ===== LO QUE OFRECE EL ALOJAMIENTO (servicios declarados) ===== */
+.services-group {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  margin: 0 0 var(--space-md);
+}
+
+.services-group legend {
+  font-weight: 600;
+  color: var(--text);
+  padding: 0 var(--space-xs);
+}
+
+.services-subquestion {
+  margin: var(--space-sm) 0 var(--space-xs);
+  color: var(--text);
+  font-size: var(--fs-sm);
+}
+
+.radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-lg);
+  margin-bottom: var(--space-sm);
+}
+
+.radio-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.radio-inline input[type="radio"],
+.offer-accept input[type="checkbox"] {
+  width: auto;
+  height: auto;
+  margin: 0;
+  appearance: auto;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
+.services-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.services-item {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(150px, 1.2fr) minmax(0, 2fr);
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.services-item label {
+  margin: 0;
+}
+
+.services-edit-warning {
+  background: var(--warning-soft);
+  border: 1px solid var(--warning-border);
+  color: var(--warning-text);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--fs-sm);
+}
+
+.offer-lines {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.offer-lines li {
+  padding-left: 1.6em;
+  position: relative;
+  color: var(--text);
+}
+
+.offer-lines li::before {
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+
+.offer-yes::before {
+  content: "✓";
+  color: var(--success);
+}
+
+.offer-no::before {
+  content: "✕";
+  color: var(--error);
+}
+
+.offer-rule::before {
+  content: "•";
+  color: var(--text-light);
+}
+
+.property-offer h3,
+.property-offer h4,
+.property-offer h5 {
+  font-size: var(--fs-sm);
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: var(--space-md) 0 var(--space-sm);
+}
+
+.property-offer > h3:first-child {
+  font-size: 18px;
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.amenity-yes {
+  border-color: var(--success-border);
+  background: var(--success-soft);
+}
+
+.amenity-extra {
+  border-color: var(--warning-border);
+  background: var(--warning-soft);
+}
+
+.amenity-no {
+  border-color: var(--error-border);
+  background: var(--error-soft);
+  text-decoration: line-through;
+  text-decoration-color: var(--error);
+}
+
+p.offer-no {
+  color: var(--error);
+}
+
+.booking-offer {
+  margin-top: var(--space-lg);
+}
+
+.property-offer > .field-hint {
+  margin-top: var(--space-md);
+}
+
+.offer-accept {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  margin: var(--space-md) 0 var(--space-xs);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.offer-accept input[type="checkbox"] {
+  margin-top: 4px;
+}
+
+.offer-changed-notice {
+  background: var(--warning-soft);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  margin: var(--space-md) 0;
+  color: var(--text);
+}
+
+.offer-changed-notice strong {
+  color: var(--warning-text);
+}
+
+.offer-changed-notice p {
+  margin: var(--space-xs) 0 var(--space-sm);
+}
+
+.complaint-booking {
+  border-left: 3px solid var(--warning-border);
+  padding-left: var(--space-md);
+  margin: var(--space-sm) 0;
+}
+
+.complaint-booking summary {
+  cursor: pointer;
+  color: var(--accent);
+  margin: var(--space-xs) 0;
+}
+
+@media (max-width: 768px) {
+  .services-item {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .services-item input[type="text"] {
+    grid-column: 1 / -1;
+  }
+}
+
 /* ===== UTILITIES ===== */
 .loading {
   text-align: center;

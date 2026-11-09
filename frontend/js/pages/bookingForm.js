@@ -6,6 +6,7 @@ import { renderBookingReminderIfNeeded } from '../utils/onboarding.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
 import { formatPlace } from '../utils/places.js';
+import { servicesDetailHtml } from '../utils/propertyServices.js';
 
 const BookingFormPage = {
   property: null,
@@ -99,6 +100,11 @@ const BookingFormPage = {
                   <span>${t('booking.dailyPayment')}</span>
                 </label>
               </div>
+
+              <div class="booking-offer property-offer">
+                <h3>${t('services.reviewBeforeBooking')}</h3>
+                ${servicesDetailHtml(p.services, p.amenities, { headingTag: 'h4' }) || `<p>${t('property.noAmenities')}</p>`}
+              </div>
             </div>
             
             <div class="booking-form-sidebar">
@@ -129,6 +135,12 @@ const BookingFormPage = {
                   </select>
                 </div>
                 
+                <label class="offer-accept">
+                  <input type="checkbox" id="offer-accepted" required>
+                  <span>${t('services.acceptLabel')}</span>
+                </label>
+                <p class="field-hint">${t('services.refundRule')}</p>
+
                 <div id="error-message" class="error-message" style="display:none;"></div>
                 
                 <button type="submit" class="btn btn-primary btn-block">
@@ -182,6 +194,7 @@ const BookingFormPage = {
         contact_method: document.getElementById('contact-method')?.value,
         language: window.i18n?.currentLang || 'es',
       },
+      offer_accepted: document.getElementById('offer-accepted')?.checked === true,
     };
 
     try {

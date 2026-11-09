@@ -1,6 +1,7 @@
 import { formatDate, formatCurrency, getStatusColor } from '../utils/formatters.js';
 import { escapeHtml } from '../utils/escape.js';
 import i18n from '../i18n.js';
+import { offerChangedNoticeHtml, canComplain, complaintUrl } from '../utils/propertyServices.js';
 
 const BookingCard = {
   render(booking, mode = 'tourist') {
@@ -76,6 +77,7 @@ const BookingCard = {
             <button data-action="notifyTouristEmail" data-arg="${booking._id}" class="btn btn-outline btn-sm">${t('bookingCard.emailTourist')}</button>
           </div>
         ` : ''}
+        ${!isAdmin && !isHost ? offerChangedNoticeHtml(booking) : ''}
         ${!isAdmin && !isHost ? `
           <div class="booking-card-actions">
             <a href="/booking/summary/${booking._id}" data-link class="btn btn-outline btn-sm">${t('bookingCard.viewDetails')}</a>
@@ -84,6 +86,9 @@ const BookingCard = {
             ` : ''}
             ${booking.status === 'completed' ? `
               <a href="/review/new?booking_id=${booking._id}" data-link class="btn btn-primary btn-sm">${t('booking.writeReview')}</a>
+            ` : ''}
+            ${canComplain(booking) && !booking.offer_changed_at ? `
+              <a href="${complaintUrl(booking)}" data-link class="btn btn-outline btn-sm">${t('services.complainBtn')}</a>
             ` : ''}
           </div>
         ` : ''}

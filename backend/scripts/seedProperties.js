@@ -6,6 +6,7 @@ const Tenant = require('../models/Tenant');
 const User = require('../models/User');
 const Property = require('../models/Property');
 const { assertDemoSeedAllowed } = require('./demoGuard');
+const { demoServices } = require('./demoServices');
 
 // Datos DEMO: nunca correr contra la base de produccion (ver demoGuard.js).
 const seed = async () => {
@@ -139,7 +140,7 @@ const seed = async () => {
     for (const prop of properties) {
       const existing = await Property.findOne({ name: prop.name });
       if (!existing) {
-        await Property.create(prop);
+        await Property.create({ ...prop, services: demoServices() });
         console.log(`Created: ${prop.name}`);
       } else {
         console.log(`Exists: ${prop.name}`);

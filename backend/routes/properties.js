@@ -10,6 +10,14 @@ const { setTenant } = require('../middleware/tenant');
 const validate = require('../middleware/validate');
 const { isValidCountry } = require('../utils/countries');
 const { PROPERTY_TYPES } = require('../models/Property');
+const { normalizeServices } = require('../utils/propertyServices');
+
+// El anfitrion contesta cada servicio, aunque sea "no tiene" (ver utils/propertyServices.js).
+const validServices = (value) => {
+  const result = normalizeServices(value);
+  if (result.error) throw new Error(result.error);
+  return true;
+};
 
 const router = express.Router();
 
@@ -31,11 +39,13 @@ router.post('/', protect, authorize('host'), [
   body('location.country').custom(isValidCountry).withMessage('Country is required (ISO code, e.g. MX)'),
   body('max_guests').isInt({ min: 1 }).withMessage('Max guests must be at least 1'),
   body('price_per_night').isFloat({ min: 0 }).withMessage('Price must be a positive number'),
+  body('services').custom(validServices),
 ], validate, createProperty);
 
 router.put('/:id', protect, authorize('host'), [
   body('location.country').optional().custom(isValidCountry).withMessage('Invalid country (ISO code, e.g. MX)'),
   body('type').optional().isIn(PROPERTY_TYPES).withMessage(`Type must be one of: ${PROPERTY_TYPES.join(', ')}`),
+  body('services').optional().custom(validServices),
 ], validate, updateProperty);
 router.post('/:id/availability/block', protect, authorize('host'), [
   body('start_date').notEmpty().withMessage('start_date is required'),

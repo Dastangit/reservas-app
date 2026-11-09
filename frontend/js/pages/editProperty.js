@@ -4,6 +4,7 @@ import i18n from '../i18n.js';
 import { countryOptions } from '../utils/places.js';
 import { escapeHtml } from '../utils/escape.js';
 import { propertyTypeOptions } from '../utils/propertyTypes.js';
+import { servicesFormHtml, bindServicesForm, readServicesForm } from '../utils/propertyServices.js';
 
 const EditPropertyPage = {
   property: null,
@@ -93,8 +94,14 @@ const EditPropertyPage = {
                 <input type="number" id="price_per_night" min="1" required>
               </div>
 
+            </div>
+
+            <div id="services-slot"></div>
+
+            <div class="form-section">
+              <h2>${t('propertyForm.otherAmenitiesTitle')}</h2>
               <div class="form-group">
-                <label>${t('propertyForm.amenitiesLabel')}</label>
+                <label for="amenities">${t('propertyForm.amenitiesLabel')}</label>
                 <input type="text" id="amenities" placeholder="${t('propertyForm.amenitiesPlaceholder')}">
               </div>
             </div>
@@ -164,6 +171,9 @@ const EditPropertyPage = {
     document.getElementById('bathrooms').value = p.bathrooms || 1;
     document.getElementById('price_per_night').value = p.price_per_night || 0;
     document.getElementById('amenities').value = (p.amenities || []).join(', ');
+    // Los servicios se pintan con lo guardado (los anuncios viejos, sin responder).
+    document.getElementById('services-slot').outerHTML = servicesFormHtml(p.services || {}, { editing: true });
+    bindServicesForm();
 
     const paymentOptions = p.payment_options || ['full_payment', 'daily_payment'];
     document.querySelectorAll('input[name="payment_options"]').forEach(cb => {
@@ -316,6 +326,7 @@ const EditPropertyPage = {
       bathrooms: parseInt(document.getElementById('bathrooms')?.value),
       price_per_night: parseFloat(document.getElementById('price_per_night')?.value),
       amenities,
+      services: readServicesForm(),
       payment_options: paymentOptions,
       images: imageUrls,
     };

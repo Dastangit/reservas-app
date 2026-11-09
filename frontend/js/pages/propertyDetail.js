@@ -5,6 +5,7 @@ import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
 import { formatPlace } from '../utils/places.js';
 import { propertyTypeLabel } from '../utils/propertyTypes.js';
+import { servicesDetailHtml } from '../utils/propertyServices.js';
 
 const PropertyDetailPage = {
   property: null,
@@ -23,11 +24,15 @@ const PropertyDetailPage = {
   buildSchema() {
     const p = this.property;
     if (!p) return undefined;
-    const amenityFeature = (p.amenities || []).map((a) => ({
-      '@type': 'LocationFeatureSpecification',
-      name: a,
-      value: true,
-    }));
+    // Lo incluido cuenta como "si" y lo no disponible como "no"; lo que se
+    // cobra aparte no se declara (seria ambiguo para un buscador).
+    const feature = (name, value) => ({ '@type': 'LocationFeatureSpecification', name, value });
+    const amenityFeature = [
+      ...(p.services?.items || []).filter((i) => i.status !== 'extra_cost')
+        .map((i) => feature(i18n.t(`services.items.${i.key}`), i.status === 'included')),
+      ...(p.services?.air_conditioning ? [feature(i18n.t('services.items.air_conditioning'), p.services.air_conditioning.available)] : []),
+      ...(p.amenities || []).map((a) => feature(a, true)),
+    ];
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'LodgingBusiness',
@@ -111,11 +116,10 @@ const PropertyDetailPage = {
                 <p>${escapeHtml(p.description)}</p>
               </div>
               
-              <div class="property-amenities">
-                <h2>${t('property.amenities')}</h2>
-                <div class="amenities-grid">
-                  ${p.amenities?.map(a => `<span class="amenity">${escapeHtml(a)}</span>`).join('') || `<p>${t('property.noAmenities')}</p>`}
-                </div>
+              <div class="property-amenities property-offer">
+                <h2>${t('services.detailTitle')}</h2>
+                ${servicesDetailHtml(p.services, p.amenities) || `<p>${t('property.noAmenities')}</p>`}
+                ${p.services?.items?.length ? `<p class="field-hint">${t('services.detailHint')}</p>` : ''}
               </div>
               
               <div class="property-reviews">

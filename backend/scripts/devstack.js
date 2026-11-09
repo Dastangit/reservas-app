@@ -34,6 +34,7 @@ const { MongoMemoryServer } = require(path.join(BACKEND, 'node_modules/mongodb-m
   const User = require(path.join(BACKEND, 'models/User'));
   const Property = require(path.join(BACKEND, 'models/Property'));
   const Experience = require(path.join(BACKEND, 'models/Experience'));
+  const { demoServices } = require(path.join(BACKEND, 'scripts/demoServices'));
 
   const tenant = await Tenant.create({ name: 'Elysio', domain: 'elysioexperiences.com', admin_email: 'admin@test.dev' });
   const mk = (email, role, extra = {}) => User.create({
@@ -48,11 +49,12 @@ const { MongoMemoryServer } = require(path.join(BACKEND, 'node_modules/mongodb-m
   await Property.create({
     tenant_id: tenant._id, host_id: host._id, name: 'Casa Azul', type: 'casa_particular',
     description: 'Casa de prueba en el Vedado', location: { city: 'La Habana', country: 'CU' }, max_guests: 4,
-    price_per_night: 35, status: 'active',
+    price_per_night: 35, status: 'active', services: demoServices(),
   });
   await Property.create({
     tenant_id: tenant._id, host_id: host._id, name: 'Pendiente de revisar', type: 'hostel',
     description: 'pendiente', location: { city: 'Trinidad', country: 'CU' }, max_guests: 2, price_per_night: 15,
+    services: demoServices({ energy_backup: { kind: 'none', note: '' } }),
   });
   await Experience.create({
     tenant_id: tenant._id, organizer_id: organizer._id, title: 'Tour Habana Vieja', description: 'Paseo',
@@ -65,6 +67,7 @@ const { MongoMemoryServer } = require(path.join(BACKEND, 'node_modules/mongodb-m
     tenant_id: tenant._id, host_id: host._id, name: 'Apartamento Roma Norte', type: 'apartment',
     description: 'Departamento de prueba en CDMX', location: { city: 'Ciudad de México', country: 'MX' }, max_guests: 3,
     price_per_night: 60, status: 'active',
+    services: demoServices({ items: { kitchen: 'included', parking: 'included' } }),
   });
   await Experience.create({
     tenant_id: tenant._id, organizer_id: organizer._id, title: 'Tapas por el centro', description: 'Ruta gastronómica',

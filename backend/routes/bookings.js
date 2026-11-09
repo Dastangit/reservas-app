@@ -41,6 +41,9 @@ router.post('/', authorize('tourist'), [
   body('payment_option').isIn(['full_payment', 'daily_payment']).withMessage('Invalid payment option'),
   body('tourist_data.phone').matches(/^\+[1-9]\d{7,14}$/).withMessage('Phone must include country code, e.g. +5355512345'),
   body('tourist_data.language').optional().isIn(['es', 'en', 'fr']).withMessage('Invalid language'),
+  // Casilla "He leido lo que incluye y lo que no": queda constancia en la reserva.
+  body('offer_accepted').custom((value) => value === true)
+    .withMessage('Confirm that you have read what the stay includes and what it does not'),
 ], validate, createBooking);
 
 router.get('/', getMyBookings);

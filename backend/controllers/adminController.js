@@ -10,6 +10,8 @@ const Experience = require('../models/Experience');
 const ExperienceBooking = require('../models/ExperienceBooking');
 const OrganizerMonthlyCommission = require('../models/OrganizerMonthlyCommission');
 const { promoteNextWaitlistEntry } = require('../utils/experienceWaitlist');
+const { normalizeServices, hasCompleteServices } = require('../utils/propertyServices');
+const { flagOfferChanges } = require('../utils/offerChanges');
 const { sendEmail } = require('../utils/email');
 const { buildWhatsAppLink } = require('../utils/whatsapp');
 const { buildMailtoLink } = require('../utils/mailto');
@@ -24,7 +26,7 @@ const ACTIVE_BOOKING_STATUSES = ['pending_payment', 'pending_approval', 'approve
 // Campos que el admin puede editar en una propiedad (nunca tenant_id/host_id/_id).
 const ADMIN_PROPERTY_FIELDS = [
   'name', 'type', 'description', 'location', 'max_guests', 'bedrooms', 'bathrooms', 'bed_types',
-  'price_per_night', 'currency', 'amenities', 'images', 'payment_options', 'status', 'admin_notes',
+  'price_per_night', 'currency', 'amenities', 'services', 'images', 'payment_options', 'status', 'admin_notes',
   'suspended', 'suspension_reason', 'rejection_reason',
 ];
 
@@ -99,6 +101,14 @@ exports.approveProperty = async (req, res, next) => {
 
     if (!property) {
       return res.status(404).json({ success: false, error: 'Property not found' });
+    }
+    // Sin todo declarado el turista no sabe que va a encontrar: el host debe
+    // completar los servicios (editar la propiedad) antes de publicarse.
+    if (!hasCompleteServices(property.services)) {
+      return res.status(400).json({
+        success: false,
+        error: 'The host must answer every service (energy, A/C, services and house rules) before approval',
+      });
     }
 
     property.status = 'active';
@@ -537,8 +547,16 @@ exports.adminEditProperty = async (req, res, next) => {
       ADMIN_PROPERTY_FIELDS.filter((k) => req.body[k] !== undefined).map((k) => [k, req.body[k]]),
     );
     if (updates.suspended === true && !property.suspended) updates.suspended_at = new Date();
+    if (updates.services !== undefined) {
+      const services = normalizeServices(updates.services);
+      if (services.error) return res.status(400).json({ success: false, error: services.error });
+      updates.services = services.value;
+    }
 
+    const before = property.toObject();
     const updated = await Property.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
+    await flagOfferChanges(req.tenantId, before, updates)
+      .catch((err) => console.error('[Oferta] No se pudieron marcar las reservas afectadas:', err.message));
     res.json({ success: true, data: { property: updated } });
 
     logAdminAction({

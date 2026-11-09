@@ -2,6 +2,8 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { formatDate } from '../utils/formatters.js';
+import { servicesDetailHtml, offerChangeLabel } from '../utils/propertyServices.js';
 
 const AdminFeedbackPage = {
   async render() {
@@ -20,6 +22,7 @@ const AdminFeedbackPage = {
             <button class="tab-btn active" data-tab="">${t('dashboard.all')}</button>
             <button class="tab-btn" data-tab="new">${t('property.new')}</button>
             <button class="tab-btn" data-tab="responded">${t('admin.respondedTab')}</button>
+            <button class="tab-btn" data-tab="complaint">${t('admin.complaintsTab')}</button>
           </div>
           
           <div id="feedback-list">
@@ -57,12 +60,31 @@ const AdminFeedbackPage = {
     };
   },
 
+  // Reserva del reclamo y lo que el anfitrion declaraba cuando se reservo.
+  complaintBookingHtml(b) {
+    const t = (key) => i18n.t(key);
+    return `
+      <div class="complaint-booking">
+        <p><strong>${escapeHtml(b.property_id?.name || t('booking.propertyFallback'))}</strong>
+          · ${formatDate(b.check_in)} → ${formatDate(b.check_out)} · ${escapeHtml(i18n.t(`bookingCard.status.${b.status}`))}
+          · <a href="/booking/summary/${b._id}" data-link>${t('bookingCard.viewDetails')}</a></p>
+        ${b.offer_changed_at ? `<p class="offer-no">${t('admin.offerChangedLabel')} ${escapeHtml((b.offer_changes || []).map(offerChangeLabel).join(', '))}</p>` : ''}
+        ${b.offer_snapshot ? `
+          <details>
+            <summary>${t('services.snapshotTitle')}${b.offer_accepted_at ? ` · ${t('admin.acceptedOn')} ${formatDate(b.offer_accepted_at)}` : ''}</summary>
+            ${servicesDetailHtml(b.offer_snapshot.services, b.offer_snapshot.amenities, { headingTag: 'h4' })}
+          </details>` : `<p><em>${t('admin.noSnapshot')}</em></p>`}
+      </div>`;
+  },
+
   async loadFeedback(status) {
     const list = document.getElementById('feedback-list');
     list.innerHTML = `<p class="loading">${i18n.t('common.loading')}</p>`;
 
     try {
-      const url = status ? `/feedback?status=${status}` : '/feedback';
+      // La pestaña "Reclamos" filtra por categoria; las demas, por estado.
+      const url = status === 'complaint' ? '/feedback?category=complaint'
+        : status ? `/feedback?status=${status}` : '/feedback';
       const response = await api.get(url);
       const feedback = response.data?.feedback || [];
 
@@ -74,8 +96,9 @@ const AdminFeedbackPage = {
       list.innerHTML = feedback.map(f => `
         <div class="property-list-item">
           <div class="property-info">
-            <h3>${escapeHtml(f.category)}</h3>
+            <h3>${f.category === 'complaint' ? i18n.t('admin.complaintLabel') : escapeHtml(f.category)}</h3>
             <p>${escapeHtml(f.message)}</p>
+            ${f.category === 'complaint' && f.booking_id ? this.complaintBookingHtml(f.booking_id) : ''}
             <p style="font-size:0.85rem;color:var(--text-light);">${i18n.t('admin.fromLabel')} ${escapeHtml(f.user_id?.name || i18n.t('admin.unknownFallback'))} - ${new Date(f.created_at).toLocaleDateString(i18n.currentLang)}</p>
             ${f.admin_response ? `<p><strong>${i18n.t('admin.adminResponseLabel')}</strong> ${escapeHtml(f.admin_response)}</p>` : ''}
           </div>

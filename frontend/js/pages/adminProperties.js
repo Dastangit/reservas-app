@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { servicesDetailHtml } from '../utils/propertyServices.js';
 import { formatPlace } from '../utils/places.js';
 
 const AdminPropertiesPage = {
@@ -111,7 +112,7 @@ const AdminPropertiesPage = {
             <div class="property-detail-grid">
               <div>
                 <h4>${i18n.t('property.description')}</h4>
-                <p>${p.description || `<em>${i18n.t('admin.noDescription')}</em>`}</p>
+                <p>${p.description ? escapeHtml(p.description) : `<em>${i18n.t('admin.noDescription')}</em>`}</p>
 
                 <h4>${i18n.t('propertyForm.locationSection')}</h4>
                 <p>${escapeHtml([p.location?.address, p.location?.neighborhood, formatPlace(p.location)].filter(Boolean).join(', ') || i18n.t('admin.notSpecified'))}</p>
@@ -120,8 +121,9 @@ const AdminPropertiesPage = {
                 <p>${i18n.t('admin.typeLabel')} ${escapeHtml(p.type || i18n.t('admin.na'))} · ${i18n.t('admin.maxGuestsShort')} ${p.max_guests || i18n.t('admin.na')} · ${i18n.t('admin.bedroomsShort')} ${p.bedrooms ?? i18n.t('admin.na')} · ${i18n.t('admin.bathroomsShort')} ${p.bathrooms ?? i18n.t('admin.na')}</p>
                 ${p.bed_types?.length ? `<p>${i18n.t('admin.bedsLabel')} ${escapeHtml(p.bed_types.join(', '))}</p>` : ''}
 
-                <h4>${i18n.t('property.amenities')}</h4>
-                <p>${p.amenities?.length ? p.amenities.join(', ') : `<em>${i18n.t('admin.noneSpecified')}</em>`}</p>
+                <h4>${i18n.t('services.detailTitle')}</h4>
+                ${p.services?.items?.length ? '' : `<p class="offer-no">${i18n.t('admin.servicesMissing')}</p>`}
+                ${servicesDetailHtml(p.services, p.amenities, { headingTag: 'h5' }) || `<p><em>${i18n.t('admin.noneSpecified')}</em></p>`}
 
                 <h4>${i18n.t('admin.paymentOptionsAcceptedHeading')}</h4>
                 <p>${p.payment_options?.length ? p.payment_options.join(', ') : `<em>${i18n.t('admin.none')}</em>`}</p>
