@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { locationPickerHtml, bindLocationPicker, fillEmptyFields } from '../utils/locationPicker.js';
 import { countryOptions, timeZoneOptions, browserTimeZone } from '../utils/places.js';
 import { currencyOptions, countryCurrency } from '../utils/currencies.js';
 
@@ -50,6 +51,13 @@ const CreateRecurrencePage = {
                 <label>${t('places.countryLabel')}</label>
                 <select id="rec-country" required>${countryOptions('', t('places.selectCountry'))}</select>
               </div>
+
+              <div class="form-group">
+                <label>${t('createExperience.addressLabel')}</label>
+                <input type="text" id="rec-address">
+              </div>
+
+              ${locationPickerHtml({ kind: 'meeting' })}
 
               <div class="form-group">
                 <label>${t('places.timeZoneLabel')}</label>
@@ -149,6 +157,13 @@ const CreateRecurrencePage = {
 
     const t = (key) => i18n.t(key);
 
+    this.picker = bindLocationPicker({
+      fill: (result) => fillEmptyFields(result, {
+        address: 'rec-address', neighborhood: null, city: 'rec-city', country: 'rec-country',
+      }),
+      getCountry: () => document.getElementById('rec-country')?.value,
+    });
+
     document.getElementById('add-pricing-btn')?.addEventListener('click', () => {
       const country = document.getElementById('rec-country')?.value;
       const row = document.createElement('div');
@@ -214,6 +229,9 @@ const CreateRecurrencePage = {
       return;
     }
 
+    const geo = this.picker?.getPoint();
+    if (!geo) return;
+
     const payload = {
       title: document.getElementById('rec-title').value,
       description: document.getElementById('rec-description').value,
@@ -221,6 +239,8 @@ const CreateRecurrencePage = {
       location: {
         city: document.getElementById('rec-city').value,
         country: document.getElementById('rec-country').value,
+        address: document.getElementById('rec-address').value,
+        geo,
       },
       timezone: document.getElementById('rec-timezone').value,
       duration_hours: Number(document.getElementById('rec-duration').value) || undefined,

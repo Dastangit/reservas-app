@@ -10,10 +10,12 @@ const { protect, authorize } = require('../middleware/auth');
 const { setTenant } = require('../middleware/tenant');
 const validate = require('../middleware/validate');
 const { isValidCountry } = require('../utils/countries');
+const { isValidPoint } = require('../utils/geo');
 const { isValidTimeZone } = require('../utils/timezone');
 
 const updateValidators = [
   body('location.country').optional().custom(isValidCountry).withMessage('Invalid country (ISO code, e.g. MX)'),
+  body('location.geo').optional().custom(isValidPoint).withMessage('Invalid meeting point (GeoJSON Point, [lng, lat])'),
   body('timezone').optional().custom(isValidTimeZone).withMessage('Invalid timezone'),
 ];
 
@@ -29,6 +31,7 @@ const experienceValidators = [
   body('description').notEmpty().withMessage('Description is required'),
   body('location.city').notEmpty().withMessage('City is required'),
   body('location.country').custom(isValidCountry).withMessage('Country is required (ISO code, e.g. MX)'),
+  body('location.geo').custom(isValidPoint).withMessage('Meeting point is required (GeoJSON Point, [lng, lat])'),
   body('timezone').custom(isValidTimeZone).withMessage('Timezone is required (e.g. America/Mexico_City)'),
   body('max_participants').isInt({ min: 1 }).withMessage('Max participants must be at least 1'),
   body('pricing').isArray({ min: 1 }).withMessage('At least one pricing entry is required'),

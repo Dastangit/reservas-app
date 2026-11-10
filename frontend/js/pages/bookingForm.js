@@ -54,7 +54,8 @@ const BookingFormPage = {
                 <img loading="lazy" src="${escapeHtml(p.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(p.name)}">
                 <div>
                   <h3>${escapeHtml(p.name)}</h3>
-                  <p>${escapeHtml(formatPlace(p.location))}</p>
+                  <p>${escapeHtml([p.location?.neighborhood, formatPlace(p.location)].filter(Boolean).join(', '))}</p>
+                  <p class="field-hint">${t('property.exactAddressAfterApproval')}</p>
                 </div>
               </div>
               

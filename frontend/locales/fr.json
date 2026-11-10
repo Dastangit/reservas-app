@@ -22,7 +22,8 @@
     "themeToDark": "Passer en mode sombre",
     "themeToLight": "Passer en mode clair",
     "yes": "Oui",
-    "no": "Non"
+    "no": "Non",
+    "close": "Fermer"
   },
   "nav": {
     "myBookings": "Mes Réservations",
@@ -72,7 +73,12 @@
     "notFound": "Propriété non trouvée",
     "noAmenities": "Aucun équipement listé",
     "noReviews": "Aucun avis pour le moment",
-    "max": "Max"
+    "max": "Max",
+    "whereTitle": "Où se trouve le logement",
+    "showAreaMap": "Voir la zone sur la carte",
+    "areaMapLabel": "Carte de la zone approximative du logement",
+    "exactAddressNotice": "Le logement se trouve dans cette zone (environ 300 m). L'adresse exacte est communiquée une fois la réservation approuvée.",
+    "exactAddressAfterApproval": "L'annonce indique le quartier et la zone approximative. L'adresse exacte est communiquée une fois la réservation approuvée."
   },
   "booking": {
     "checkIn": "Arrivée",
@@ -941,7 +947,8 @@
     "errorLoadingProperty": "Erreur lors du chargement de la propriété",
     "selectType": "Choisissez un type",
     "typeHint": "Chaque annonce se réserve en entier. Si vous gérez un hôtel ou une auberge, publiez chaque type de chambre comme une annonce séparée.",
-    "otherAmenitiesTitle": "Autres services"
+    "otherAmenitiesTitle": "Autres services",
+    "neighborhoodHint": "Obligatoire. Les voyageurs voient le quartier et la zone approximative avant de réserver ; l'adresse exacte, seulement une fois leur réservation approuvée."
   },
   "organizer": {
     "accessDenied": "Accès refusé. Veuillez vous connecter en tant qu'organisateur.",
@@ -1108,7 +1115,10 @@
       "completed": "Terminée",
       "cancelled": "Annulée"
     },
-    "viewDetails": "Voir le détail"
+    "viewDetails": "Voir le détail",
+    "address": "Adresse",
+    "directions": "Itinéraire",
+    "addressAfterApproval": "L'adresse exacte apparaîtra ici une fois la réservation approuvée."
   },
   "calendar": {
     "loading": "Chargement des disponibilités...",
@@ -1366,5 +1376,48 @@
       "amenities": "autres services"
     },
     "changedBodyUnpaid": "Depuis votre réservation, ceci a changé : {changes}. Vous n'avez pas encore payé les frais : si cela ne vous convient plus, vous pouvez annuler la réservation sans frais."
+  },
+  "locationPicker": {
+    "searchPlaceholder": "Rue, numéro, quartier ou lieu",
+    "search": "Rechercher",
+    "mapLabel": "Carte pour indiquer l'emplacement",
+    "pointSet": "Point indiqué",
+    "searching": "Recherche…",
+    "searchTooShort": "Saisissez au moins 3 lettres pour rechercher.",
+    "noResults": "Adresse introuvable. Essayez avec moins de mots ou indiquez le point sur la carte.",
+    "pickResult": "Choisissez un résultat.",
+    "searchFailed": "La recherche d'adresse a échoué. Indiquez le point sur la carte.",
+    "mapFailed": "La carte n'a pas pu se charger. Vérifiez votre connexion et rechargez la page.",
+    "locating": "Recherche de votre position…",
+    "geoUnavailable": "Votre navigateur ne peut pas fournir votre position.",
+    "geoDenied": "Votre position n'a pas pu être obtenue. Vérifiez l'autorisation du navigateur ou indiquez le point sur la carte.",
+    "property": {
+      "label": "Emplacement exact sur la carte",
+      "hint": "Indiquez l'entrée du logement. Il n'est pas publié : les voyageurs ne voient que la zone approximative (environ 300 m) jusqu'à l'approbation de leur réservation.",
+      "here": "Je suis au logement",
+      "noPoint": "Vous n'avez pas encore indiqué le point.",
+      "adjust": "Vérifiez le repère et faites-le glisser jusqu'à l'entrée exacte si nécessaire.",
+      "required": "Indiquez sur la carte où se trouve le logement."
+    },
+    "meeting": {
+      "label": "Point de rendez-vous sur la carte",
+      "hint": "Indiquez l'endroit exact où commence l'excursion. Il est public : les participants s'en servent pour s'y rendre.",
+      "here": "Je suis au point de rendez-vous",
+      "noPoint": "Vous n'avez pas encore indiqué le point de rendez-vous.",
+      "adjust": "Vérifiez le repère et faites-le glisser jusqu'au point exact si nécessaire.",
+      "required": "Indiquez le point de rendez-vous sur la carte."
+    }
+  },
+  "onboarding": {
+    "welcomeTitle": "Bienvenue chez Elysio Experiences !",
+    "welcomeBody": "Nous vous invitons à lire notre section <strong>Comment ça marche</strong> pour bien comprendre le processus de réservation, les frais de réservation et comment fonctionne le paiement restant à l’hébergement. Merci de nous avoir choisis.",
+    "welcomeCta": "Lire comment ça marche",
+    "welcomeDismiss": "Compris",
+    "reminder": "Avant de réserver, nous vous recommandons de lire notre section <a href=\"/how-it-works\" data-link>Comment ça marche</a> : elle explique les frais de réservation et comment le reste est payé."
+  },
+  "pwa": {
+    "install": "Installez l’application sur votre téléphone pour un accès plus rapide.",
+    "installBtn": "Installer",
+    "installIos": "Installez cette application : touchez <strong>Partager</strong> puis <strong>« Sur l’écran d’accueil »</strong>."
   }
 }

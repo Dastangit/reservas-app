@@ -7,6 +7,13 @@ const User = require('../models/User');
 const Property = require('../models/Property');
 const { assertDemoSeedAllowed } = require('./demoGuard');
 const { demoServices } = require('./demoServices');
+const { approximatePoint } = require('../utils/geo');
+
+// Punto exacto y zona aproximada, como los guarda el servidor (utils/geo.js).
+const withGeo = (location, lng, lat) => {
+  const geo = { type: 'Point', coordinates: [lng, lat] };
+  return { ...location, geo, approx: approximatePoint(geo) };
+};
 
 // Datos DEMO: nunca correr contra la base de produccion (ver demoGuard.js).
 const seed = async () => {
@@ -49,7 +56,7 @@ const seed = async () => {
         name: 'Casa Azul - Vedado',
         type: 'casa_particular',
         description: 'Beautiful colonial house in the heart of Vedado. Steps from the Malecón, restaurants, and cultural centers. Fully air-conditioned with a tropical garden.',
-        location: { city: 'La Habana', country: 'CU', neighborhood: 'Vedado', address: 'Calle 23 #124' },
+        location: withGeo({ city: 'La Habana', country: 'CU', neighborhood: 'Vedado', address: 'Calle 23 #124' }, -82.3836, 23.1394),
         max_guests: 4,
         bedrooms: 2,
         bathrooms: 1,
@@ -72,7 +79,7 @@ const seed = async () => {
         name: 'Habana Vieja Loft',
         type: 'casa_particular',
         description: 'Charming loft in a restored colonial building in Old Havana. UNESCO World Heritage location. Rooftop terrace with panoramic views.',
-        location: { city: 'La Habana', country: 'CU', neighborhood: 'Habana Vieja', address: 'Calle Obispo #215' },
+        location: withGeo({ city: 'La Habana', country: 'CU', neighborhood: 'Habana Vieja', address: 'Calle Obispo #215' }, -82.3519, 23.1383),
         max_guests: 2,
         bedrooms: 1,
         bathrooms: 1,
@@ -95,7 +102,7 @@ const seed = async () => {
         name: 'Hostal Malecón Beach',
         type: 'hostel',
         description: 'Beachfront hostel with stunning ocean views. Shared kitchen, social areas, and private rooms. Perfect for solo travelers and groups.',
-        location: { city: 'La Habana', country: 'CU', neighborhood: 'Malecón', address: 'Malecón #412' },
+        location: withGeo({ city: 'La Habana', country: 'CU', neighborhood: 'Malecón', address: 'Malecón #412' }, -82.3713, 23.143),
         max_guests: 6,
         bedrooms: 3,
         bathrooms: 2,
@@ -118,7 +125,7 @@ const seed = async () => {
         name: 'Finca Rural Viñales',
         type: 'casa_particular',
         description: 'Rustic countryside house surrounded by tobacco fields and mountains. Authentic rural experience with home-cooked meals available.',
-        location: { city: 'Viñales', country: 'CU', neighborhood: 'Valle', address: 'Carretera a Viñales km 5' },
+        location: withGeo({ city: 'Viñales', country: 'CU', neighborhood: 'Valle', address: 'Carretera a Viñales km 5' }, -83.711, 22.617),
         max_guests: 3,
         bedrooms: 1,
         bathrooms: 1,

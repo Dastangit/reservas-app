@@ -22,7 +22,8 @@
     "themeToDark": "Switch to dark mode",
     "themeToLight": "Switch to light mode",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "close": "Close"
   },
   "nav": {
     "myBookings": "My Bookings",
@@ -72,7 +73,12 @@
     "notFound": "Property not found",
     "noAmenities": "No amenities listed",
     "noReviews": "No reviews yet",
-    "max": "Max"
+    "max": "Max",
+    "whereTitle": "Where it is",
+    "showAreaMap": "See the area on the map",
+    "areaMapLabel": "Map of the approximate area of the property",
+    "exactAddressNotice": "The property is within this area (about 300 m). The exact address is shared once the booking is approved.",
+    "exactAddressAfterApproval": "The listing shows the neighborhood and the approximate area. The exact address is shared once the booking is approved."
   },
   "booking": {
     "checkIn": "Check-in",
@@ -941,7 +947,8 @@
     "errorLoadingProperty": "Error loading property",
     "selectType": "Select a type",
     "typeHint": "Each listing is booked as a whole. If you run a hotel or hostel, publish each room type as a separate listing.",
-    "otherAmenitiesTitle": "Other services"
+    "otherAmenitiesTitle": "Other services",
+    "neighborhoodHint": "Required. Tourists see the neighborhood and the approximate area before booking; the exact address only once their booking is approved."
   },
   "organizer": {
     "accessDenied": "Access denied. Please login as an organizer.",
@@ -1108,7 +1115,10 @@
       "completed": "Completed",
       "cancelled": "Cancelled"
     },
-    "viewDetails": "View details"
+    "viewDetails": "View details",
+    "address": "Address",
+    "directions": "Get directions",
+    "addressAfterApproval": "The exact address will appear here once the booking is approved."
   },
   "calendar": {
     "loading": "Loading availability...",
@@ -1366,5 +1376,48 @@
       "amenities": "other services"
     },
     "changedBodyUnpaid": "Since you booked, this changed: {changes}. You have not paid the fee yet: if it no longer suits you, you can cancel the booking at no cost."
+  },
+  "locationPicker": {
+    "searchPlaceholder": "Street, number, neighborhood or place",
+    "search": "Search",
+    "mapLabel": "Map to mark the location",
+    "pointSet": "Point marked",
+    "searching": "Searching…",
+    "searchTooShort": "Type at least 3 letters to search.",
+    "noResults": "We couldn't find that address. Try fewer words or mark the point on the map.",
+    "pickResult": "Pick a result.",
+    "searchFailed": "The address search failed. Mark the point on the map.",
+    "mapFailed": "The map couldn't load. Check your connection and reload the page.",
+    "locating": "Finding your location…",
+    "geoUnavailable": "Your browser can't provide your location.",
+    "geoDenied": "Your location couldn't be found. Check the browser permission or mark the point on the map.",
+    "property": {
+      "label": "Exact location on the map",
+      "hint": "Mark the property's entrance. It isn't published: tourists only see the approximate area (about 300 m) until their booking is approved.",
+      "here": "I'm at the property",
+      "noPoint": "You haven't marked the point yet.",
+      "adjust": "Check the pin and drag it to the exact entrance if needed.",
+      "required": "Mark on the map where the property is."
+    },
+    "meeting": {
+      "label": "Meeting point on the map",
+      "hint": "Mark the exact place where the experience starts. It is public: participants use it to get there.",
+      "here": "I'm at the meeting point",
+      "noPoint": "You haven't marked the meeting point yet.",
+      "adjust": "Check the pin and drag it to the exact spot if needed.",
+      "required": "Mark the meeting point on the map."
+    }
+  },
+  "onboarding": {
+    "welcomeTitle": "Welcome to Elysio Experiences!",
+    "welcomeBody": "We’d like you to read our <strong>How It Works</strong> section so you understand the booking process, the booking fee, and how the remaining payment at the accommodation works. Thank you for choosing us.",
+    "welcomeCta": "Read How It Works",
+    "welcomeDismiss": "Got it",
+    "reminder": "Before booking, we recommend reading our <a href=\"/how-it-works\" data-link>How It Works</a> section: it explains the booking fee and how the remainder is paid."
+  },
+  "pwa": {
+    "install": "Install the app on your phone for quicker access.",
+    "installBtn": "Install",
+    "installIos": "Install this app: tap <strong>Share</strong> and then <strong>“Add to Home Screen”</strong>."
   }
 }

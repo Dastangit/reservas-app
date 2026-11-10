@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { locationPickerHtml, bindLocationPicker, fillEmptyFields } from '../utils/locationPicker.js';
 import { toExperienceInputValue } from '../utils/formatters.js';
 import { countryOptions, timeZoneOptions, browserTimeZone } from '../utils/places.js';
 import { currencyOptions, countryCurrency } from '../utils/currencies.js';
@@ -32,6 +33,7 @@ const CreateExperiencePage = {
       }
       this.images = existing.images || [];
     }
+    this.existingGeo = existing?.location?.geo || null;
 
     return `
       <div class="publish-property-page">
@@ -71,6 +73,8 @@ const CreateExperiencePage = {
                 <label>${t('createExperience.addressLabel')}</label>
                 <input type="text" id="exp-address" value="${escapeHtml(existing?.location?.address || '')}">
               </div>
+
+              ${locationPickerHtml({ kind: 'meeting' })}
 
               <div class="form-group">
                 <label>${t('createExperience.dateLabel')} (${t('experience.localTime')})</label>
@@ -184,6 +188,13 @@ const CreateExperiencePage = {
     if (!auth.isLoggedIn() || !auth.isOrganizer()) return;
 
     this.renderImagePreview();
+    this.picker = bindLocationPicker({
+      initial: this.existingGeo,
+      fill: (result) => fillEmptyFields(result, {
+        address: 'exp-address', neighborhood: null, city: 'exp-city', country: 'exp-country',
+      }),
+      getCountry: () => document.getElementById('exp-country')?.value,
+    });
 
     document.getElementById('add-pricing-btn')?.addEventListener('click', () => {
       document.getElementById('pricing-rows').insertAdjacentHTML('beforeend', this.pricingRowHtml({}, document.getElementById('exp-country')?.value));
@@ -269,6 +280,9 @@ const CreateExperiencePage = {
     const includes = Array.from(document.querySelectorAll('.includes-input')).map((i) => i.value.trim()).filter(Boolean);
     const requirements = Array.from(document.querySelectorAll('.requirements-input')).map((i) => i.value.trim()).filter(Boolean);
 
+    const geo = this.picker?.getPoint();
+    if (!geo) return;
+
     const payload = {
       title: document.getElementById('exp-title').value,
       description: document.getElementById('exp-description').value,
@@ -277,6 +291,7 @@ const CreateExperiencePage = {
         city: document.getElementById('exp-city').value,
         address: document.getElementById('exp-address').value,
         country: document.getElementById('exp-country').value,
+        geo,
       },
       timezone: document.getElementById('exp-timezone').value,
       date: document.getElementById('exp-date').value,

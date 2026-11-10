@@ -22,7 +22,8 @@
     "themeToDark": "Cambiar a modo oscuro",
     "themeToLight": "Cambiar a modo claro",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "close": "Cerrar"
   },
   "nav": {
     "myBookings": "Mis Reservas",
@@ -72,7 +73,12 @@
     "notFound": "Propiedad no encontrada",
     "noAmenities": "Sin comodidades listadas",
     "noReviews": "Sin reseñas aún",
-    "max": "Máx"
+    "max": "Máx",
+    "whereTitle": "Dónde está",
+    "showAreaMap": "Ver la zona en el mapa",
+    "areaMapLabel": "Mapa de la zona aproximada del alojamiento",
+    "exactAddressNotice": "El alojamiento está dentro de esta zona (unos 300 m). La dirección exacta se comparte cuando se aprueba la reserva.",
+    "exactAddressAfterApproval": "Ves el barrio y la zona aproximada en la ficha del alojamiento. La dirección exacta se comparte cuando se aprueba la reserva."
   },
   "booking": {
     "checkIn": "Entrada",
@@ -941,7 +947,8 @@
     "errorLoadingProperty": "Error al cargar la propiedad",
     "selectType": "Elige un tipo",
     "typeHint": "Cada anuncio se reserva completo. Si tienes un hotel u hostal, publica cada tipo de habitación como un anuncio aparte.",
-    "otherAmenitiesTitle": "Otros servicios"
+    "otherAmenitiesTitle": "Otros servicios",
+    "neighborhoodHint": "Obligatorio. Los turistas ven el barrio y la zona aproximada antes de reservar; la dirección exacta, solo con la reserva aprobada."
   },
   "organizer": {
     "accessDenied": "Acceso denegado. Inicia sesión como organizador.",
@@ -1108,7 +1115,10 @@
       "completed": "Completada",
       "cancelled": "Cancelada"
     },
-    "viewDetails": "Ver detalle"
+    "viewDetails": "Ver detalle",
+    "address": "Dirección",
+    "directions": "Cómo llegar",
+    "addressAfterApproval": "La dirección exacta aparecerá aquí cuando la reserva esté aprobada."
   },
   "calendar": {
     "loading": "Cargando disponibilidad...",
@@ -1366,5 +1376,48 @@
       "amenities": "otros servicios"
     },
     "changedBodyUnpaid": "Desde que reservaste cambió: {changes}. Todavía no pagaste la tarifa: si ya no te conviene, puedes cancelar la reserva sin costo."
+  },
+  "locationPicker": {
+    "searchPlaceholder": "Calle, número, barrio o lugar",
+    "search": "Buscar",
+    "mapLabel": "Mapa para marcar la ubicación",
+    "pointSet": "Punto marcado",
+    "searching": "Buscando…",
+    "searchTooShort": "Escribe al menos 3 letras para buscar.",
+    "noResults": "No encontramos esa dirección. Prueba con menos palabras o marca el punto en el mapa.",
+    "pickResult": "Elige un resultado.",
+    "searchFailed": "No se pudo buscar la dirección. Marca el punto en el mapa.",
+    "mapFailed": "No se pudo cargar el mapa. Revisa tu conexión y recarga la página.",
+    "locating": "Buscando tu ubicación…",
+    "geoUnavailable": "Tu navegador no permite obtener la ubicación.",
+    "geoDenied": "No se pudo obtener tu ubicación. Revisa el permiso del navegador o marca el punto en el mapa.",
+    "property": {
+      "label": "Ubicación exacta en el mapa",
+      "hint": "Marca la entrada del alojamiento. No se publica: los turistas solo ven la zona aproximada (unos 300 m) hasta que su reserva esté aprobada.",
+      "here": "Estoy en el alojamiento",
+      "noPoint": "Aún no has marcado el punto.",
+      "adjust": "Revisa el marcador y arrástralo hasta la entrada exacta si hace falta.",
+      "required": "Marca en el mapa dónde está el alojamiento."
+    },
+    "meeting": {
+      "label": "Punto de encuentro en el mapa",
+      "hint": "Marca el lugar exacto donde empieza la excursión. Es público: los participantes lo usan para llegar.",
+      "here": "Estoy en el punto de encuentro",
+      "noPoint": "Aún no has marcado el punto de encuentro.",
+      "adjust": "Revisa el marcador y arrástralo hasta el punto exacto si hace falta.",
+      "required": "Marca en el mapa el punto de encuentro."
+    }
+  },
+  "onboarding": {
+    "welcomeTitle": "¡Bienvenido a Elysio Experiences!",
+    "welcomeBody": "Nos gustaría que leyeras nuestra sección <strong>Cómo funciona</strong> para que entiendas bien el proceso de reserva, el pago de la tarifa de reserva y cómo se paga el resto en el alojamiento. Gracias por elegirnos.",
+    "welcomeCta": "Leer cómo funciona",
+    "welcomeDismiss": "Entendido",
+    "reminder": "Antes de reservar, te recomendamos leer nuestra sección <a href=\"/how-it-works\" data-link>Cómo funciona</a>: ahí explicamos la tarifa de reserva y cómo se paga el resto."
+  },
+  "pwa": {
+    "install": "Instala la app en tu teléfono para un acceso más rápido.",
+    "installBtn": "Instalar",
+    "installIos": "Instala esta app: toca <strong>Compartir</strong> y luego <strong>«Agregar a pantalla de inicio»</strong>."
   }
 }

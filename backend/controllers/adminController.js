@@ -12,6 +12,7 @@ const OrganizerMonthlyCommission = require('../models/OrganizerMonthlyCommission
 const { promoteNextWaitlistEntry } = require('../utils/experienceWaitlist');
 const { normalizeServices, hasCompleteServices } = require('../utils/propertyServices');
 const { flagOfferChanges } = require('../utils/offerChanges');
+const { isValidPoint, prepareLocation } = require('../utils/geo');
 const { sendEmail } = require('../utils/email');
 const { buildWhatsAppLink } = require('../utils/whatsapp');
 const { buildMailtoLink } = require('../utils/mailto');
@@ -108,6 +109,20 @@ exports.approveProperty = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         error: 'The host must answer every service (energy, A/C, services and house rules) before approval',
+      });
+    }
+    // Sin el punto en el mapa no hay zona aproximada que mostrar ni direccion
+    // que dar al turista: el host debe marcarlo antes de publicarse.
+    if (!isValidPoint(property.location?.geo)) {
+      return res.status(400).json({
+        success: false,
+        error: 'The host must mark the property on the map before approval',
+      });
+    }
+    if (!String(property.location?.neighborhood || '').trim()) {
+      return res.status(400).json({
+        success: false,
+        error: 'The host must name the neighborhood before approval',
       });
     }
 
@@ -551,6 +566,12 @@ exports.adminEditProperty = async (req, res, next) => {
       const services = normalizeServices(updates.services);
       if (services.error) return res.status(400).json({ success: false, error: services.error });
       updates.services = services.value;
+    }
+    if (updates.location !== undefined) {
+      if (updates.location?.geo !== undefined && !isValidPoint(updates.location.geo)) {
+        return res.status(400).json({ success: false, error: 'Invalid location point (GeoJSON Point, [lng, lat])' });
+      }
+      updates.location = prepareLocation(updates.location, property.location, { withApprox: true });
     }
 
     const before = property.toObject();

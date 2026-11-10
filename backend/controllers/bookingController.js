@@ -179,6 +179,21 @@ exports.createBooking = async (req, res, next) => {
   }
 };
 
+// La direccion y el punto exactos se dan al turista solo con la reserva
+// aprobada; antes ve la zona aproximada, como en la ficha publica. Evita que
+// contacte directo al anfitrion saltandose la tarifa.
+const EXACT_LOCATION_STATUSES = ['approved', 'completed'];
+
+function withLocationForTourist(booking) {
+  const data = booking.toObject();
+  const location = data.property_id?.location;
+  if (location && !EXACT_LOCATION_STATUSES.includes(data.status)) {
+    delete location.address;
+    delete location.geo;
+  }
+  return data;
+}
+
 exports.getMyBookings = async (req, res, next) => {
   try {
     const bookings = await Booking.find({
@@ -188,7 +203,7 @@ exports.getMyBookings = async (req, res, next) => {
       .populate('property_id', 'name location images')
       .sort({ created_at: -1 });
 
-    res.json({ success: true, data: { bookings, count: bookings.length } });
+    res.json({ success: true, data: { bookings: bookings.map(withLocationForTourist), count: bookings.length } });
   } catch (error) {
     next(error);
   }
@@ -233,7 +248,9 @@ exports.getBookingById = async (req, res, next) => {
       return res.status(403).json({ success: false, error: 'Not authorized' });
     }
 
-    res.json({ success: true, data: { booking } });
+    const isHostOrAdmin = req.user.role === 'admin'
+      || booking.host_id._id.toString() === req.user._id.toString();
+    res.json({ success: true, data: { booking: isHostOrAdmin ? booking : withLocationForTourist(booking) } });
   } catch (error) {
     next(error);
   }

@@ -1,41 +1,10 @@
 import api from '../api.js';
 import auth from '../auth.js';
-import { escapeHtml } from './escape.js';
+import i18n from '../i18n.js';
 
-const WELCOME_TEXT = {
-  es: {
-    title: '\u00a1Bienvenido a Elysio Experiences!',
-    body: 'Nos gustar\u00eda que leyeras nuestra secci\u00f3n <strong>C\u00f3mo Funciona</strong> para que entiendas bien el proceso de reserva, el pago del fee y c\u00f3mo funciona el resto del pago en el alojamiento. Gracias por elegirnos.',
-    cta: 'Leer C\u00f3mo Funciona',
-    dismiss: 'Entendido',
-  },
-  en: {
-    title: 'Welcome to Elysio Experiences!',
-    body: 'We\u2019d like you to read our <strong>How It Works</strong> section so you understand the booking process, the booking fee, and how the remaining payment at the accommodation works. Thank you for choosing us.',
-    cta: 'Read How It Works',
-    dismiss: 'Got it',
-  },
-  fr: {
-    title: 'Bienvenue chez Elysio Experiences !',
-    body: 'Nous vous invitons \u00e0 lire notre section <strong>Comment \u00e7a marche</strong> pour bien comprendre le processus de r\u00e9servation, les frais, et comment fonctionne le paiement restant \u00e0 l\u2019h\u00e9bergement. Merci de nous avoir choisis.',
-    cta: 'Lire Comment \u00e7a marche',
-    dismiss: 'Compris',
-  },
-};
-
-const REMINDER_TEXT = {
-  es: {
-    text: 'Antes de reservar, te recomendamos leer nuestra secci\u00f3n <a href="/how-it-works" data-link>C\u00f3mo Funciona</a> -- ah\u00ed explicamos el fee de reserva y c\u00f3mo se paga el resto.',
-  },
-  en: {
-    text: 'Before booking, we recommend reading our <a href="/how-it-works" data-link>How It Works</a> section -- it explains the booking fee and how the remainder is paid.',
-  },
-  fr: {
-    text: 'Avant de r\u00e9server, nous vous recommandons de lire notre section <a href="/how-it-works" data-link>Comment \u00e7a marche</a> -- elle explique les frais de r\u00e9servation et comment le reste est pay\u00e9.',
-  },
-};
-
-const lang = () => (window.i18n?.currentLang && WELCOME_TEXT[window.i18n.currentLang] ? window.i18n.currentLang : 'es');
+// Los textos vienen de locales/*.json (onboarding.*). Son nuestros y llevan
+// <strong>/<a> a proposito, asi que no se escapan.
+const t = (key) => i18n.t(key);
 
 async function markOnboarding(field) {
   auth.setOnboardingFlag(field, true);
@@ -53,16 +22,15 @@ export function showWelcomeModalIfNeeded() {
   if (!auth.isLoggedIn() || !auth.isTourist()) return;
   if (auth.getOnboarding().welcome_seen) return;
 
-  const t = WELCOME_TEXT[lang()];
   const overlay = document.createElement('div');
   overlay.className = 'onboarding-modal-overlay';
   overlay.innerHTML = `
     <div class="onboarding-modal">
-      <h2>${escapeHtml(t.title)}</h2>
-      <p>${escapeHtml(t.body)}</p>
+      <h2>${t('onboarding.welcomeTitle')}</h2>
+      <p>${t('onboarding.welcomeBody')}</p>
       <div class="onboarding-modal-actions">
-        <a href="/how-it-works" data-link class="btn btn-primary" id="onboarding-cta">${escapeHtml(t.cta)}</a>
-        <button type="button" class="btn btn-outline" id="onboarding-dismiss">${escapeHtml(t.dismiss)}</button>
+        <a href="/how-it-works" data-link class="btn btn-primary" id="onboarding-cta">${t('onboarding.welcomeCta')}</a>
+        <button type="button" class="btn btn-outline" id="onboarding-dismiss">${t('onboarding.welcomeDismiss')}</button>
       </div>
     </div>
   `;
@@ -83,8 +51,7 @@ export function renderBookingReminderIfNeeded() {
   if (!auth.isLoggedIn() || !auth.isTourist()) return '';
   if (auth.getOnboarding().terms_viewed) return '';
 
-  const t = REMINDER_TEXT[lang()];
-  return `<div class="onboarding-reminder-banner">${escapeHtml(t.text)}</div>`;
+  return `<div class="onboarding-reminder-banner">${t('onboarding.reminder')}</div>`;
 }
 
 // Se llama al entrar a la p\u00e1gina C\u00f3mo Funciona -- marca que ya lo vio, para

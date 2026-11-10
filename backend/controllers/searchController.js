@@ -53,7 +53,7 @@ exports.search = async (req, res, next) => {
 
     const [properties, total_count] = await Promise.all([
       Property.find(query)
-        .select('-admin_notes -rejection_reason -suspension_reason -changes_pending_review')
+        .select('-admin_notes -rejection_reason -suspension_reason -changes_pending_review -location.address -location.geo')
         .sort(sortOption)
         .skip(skip)
         .limit(limit)

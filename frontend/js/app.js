@@ -107,7 +107,9 @@ function routeHandler(page) {
   };
 }
 
-i18n.init().then(() => {
+const i18nReady = i18n.init();
+
+i18nReady.then(() => {
 
 router
   .addRoute('/', routeHandler(LandingPage))
@@ -433,4 +435,5 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-initPwaInstall();
+// El banner espera a los textos; el evento de instalacion se escucha desde ya.
+initPwaInstall(i18nReady);

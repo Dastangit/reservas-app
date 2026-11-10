@@ -50,6 +50,13 @@ const HostDashboardPage = {
   async init() {
     if (!auth.isLoggedIn() || !auth.isHost()) return;
 
+    api.get('/properties/my')
+      .then((res) => {
+        const el = document.getElementById('properties-count');
+        if (el) el.textContent = (res.data?.properties || []).length;
+      })
+      .catch((error) => console.error('Error loading properties:', error));
+
     try {
       const response = await api.get('/bookings/host');
       const bookings = response.data?.bookings || [];
@@ -66,13 +73,18 @@ const HostDashboardPage = {
       if (recent.length === 0) {
         recentList.innerHTML = `<p>${i18n.t('host.noRecentBookings')}</p>`;
       } else {
-        recentList.innerHTML = recent.map(b => `
+        recentList.innerHTML = recent.map(b => {
+          // Misma etiqueta que BookingCard; si falta la clave, el estado legible.
+          const statusKey = `bookingCard.status.${b.status}`;
+          const statusLabel = i18n.t(statusKey) === statusKey ? String(b.status).replace(/_/g, ' ') : i18n.t(statusKey);
+          return `
           <div class="booking-list-item">
             <span>${escapeHtml(b.property_id?.name || i18n.t('booking.propertyFallback'))}</span>
             <span>${escapeHtml(b.tourist_id?.name || i18n.t('host.touristFallback'))}</span>
-            <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(b.status)}</span>
+            <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(statusLabel)}</span>
           </div>
-        `).join('');
+        `;
+        }).join('');
       }
     } catch (error) {
       console.error('Error loading dashboard:', error);

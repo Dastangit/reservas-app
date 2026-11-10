@@ -6,6 +6,7 @@ const { generateOccurrences } = require('../utils/experienceRecurrence');
 const { sanitizeImages } = require('../utils/images');
 const { parseLocalDateTime, EXPERIENCE_TIMEZONE } = require('../utils/timezone');
 const { normalizeCountry } = require('../utils/countries');
+const { prepareLocation } = require('../utils/geo');
 
 // Lista blanca de lo que un organizador puede enviar (antes se copiaba todo el
 // body menos unos pocos campos: admin_notes, rejection_reason, etc. eran editables).
@@ -23,6 +24,7 @@ const pickFields = (source, keys) => Object.fromEntries(
 // Normaliza fechas, pais e images. `existing` es el documento que se edita (si hay):
 // la fecha se interpreta en la zona nueva o, si no cambia, en la que ya tenia.
 function normalizeExperienceInput(fields, userId, existing) {
+  if (fields.location !== undefined) fields.location = prepareLocation(fields.location, existing?.location);
   if (fields.location?.country !== undefined) fields.location.country = normalizeCountry(fields.location.country);
   const timeZone = fields.timezone || existing?.timezone || EXPERIENCE_TIMEZONE;
   if (fields.date !== undefined) fields.date = parseLocalDateTime(fields.date, timeZone);

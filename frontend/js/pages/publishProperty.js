@@ -4,6 +4,7 @@ import i18n from '../i18n.js';
 import { countryOptions } from '../utils/places.js';
 import { propertyTypeOptions } from '../utils/propertyTypes.js';
 import { servicesFormHtml, bindServicesForm, readServicesForm } from '../utils/propertyServices.js';
+import { locationPickerHtml, bindLocationPicker, fillEmptyFields } from '../utils/locationPicker.js';
 
 const PublishPropertyPage = {
   async render() {
@@ -56,7 +57,8 @@ const PublishPropertyPage = {
                 </div>
                 <div class="form-group">
                   <label>${t('propertyForm.neighborhoodLabel')}</label>
-                  <input type="text" id="neighborhood" placeholder="${t('propertyForm.neighborhoodPlaceholder')}">
+                  <input type="text" id="neighborhood" required placeholder="${t('propertyForm.neighborhoodPlaceholder')}">
+                  <small class="field-hint">${t('propertyForm.neighborhoodHint')}</small>
                 </div>
               </div>
 
@@ -64,6 +66,8 @@ const PublishPropertyPage = {
                 <label>${t('propertyForm.addressLabel')}</label>
                 <input type="text" id="address" placeholder="${t('propertyForm.addressPlaceholder')}">
               </div>
+
+              ${locationPickerHtml()}
             </div>
 
             <div class="form-section">
@@ -146,6 +150,11 @@ const PublishPropertyPage = {
 
     this.attachImageUploadHandlers(document.getElementById('image-inputs'));
     bindServicesForm();
+    this.picker = bindLocationPicker({
+      initial: null,
+      fill: (result) => fillEmptyFields(result),
+      getCountry: () => document.getElementById('country')?.value,
+    });
 
     const addImageBtn = document.getElementById('add-image-btn');
     if (addImageBtn) {
@@ -233,6 +242,9 @@ const PublishPropertyPage = {
       }))
       .filter(img => img.url);
 
+    const geo = this.picker?.getPoint();
+    if (!geo) return;
+
     const propertyData = {
       name: document.getElementById('name')?.value,
       type: document.getElementById('type')?.value,
@@ -242,6 +254,7 @@ const PublishPropertyPage = {
         country: document.getElementById('country')?.value,
         neighborhood: document.getElementById('neighborhood')?.value,
         address: document.getElementById('address')?.value,
+        geo,
       },
       max_guests: parseInt(document.getElementById('max_guests')?.value),
       bedrooms: parseInt(document.getElementById('bedrooms')?.value),
