@@ -57,7 +57,7 @@
   --hero-input-bg: rgba(255, 255, 255, 0.95);
   /* Portada: fondo sin fotos y capa sobre las fotos (iguales en ambos temas) */
   --hero-bg: #0F172A;
-  --hero-overlay: rgba(15, 23, 42, 0.45);
+  --hero-overlay: rgba(15, 23, 42, 0.6);
   --overlay: rgba(15, 23, 42, 0.5);
   --logo: url('/assets/logo-elysio.svg');
   --placeholder: url('/assets/placeholder.svg');
@@ -93,6 +93,7 @@
   --radius-card: 20px;
   --radius-btn: 14px;
   --radius-sm: 8px;
+  --radius-md: 12px;
   --radius-full: 9999px;
 
   /* ===== Shadows ===== */
@@ -173,7 +174,7 @@
   --hero-input-bg: rgba(11, 18, 32, 0.92);
   /* Portada: fondo sin fotos y capa sobre las fotos (iguales en ambos temas) */
   --hero-bg: #0F172A;
-  --hero-overlay: rgba(15, 23, 42, 0.45);
+  --hero-overlay: rgba(15, 23, 42, 0.6);
   --overlay: rgba(0, 0, 0, 0.65);
   --logo: url('/assets/logo-elysio-dark.svg');
   --placeholder: url('/assets/placeholder-dark.svg');
@@ -239,7 +240,7 @@
     --hero-input-bg: rgba(11, 18, 32, 0.92);
     /* Portada: fondo sin fotos y capa sobre las fotos (iguales en ambos temas) */
     --hero-bg: #0F172A;
-    --hero-overlay: rgba(15, 23, 42, 0.45);
+    --hero-overlay: rgba(15, 23, 42, 0.6);
     --overlay: rgba(0, 0, 0, 0.65);
     --logo: url('/assets/logo-elysio-dark.svg');
     --placeholder: url('/assets/placeholder-dark.svg');
