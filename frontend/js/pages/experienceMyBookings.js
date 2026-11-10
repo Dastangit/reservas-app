@@ -3,6 +3,7 @@ import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
 import { formatExperienceDate, formatExperienceTime } from '../utils/formatters.js';
+import { statusLabel } from '../utils/statusLabel.js';
 
 const ExperienceMyBookingsPage = {
   async render() {
@@ -60,7 +61,7 @@ const ExperienceMyBookingsPage = {
           <span>${escapeHtml(b.experience_id?.title || i18n.t('experience.fallbackTitle'))}</span>
           <span>${b.experience_id?.date ? `${formatExperienceDate(b.experience_id.date, b.experience_id.timezone)} ${formatExperienceTime(b.experience_id.date, b.experience_id.timezone)}` : ''}</span>
           <span>${b.num_spots} ${i18n.t('experience.spotsWord')}</span>
-          <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(b.status.replace(/_/g, ' '))}</span>
+          <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(statusLabel('bookingCard.status', b.status))}</span>
           ${['pending_approval', 'approved'].includes(b.status) ? `<button class="btn btn-danger btn-sm" data-action="cancelExperienceBooking" data-arg="${b._id}">${i18n.t('common.cancel')}</button>` : ''}
         </div>
       `).join('');

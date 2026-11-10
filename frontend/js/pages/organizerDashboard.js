@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { statusLabel } from '../utils/statusLabel.js';
 
 const OrganizerDashboardPage = {
   async render() {
@@ -78,7 +79,7 @@ const OrganizerDashboardPage = {
           <div class="booking-list-item">
             <span>${escapeHtml(b.experience_id?.title || i18n.t('experience.fallbackTitle'))}</span>
             <span>${b.num_spots} ${i18n.t('experience.spotsWord')}</span>
-            <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(b.status.replace(/_/g, ' '))}</span>
+            <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(statusLabel('bookingCard.status', b.status))}</span>
           </div>
         `).join('');
       }

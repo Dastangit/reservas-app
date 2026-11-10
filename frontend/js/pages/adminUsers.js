@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { statusLabel } from '../utils/statusLabel.js';
 
 const AdminUsersPage = {
   async render() {
@@ -120,8 +121,8 @@ const AdminUsersPage = {
             <div class="property-info">
               <h3>${escapeHtml(h.name)}</h3>
               <p>${escapeHtml(h.email)} | ${escapeHtml(h.phone || i18n.t('admin.noPhone'))}</p>
-              <span class="status-badge ${escapeHtml(h.host_status)}">${escapeHtml(h.host_status)}</span>
-              <span class="status-badge ${escapeHtml(h.status)}" style="margin-left:5px;">${escapeHtml(h.status)}</span>
+              <span class="status-badge ${escapeHtml(h.host_status)}">${escapeHtml(statusLabel('statusLabel.approval', h.host_status))}</span>
+              <span class="status-badge ${escapeHtml(h.status)}" style="margin-left:5px;">${escapeHtml(statusLabel('statusLabel.account', h.status))}</span>
             </div>
             <button type="button" class="btn btn-outline btn-sm property-detail-toggle">${i18n.t('admin.viewDetail')}</button>
           </div>

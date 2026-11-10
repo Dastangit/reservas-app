@@ -3,6 +3,7 @@ import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { formatExperiencePrice } from '../utils/formatters.js';
 import { escapeHtml } from '../utils/escape.js';
+import { statusLabel } from '../utils/statusLabel.js';
 
 const AdminExperienceBookingsPage = {
   async render() {
@@ -112,7 +113,7 @@ const AdminExperienceBookingsPage = {
               <h3>${escapeHtml(b.experience_id?.title || i18n.t('experience.fallbackTitle'))}</h3>
               <p>${escapeHtml(b.tourist_id?.name || i18n.t('host.touristFallback'))} (${escapeHtml(b.tourist_id?.email || '')}) · ${b.num_spots} ${i18n.t('experience.spotsWord')}</p>
               <p style="font-size:var(--fs-xs);color:var(--text-light);">${escapeHtml(paymentSummary)}</p>
-              <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(b.status.replace(/_/g, ' '))}</span>
+              <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(statusLabel('bookingCard.status', b.status))}</span>
               ${hoursLeft !== null ? `<span style="font-size:var(--fs-xs);color:var(--text-light);">${i18n.t('admin.expiresInPrefix')}${hoursLeft}${i18n.t('admin.expiresInSuffix')}</span>` : ''}
             </div>
             <div class="property-actions">

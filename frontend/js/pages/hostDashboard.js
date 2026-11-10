@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { statusLabel } from '../utils/statusLabel.js';
 
 const HostDashboardPage = {
   async render() {
@@ -73,18 +74,13 @@ const HostDashboardPage = {
       if (recent.length === 0) {
         recentList.innerHTML = `<p>${i18n.t('host.noRecentBookings')}</p>`;
       } else {
-        recentList.innerHTML = recent.map(b => {
-          // Misma etiqueta que BookingCard; si falta la clave, el estado legible.
-          const statusKey = `bookingCard.status.${b.status}`;
-          const statusLabel = i18n.t(statusKey) === statusKey ? String(b.status).replace(/_/g, ' ') : i18n.t(statusKey);
-          return `
+        recentList.innerHTML = recent.map(b => `
           <div class="booking-list-item">
             <span>${escapeHtml(b.property_id?.name || i18n.t('booking.propertyFallback'))}</span>
             <span>${escapeHtml(b.tourist_id?.name || i18n.t('host.touristFallback'))}</span>
-            <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(statusLabel)}</span>
+            <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(statusLabel('bookingCard.status', b.status))}</span>
           </div>
-        `;
-        }).join('');
+        `).join('');
       }
     } catch (error) {
       console.error('Error loading dashboard:', error);

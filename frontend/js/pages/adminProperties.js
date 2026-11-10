@@ -4,6 +4,7 @@ import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
 import { servicesDetailHtml } from '../utils/propertyServices.js';
 import { formatPlace } from '../utils/places.js';
+import { statusLabel } from '../utils/statusLabel.js';
 
 const AdminPropertiesPage = {
   async render() {
@@ -102,7 +103,7 @@ const AdminPropertiesPage = {
               <h3>${escapeHtml(p.name)}</h3>
               <p>${escapeHtml(formatPlace(p.location))} | $${p.price_per_night}${i18n.t('property.perNight')}</p>
               <p>${i18n.t('admin.hostLabel')} ${escapeHtml(p.host_id?.name || i18n.t('admin.unknownFallback'))}</p>
-              <span class="status-badge ${escapeHtml(p.status)}">${escapeHtml(p.status.replace(/_/g, ' '))}</span>
+              <span class="status-badge ${escapeHtml(p.status)}">${escapeHtml(statusLabel('statusLabel.property', p.status))}</span>
               ${p.changes_pending_review ? `<span class="status-badge pending_approval">${i18n.t('admin.changesPendingReview')}</span>` : ''}
             </div>
             <button type="button" class="btn btn-outline btn-sm property-detail-toggle">${i18n.t('admin.viewDetail')}</button>

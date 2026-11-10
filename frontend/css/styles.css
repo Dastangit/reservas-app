@@ -4324,6 +4324,15 @@ p.offer-no {
   background: var(--border-light);
 }
 
+/* Formularios largos (publicar/editar propiedad) en movil: menos relleno en
+   la tarjeta para que los campos usen el ancho de la pantalla. */
+@media (max-width: 480px) {
+  .publish-property-page form,
+  .publish-property-page .container > form {
+    padding: var(--space-lg) var(--space-md);
+  }
+}
+
 /* Areas tactiles de al menos 44 px en movil (menu, pie, botones pequenos). */
 @media (max-width: 768px) {
   .nav a,

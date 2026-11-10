@@ -3,6 +3,7 @@ import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { formatExperiencePrice, formatExperienceDate, formatExperienceTime } from '../utils/formatters.js';
 import { escapeHtml } from '../utils/escape.js';
+import { statusLabel } from '../utils/statusLabel.js';
 
 const OrganizerBookingsPage = {
   async render() {
@@ -61,7 +62,7 @@ const OrganizerBookingsPage = {
             <span>${escapeHtml(b.experience_id?.title || i18n.t('experience.fallbackTitle'))}</span>
             <span>${b.experience_id?.date ? `${formatExperienceDate(b.experience_id.date, b.experience_id.timezone)} ${formatExperienceTime(b.experience_id.date, b.experience_id.timezone)}` : ''}</span>
             <span>${escapeHtml(paymentSummary)}</span>
-            <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(b.status.replace(/_/g, ' '))}</span>
+            <span class="status-badge ${escapeHtml(b.status)}">${escapeHtml(statusLabel('bookingCard.status', b.status))}</span>
             ${b.status === 'approved' ? `<button class="btn btn-primary btn-sm" data-action="completeOrganizerBooking" data-arg="${b._id}">${i18n.t('organizer.markCompletedBtn')}</button>` : ''}
           </div>
         `;

@@ -3,6 +3,7 @@ import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
 import { formatPlace } from '../utils/places.js';
+import { statusLabel } from '../utils/statusLabel.js';
 
 const ManagePropertiesPage = {
   async render() {
@@ -49,7 +50,7 @@ const ManagePropertiesPage = {
           <div class="property-info">
             <h3>${escapeHtml(p.name)}</h3>
             <p>${escapeHtml(formatPlace(p.location))}</p>
-            <span class="status-badge ${escapeHtml(p.status)}">${escapeHtml(p.status.replace(/_/g, ' '))}</span>
+            <span class="status-badge ${escapeHtml(p.status)}">${escapeHtml(statusLabel('statusLabel.property', p.status))}</span>
           </div>
           <div class="property-actions">
             <a href="/host/properties/${p._id}/edit" data-link class="btn btn-outline btn-sm">${t('common.edit')}</a>

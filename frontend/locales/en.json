@@ -920,7 +920,7 @@
     "locationSection": "Location",
     "cityLabel": "City *",
     "cityPlaceholder": "e.g., Cancún",
-    "neighborhoodLabel": "Neighborhood",
+    "neighborhoodLabel": "Neighborhood *",
     "neighborhoodPlaceholder": "e.g., Vedado",
     "addressLabel": "Address",
     "addressPlaceholder": "Street address",
@@ -1124,7 +1124,8 @@
       "approved": "Approved",
       "rejected": "Rejected",
       "completed": "Completed",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "expired": "Expired"
     },
     "viewDetails": "View details",
     "address": "Address",
@@ -1430,5 +1431,23 @@
     "install": "Install the app on your phone for quicker access.",
     "installBtn": "Install",
     "installIos": "Install this app: tap <strong>Share</strong> and then <strong>“Add to Home Screen”</strong>."
+  },
+  "statusLabel": {
+    "property": {
+      "pending_approval": "Pending approval",
+      "active": "Published",
+      "inactive": "Inactive",
+      "rejected": "Rejected"
+    },
+    "approval": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "account": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "suspended": "Suspended"
+    }
   }
 }

@@ -51,7 +51,7 @@ const EditPropertyPage = {
               <h2>${t('propertyForm.locationSection')}</h2>
 
               <div class="form-group">
-                <label for="country">${t('places.countryLabel')}</label>
+                <label for="country">${t('places.countryLabel')} *</label>
                 <select id="country" required>${countryOptions('', t('places.selectCountry'))}</select>
               </div>
 
@@ -202,9 +202,9 @@ const EditPropertyPage = {
       container.innerHTML = `
         <div class="form-group image-entry">
           <label>${t('propertyForm.mainImageUrlLabel')}</label>
-          <input type="url" class="image-url" required placeholder="${t('propertyForm.imageUrlPlaceholder')}">
+          <input type="url" class="image-url" aria-label="${t('propertyForm.mainImageUrlLabel')}" required placeholder="${t('propertyForm.imageUrlPlaceholder')}">
           <div class="image-upload-row">
-            <input type="file" class="image-file-input" accept="image/*">
+            <input type="file" class="image-file-input" aria-label="${t('propertyForm.mainImageUrlLabel')}" accept="image/*">
             <span class="image-upload-status"></span>
           </div>
         </div>
@@ -214,9 +214,9 @@ const EditPropertyPage = {
         <div class="form-group image-entry" style="display:flex;gap:10px;align-items:end;" data-public-id="${escapeHtml(img.public_id || '')}">
           <div style="flex:1">
             <label>${i === 0 ? t('propertyForm.mainImageUrlLabel') : t('propertyForm.imageUrlLabel')}</label>
-            <input type="url" class="image-url" value="${escapeHtml(img.url || '')}" ${i === 0 ? 'required' : ''} placeholder="${t('propertyForm.imageUrlPlaceholder')}">
+            <input type="url" class="image-url" aria-label="${i === 0 ? t('propertyForm.mainImageUrlLabel') : t('propertyForm.imageUrlLabel')}" value="${escapeHtml(img.url || '')}" ${i === 0 ? 'required' : ''} placeholder="${t('propertyForm.imageUrlPlaceholder')}">
             <div class="image-upload-row">
-              <input type="file" class="image-file-input" accept="image/*">
+              <input type="file" class="image-file-input" aria-label="${i === 0 ? t('propertyForm.mainImageUrlLabel') : t('propertyForm.imageUrlLabel')}" accept="image/*">
               <span class="image-upload-status"></span>
             </div>
           </div>
@@ -236,9 +236,9 @@ const EditPropertyPage = {
       div.innerHTML = `
         <div style="flex:1">
           <label>${t('propertyForm.imageLabel')}</label>
-          <input type="url" class="image-url" placeholder="${t('propertyForm.imageUrlPlaceholder')}">
+          <input type="url" class="image-url" aria-label="${t('propertyForm.imageLabel')}" placeholder="${t('propertyForm.imageUrlPlaceholder')}">
           <div class="image-upload-row">
-            <input type="file" class="image-file-input" accept="image/*">
+            <input type="file" class="image-file-input" aria-label="${t('propertyForm.imageLabel')}" accept="image/*">
             <span class="image-upload-status"></span>
           </div>
         </div>
