@@ -920,7 +920,7 @@
     "locationSection": "Emplacement",
     "cityLabel": "Ville *",
     "cityPlaceholder": "ex., Cancún",
-    "neighborhoodLabel": "Quartier",
+    "neighborhoodLabel": "Quartier *",
     "neighborhoodPlaceholder": "ex., Vedado",
     "addressLabel": "Adresse",
     "addressPlaceholder": "Adresse",
@@ -1124,7 +1124,8 @@
       "approved": "Approuvée",
       "rejected": "Refusée",
       "completed": "Terminée",
-      "cancelled": "Annulée"
+      "cancelled": "Annulée",
+      "expired": "Expirée"
     },
     "viewDetails": "Voir le détail",
     "address": "Adresse",
@@ -1430,5 +1431,23 @@
     "install": "Installez l’application sur votre téléphone pour un accès plus rapide.",
     "installBtn": "Installer",
     "installIos": "Installez cette application : touchez <strong>Partager</strong> puis <strong>« Sur l’écran d’accueil »</strong>."
+  },
+  "statusLabel": {
+    "property": {
+      "pending_approval": "En attente d’approbation",
+      "active": "Publiée",
+      "inactive": "Inactive",
+      "rejected": "Refusée"
+    },
+    "approval": {
+      "pending": "En attente",
+      "approved": "Approuvé",
+      "rejected": "Refusé"
+    },
+    "account": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "suspended": "Suspendue"
+    }
   }
 }

@@ -920,7 +920,7 @@
     "locationSection": "Ubicación",
     "cityLabel": "Ciudad *",
     "cityPlaceholder": "ej., Cancún",
-    "neighborhoodLabel": "Barrio",
+    "neighborhoodLabel": "Barrio *",
     "neighborhoodPlaceholder": "ej., Vedado",
     "addressLabel": "Dirección",
     "addressPlaceholder": "Dirección",
@@ -1124,7 +1124,8 @@
       "approved": "Aprobada",
       "rejected": "Rechazada",
       "completed": "Completada",
-      "cancelled": "Cancelada"
+      "cancelled": "Cancelada",
+      "expired": "Expirada"
     },
     "viewDetails": "Ver detalle",
     "address": "Dirección",
@@ -1430,5 +1431,23 @@
     "install": "Instala la app en tu teléfono para un acceso más rápido.",
     "installBtn": "Instalar",
     "installIos": "Instala esta app: toca <strong>Compartir</strong> y luego <strong>«Agregar a pantalla de inicio»</strong>."
+  },
+  "statusLabel": {
+    "property": {
+      "pending_approval": "Pendiente de aprobación",
+      "active": "Publicada",
+      "inactive": "Inactiva",
+      "rejected": "Rechazada"
+    },
+    "approval": {
+      "pending": "Pendiente",
+      "approved": "Aprobado",
+      "rejected": "Rechazado"
+    },
+    "account": {
+      "active": "Activa",
+      "inactive": "Inactiva",
+      "suspended": "Suspendida"
+    }
   }
 }

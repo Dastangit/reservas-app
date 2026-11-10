@@ -46,7 +46,7 @@ const PublishPropertyPage = {
               <h2>${t('propertyForm.locationSection')}</h2>
 
               <div class="form-group">
-                <label for="country">${t('places.countryLabel')}</label>
+                <label for="country">${t('places.countryLabel')} *</label>
                 <select id="country" required>${countryOptions('', t('places.selectCountry'))}</select>
               </div>
 
@@ -119,9 +119,9 @@ const PublishPropertyPage = {
               <div id="image-inputs">
                 <div class="form-group image-entry">
                   <label>${t('propertyForm.mainImageLabel')}</label>
-                  <input type="url" class="image-url" required placeholder="${t('propertyForm.imageUrlPlaceholder')}">
+                  <input type="url" class="image-url" aria-label="${t('propertyForm.mainImageLabel')}" required placeholder="${t('propertyForm.imageUrlPlaceholder')}">
                   <div class="image-upload-row">
-                    <input type="file" class="image-file-input" accept="image/*">
+                    <input type="file" class="image-file-input" aria-label="${t('propertyForm.mainImageLabel')}" accept="image/*">
                     <span class="image-upload-status"></span>
                   </div>
                 </div>
@@ -166,12 +166,12 @@ const PublishPropertyPage = {
           <div style="display:flex;gap:10px;align-items:end;">
             <div style="flex:1">
               <label>${t('propertyForm.imageLabel')}</label>
-              <input type="url" class="image-url" placeholder="${t('propertyForm.imageUrlPlaceholder')}">
+              <input type="url" class="image-url" aria-label="${t('propertyForm.imageLabel')}" placeholder="${t('propertyForm.imageUrlPlaceholder')}">
             </div>
             <button type="button" class="btn btn-danger btn-sm remove-image-btn" style="margin-bottom:4px;">X</button>
           </div>
           <div class="image-upload-row">
-            <input type="file" class="image-file-input" accept="image/*">
+            <input type="file" class="image-file-input" aria-label="${t('propertyForm.imageLabel')}" accept="image/*">
             <span class="image-upload-status"></span>
           </div>
         `;

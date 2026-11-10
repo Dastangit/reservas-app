@@ -66,7 +66,7 @@ export const servicesFormHtml = (s = {}, { editing = false } = {}) => {
 
       <fieldset class="services-group">
         <legend>${t('services.energyQuestion')}</legend>
-        <select id="energy-kind" required>
+        <select id="energy-kind" required aria-label="${attr(t('services.energyQuestion'))}">
           <option value="">${t('services.choose')}</option>
           ${ENERGY_KINDS.map((k) => `<option value="${k}"${energy.kind === k ? ' selected' : ''}>${t(`services.energy.${k}`)}</option>`).join('')}
         </select>

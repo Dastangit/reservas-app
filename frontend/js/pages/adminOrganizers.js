@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
+import { statusLabel } from '../utils/statusLabel.js';
 
 const AdminOrganizersPage = {
   async render() {
@@ -111,7 +112,7 @@ const AdminOrganizersPage = {
           <div class="property-info">
             <h3>${escapeHtml(o.name)}</h3>
             <p>${escapeHtml(o.email)} · ${escapeHtml(o.phone || i18n.t('admin.noPhone'))}</p>
-            <span class="status-badge ${escapeHtml(o.organizer_status)}">${escapeHtml(o.organizer_status)}</span>
+            <span class="status-badge ${escapeHtml(o.organizer_status)}">${escapeHtml(statusLabel('statusLabel.approval', o.organizer_status))}</span>
           </div>
           <div class="property-actions">
             ${o.organizer_status === 'pending' ? `
