@@ -7,6 +7,7 @@ import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
 import { formatPlace } from '../utils/places.js';
 import { servicesDetailHtml } from '../utils/propertyServices.js';
+import { paymentSplitHtml } from '../utils/paymentSplit.js';
 
 const BookingFormPage = {
   property: null,
@@ -80,15 +81,9 @@ const BookingFormPage = {
                   <span>${t('booking.pricePerNight')}:</span>
                   <span>${formatCurrency(p.price_per_night)}</span>
                 </div>
-                <div class="info-row total">
-                  <span>${t('booking.total')}:</span>
-                  <span>${formatCurrency(total)}</span>
-                </div>
-                <div class="info-row fee">
-                  <span>${t('booking.fee')}:</span>
-                  <span>${formatCurrency(7)}</span>
-                </div>
               </div>
+              ${paymentSplitHtml({ stayAmount: formatCurrency(total), stayDetail: `${nights} × ${formatCurrency(p.price_per_night)}` })}
+              <p class="fee-note">${t('booking.feeRefundNote')}</p>
               
               <div id="payment-options-section" class="payment-options">
                 <h3>${t('booking.paymentOptions')}</h3>
@@ -113,23 +108,23 @@ const BookingFormPage = {
                 <h3>${t('booking.yourInformation')}</h3>
                 
                 <div class="form-group">
-                  <label>${t('auth.name')}</label>
+                  <label for="tourist-name">${t('auth.name')}</label>
                   <input type="text" id="tourist-name" value="${escapeHtml(auth.getUser()?.name || '')}" required>
                 </div>
                 
                 <div class="form-group">
-                  <label>${t('auth.email')}</label>
+                  <label for="tourist-email">${t('auth.email')}</label>
                   <input type="email" id="tourist-email" required>
                 </div>
                 
                 <div class="form-group">
-                  <label>${t('booking.phoneLabel')}</label>
+                  <label for="tourist-phone">${t('booking.phoneLabel')}</label>
                   <input type="tel" id="tourist-phone" placeholder="+34 600 000 000" required>
                   <small class="field-hint">${t('booking.phoneHint')}</small>
                 </div>
                 
                 <div class="form-group">
-                  <label>${t('booking.preferredContact')}</label>
+                  <label for="contact-method">${t('booking.preferredContact')}</label>
                   <select id="contact-method">
                     <option value="email">${t('auth.email')}</option>
                     <option value="whatsapp">WhatsApp</option>
@@ -144,7 +139,7 @@ const BookingFormPage = {
 
                 <div id="error-message" class="error-message" style="display:none;"></div>
                 
-                <button type="submit" class="btn btn-primary btn-block">
+                <button type="submit" class="btn btn-cta btn-block">
                   ${t('booking.confirm')}
                 </button>
                 

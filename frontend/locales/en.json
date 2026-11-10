@@ -23,7 +23,8 @@
     "themeToLight": "Switch to light mode",
     "yes": "Yes",
     "no": "No",
-    "close": "Close"
+    "close": "Close",
+    "language": "Language"
   },
   "nav": {
     "myBookings": "My Bookings",
@@ -78,7 +79,10 @@
     "showAreaMap": "See the area on the map",
     "areaMapLabel": "Map of the approximate area of the property",
     "exactAddressNotice": "The property is within this area (about 300 m). The exact address is shared once the booking is approved.",
-    "exactAddressAfterApproval": "The listing shows the neighborhood and the approximate area. The exact address is shared once the booking is approved."
+    "exactAddressAfterApproval": "The listing shows the neighborhood and the approximate area. The exact address is shared once the booking is approved.",
+    "questionsContact": "Questions? Write to us",
+    "hostLabel": "Host",
+    "featuredTitle": "Featured stays"
   },
   "booking": {
     "checkIn": "Check-in",
@@ -139,11 +143,11 @@
     "stageFinished": "Payment complete",
     "stageFailed": "Payment failed",
     "stageExpired": "Payment window expired",
-    "checkoutTitle": "Booking Fee Payment",
+    "checkoutTitle": "Pay the booking fee",
     "checkoutNoBooking": "No booking specified.",
-    "checkoutChoosePayment": "Choose how you'd like to pay the booking fee:",
-    "checkoutQvapay": "Pay with QvaPay (card / balance)",
-    "checkoutPaypal": "Pay with PayPal (manual transfer)",
+    "checkoutChoosePayment": "Choose how to pay",
+    "checkoutQvapay": "QvaPay",
+    "checkoutPaypal": "PayPal",
     "checkoutPreparing": "Preparing your payment...",
     "checkoutPaypalInstructions": "Use this link to pay the fee via PayPal. You can pay by card without a PayPal account.",
     "checkoutPaypalGo": "Go to pay via PayPal",
@@ -158,7 +162,14 @@
     "checkoutPaypalReferenceRequired": "Please enter the PayPal transaction ID or the email you paid from, so we can find your payment.",
     "payNow": "Pay booking fee",
     "holdExpiresAt": "Dates held until:",
-    "qvapayUnavailable": "Card payment (QvaPay) is not available right now. Please pay with PayPal."
+    "qvapayUnavailable": "Card payment (QvaPay) is not available right now. Please pay with PayPal.",
+    "payNowLabel": "You pay now to book",
+    "payNowHint": "Elysio booking fee",
+    "payAtStayLabel": "You pay the host on arrival",
+    "feeRefundNote": "The booking fee is refunded only if the problem is the platform’s responsibility.",
+    "checkoutQvapayHint": "Card or QvaPay balance",
+    "checkoutPaypalHint": "Card or PayPal account",
+    "checkoutPay": "Pay"
   },
   "experience": {
     "loginRequired": "Please <a href=\"/login\" data-link>login</a> to book.",

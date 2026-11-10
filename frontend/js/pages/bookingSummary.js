@@ -1,5 +1,5 @@
 import api from '../api.js';
-import { formatCurrency, formatDate, getStatusColor } from '../utils/formatters.js';
+import { formatCurrency, formatDate } from '../utils/formatters.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { escapeHtml } from '../utils/escape.js';
@@ -25,8 +25,6 @@ const BookingSummaryPage = {
         return `<div class="container"><p class="error">${t('booking.bookingNotFound')}</p></div>`;
       }
 
-      const statusColor = getStatusColor(booking.status);
-
       return `
         <div class="booking-summary-page">
           <div class="container">
@@ -35,7 +33,7 @@ const BookingSummaryPage = {
             <div class="booking-detail-card">
               <div class="booking-header">
                 <h2>${escapeHtml(booking.property_id?.name || t('booking.propertyFallback'))}</h2>
-                <span class="status-badge" style="background-color: ${statusColor}">
+                <span class="status-badge ${escapeHtml(booking.status)}">
                   ${escapeHtml(this.statusLabel(booking.status))}
                 </span>
               </div>
@@ -75,7 +73,7 @@ const BookingSummaryPage = {
                     ${booking.hold_expires_at ? `<p>${t('booking.holdExpiresAt')} ${escapeHtml(new Date(booking.hold_expires_at).toLocaleString(i18n.currentLang))}</p>` : ''}
                     ${booking.payment_needs_review
                       ? `<p>${t('booking.checkoutPaypalThanks')}</p>`
-                      : `<a href="/payment/checkout?booking_id=${booking._id}" class="btn btn-primary">${t('booking.payNow')}</a>`}
+                      : `<a href="/payment/checkout?booking_id=${booking._id}" class="btn btn-cta">${t('booking.payNow')}</a>`}
                   </div>
                 ` : ''}
 

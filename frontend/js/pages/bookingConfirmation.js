@@ -81,7 +81,7 @@ const BookingConfirmationPage = {
               </div>
               
               <div class="confirmation-actions">
-                ${textKey === 'pending_payment' ? `<a href="/payment/checkout?booking_id=${booking._id}" class="btn btn-primary">${t('booking.payNow')}</a>` : ''}
+                ${textKey === 'pending_payment' ? `<a href="/payment/checkout?booking_id=${booking._id}" class="btn btn-cta">${t('booking.payNow')}</a>` : ''}
                 <a href="/dashboard" data-link class="btn ${textKey === 'pending_payment' ? 'btn-outline' : 'btn-primary'}">${t('booking.viewMyBookings')}</a>
                 <a href="/" data-link class="btn btn-outline">${t('common.backToHome')}</a>
               </div>

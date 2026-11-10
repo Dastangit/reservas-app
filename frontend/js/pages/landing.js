@@ -25,10 +25,10 @@ const LandingPage = {
       <section class="hero">
         ${HeroCarousel.render(destinations)}
         <div class="container">
-          <h2>${t('hero.title')}</h2>
+          <h1>${t('hero.title')}</h1>
           <p>${t('hero.subtitle')}</p>
           <div class="search-box">
-            <input type="text" id="search-city" placeholder="${t('hero.searchPlaceholder')}">
+            <input type="text" id="search-city" placeholder="${t('hero.searchPlaceholder')}" aria-label="${t('hero.searchPlaceholder')}">
             <div class="search-date-field">
               <label for="check-in">${t('booking.checkIn')}</label>
               <input type="date" id="check-in">
@@ -37,15 +37,15 @@ const LandingPage = {
               <label for="check-out">${t('booking.checkOut')}</label>
               <input type="date" id="check-out">
             </div>
-            <button data-action="handleSearch" class="btn btn-secondary">${t('hero.searchBtn')}</button>
+            <button type="button" data-action="handleSearch" class="btn btn-cta">${t('hero.searchBtn')}</button>
           </div>
-          <a href="/how-it-works" data-link class="btn hero-how-it-works-btn">${t('howItWorks.title')}</a>
+          <a href="/how-it-works" data-link class="hero-how-it-works-link">${t('howItWorks.title')}</a>
         </div>
       </section>
 
       <section class="featured">
         <div class="container">
-          <h2>${t('property.viewDetails')}</h2>
+          <h2>${t('property.featuredTitle')}</h2>
           <div id="properties-grid" class="properties-grid">
             ${PropertyCard.renderGrid(featuredProperties)}
           </div>
@@ -59,7 +59,7 @@ const LandingPage = {
         <div class="container">
           <h2>${t('host.becomeHost')}</h2>
           <p>${t('host.becomeHostDesc')}</p>
-          <a href="/register?role=host" data-link class="btn btn-secondary">${t('host.becomeHostBtn')}</a>
+          <a href="/register?role=host" data-link class="btn btn-cta">${t('host.becomeHostBtn')}</a>
         </div>
       </section>
     `;

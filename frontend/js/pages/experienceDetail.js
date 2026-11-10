@@ -85,7 +85,7 @@ const ExperienceDetailPage = {
     return `
       <div class="property-detail experience-detail-page">
         <div class="container">
-          <div class="property-gallery">
+          <div class="property-gallery${(exp.images?.length || 0) <= 1 ? ' property-gallery--single' : ''}">
             ${exp.images?.length ? exp.images.map((img, i) => `
               <img src="${escapeHtml(img.url)}" alt="${escapeHtml(img.title || exp.title)}" class="${i === 0 ? 'main' : 'thumb'}" loading="${i === 0 ? 'eager' : 'lazy'}">
             `).join('') : `<img src="/assets/placeholder.svg" alt="${escapeHtml(exp.title)}">`}
@@ -142,7 +142,7 @@ const ExperienceDetailPage = {
                 </div>
 
                 ${this.spotsAvailable > 0 ? `
-                  <a href="/experiences/${exp._id}/book" data-link class="btn btn-primary btn-block" style="margin-top:15px;">
+                  <a href="/experiences/${exp._id}/book" data-link class="btn btn-cta btn-block" style="margin-top:15px;">
                     ${auth.isLoggedIn() ? t('experience.reserveSpot') : t('experience.loginToReserve')}
                   </a>
                 ` : `

@@ -20,23 +20,23 @@ const ProfilePage = {
           <div class="profile-card">
             <form id="profile-form">
               <div class="form-group">
-                <label>${t('profile.name')}</label>
+                <label for="name">${t('profile.name')}</label>
                 <input type="text" id="name" value="${escapeHtml(user?.name || '')}" required>
               </div>
               
               <div class="form-group">
-                <label>${t('profile.email')}</label>
+                <label for="email">${t('profile.email')}</label>
                 <input type="email" id="email" value="${escapeHtml(user?.email || '')}" disabled>
               </div>
               
               <div class="form-group">
-                <label>${t('profile.phone')}</label>
+                <label for="phone">${t('profile.phone')}</label>
                 <input type="tel" id="phone" value="${escapeHtml(user?.phone || '')}">
               </div>
               
               <div class="form-group">
-                <label>${t('profile.role')}</label>
-                <input type="text" value="${escapeHtml(user?.role || '')}" disabled>
+                <label for="profile-role">${t('profile.role')}</label>
+                <input type="text" id="profile-role" value="${escapeHtml(user?.role || '')}" disabled>
               </div>
               
               <div id="error-message" class="error-message" style="display:none;"></div>

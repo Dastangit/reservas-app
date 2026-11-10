@@ -2,7 +2,6 @@
   /* ===== Colors ===== */
   --primary: #0F172A;
   --accent: #2563EB;
-  --secondary: #0EA5E9;
   --background: #FFFFFF;
   --surface: #F8FAFC;
   --text: #111827;
@@ -29,6 +28,10 @@
   --error-fill: #DC2626;
   --error-fill-hover: #B91C1C;
   --secondary-fill: #0369A1;
+  /* Accion principal de cada pantalla (reservar, buscar, pagar) */
+  --cta: #BE3F4F;
+  --cta-fill: #BE3F4F;
+  --cta-fill-hover: #A3313F;
   --accent-soft: rgba(37, 99, 235, 0.04);
   --focus-ring: rgba(37, 99, 235, 0.1);
 
@@ -41,15 +44,23 @@
   --warning-text: #9A3412;
   --error-soft: #FEF2F2;
   --error-border: #FECACA;
+  --error-text: #B91C1C;
+  --info-soft: #EFF6FF;
+  --info-text: #1D4ED8;
+  --neutral-soft: #F1F5F9;
+  --neutral-text: #334155;
 
   /* Superficies especiales */
   --header-bg: rgba(255, 255, 255, 0.85);
   --header-bg-scrolled: rgba(255, 255, 255, 0.95);
   --header-border: rgba(229, 231, 235, 0.5);
   --hero-input-bg: rgba(255, 255, 255, 0.95);
-  --cta-btn-hover: rgba(255, 255, 255, 0.9);
+  /* Portada: fondo sin fotos y capa sobre las fotos (iguales en ambos temas) */
+  --hero-bg: #0F172A;
+  --hero-overlay: rgba(15, 23, 42, 0.6);
   --overlay: rgba(15, 23, 42, 0.5);
   --logo: url('/assets/logo-elysio.svg');
+  --placeholder: url('/assets/placeholder.svg');
 
   /* ===== Typography ===== */
   --font-heading: 'Manrope', sans-serif;
@@ -102,7 +113,6 @@
 
   /* ===== Legacy aliases (for compatibility) ===== */
   --primary-dark: #1E293B;
-  --secondary-dark: #0284C7;
   --neutral: var(--surface);
   --white: var(--background);
   --radius: var(--radius-sm);
@@ -115,7 +125,6 @@
 :root[data-theme="dark"] {
   --primary: #E2E8F0;
   --accent: #60A5FA;
-  --secondary: #38BDF8;
   --background: #0B1220;
   --surface: #111A2B;
   --text: #E5E7EB;
@@ -139,6 +148,9 @@
   --error-fill: #DC2626;
   --error-fill-hover: #B91C1C;
   --secondary-fill: #0369A1;
+  --cta: #F28B98;
+  --cta-fill: #BE3F4F;
+  --cta-fill-hover: #A3313F;
   --accent-soft: rgba(59, 130, 246, 0.12);
   --focus-ring: rgba(59, 130, 246, 0.35);
 
@@ -150,14 +162,22 @@
   --warning-text: #FDBA74;
   --error-soft: rgba(239, 68, 68, 0.12);
   --error-border: rgba(239, 68, 68, 0.35);
+  --error-text: #FCA5A5;
+  --info-soft: rgba(59, 130, 246, 0.14);
+  --info-text: #93C5FD;
+  --neutral-soft: #182338;
+  --neutral-text: #CBD5E1;
 
   --header-bg: rgba(11, 18, 32, 0.85);
   --header-bg-scrolled: rgba(11, 18, 32, 0.95);
   --header-border: rgba(34, 48, 73, 0.7);
   --hero-input-bg: rgba(11, 18, 32, 0.92);
-  --cta-btn-hover: #182338;
+  /* Portada: fondo sin fotos y capa sobre las fotos (iguales en ambos temas) */
+  --hero-bg: #0F172A;
+  --hero-overlay: rgba(15, 23, 42, 0.6);
   --overlay: rgba(0, 0, 0, 0.65);
   --logo: url('/assets/logo-elysio-dark.svg');
+  --placeholder: url('/assets/placeholder-dark.svg');
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -171,7 +191,6 @@
   :root:not([data-theme="light"]) {
     --primary: #E2E8F0;
     --accent: #60A5FA;
-    --secondary: #38BDF8;
     --background: #0B1220;
     --surface: #111A2B;
     --text: #E5E7EB;
@@ -195,6 +214,9 @@
     --error-fill: #DC2626;
     --error-fill-hover: #B91C1C;
     --secondary-fill: #0369A1;
+    --cta: #F28B98;
+    --cta-fill: #BE3F4F;
+    --cta-fill-hover: #A3313F;
     --accent-soft: rgba(59, 130, 246, 0.12);
     --focus-ring: rgba(59, 130, 246, 0.35);
 
@@ -206,14 +228,22 @@
     --warning-text: #FDBA74;
     --error-soft: rgba(239, 68, 68, 0.12);
     --error-border: rgba(239, 68, 68, 0.35);
+    --error-text: #FCA5A5;
+    --info-soft: rgba(59, 130, 246, 0.14);
+    --info-text: #93C5FD;
+    --neutral-soft: #182338;
+    --neutral-text: #CBD5E1;
 
     --header-bg: rgba(11, 18, 32, 0.85);
     --header-bg-scrolled: rgba(11, 18, 32, 0.95);
     --header-border: rgba(34, 48, 73, 0.7);
     --hero-input-bg: rgba(11, 18, 32, 0.92);
-    --cta-btn-hover: #182338;
+    /* Portada: fondo sin fotos y capa sobre las fotos (iguales en ambos temas) */
+    --hero-bg: #0F172A;
+    --hero-overlay: rgba(15, 23, 42, 0.6);
     --overlay: rgba(0, 0, 0, 0.65);
     --logo: url('/assets/logo-elysio-dark.svg');
+    --placeholder: url('/assets/placeholder-dark.svg');
 
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);

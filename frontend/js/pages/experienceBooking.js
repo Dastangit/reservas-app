@@ -106,7 +106,7 @@ const ExperienceBookingPage = {
 
                 <div id="error-message" class="error-message" style="display:none;"></div>
 
-                <button type="submit" class="btn btn-primary btn-block">${t('experience.reserveSpots')}</button>
+                <button type="submit" class="btn btn-cta btn-block">${t('experience.reserveSpots')}</button>
 
                 <p class="fee-notice">
                   ${t('experience.feeNotice')}
