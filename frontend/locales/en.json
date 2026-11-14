@@ -816,7 +816,7 @@
       "q2Question": "What happens if my booking is rejected?",
       "q2Answer": "If the admin rejects your booking, we'll let you know by WhatsApp or email with the reason (if provided), and you'll also see it in My bookings. If the rejection is due to <strong>our own error</strong>, we will arrange a refund of the $7 USD fee. In any other case, the <strong>$7 USD booking fee is non-refundable</strong>.",
       "q2Contact": "You can contact our admin team if you have questions about the rejection.",
-      "q3Question": "Can I cancel my booking? Do I get a refund?",
+      "q3Question": "Can I cancel my booking?",
       "q3Answer": "You can cancel your booking before it is approved by the admin. The <strong>$7 USD booking fee</strong> is refunded only if the problem is the platform's responsibility (for example, a system error or a duplicate charge).",
       "q3Approved": "Once your booking is approved, cancellation terms are between you and the host. We recommend communicating directly with the host to discuss any changes.",
       "q4Question": "How do I pay for my booking?",

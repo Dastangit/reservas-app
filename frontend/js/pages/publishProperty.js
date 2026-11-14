@@ -115,7 +115,7 @@ const PublishPropertyPage = {
 
             <div class="form-section">
               <h2>${t('propertyForm.imagesSection')}</h2>
-              <p style="color:var(--text-light);margin-bottom:15px;font-size:0.9rem;">${t('propertyForm.imagesHintPublish')}</p>
+              <p style="color:var(--text-light);margin-bottom:15px;font-size:var(--fs-sm);">${t('propertyForm.imagesHintPublish')}</p>
 
               <div id="image-inputs">
                 <div class="form-group image-entry">
