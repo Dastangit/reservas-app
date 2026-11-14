@@ -44,16 +44,45 @@ async function recordOrphanedPayment(transaction, orderId, reason, tenantId, bod
   return true;
 }
 
+// Motivo por el que un pago "pagado" no basta para confirmar la reserva, o
+// null si es valido. La reserva solo se da por pagada con la factura que le
+// creamos (transaction_uuid === invoice_id) y por el monto del fee: antes
+// bastaba con que coincidiera el remote_id, aunque fuera otro movimiento o
+// por menos dinero.
+function paymentProblem(booking, transaction) {
+  if (booking.invoice_id && transactionUuid(transaction) !== String(booking.invoice_id)) return 'invoice_mismatch';
+  const paidAmount = Number(transaction.amount);
+  if (Number.isFinite(paidAmount) && paidAmount < booking.fee_amount * AMOUNT_TOLERANCE) return 'amount_mismatch';
+  return null;
+}
+
 // Aplica el resultado de una transaccion de QvaPay (ya re-consultada con
 // nuestras credenciales) a una reserva. Lo usan el webhook y el cron de
 // expiracion. Los cambios de estado son atomicos (filtro por status), asi que
 // si ambos coinciden solo uno actua. Devuelve: 'paid' | 'failed' | 'pending' |
-// 'orphaned' | 'noop'.
+// 'review' | 'orphaned' | 'noop'.
 async function settleQvaPayTransaction(booking, transaction) {
   const { isPaid, isFailed } = classifyQvaPayStatus(transaction.status);
   const tenantId = booking.tenant_id;
 
   if (isPaid && booking.status === 'pending_payment') {
+    // Un pago que no cuadra no confirma la reserva ni la cancela: queda
+    // retenida para que el admin la revise y la confirme o reembolse.
+    const problem = paymentProblem(booking, transaction);
+    if (problem) {
+      await Booking.updateOne(
+        { _id: booking._id, status: 'pending_payment' },
+        { $set: { payment_needs_review: true, payment_reported_at: new Date() } },
+      );
+      await recordOrphanedPayment(
+        transaction, booking._id, problem, tenantId,
+        problem === 'invoice_mismatch'
+          ? `Reserva ${booking._id.toString().slice(-6)}: QvaPay reporta un pago que no es su factura. Revisa antes de confirmar.`
+          : `Reserva ${booking._id.toString().slice(-6)}: QvaPay reporta ${Number(transaction.amount)} y el fee es ${booking.fee_amount}. Revisa antes de confirmar.`,
+      );
+      return 'review';
+    }
+
     const result = await Booking.updateOne(
       { _id: booking._id, status: 'pending_payment' },
       {
@@ -63,6 +92,7 @@ async function settleQvaPayTransaction(booking, transaction) {
           fee_paid: true,
           fee_paid_at: new Date(),
           fee_transaction_id: transactionUuid(transaction),
+          payment_needs_review: false,
         },
         $push: { status_history: { status: 'pending_approval', changed_at: new Date(), changed_by: 'system' } },
       },
@@ -74,14 +104,6 @@ async function settleQvaPayTransaction(booking, transaction) {
       body: `Reserva ${booking._id.toString().slice(-6)} pagada, lista para revisar.`,
       url: '/admin/bookings',
     });
-
-    const paidAmount = Number(transaction.amount);
-    if (Number.isFinite(paidAmount) && paidAmount < booking.fee_amount * AMOUNT_TOLERANCE) {
-      await recordOrphanedPayment(
-        transaction, booking._id, 'amount_mismatch', tenantId,
-        `Reserva ${booking._id.toString().slice(-6)}: QvaPay reporta ${paidAmount} y el fee es ${booking.fee_amount}.`,
-      );
-    }
     return 'paid';
   }
 

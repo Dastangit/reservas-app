@@ -1135,7 +1135,8 @@
     "viewDetails": "Ver detalle",
     "address": "Dirección",
     "directions": "Cómo llegar",
-    "addressAfterApproval": "La dirección exacta aparecerá aquí cuando la reserva esté aprobada."
+    "addressAfterApproval": "La dirección exacta aparecerá aquí cuando la reserva esté aprobada.",
+    "contactAfterApproval": "El contacto del turista aparecerá aquí cuando la reserva esté aprobada."
   },
   "calendar": {
     "loading": "Cargando disponibilidad...",
@@ -1200,6 +1201,7 @@
       "approve_experience_booking": "Aprobó reserva de excursión",
       "reject_experience_booking": "Rechazó reserva de excursión",
       "confirm_manual_paypal_payment": "Confirmó pago manual de PayPal",
+      "confirm_reviewed_qvapay_payment": "Confirmó un pago de QvaPay revisado",
       "review_orphaned_payment": "Revisó pago huérfano",
       "mark_host_commission_paid": "Marcó comisión de host pagada",
       "waive_host_commission": "Exoneró comisión de host",
@@ -1250,7 +1252,8 @@
       "missing_order_id": "Sin order_id",
       "booking_not_found": "Reserva no encontrada",
       "booking_not_pending": "Pago recibido con la reserva ya cerrada",
-      "amount_mismatch": "Monto menor al esperado"
+      "amount_mismatch": "Monto menor al esperado",
+      "invoice_mismatch": "El pago no es la factura de la reserva"
     }
   },
   "header": {

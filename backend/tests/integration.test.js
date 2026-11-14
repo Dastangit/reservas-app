@@ -892,3 +892,89 @@ describe('2FA (otplib)', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('auditoria de seguridad (2026-11-14)', () => {
+  test('el registro tiene un tope por IP aunque cambie el email', async () => {
+    const prev = process.env.PROXY_SECRET;
+    process.env.PROXY_SECRET = 'secreto-registro';
+    const from = { 'x-elysio-proxy': 'secreto-registro', 'x-elysio-client-ip': '198.51.100.20' };
+    try {
+      for (let i = 0; i < 10; i += 1) {
+        const ok = await request(app).post('/api/auth/register').set(from)
+          .send({ email: `bot${i}@test.dev`, password: 'password123', name: 'Bot' });
+        expect(ok.status).toBe(201);
+      }
+      const blocked = await request(app).post('/api/auth/register').set(from)
+        .send({ email: 'bot10@test.dev', password: 'password123', name: 'Bot' });
+      expect(blocked.status).toBe(429);
+    } finally {
+      process.env.PROXY_SECRET = prev;
+    }
+  });
+
+  test('una reserva no puede pasar de 30 noches (bloquea fechas sin pagar)', async () => {
+    const t = await makeUser('tourist');
+    const long = await request(app).post('/api/bookings').set(auth(t)).send(bookingBody(day(600), day(631)));
+    expect(long.status).toBe(400);
+    expect(long.body.error).toMatch(/30 nights/);
+    const ok = await request(app).post('/api/bookings').set(auth(t)).send(bookingBody(day(600), day(630)));
+    expect(ok.status).toBe(201);
+  });
+
+  test('turista y anfitrion no ven el contacto del otro hasta que la reserva se aprueba', async () => {
+    const t = await makeUser('tourist');
+    const created = await request(app).post('/api/bookings').set(auth(t)).send(bookingBody(day(700), day(702)));
+    expect(created.status).toBe(201);
+    const id = created.body.data.booking_id;
+
+    const asTourist = await request(app).get(`/api/bookings/${id}`).set(auth(t));
+    expect(asTourist.body.data.booking.host_id.name).toBeTruthy();
+    expect(asTourist.body.data.booking.host_id.email).toBeUndefined();
+
+    const asHost = await request(app).get(`/api/bookings/${id}`).set(auth(host));
+    expect(asHost.body.data.booking.tourist_data.email).toBeUndefined();
+    expect(asHost.body.data.booking.tourist_data.phone).toBeUndefined();
+    expect(asHost.body.data.booking.tourist_id.email).toBeUndefined();
+    const hostList = await request(app).get('/api/bookings/host').set(auth(host));
+    const listed = hostList.body.data.bookings.find((b) => b._id === id);
+    expect(listed.tourist_data.phone).toBeUndefined();
+    expect(listed.tourist_id.email).toBeUndefined();
+
+    const asAdmin = await request(app).get(`/api/bookings/${id}`).set(auth(admin));
+    expect(asAdmin.body.data.booking.tourist_data.phone).toBe('+5355512345');
+
+    await Booking.updateOne({ _id: id }, { status: 'approved' });
+    const approvedTourist = await request(app).get(`/api/bookings/${id}`).set(auth(t));
+    expect(approvedTourist.body.data.booking.host_id.email).toBe(host.email);
+    const approvedHost = await request(app).get(`/api/bookings/${id}`).set(auth(host));
+    expect(approvedHost.body.data.booking.tourist_data.phone).toBe('+5355512345');
+  });
+
+  test('un pending_token falsificado no agota los intentos de 2FA del admin', async () => {
+    const { authenticator } = require('otplib');
+    const secret = authenticator.generateSecret(20);
+    const target = await makeUser('admin', { two_factor: { enabled: true, secret } });
+    const forged = jwt.sign({ id: target._id, purpose: '2fa_pending' }, 'no-es-el-secreto', { expiresIn: '5m' });
+    for (let i = 0; i < 11; i += 1) {
+      await request(app).post('/api/auth/verify-2fa').send({ pending_token: forged, code: '000000' });
+    }
+    const login = await request(app).post('/api/auth/login').send({ email: target.email, password: 'password123' });
+    const ok = await request(app).post('/api/auth/verify-2fa')
+      .send({ pending_token: login.body.data.pending_token, code: authenticator.generate(secret) });
+    expect(ok.status).toBe(200);
+  });
+
+  test('un anfitrion rechazado pierde la sesion y no puede publicar', async () => {
+    const h = await makeUser('host');
+    await User.updateOne({ _id: h._id }, { refresh_token: 'token-viejo' });
+    const rejected = await request(app).post(`/api/admin/hosts/${h._id}/reject`).set(auth(admin)).send({ reason: 'Datos falsos' });
+    expect(rejected.status).toBe(200);
+    expect((await User.findById(h._id).select('+refresh_token')).refresh_token).toBeNull();
+
+    const create = await request(app).post('/api/properties').set(auth(h)).send({
+      name: 'Casa', type: 'house', description: 'd', max_guests: 2, price_per_night: 40, services: demoServices(),
+      location: { city: 'Lima', country: 'PE', neighborhood: 'Centro', geo: pt(-77.03, -12.05) },
+    });
+    expect(create.status).toBe(403);
+  });
+});

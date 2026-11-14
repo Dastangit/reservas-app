@@ -146,6 +146,34 @@ describe('settleQvaPayTransaction', () => {
     expect(outcome).toBe('orphaned');
     expect(create.mock.calls[0][0].reason).toBe('booking_not_pending');
   });
+
+  test('con la factura correcta y el monto completo, confirma', async () => {
+    const update = jest.spyOn(Booking, 'updateOne').mockResolvedValue({ modifiedCount: 1 });
+    const outcome = await settleQvaPayTransaction(
+      { ...booking, invoice_id: 'inv-1', _id: { toString: () => 'abcdef123456' } },
+      { status: 'paid', amount: 7, transaction_uuid: 'inv-1' },
+    );
+    expect(outcome).toBe('paid');
+    expect(update.mock.calls[0][1].$set.status).toBe('pending_approval');
+  });
+
+  test.each([
+    ['otro movimiento con el mismo remote_id', { transaction_uuid: 'otra', amount: 7 }, 'invoice_mismatch'],
+    ['la factura, pero por menos del fee', { transaction_uuid: 'inv-1', amount: 1 }, 'amount_mismatch'],
+  ])('%s: no confirma, queda para revisar', async (_label, tx, reason) => {
+    jest.spyOn(OrphanedPayment, 'findOne').mockResolvedValue(null);
+    const create = jest.spyOn(OrphanedPayment, 'create').mockResolvedValue({});
+    const update = jest.spyOn(Booking, 'updateOne').mockResolvedValue({ modifiedCount: 1 });
+    const outcome = await settleQvaPayTransaction(
+      { ...booking, invoice_id: 'inv-1', _id: { toString: () => 'abcdef123456' } },
+      { status: 'paid', ...tx },
+    );
+    expect(outcome).toBe('review');
+    expect(update.mock.calls).toHaveLength(1);
+    expect(update.mock.calls[0][1].$set).toEqual(expect.objectContaining({ payment_needs_review: true }));
+    expect(update.mock.calls[0][1].$set.status).toBeUndefined();
+    expect(create.mock.calls[0][0].reason).toBe(reason);
+  });
 });
 
 describe('holdExpiry', () => {
@@ -171,6 +199,27 @@ describe('holdExpiry', () => {
 
     const cancelledIds = update.mock.calls.map((call) => call[0]._id);
     expect(cancelledIds).toEqual(['plain1']);
+  });
+
+  test('el margen de revision es de 24 h y vale tambien para QvaPay por revisar', async () => {
+    const { runHoldExpiry } = require('../jobs/holdExpiry');
+    const ExperienceBooking = require('../models/ExperienceBooking');
+    const ExperienceWaitlist = require('../models/ExperienceWaitlist');
+
+    const hoursAgo = (h) => new Date(Date.now() - h * 60 * 60 * 1000);
+    const selectable = (value) => ({ select: () => Promise.resolve(value) });
+    jest.spyOn(Booking, 'find').mockReturnValue(selectable([
+      { _id: 'paypalOld', payment_method: 'paypal_manual', payment_needs_review: true, hold_expires_at: hoursAgo(25) },
+      { _id: 'qvapayReview', payment_method: 'qvapay', payment_needs_review: true, hold_expires_at: hoursAgo(5) },
+    ]));
+    jest.spyOn(ExperienceBooking, 'find').mockReturnValue(selectable([]));
+    jest.spyOn(ExperienceWaitlist, 'find').mockReturnValue(selectable([]));
+    const update = jest.spyOn(Booking, 'updateOne').mockResolvedValue({ modifiedCount: 1 });
+    jest.spyOn(console, 'info').mockImplementation(() => {});
+
+    await runHoldExpiry();
+
+    expect(update.mock.calls.map((call) => call[0]._id)).toEqual(['paypalOld']);
   });
 });
 

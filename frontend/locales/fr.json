@@ -1135,7 +1135,8 @@
     "viewDetails": "Voir le détail",
     "address": "Adresse",
     "directions": "Itinéraire",
-    "addressAfterApproval": "L'adresse exacte apparaîtra ici une fois la réservation approuvée."
+    "addressAfterApproval": "L'adresse exacte apparaîtra ici une fois la réservation approuvée.",
+    "contactAfterApproval": "Les coordonnées du voyageur apparaîtront ici une fois la réservation approuvée."
   },
   "calendar": {
     "loading": "Chargement des disponibilités...",
@@ -1200,6 +1201,7 @@
       "approve_experience_booking": "A approuvé une réservation d’excursion",
       "reject_experience_booking": "A refusé une réservation d’excursion",
       "confirm_manual_paypal_payment": "A confirmé un paiement PayPal manuel",
+      "confirm_reviewed_qvapay_payment": "A confirmé un paiement QvaPay vérifié",
       "review_orphaned_payment": "A examiné un paiement orphelin",
       "mark_host_commission_paid": "A marqué une commission d’hôte payée",
       "waive_host_commission": "A annulé une commission d’hôte",
@@ -1250,7 +1252,8 @@
       "missing_order_id": "order_id manquant",
       "booking_not_found": "Réservation introuvable",
       "booking_not_pending": "Paiement reçu après clôture de la réservation",
-      "amount_mismatch": "Montant inférieur à l’attendu"
+      "amount_mismatch": "Montant inférieur à l’attendu",
+      "invoice_mismatch": "Le paiement ne correspond pas à la facture de la réservation"
     }
   },
   "header": {

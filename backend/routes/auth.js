@@ -7,13 +7,15 @@ const {
 } = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/auth');
 const validate = require('../middleware/validate');
-const { loginLimiter, passwordResetLimiter, twoFactorLimiter, registerLimiter } = require('../middleware/rateLimiter');
+const {
+  loginLimiter, passwordResetLimiter, twoFactorLimiter, registerLimiter, registerIpLimiter,
+} = require('../middleware/rateLimiter');
 
 const MIN_PASSWORD = 8;
 
 const router = express.Router();
 
-router.post('/register', registerLimiter, [
+router.post('/register', registerIpLimiter, registerLimiter, [
   body('email').trim().toLowerCase().isEmail().withMessage('Valid email is required'),
   body('password').isString().isLength({ min: MIN_PASSWORD, max: 128 }).withMessage(`Password must be at least ${MIN_PASSWORD} characters`),
   body('name').isString().trim().isLength({ min: 1, max: 100 }).withMessage('Name is required'),

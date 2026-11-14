@@ -173,18 +173,23 @@ exports.notifyManualPaymentSent = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Booking is not pending payment' });
     }
 
+    // Se avisa al admin solo la primera vez: repetir "Ya pague" corrige la
+    // referencia, pero no debe llenarle el telefono de avisos.
+    const firstReport = !booking.payment_needs_review;
     booking.payment_needs_review = true;
     booking.payment_reference = reference || undefined;
     booking.payer_email = payerEmail || undefined;
     booking.payment_reported_at = new Date();
     await booking.save();
 
-    notifyAdmins(booking.tenant_id, {
-      title: 'Pago manual de PayPal por confirmar',
-      body: `Reserva ${booking._id.toString().slice(-6)}: el turista dice haber pagado (ref: ${reference || '-'}, pagador: ${payerEmail || '-'}). Revisa PayPal y confirma en el panel.`,
-      telegramBody: `Reserva ${booking._id.toString().slice(-6)}: el turista dice haber pagado por PayPal. Revisa PayPal y confirma en el panel.`,
-      url: '/admin/bookings',
-    });
+    if (firstReport) {
+      notifyAdmins(booking.tenant_id, {
+        title: 'Pago manual de PayPal por confirmar',
+        body: `Reserva ${booking._id.toString().slice(-6)}: el turista dice haber pagado (ref: ${reference || '-'}, pagador: ${payerEmail || '-'}). Revisa PayPal y confirma en el panel.`,
+        telegramBody: `Reserva ${booking._id.toString().slice(-6)}: el turista dice haber pagado por PayPal. Revisa PayPal y confirma en el panel.`,
+        url: '/admin/bookings',
+      });
+    }
 
     res.json({ success: true, data: { booking_id: booking._id } });
   } catch (error) {

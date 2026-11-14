@@ -1135,7 +1135,8 @@
     "viewDetails": "View details",
     "address": "Address",
     "directions": "Get directions",
-    "addressAfterApproval": "The exact address will appear here once the booking is approved."
+    "addressAfterApproval": "The exact address will appear here once the booking is approved.",
+    "contactAfterApproval": "The tourist's contact details will appear here once the booking is approved."
   },
   "calendar": {
     "loading": "Loading availability...",
@@ -1200,6 +1201,7 @@
       "approve_experience_booking": "Approved experience booking",
       "reject_experience_booking": "Rejected experience booking",
       "confirm_manual_paypal_payment": "Confirmed manual PayPal payment",
+      "confirm_reviewed_qvapay_payment": "Confirmed a reviewed QvaPay payment",
       "review_orphaned_payment": "Reviewed orphaned payment",
       "mark_host_commission_paid": "Marked host commission paid",
       "waive_host_commission": "Waived host commission",
@@ -1250,7 +1252,8 @@
       "missing_order_id": "Missing order_id",
       "booking_not_found": "Booking not found",
       "booking_not_pending": "Payment received after the booking was closed",
-      "amount_mismatch": "Amount lower than expected"
+      "amount_mismatch": "Amount lower than expected",
+      "invoice_mismatch": "Payment does not match the booking invoice"
     }
   },
   "header": {
