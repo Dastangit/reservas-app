@@ -566,7 +566,9 @@ img[src="/assets/placeholder.svg"] {
 
 .form-group input,
 .form-group select,
-.form-group textarea {
+.form-group textarea,
+.services-group select,
+.services-item input[type="text"] {
   width: 100%;
   padding: 12px 16px;
   border: 1.5px solid var(--border);
@@ -580,14 +582,27 @@ img[src="/assets/placeholder.svg"] {
   appearance: none;
 }
 
+.form-group select,
+.services-group select {
+  padding-right: 40px;
+  background-image: var(--select-arrow);
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 12px 8px;
+  cursor: pointer;
+}
+
 .form-group input::placeholder,
-.form-group textarea::placeholder {
+.form-group textarea::placeholder,
+.services-item input[type="text"]::placeholder {
   color: var(--text-muted);
 }
 
 .form-group input:focus,
 .form-group select:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.services-group select:focus,
+.services-item input[type="text"]:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--focus-ring);
 }
@@ -611,11 +626,13 @@ img[src="/assets/placeholder.svg"] {
 
 .password-toggle-btn {
   position: absolute;
-  right: 8px;
+  right: 4px;
   background: none;
   border: none;
   cursor: pointer;
   font-size: 18px;
+  min-width: 40px;
+  min-height: 40px;
   padding: 6px;
   line-height: 1;
   opacity: 0.6;
@@ -1023,23 +1040,6 @@ img[src="/assets/placeholder.svg"] {
   }
 }
 
-/* ===== PAYMENT INFO / HOW IT WORKS ===== */
-.hero-how-it-works-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  font-weight: 600;
-  color: var(--on-color);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
-.hero-how-it-works-link:hover {
-  color: var(--on-color);
-  text-decoration-thickness: 2px;
-}
-
-.payment-info {
 /* ===== PORTADA: TITULO, LUZ DE CADA HORA Y FAROL ===== */
 /* El h1 lleva el lema (en ingles en todos los idiomas) y debajo la frase con
    las palabras que la gente busca. */
@@ -1315,6 +1315,23 @@ img[src="/assets/placeholder.svg"] {
   }
 }
 
+/* ===== PAYMENT INFO / HOW IT WORKS ===== */
+.hero-how-it-works-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 600;
+  color: var(--on-color);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.hero-how-it-works-link:hover {
+  color: var(--on-color);
+  text-decoration-thickness: 2px;
+}
+
+.payment-info {
   padding: var(--section-py) var(--section-px);
   background: var(--background);
 }
@@ -1527,6 +1544,22 @@ img[src="/assets/placeholder.svg"] {
   color: var(--text-light);
 }
 
+/* Tarjeta entera como enlace (excursiones): sin el azul ni el subrayado de los enlaces */
+.property-card--link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.property-card--link:hover {
+  color: inherit;
+}
+
+.property-card-spots {
+  color: var(--text-light);
+  font-size: var(--fs-sm);
+}
+
 .property-card-footer .btn-sm {
   padding: 8px 18px;
   font-size: var(--fs-sm);
@@ -1611,12 +1644,14 @@ img[src="/assets/placeholder.svg"] {
 
 .property-description,
 .property-amenities,
+.property-area,
 .property-reviews {
   margin-bottom: var(--space-xl);
 }
 
 .property-description h2,
 .property-amenities h2,
+.property-area h2,
 .property-reviews h2 {
   font-size: 20px;
   margin-bottom: var(--space-md);
@@ -3832,7 +3867,7 @@ img[src="/assets/placeholder.svg"] {
 
 .services-item {
   display: grid;
-  grid-template-columns: minmax(120px, 1fr) minmax(150px, 1.2fr) minmax(0, 2fr);
+  grid-template-columns: minmax(120px, 1fr) minmax(190px, 1.2fr) minmax(0, 2fr);
   gap: var(--space-sm);
   align-items: center;
 }
@@ -3974,13 +4009,19 @@ p.offer-no {
   margin: var(--space-xs) 0;
 }
 
+/* En el movil cada servicio va apilado: nombre, desplegable y nota a todo el
+   ancho (en dos columnas "Elige una opcion" no cabia). */
 @media (max-width: 768px) {
   .services-item {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
+    gap: var(--space-xs);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--border-light);
   }
 
-  .services-item input[type="text"] {
-    grid-column: 1 / -1;
+  .services-item:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
   }
 }
 
@@ -4311,6 +4352,7 @@ p.offer-no {
   .admin-audit-log-page .dashboard-tabs .tab-btn {
     font-size: var(--fs-xs);
     padding: 6px 10px;
+    min-height: 36px;
   }
 
   .admin-audit-log-page #audit-log-pagination {
@@ -4587,14 +4629,26 @@ p.offer-no {
   padding: 0 var(--space-md);
 }
 
-/* Zona aproximada del alojamiento en la ficha (sin la direccion exacta) */
+/* Zona aproximada del alojamiento en la ficha (sin la direccion exacta):
+   barrio, boton del mapa, mapa y aviso, con el mismo espacio entre todos. */
 .property-area {
-  margin: var(--space-lg) 0 var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.property-area h2 {
+  margin-bottom: var(--space-sm); /* + el gap = el mismo espacio que las otras secciones */
+}
+
+.property-area > p {
+  margin: 0;
 }
 
 .area-map {
+  align-self: stretch;
   height: 300px;
-  margin: var(--space-sm) 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   overflow: hidden;

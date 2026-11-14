@@ -78,7 +78,7 @@
     "viewDetails": "Ver detalles",
     "reserveNow": "Reservar ahora",
     "loginToBook": "Inicia sesión para reservar",
-    "notFound": "Propiedad no encontrada",
+    "notFound": "Alojamiento no encontrado",
     "noAmenities": "Sin comodidades listadas",
     "noReviews": "Sin reseñas aún",
     "max": "Máx",
@@ -89,7 +89,7 @@
     "exactAddressAfterApproval": "Ves el barrio y la zona aproximada en la ficha del alojamiento. La dirección exacta se comparte cuando se aprueba la reserva.",
     "questionsContact": "¿Dudas? Escríbenos",
     "hostLabel": "Anfitrión",
-    "featuredTitle": "Propiedades destacadas"
+    "featuredTitle": "Alojamientos destacados"
   },
   "booking": {
     "checkIn": "Entrada",
@@ -118,8 +118,8 @@
     "bookingNotFound": "Reserva no encontrada",
     "loginRequiredView": "Por favor <a href=\"/login\" data-link>inicia sesión</a> para ver los detalles de la reserva.",
     "detailsTitle": "Detalles de la reserva",
-    "propertyFallback": "Propiedad",
-    "propertyLabel": "Propiedad:",
+    "propertyFallback": "Alojamiento",
+    "propertyLabel": "Alojamiento:",
     "dates": "Fechas",
     "guestWord": "huésped(es)",
     "payment": "Pago",
@@ -253,7 +253,7 @@
     "localTime": "hora local"
   },
   "search": {
-    "title": "Buscar propiedades",
+    "title": "Buscar alojamientos",
     "filters": "Filtros",
     "city": "Ciudad",
     "cityPlaceholder": "ej. Cancún",
@@ -268,9 +268,9 @@
     "priceHighLow": "Precio: Mayor a menor",
     "rating": "Calificación",
     "applyFilters": "Aplicar filtros",
-    "loadingProperties": "Cargando propiedades...",
-    "resultsFound": "propiedades encontradas",
-    "errorLoading": "Error al cargar propiedades"
+    "loadingProperties": "Cargando alojamientos...",
+    "resultsFound": "alojamientos encontrados",
+    "errorLoading": "Error al cargar alojamientos"
   },
   "auth": {
     "loginTitle": "Iniciar sesión",
@@ -633,10 +633,10 @@
       "cancellationSection": "Política de cancelación",
       "needHelpSection": "¿Necesitas ayuda?",
       "adminTeamAvailable": "Nuestro equipo de administración está disponible para asistirte:",
-      "touristStep1Title": "Busca propiedades",
+      "touristStep1Title": "Busca alojamientos",
       "touristStep1Desc": "Explora nuestro catálogo de alojamientos verificados en todo el mundo. Usa filtros para encontrar el lugar perfecto por ubicación, precio, número de huéspedes y comodidades. Puedes buscar sin iniciar sesión.",
       "touristStep2Title": "Reserva y paga la tarifa",
-      "touristStep2Desc": "Cuando encuentres la propiedad perfecta, selecciona tus fechas y número de huéspedes. Pagarás una <strong>tarifa de reserva de $7 USD</strong> para asegurar tu reserva, que solo se devuelve si el problema es de la plataforma. El resto de tu pago se realizará directamente en el alojamiento.",
+      "touristStep2Desc": "Cuando encuentres el alojamiento perfecto, selecciona tus fechas y número de huéspedes. Pagarás una <strong>tarifa de reserva de $7 USD</strong> para asegurar tu reserva, que solo se devuelve si el problema es de la plataforma. El resto de tu pago se realizará directamente en el alojamiento.",
       "touristStep3Title": "Aprobación del admin",
       "touristStep3Desc": "Después de reservar, nuestro equipo revisa tu reserva. Esto generalmente toma menos de 24 horas. Te avisaremos por WhatsApp o correo cuando tu reserva sea aprobada o si hay algún problema, y puedes ver su estado en Mis reservas.",
       "touristStep4Title": "Disfruta tu estadía",
@@ -806,7 +806,7 @@
       "subtitle": "Encuentra respuestas a las preguntas más comunes sobre Elysio Experiences",
       "q1Question": "¿Cómo funciona el proceso de reserva?",
       "q1Answer": "El proceso de reserva es simple:",
-      "q1Step1": "<strong>Busca:</strong> Explora propiedades sin iniciar sesión. Usa filtros por ubicación, precio, huéspedes y comodidades.",
+      "q1Step1": "<strong>Busca:</strong> Explora alojamientos sin iniciar sesión. Usa filtros por ubicación, precio, huéspedes y comodidades.",
       "q1Step2": "<strong>Reserva:</strong> Selecciona tus fechas y paga una <strong>tarifa de reserva de $7 USD</strong> con QvaPay o PayPal para asegurar tu reserva.",
       "q1Step3": "<strong>Aprobación:</strong> Nuestro equipo revisa tu reserva dentro de 24 horas. Te avisaremos por WhatsApp o correo, y puedes ver el estado en Mis reservas.",
       "q1Step4": "<strong>Estadía:</strong> Una vez aprobada, recibes la información de contacto del anfitrión y los detalles de check-in. Paga el resto directamente en el alojamiento.",
@@ -831,7 +831,7 @@
       "q5NoFee": "No hay tarifa por publicar tu propiedad. La tarifa de $7 USD la paga el turista cuando reserva.",
       "q6Question": "¿Es seguro usar Elysio Experiences?",
       "q6Answer": "Sí, tomamos la seguridad en serio:",
-      "q6Verified": "Listings verificados: Todas las propiedades son revisadas por nuestro equipo de administración antes de hacerse visibles",
+      "q6Verified": "Listings verificados: Todos los alojamientos son revisados por nuestro equipo de administración antes de hacerse visibles",
       "q6Secure": "Pagos seguros: Las transacciones se procesan mediante QvaPay o PayPal durante el checkout",
       "q6Data": "Protección de datos: Las contraseñas están encriptadas (bcrypt), los datos se transmiten a través de HTTPS, y usamos limitación de tasa para prevenir ataques",
       "q6Isolation": "Aislamiento multiinquilino: Los datos de cada inquilino están completamente separados",
@@ -1059,7 +1059,7 @@
       "description": "Encuentra alquileres vacacionales verificados y experiencias locales auténticas en Latinoamérica, el Caribe y el resto del mundo. Reserva directo con anfitriones de confianza."
     },
     "search": {
-      "title": "Buscar propiedades",
+      "title": "Buscar alojamientos",
       "description": "Explora y filtra alquileres vacacionales verificados en todo el mundo por ubicación, precio y comodidades."
     },
     "experiences": {
@@ -1097,7 +1097,7 @@
     "new": "Nuevo",
     "perNight": "/noche",
     "viewDetails": "Ver detalles",
-    "noResults": "No se encontraron propiedades"
+    "noResults": "No se encontraron alojamientos"
   },
   "bookingCard": {
     "property": "Propiedad",
