@@ -5,7 +5,9 @@ const {
   updateProperty, checkAvailability,
   blockDates, unblockDates, getAvailabilityCalendar,
 } = require('../controllers/propertyController');
-const { protect, authorize, optionalAuth } = require('../middleware/auth');
+const {
+  protect, authorize, optionalAuth, requireApproved,
+} = require('../middleware/auth');
 const { setTenant } = require('../middleware/tenant');
 const validate = require('../middleware/validate');
 const { isValidCountry } = require('../utils/countries');
@@ -32,7 +34,7 @@ router.get('/:id', getPropertyById);
 router.get('/:id/availability', checkAvailability);
 router.get('/:id/availability/calendar', getAvailabilityCalendar);
 
-router.post('/', protect, authorize('host'), [
+router.post('/', protect, authorize('host'), requireApproved, [
   body('name').notEmpty().withMessage('Name is required'),
   body('type').isIn(PROPERTY_TYPES).withMessage(`Type must be one of: ${PROPERTY_TYPES.join(', ')}`),
   body('description').notEmpty().withMessage('Description is required'),
@@ -46,7 +48,7 @@ router.post('/', protect, authorize('host'), [
   body('services').custom(validServices),
 ], validate, createProperty);
 
-router.put('/:id', protect, authorize('host'), [
+router.put('/:id', protect, authorize('host'), requireApproved, [
   body('location.country').optional().custom(isValidCountry).withMessage('Invalid country (ISO code, e.g. MX)'),
   body('location.geo').optional().custom(isValidPoint).withMessage('Invalid location point (GeoJSON Point, [lng, lat])'),
   // `location` se reemplaza entero: si llega, trae el barrio.
@@ -55,10 +57,10 @@ router.put('/:id', protect, authorize('host'), [
   body('type').optional().isIn(PROPERTY_TYPES).withMessage(`Type must be one of: ${PROPERTY_TYPES.join(', ')}`),
   body('services').optional().custom(validServices),
 ], validate, updateProperty);
-router.post('/:id/availability/block', protect, authorize('host'), [
+router.post('/:id/availability/block', protect, authorize('host'), requireApproved, [
   body('start_date').notEmpty().withMessage('start_date is required'),
   body('end_date').notEmpty().withMessage('end_date is required'),
 ], validate, blockDates);
-router.delete('/:id/availability/block/:blockId', protect, authorize('host'), unblockDates);
+router.delete('/:id/availability/block/:blockId', protect, authorize('host'), requireApproved, unblockDates);
 
 module.exports = router;

@@ -10,7 +10,11 @@ const { setTenant } = require('../middleware/tenant');
 const validate = require('../middleware/validate');
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const MAX_STAY_NIGHTS = 365;
+// Toda reserva nace sin pagar y bloquea sus fechas mientras tanto: con 365
+// noches, unas pocas cuentas gratis dejaban a un anfitrion sin calendario.
+// Una estancia mas larga se hace en reservas seguidas (se puede entrar el dia
+// que termina la anterior).
+const MAX_STAY_NIGHTS = 30;
 
 const router = express.Router();
 

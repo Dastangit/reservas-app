@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { uploadedImageAttrs } from '../utils/validators.js';
 import { countryOptions } from '../utils/places.js';
 import { propertyTypeOptions } from '../utils/propertyTypes.js';
 import { servicesFormHtml, bindServicesForm, readServicesForm } from '../utils/propertyServices.js';
@@ -119,7 +120,7 @@ const PublishPropertyPage = {
               <div id="image-inputs">
                 <div class="form-group image-entry">
                   <label>${t('propertyForm.mainImageLabel')}</label>
-                  <input type="url" class="image-url" aria-label="${t('propertyForm.mainImageLabel')}" required placeholder="${t('propertyForm.imageUrlPlaceholder')}">
+                  <input type="url" class="image-url" aria-label="${t('propertyForm.mainImageLabel')}" required placeholder="${t('propertyForm.imageUrlPlaceholder')}" ${uploadedImageAttrs(t('propertyForm.imageUploadOnly'))}>
                   <div class="image-upload-row">
                     <input type="file" class="image-file-input" aria-label="${t('propertyForm.mainImageLabel')}" accept="image/*">
                     <span class="image-upload-status"></span>
@@ -166,7 +167,7 @@ const PublishPropertyPage = {
           <div style="display:flex;gap:10px;align-items:end;">
             <div style="flex:1">
               <label>${t('propertyForm.imageLabel')}</label>
-              <input type="url" class="image-url" aria-label="${t('propertyForm.imageLabel')}" placeholder="${t('propertyForm.imageUrlPlaceholder')}">
+              <input type="url" class="image-url" aria-label="${t('propertyForm.imageLabel')}" placeholder="${t('propertyForm.imageUrlPlaceholder')}" ${uploadedImageAttrs(t('propertyForm.imageUploadOnly'))}>
             </div>
             <button type="button" class="btn btn-danger btn-sm remove-image-btn" style="margin-bottom:4px;">X</button>
           </div>

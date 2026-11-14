@@ -8,10 +8,12 @@ const { findTransactionsByRemoteIds } = require('../utils/qvapay');
 const { settleQvaPayTransaction } = require('../utils/qvapaySettlement');
 const { notifyAdmins } = require('../utils/pushNotifications');
 
-// Si el turista ya aviso "Ya pague" por PayPal, la reserva NO se cancela al
-// vencer el hold de 3 h: el admin tiene este margen extra para revisar la
-// cuenta y confirmar. Cancelarla antes dejaba dinero cobrado sin reserva.
-const MANUAL_REVIEW_GRACE_MS = 72 * 60 * 60 * 1000;
+// Si el turista ya aviso "Ya pague" (PayPal) o el pago de QvaPay quedo por
+// revisar, la reserva NO se cancela al vencer el hold de 3 h: el admin tiene
+// este margen extra para revisar la cuenta y confirmar. Cancelarla antes
+// dejaba dinero cobrado sin reserva. Es corto porque las fechas siguen
+// bloqueadas y el aviso no prueba nada (los pagos se confirman en minutos).
+const MANUAL_REVIEW_GRACE_MS = 24 * 60 * 60 * 1000;
 
 const cancelPendingBooking = (bookingId) => Booking.updateOne(
   { _id: bookingId, status: 'pending_payment' },
@@ -27,7 +29,7 @@ const expireHolds = async () => {
     const expired = await Booking.find({
       status: 'pending_payment',
       hold_expires_at: { $lt: now },
-    }).select('_id tenant_id payment_method payment_needs_review hold_expires_at fee_amount fee_paid status');
+    }).select('_id tenant_id payment_method payment_needs_review hold_expires_at fee_amount fee_paid status invoice_id');
 
     if (expired.length === 0) return;
 
@@ -47,14 +49,14 @@ const expireHolds = async () => {
 
     let cancelled = 0;
     for (const booking of expired) {
-      if (booking.payment_method === 'paypal_manual' && booking.payment_needs_review) {
+      if (booking.payment_needs_review) {
         if (now - booking.hold_expires_at < MANUAL_REVIEW_GRACE_MS) continue;
         const result = await cancelPendingBooking(booking._id);
         if (result.modifiedCount === 1) {
           cancelled += 1;
           notifyAdmins(booking.tenant_id, {
-            title: 'Pago PayPal sin confirmar: reserva cancelada',
-            body: `Reserva ${String(booking._id).slice(-6)} se cancelo tras 72 h sin confirmar el pago manual. Si el dinero llego, reembolsa.`,
+            title: 'Pago sin confirmar: reserva cancelada',
+            body: `Reserva ${String(booking._id).slice(-6)} se cancelo tras 24 h sin confirmar el pago. Si el dinero llego, reembolsa.`,
             url: '/admin/bookings',
           });
         }
@@ -66,7 +68,7 @@ const expireHolds = async () => {
         const transaction = transactions.get(String(booking._id));
         if (transaction) {
           const outcome = await settleQvaPayTransaction(booking, transaction);
-          if (outcome === 'paid' || outcome === 'failed') continue;
+          if (['paid', 'failed', 'review'].includes(outcome)) continue;
           // Transaccion aun en curso: se le da hasta 24 h extra antes de cancelar.
           if (outcome === 'pending' && now - booking.hold_expires_at < 24 * 60 * 60 * 1000) continue;
         }

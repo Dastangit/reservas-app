@@ -49,8 +49,10 @@ exports.handleQvaPayWebhook = async (req, res, next) => {
     if (booking) {
       await settleQvaPayTransaction(booking, transaction);
     } else {
+      // El Payment de la factura dice de que tenant es; sin el, queda sin tenant
+      // (solo lo ve el admin del tenant principal).
       await recordOrphanedPayment(
-        transaction, remoteId, 'booking_not_found', null,
+        transaction, remoteId, 'booking_not_found', payment?.tenant_id || null,
         'Un pago de QvaPay no se pudo asociar a ninguna reserva.',
       ).catch((err) => console.error('[QvaPay webhook] No se pudo registrar pago huerfano:', err));
     }

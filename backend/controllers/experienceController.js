@@ -347,7 +347,14 @@ exports.claimWaitlistSpot = async (req, res, next) => {
       return res.status(410).json({ success: false, error: 'Claim window expired' });
     }
 
-    const experience = await Experience.findOne({ _id: req.params.id, tenant_id: req.tenantId });
+    // El cupo se aparto al avisarle ('full' es normal aqui), pero la excursion
+    // pudo cancelarse o empezar mientras tanto.
+    const experience = await Experience.findOne({
+      _id: req.params.id,
+      tenant_id: req.tenantId,
+      status: { $in: ['active', 'full'] },
+      date: { $gt: new Date() },
+    });
     if (!experience) {
       return res.status(404).json({ success: false, error: 'Experience not found' });
     }

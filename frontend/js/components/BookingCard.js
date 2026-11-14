@@ -59,7 +59,9 @@ const BookingCard = {
           ${booking.tourist_data ? `
             <div class="booking-tourist">
               <p><strong>${t('bookingCard.tourist')}:</strong> ${escapeHtml(booking.tourist_data.name)}</p>
-              <p><strong>${t('bookingCard.contact')}:</strong> ${escapeHtml(booking.tourist_data.email || booking.tourist_data.phone)}</p>
+              ${booking.tourist_data.email || booking.tourist_data.phone ? `
+                <p><strong>${t('bookingCard.contact')}:</strong> ${escapeHtml(booking.tourist_data.email || booking.tourist_data.phone)}</p>
+              ` : `<p class="field-hint">${t('bookingCard.contactAfterApproval')}</p>`}
             </div>
           ` : ''}
         </div>
@@ -71,7 +73,7 @@ const BookingCard = {
         ` : ''}
         ${isAdmin ? `
           <div class="booking-card-actions">
-            ${booking.status === 'pending_payment' && booking.payment_method === 'paypal_manual' ? `
+            ${booking.status === 'pending_payment' && (booking.payment_method === 'paypal_manual' || booking.payment_needs_review) ? `
               <button data-action="confirmManualPayment" data-arg="${booking._id}" class="btn btn-success btn-sm">${t('bookingCard.confirmManualPayment')}</button>
             ` : ''}
             ${booking.status === 'pending_approval' ? `

@@ -100,16 +100,36 @@ const userSchema = new mongoose.Schema({
     type: Date,
     select: false,
   },
+  // Los tokens emitidos antes de esta fecha dejan de valer (cambio de
+  // contrasena, rechazo de la cuenta). Va redondeada al segundo, como el
+  // `iat` del JWT, para no invalidar el token del login que viene justo despues.
+  tokens_valid_after: Date,
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 });
+
+const nowToTheSecond = () => new Date(Math.floor(Date.now() / 1000) * 1000);
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password_hash')) return next();
   const salt = await bcrypt.genSalt(10);
   this.password_hash = await bcrypt.hash(this.password_hash, salt);
+  // Con la contrasena nueva, las sesiones abiertas (p. ej. la de quien la robo)
+  // se cierran al momento, no cuando vence su token.
+  if (!this.isNew) this.tokens_valid_after = nowToTheSecond();
   next();
 });
+
+// Cierra al momento todas las sesiones de la cuenta (no guarda).
+userSchema.methods.revokeSessions = function () {
+  this.refresh_token = null;
+  this.tokens_valid_after = nowToTheSecond();
+};
+
+// true si el token se emitio antes de la ultima revocacion.
+userSchema.methods.tokenRevoked = function (decoded) {
+  return Boolean(this.tokens_valid_after) && decoded.iat * 1000 < this.tokens_valid_after.getTime();
+};
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password_hash);

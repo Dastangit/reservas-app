@@ -9,6 +9,7 @@ const HostMonthlyCommission = require('../models/HostMonthlyCommission');
 const Experience = require('../models/Experience');
 const ExperienceBooking = require('../models/ExperienceBooking');
 const OrganizerMonthlyCommission = require('../models/OrganizerMonthlyCommission');
+const Tenant = require('../models/Tenant');
 const { promoteNextWaitlistEntry } = require('../utils/experienceWaitlist');
 const { normalizeServices, hasCompleteServices } = require('../utils/propertyServices');
 const { flagOfferChanges } = require('../utils/offerChanges');
@@ -238,16 +239,21 @@ exports.getAllBookings = async (req, res, next) => {
 // ver decision del 31-ago-2026). El admin revisa el deposito por fuera del
 // sistema y despues llama esto; produce el mismo efecto que el webhook de
 // QvaPay cuando confirma un pago (pasa a pending_approval para revision normal).
+// Tambien confirma un pago de QvaPay que quedo por revisar (no era la factura
+// de la reserva o llego por menos del fee).
 exports.confirmManualPayment = async (req, res, next) => {
   try {
     const booking = await Booking.findOne({
       _id: req.params.id,
       tenant_id: req.tenantId,
-      payment_method: 'paypal_manual',
+      $or: [
+        { payment_method: 'paypal_manual' },
+        { payment_method: 'qvapay', payment_needs_review: true },
+      ],
     });
 
     if (!booking) {
-      return res.status(404).json({ success: false, error: 'Booking not found or not using manual PayPal' });
+      return res.status(404).json({ success: false, error: 'Booking not found or its payment is not awaiting manual review' });
     }
 
     if (booking.status !== 'pending_payment') {
@@ -262,7 +268,7 @@ exports.confirmManualPayment = async (req, res, next) => {
           payment_stage: 'paid',
           fee_paid: true,
           fee_paid_at: new Date(),
-          fee_transaction_id: String(req.body.reference || booking.payment_reference || 'manual-paypal').slice(0, 200),
+          fee_transaction_id: String(req.body.reference || booking.payment_reference || `manual-${booking.payment_method}`).slice(0, 200),
           payment_needs_review: false,
         },
         $push: { status_history: { status: 'pending_approval', changed_at: new Date(), changed_by: String(req.user._id) } },
@@ -273,7 +279,7 @@ exports.confirmManualPayment = async (req, res, next) => {
     }
 
     await Payment.findOneAndUpdate(
-      { booking_id: booking._id, method: 'paypal_manual' },
+      { booking_id: booking._id, method: booking.payment_method },
       { payment_status: 'finished' },
       { sort: { created_at: -1 } }
     );
@@ -281,7 +287,7 @@ exports.confirmManualPayment = async (req, res, next) => {
     logAdminAction({
       tenant_id: req.tenantId,
       admin_id: req.user._id,
-      action: 'confirm_manual_paypal_payment',
+      action: booking.payment_method === 'qvapay' ? 'confirm_reviewed_qvapay_payment' : 'confirm_manual_paypal_payment',
       target_type: 'Booking',
       target_id: booking._id,
       metadata: { reference: req.body.reference },
@@ -417,6 +423,7 @@ exports.rejectHost = async (req, res, next) => {
 
     host.host_status = 'rejected';
     host.host_status_reason = req.body.reason;
+    host.revokeSessions(); // cierra su sesion al momento
     await host.save();
 
     logAdminAction({
@@ -843,15 +850,21 @@ exports.getBookingTouristContactLinks = async (req, res, next) => {
   }
 };
 
-// Lista los IPN de NOWPayments que no se pudieron asociar a ninguna reserva,
-// para revisión manual del admin (en vez de que se pierdan en el log).
+// Los pagos huerfanos pueden no tener tenant_id (un pago sin reserva no dice
+// de que tenant es). Esos solo los ve el admin del tenant principal (el de
+// DEFAULT_TENANT_DOMAIN), no el de cualquier tenant.
+async function orphanTenantFilter(tenantId) {
+  const main = await Tenant.findOne({ domain: env.defaultTenantDomain }).select('_id').lean();
+  if (!main || String(main._id) !== String(tenantId)) return { tenant_id: tenantId };
+  return { $or: [{ tenant_id: tenantId }, { tenant_id: { $exists: false } }, { tenant_id: null }] };
+}
+
+// Lista los pagos que no se pudieron asociar a ninguna reserva, para revision
+// manual del admin (en vez de que se pierdan en el log).
 exports.getOrphanedPayments = async (req, res, next) => {
   try {
     const { reviewed } = req.query;
-    // Los pagos huérfanos pueden no tener tenant_id (un IPN sin order_id válido
-    // no tiene forma de saber a qué tenant pertenece) -- se incluyen igual,
-    // ya que hoy solo existe un tenant en el sistema.
-    const filter = { $or: [{ tenant_id: req.tenantId }, { tenant_id: { $exists: false } }, { tenant_id: null }] };
+    const filter = await orphanTenantFilter(req.tenantId);
     if (reviewed === 'true') filter.reviewed = true;
     if (reviewed === 'false') filter.reviewed = false;
 
@@ -869,7 +882,7 @@ exports.reviewOrphanedPayment = async (req, res, next) => {
   try {
     const orphan = await OrphanedPayment.findOne({
       _id: req.params.id,
-      $or: [{ tenant_id: req.tenantId }, { tenant_id: { $exists: false } }, { tenant_id: null }],
+      ...(await orphanTenantFilter(req.tenantId)),
     });
     if (!orphan) {
       return res.status(404).json({ success: false, error: 'Orphaned payment not found' });
@@ -1158,6 +1171,7 @@ exports.rejectOrganizer = async (req, res, next) => {
 
     organizer.organizer_status = 'rejected';
     organizer.organizer_status_reason = req.body.reason;
+    organizer.revokeSessions(); // cierra su sesion al momento
     await organizer.save();
 
     logAdminAction({
@@ -1695,17 +1709,13 @@ exports.getPendingCounts = async (req, res, next) => {
         password_reset_token: { $exists: true, $ne: null },
         password_reset_expires: { $gt: new Date() },
       }),
-      OrphanedPayment.countDocuments({
-        $or: [{ tenant_id: tenantId }, { tenant_id: { $exists: false } }, { tenant_id: null }],
-        reviewed: false,
-      }),
+      orphanTenantFilter(tenantId).then((filter) => OrphanedPayment.countDocuments({ ...filter, reviewed: false })),
       HostMonthlyCommission.countDocuments({ tenant_id: tenantId, status: 'overdue' }),
       Experience.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),
       ExperienceBooking.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),
       OrganizerMonthlyCommission.countDocuments({ tenant_id: tenantId, status: 'overdue' }),
       Booking.countDocuments({
         tenant_id: tenantId,
-        payment_method: 'paypal_manual',
         status: 'pending_payment',
         payment_needs_review: true,
       }),

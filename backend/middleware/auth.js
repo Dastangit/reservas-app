@@ -32,6 +32,10 @@ const protect = async (req, res, next) => {
       return res.status(401).json({ success: false, error: 'Not authorized, user not found' });
     }
 
+    if (req.user.tokenRevoked(decoded)) {
+      return res.status(401).json({ success: false, error: 'Not authorized, session ended' });
+    }
+
     if (req.user.status !== 'active') {
       return res.status(403).json({ success: false, error: 'Account is not active' });
     }
@@ -51,7 +55,7 @@ const optionalAuth = async (req, res, next) => {
     const decoded = jwt.verify(token, env.jwtSecret, { algorithms: ['HS256'] });
     if (!decoded.purpose) {
       const user = await User.findById(decoded.id);
-      if (user && user.status === 'active') req.user = user;
+      if (user && user.status === 'active' && !user.tokenRevoked(decoded)) req.user = user;
     }
   } catch (_error) {
     // token vencido o invalido: se trata como anonimo

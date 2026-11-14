@@ -351,7 +351,7 @@ describe('propiedades', () => {
 
   test('no se puede guardar el public_id de una imagen ajena', async () => {
     const res = await request(app).put(`/api/properties/${property._id}`).set(auth(host)).send({
-      images: [{ url: 'https://res.cloudinary.com/x/a.jpg', public_id: 'reservas-app/uploads/otro-usuario/a' }],
+      images: [{ url: `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME || 'x'}/a.jpg`, public_id: 'reservas-app/uploads/otro-usuario/a' }],
     });
     expect(res.status).toBe(200);
     expect(res.body.data.property.images[0].public_id).toBeUndefined();
@@ -890,5 +890,186 @@ describe('2FA (otplib)', () => {
     const user = await makeUser('admin', { two_factor: { enabled: true, secret: require('otplib').authenticator.generateSecret(20) } });
     const res = await request(app).post('/api/auth/2fa/setup').set(auth(user));
     expect(res.status).toBe(400);
+  });
+});
+
+describe('auditoria de seguridad (2026-11-14)', () => {
+  test('el registro tiene un tope por IP aunque cambie el email', async () => {
+    const prev = process.env.PROXY_SECRET;
+    process.env.PROXY_SECRET = 'secreto-registro';
+    const from = { 'x-elysio-proxy': 'secreto-registro', 'x-elysio-client-ip': '198.51.100.20' };
+    try {
+      for (let i = 0; i < 10; i += 1) {
+        const ok = await request(app).post('/api/auth/register').set(from)
+          .send({ email: `bot${i}@test.dev`, password: 'password123', name: 'Bot' });
+        expect(ok.status).toBe(201);
+      }
+      const blocked = await request(app).post('/api/auth/register').set(from)
+        .send({ email: 'bot10@test.dev', password: 'password123', name: 'Bot' });
+      expect(blocked.status).toBe(429);
+    } finally {
+      process.env.PROXY_SECRET = prev;
+    }
+  });
+
+  test('una reserva no puede pasar de 30 noches (bloquea fechas sin pagar)', async () => {
+    const t = await makeUser('tourist');
+    const long = await request(app).post('/api/bookings').set(auth(t)).send(bookingBody(day(600), day(631)));
+    expect(long.status).toBe(400);
+    expect(long.body.error).toMatch(/30 nights/);
+    const ok = await request(app).post('/api/bookings').set(auth(t)).send(bookingBody(day(600), day(630)));
+    expect(ok.status).toBe(201);
+  });
+
+  test('turista y anfitrion no ven el contacto del otro hasta que la reserva se aprueba', async () => {
+    const t = await makeUser('tourist');
+    const created = await request(app).post('/api/bookings').set(auth(t)).send(bookingBody(day(700), day(702)));
+    expect(created.status).toBe(201);
+    const id = created.body.data.booking_id;
+
+    const asTourist = await request(app).get(`/api/bookings/${id}`).set(auth(t));
+    expect(asTourist.body.data.booking.host_id.name).toBeTruthy();
+    expect(asTourist.body.data.booking.host_id.email).toBeUndefined();
+
+    const asHost = await request(app).get(`/api/bookings/${id}`).set(auth(host));
+    expect(asHost.body.data.booking.tourist_data.email).toBeUndefined();
+    expect(asHost.body.data.booking.tourist_data.phone).toBeUndefined();
+    expect(asHost.body.data.booking.tourist_id.email).toBeUndefined();
+    const hostList = await request(app).get('/api/bookings/host').set(auth(host));
+    const listed = hostList.body.data.bookings.find((b) => b._id === id);
+    expect(listed.tourist_data.phone).toBeUndefined();
+    expect(listed.tourist_id.email).toBeUndefined();
+
+    const asAdmin = await request(app).get(`/api/bookings/${id}`).set(auth(admin));
+    expect(asAdmin.body.data.booking.tourist_data.phone).toBe('+5355512345');
+
+    await Booking.updateOne({ _id: id }, { status: 'approved' });
+    const approvedTourist = await request(app).get(`/api/bookings/${id}`).set(auth(t));
+    expect(approvedTourist.body.data.booking.host_id.email).toBe(host.email);
+    const approvedHost = await request(app).get(`/api/bookings/${id}`).set(auth(host));
+    expect(approvedHost.body.data.booking.tourist_data.phone).toBe('+5355512345');
+  });
+
+  test('un pending_token falsificado no agota los intentos de 2FA del admin', async () => {
+    const { authenticator } = require('otplib');
+    const secret = authenticator.generateSecret(20);
+    const target = await makeUser('admin', { two_factor: { enabled: true, secret } });
+    const forged = jwt.sign({ id: target._id, purpose: '2fa_pending' }, 'no-es-el-secreto', { expiresIn: '5m' });
+    for (let i = 0; i < 11; i += 1) {
+      await request(app).post('/api/auth/verify-2fa').send({ pending_token: forged, code: '000000' });
+    }
+    const login = await request(app).post('/api/auth/login').send({ email: target.email, password: 'password123' });
+    const ok = await request(app).post('/api/auth/verify-2fa')
+      .send({ pending_token: login.body.data.pending_token, code: authenticator.generate(secret) });
+    expect(ok.status).toBe(200);
+  });
+
+  test('un anfitrion rechazado pierde la sesion y no puede publicar', async () => {
+    const h = await makeUser('host');
+    await User.updateOne({ _id: h._id }, { refresh_token: 'token-viejo' });
+    const rejected = await request(app).post(`/api/admin/hosts/${h._id}/reject`).set(auth(admin)).send({ reason: 'Datos falsos' });
+    expect(rejected.status).toBe(200);
+    expect((await User.findById(h._id).select('+refresh_token')).refresh_token).toBeNull();
+
+    const create = await request(app).post('/api/properties').set(auth(h)).send({
+      name: 'Casa', type: 'house', description: 'd', max_guests: 2, price_per_night: 40, services: demoServices(),
+      location: { city: 'Lima', country: 'PE', neighborhood: 'Centro', geo: pt(-77.03, -12.05) },
+    });
+    expect(create.status).toBe(403);
+  });
+
+  test('cambiar la contrasena cierra al momento las sesiones abiertas', async () => {
+    const u = await makeUser('tourist');
+    const before = jwt.sign({ id: u._id, iat: Math.floor(Date.now() / 1000) - 10 }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const changed = await request(app).post('/api/users/change-password').set({ Authorization: `Bearer ${before}` })
+      .send({ current_password: 'password123', new_password: 'otra-clave-123' });
+    expect(changed.status).toBe(200);
+
+    const stolen = await request(app).get('/api/bookings').set({ Authorization: `Bearer ${before}` });
+    expect(stolen.status).toBe(401);
+    const login = await request(app).post('/api/auth/login').send({ email: u.email, password: 'otra-clave-123' });
+    expect(login.status).toBe(200);
+    const fresh = await request(app).get('/api/bookings').set({ Authorization: `Bearer ${login.body.data.token}` });
+    expect(fresh.status).toBe(200);
+  });
+
+  test('en publico, de un bloqueo solo se ven las fechas', async () => {
+    const p = await Property.create({
+      tenant_id: tenant._id, host_id: host._id, name: 'Con bloqueo', type: 'hostel', description: 'd',
+      location: { city: 'Quito' }, max_guests: 2, price_per_night: 10, status: 'active',
+      blocked_dates: [{ start_date: new Date(day(20)), end_date: new Date(day(22)), reason: 'Familia de visita', blocked_by_user: host._id }],
+    });
+    const detail = await request(app).get(`/api/properties/${p._id}`);
+    expect(detail.body.data.property.blocked_dates).toEqual([{ start_date: expect.any(String), end_date: expect.any(String) }]);
+    const calendar = await request(app).get(`/api/properties/${p._id}/availability/calendar`);
+    expect(calendar.body.data.blocked_dates[0].reason).toBeUndefined();
+    const check = await request(app).get(`/api/properties/${p._id}/availability?check_in=${day(20)}&check_out=${day(21)}`);
+    expect(check.body.data.available).toBe(false);
+    expect(check.body.data.blocked_dates[0].blocked_by_user).toBeUndefined();
+    const list = await request(app).get('/api/properties?city=Quito');
+    expect(list.body.data.properties[0].blocked_dates).toBeUndefined();
+
+    const asHost = await request(app).get(`/api/properties/${p._id}/availability/calendar`).set(auth(host));
+    expect(asHost.body.data.blocked_dates[0].reason).toBe('Familia de visita');
+  });
+
+  test('una propiedad no publicada no responde disponibilidad', async () => {
+    const p = await Property.create({
+      tenant_id: tenant._id, host_id: host._id, name: 'Pendiente', type: 'hostel', description: 'd',
+      location: { city: 'Cusco' }, max_guests: 2, price_per_night: 10, status: 'pending_approval',
+    });
+    const res = await request(app).get(`/api/properties/${p._id}/availability?check_in=${day(5)}&check_out=${day(6)}`);
+    expect(res.status).toBe(404);
+  });
+
+  test('no se reclama una plaza de la lista de espera si la excursion se cancelo', async () => {
+    const ExperienceWaitlist = require('../models/ExperienceWaitlist');
+    const organizer = await makeUser('organizer');
+    const t = await makeUser('tourist');
+    const exp = await Experience.create({
+      tenant_id: tenant._id, organizer_id: organizer._id, title: 'Cancelada', description: 'd',
+      location: { city: 'Habana' }, date: new Date(Date.now() + 5 * 24 * 3600 * 1000),
+      max_participants: 5, pricing: [{ audience: 'tourist', currency: 'USD', amount: 20 }], status: 'cancelled',
+    });
+    const entry = await ExperienceWaitlist.create({
+      tenant_id: tenant._id, experience_id: exp._id, tourist_id: t._id, num_spots_requested: 1, position: 1,
+      status: 'notified', notified_at: new Date(), claim_expires_at: new Date(Date.now() + 3600 * 1000),
+    });
+    const res = await request(app).post(`/api/experiences/${exp._id}/waitlist/${entry._id}/claim`).set(auth(t)).send({
+      payment_info: [{ audience: 'tourist', currency: 'USD', num_spots: 1 }], tourist_data: { phone: '+5355512345' },
+    });
+    expect(res.status).toBe(404);
+    expect(await ExperienceBooking.countDocuments({ experience_id: exp._id })).toBe(0);
+  });
+
+  test('los logins fallidos tienen un tope por IP aunque cambie el email', async () => {
+    const prev = process.env.PROXY_SECRET;
+    process.env.PROXY_SECRET = 'secreto-login';
+    const from = { 'x-elysio-proxy': 'secreto-login', 'x-elysio-client-ip': '198.51.100.30' };
+    try {
+      for (let i = 0; i < 30; i += 1) {
+        const r = await request(app).post('/api/auth/login').set(from).send({ email: `nadie${i}@test.dev`, password: 'adivina123' });
+        expect(r.status).toBe(401);
+      }
+      const blocked = await request(app).post('/api/auth/login').set(from).send({ email: 'nadie30@test.dev', password: 'adivina123' });
+      expect(blocked.status).toBe(429);
+    } finally {
+      process.env.PROXY_SECRET = prev;
+    }
+  });
+
+  test('un pago huerfano sin tenant solo lo ve el admin del tenant principal', async () => {
+    const OrphanedPayment = require('../models/OrphanedPayment');
+    const other = await Tenant.create({ name: 'Otro', domain: 'otro.test', admin_email: 'a@otro.test' });
+    const otherAdmin = await User.create({
+      tenant_id: other._id, email: 'admin@otro.test', password_hash: 'password123', name: 'Otro admin', role: 'admin',
+    });
+    await OrphanedPayment.create({ order_id: 'sin-tenant-1', reason: 'booking_not_found', payment_status: 'paid' });
+
+    const mine = await request(app).get('/api/admin/orphaned-payments').set(auth(admin));
+    expect(mine.body.data.payments.map((p) => p.order_id)).toContain('sin-tenant-1');
+    const theirs = await request(app).get('/api/admin/orphaned-payments').set(auth(otherAdmin));
+    expect(theirs.status).toBe(200);
+    expect(theirs.body.data.payments.map((p) => p.order_id)).not.toContain('sin-tenant-1');
   });
 });

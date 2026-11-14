@@ -6,7 +6,7 @@ const {
   getMyRecurrences, createRecurrence, updateRecurrence, pauseRecurrence, endRecurrence,
   getRecurrenceOccurrences,
 } = require('../controllers/organizerController');
-const { protect, authorize } = require('../middleware/auth');
+const { protect, authorize, requireApproved } = require('../middleware/auth');
 const { setTenant } = require('../middleware/tenant');
 const validate = require('../middleware/validate');
 const { isValidCountry } = require('../utils/countries');
@@ -25,6 +25,8 @@ const router = express.Router();
 router.use(protect);
 router.use(setTenant);
 router.use(authorize('organizer'));
+// Un organizador rechazado puede ver lo suyo, pero no crear ni cambiar nada.
+router.use((req, res, next) => (req.method === 'GET' ? next() : requireApproved(req, res, next)));
 
 const experienceValidators = [
   body('title').notEmpty().withMessage('Title is required'),

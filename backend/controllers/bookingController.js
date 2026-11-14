@@ -179,17 +179,34 @@ exports.createBooking = async (req, res, next) => {
   }
 };
 
-// La direccion y el punto exactos se dan al turista solo con la reserva
-// aprobada; antes ve la zona aproximada, como en la ficha publica. Evita que
-// contacte directo al anfitrion saltandose la tarifa.
+// La direccion y el punto exactos, y el contacto de la otra parte, se dan solo
+// con la reserva aprobada; antes el turista ve la zona aproximada, como en la
+// ficha publica. Evita que turista y anfitrion se contacten directo
+// saltandose la tarifa.
 const EXACT_LOCATION_STATUSES = ['approved', 'completed'];
 
 function withLocationForTourist(booking) {
   const data = booking.toObject();
+  if (EXACT_LOCATION_STATUSES.includes(data.status)) return data;
   const location = data.property_id?.location;
-  if (location && !EXACT_LOCATION_STATUSES.includes(data.status)) {
+  if (location) {
     delete location.address;
     delete location.geo;
+  }
+  if (data.host_id && typeof data.host_id === 'object') delete data.host_id.email;
+  return data;
+}
+
+function withContactForHost(booking) {
+  const data = booking.toObject();
+  if (EXACT_LOCATION_STATUSES.includes(data.status)) return data;
+  if (data.tourist_data) {
+    delete data.tourist_data.email;
+    delete data.tourist_data.phone;
+  }
+  if (data.tourist_id && typeof data.tourist_id === 'object') {
+    delete data.tourist_id.email;
+    delete data.tourist_id.phone;
   }
   return data;
 }
@@ -219,7 +236,7 @@ exports.getHostBookings = async (req, res, next) => {
       .populate('tourist_id', 'name email')
       .sort({ created_at: -1 });
 
-    res.json({ success: true, data: { bookings, count: bookings.length } });
+    res.json({ success: true, data: { bookings: bookings.map(withContactForHost), count: bookings.length } });
   } catch (error) {
     next(error);
   }
@@ -248,9 +265,11 @@ exports.getBookingById = async (req, res, next) => {
       return res.status(403).json({ success: false, error: 'Not authorized' });
     }
 
-    const isHostOrAdmin = req.user.role === 'admin'
-      || booking.host_id._id.toString() === req.user._id.toString();
-    res.json({ success: true, data: { booking: isHostOrAdmin ? booking : withLocationForTourist(booking) } });
+    let data;
+    if (req.user.role === 'admin') data = booking;
+    else if (booking.host_id._id.toString() === req.user._id.toString()) data = withContactForHost(booking);
+    else data = withLocationForTourist(booking);
+    res.json({ success: true, data: { booking: data } });
   } catch (error) {
     next(error);
   }
