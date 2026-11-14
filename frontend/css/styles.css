@@ -142,7 +142,7 @@ p:last-child { margin-bottom: 0; }
 }
 
 .logo-img {
-  height: 72px;
+  height: 52px;
   width: auto;
 }
 
@@ -3541,7 +3541,7 @@ img[src="/assets/placeholder.svg"] {
 }
 
 .footer-logo-img {
-  height: 60px;
+  height: 48px;
   width: auto;
 }
 
@@ -4210,7 +4210,7 @@ p.offer-no {
   }
 
   .logo-img {
-    height: 50px;
+    height: 40px;
   }
 
   .hero {

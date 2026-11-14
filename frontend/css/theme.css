@@ -1,27 +1,27 @@
 :root {
   /* ===== Colors ===== */
-  --primary: #0F172A;
-  --accent: #2563EB;
+  --primary: #073B50;
+  --accent: #0B5E7E;
   --background: #FFFFFF;
-  --surface: #F8FAFC;
-  --text: #111827;
-  --text-light: #64748B;
-  --text-muted: #6B7280;
+  --surface: #F8F5EF;
+  --text: #12202A;
+  --text-light: #5A6670;
+  --text-muted: #5F6B73;
   --success: #15803D;
   --error: #DC2626;
   --warning: #B45309;
-  --border: #E5E7EB;
-  --border-light: #F1F5F9;
+  --border: #E8E3DA;
+  --border-light: #F2EEE6;
   color-scheme: light;
 
   /* Texto sobre rellenos de color (botones, etiquetas de estado) */
   --on-color: #FFFFFF;
   --on-primary: #FFFFFF;
-  --accent-hover: #1D4ED8;
-  --primary-hover: #1E293B;
+  --accent-hover: #073B50;
+  --primary-hover: #0A4C66;
   /* Rellenos con texto blanco encima: contraste >= 4.5 en ambos temas */
-  --accent-fill: #2563EB;
-  --accent-fill-hover: #1D4ED8;
+  --accent-fill: #0B5E7E;
+  --accent-fill-hover: #073B50;
   --success-fill: #15803D;
   --success-fill-hover: #166534;
   --warning-fill: #B45309;
@@ -29,13 +29,13 @@
   --error-fill-hover: #B91C1C;
   --secondary-fill: #0369A1;
   /* Accion principal de cada pantalla (reservar, buscar, pagar) */
-  --cta: #BE3F4F;
-  --cta-fill: #BE3F4F;
-  --cta-fill-hover: #A3313F;
-  --accent-soft: rgba(37, 99, 235, 0.04);
-  --focus-ring: rgba(37, 99, 235, 0.1);
+  --cta: #A84B05;
+  --cta-fill: #B4530A;
+  --cta-fill-hover: #9A4508;
+  --accent-soft: rgba(11, 94, 126, 0.05);
+  --focus-ring: rgba(11, 94, 126, 0.16);
   /* Flecha de los desplegables de formulario (sin la nativa por appearance: none) */
-  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%2364748B' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%235A6670' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
   /* Avisos suaves (fondo, borde, texto) */
   --success-soft: #F0FDF4;
@@ -47,20 +47,20 @@
   --error-soft: #FEF2F2;
   --error-border: #FECACA;
   --error-text: #B91C1C;
-  --info-soft: #EFF6FF;
-  --info-text: #1D4ED8;
-  --neutral-soft: #F1F5F9;
+  --info-soft: #EEF6F9;
+  --info-text: #0B5E7E;
+  --neutral-soft: #F2EEE6;
   --neutral-text: #334155;
 
   /* Superficies especiales */
   --header-bg: rgba(255, 255, 255, 0.85);
   --header-bg-scrolled: rgba(255, 255, 255, 0.95);
-  --header-border: rgba(229, 231, 235, 0.5);
+  --header-border: rgba(232, 227, 218, 0.6);
   --hero-input-bg: rgba(255, 255, 255, 0.95);
   /* Portada: fondo sin fotos y capa sobre las fotos (iguales en ambos temas) */
-  --hero-bg: #0F172A;
-  --hero-overlay: rgba(15, 23, 42, 0.6);
-  --overlay: rgba(15, 23, 42, 0.5);
+  --hero-bg: #073B50;
+  --hero-overlay: rgba(4, 30, 41, 0.62);
+  --overlay: rgba(4, 30, 41, 0.5);
   /* Farol de la portada y luz de cada hora (iguales en ambos temas; el modo
      oscuro no los redefine). Los rellenos llevan texto blanco: >= 4.5:1. */
   --lantern-metal: #1C1917;
@@ -137,7 +137,7 @@
   --header-height: 80px;
 
   /* ===== Legacy aliases (for compatibility) ===== */
-  --primary-dark: #1E293B;
+  --primary-dark: #0A4C66;
   --neutral: var(--surface);
   --white: var(--background);
   --radius: var(--radius-sm);
@@ -148,38 +148,38 @@
    Sigue al sistema salvo que el usuario elija (data-theme en <html>,
    lo pone js/theme-init.js antes de pintar y el boton del encabezado). */
 :root[data-theme="dark"] {
-  --primary: #E2E8F0;
-  --accent: #60A5FA;
-  --background: #0B1220;
-  --surface: #111A2B;
-  --text: #E5E7EB;
-  --text-light: #A3B1C6;
-  --text-muted: #8392A8;
+  --primary: #E6EEF0;
+  --accent: #6CC4DE;
+  --background: #071A22;
+  --surface: #0C2530;
+  --text: #E7ECEE;
+  --text-light: #A6B8BF;
+  --text-muted: #8FA5AD;
   --success: #4ADE80;
   --error: #F87171;
   --warning: #FBBF24;
-  --border: #223049;
-  --border-light: #182338;
+  --border: #1B3A47;
+  --border-light: #12303C;
 
   --on-color: #FFFFFF;
-  --on-primary: #0B1220;
-  --accent-hover: #93C5FD;
-  --primary-hover: #CBD5E1;
-  --accent-fill: #2563EB;
-  --accent-fill-hover: #1D4ED8;
+  --on-primary: #071A22;
+  --accent-hover: #9AD8EA;
+  --primary-hover: #C9D8DC;
+  --accent-fill: #0B5E7E;
+  --accent-fill-hover: #0E7096;
   --success-fill: #15803D;
   --success-fill-hover: #166534;
   --warning-fill: #B45309;
   --error-fill: #DC2626;
   --error-fill-hover: #B91C1C;
   --secondary-fill: #0369A1;
-  --cta: #F28B98;
-  --cta-fill: #BE3F4F;
-  --cta-fill-hover: #A3313F;
-  --accent-soft: rgba(59, 130, 246, 0.12);
-  --focus-ring: rgba(59, 130, 246, 0.35);
+  --cta: #F7B267;
+  --cta-fill: #B4530A;
+  --cta-fill-hover: #9A4508;
+  --accent-soft: rgba(108, 196, 222, 0.12);
+  --focus-ring: rgba(108, 196, 222, 0.35);
   /* Flecha de los desplegables de formulario (sin la nativa por appearance: none) */
-  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23A3B1C6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23A6B8BF' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
   --success-soft: rgba(34, 197, 94, 0.12);
   --success-border: rgba(34, 197, 94, 0.35);
@@ -190,18 +190,18 @@
   --error-soft: rgba(239, 68, 68, 0.12);
   --error-border: rgba(239, 68, 68, 0.35);
   --error-text: #FCA5A5;
-  --info-soft: rgba(59, 130, 246, 0.14);
-  --info-text: #93C5FD;
-  --neutral-soft: #182338;
-  --neutral-text: #CBD5E1;
+  --info-soft: rgba(108, 196, 222, 0.14);
+  --info-text: #9AD8EA;
+  --neutral-soft: #12303C;
+  --neutral-text: #C9D8DC;
 
-  --header-bg: rgba(11, 18, 32, 0.85);
-  --header-bg-scrolled: rgba(11, 18, 32, 0.95);
-  --header-border: rgba(34, 48, 73, 0.7);
-  --hero-input-bg: rgba(11, 18, 32, 0.92);
+  --header-bg: rgba(7, 26, 34, 0.85);
+  --header-bg-scrolled: rgba(7, 26, 34, 0.95);
+  --header-border: rgba(27, 58, 71, 0.7);
+  --hero-input-bg: rgba(7, 26, 34, 0.92);
   /* Portada: fondo sin fotos y capa sobre las fotos (iguales en ambos temas) */
-  --hero-bg: #0F172A;
-  --hero-overlay: rgba(15, 23, 42, 0.6);
+  --hero-bg: #073B50;
+  --hero-overlay: rgba(4, 30, 41, 0.62);
   --overlay: rgba(0, 0, 0, 0.65);
   --logo: url('/assets/logo-elysio-dark.svg');
   --placeholder: url('/assets/placeholder-dark.svg');
@@ -216,38 +216,38 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --primary: #E2E8F0;
-    --accent: #60A5FA;
-    --background: #0B1220;
-    --surface: #111A2B;
-    --text: #E5E7EB;
-    --text-light: #A3B1C6;
-    --text-muted: #8392A8;
+    --primary: #E6EEF0;
+    --accent: #6CC4DE;
+    --background: #071A22;
+    --surface: #0C2530;
+    --text: #E7ECEE;
+    --text-light: #A6B8BF;
+    --text-muted: #8FA5AD;
     --success: #4ADE80;
     --error: #F87171;
     --warning: #FBBF24;
-    --border: #223049;
-    --border-light: #182338;
+    --border: #1B3A47;
+    --border-light: #12303C;
 
     --on-color: #FFFFFF;
-    --on-primary: #0B1220;
-    --accent-hover: #93C5FD;
-    --primary-hover: #CBD5E1;
-    --accent-fill: #2563EB;
-    --accent-fill-hover: #1D4ED8;
+    --on-primary: #071A22;
+    --accent-hover: #9AD8EA;
+    --primary-hover: #C9D8DC;
+    --accent-fill: #0B5E7E;
+    --accent-fill-hover: #0E7096;
     --success-fill: #15803D;
     --success-fill-hover: #166534;
     --warning-fill: #B45309;
     --error-fill: #DC2626;
     --error-fill-hover: #B91C1C;
     --secondary-fill: #0369A1;
-    --cta: #F28B98;
-    --cta-fill: #BE3F4F;
-    --cta-fill-hover: #A3313F;
-    --accent-soft: rgba(59, 130, 246, 0.12);
-    --focus-ring: rgba(59, 130, 246, 0.35);
+    --cta: #F7B267;
+    --cta-fill: #B4530A;
+    --cta-fill-hover: #9A4508;
+    --accent-soft: rgba(108, 196, 222, 0.12);
+    --focus-ring: rgba(108, 196, 222, 0.35);
     /* Flecha de los desplegables de formulario (sin la nativa por appearance: none) */
-    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23A3B1C6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23A6B8BF' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
     --success-soft: rgba(34, 197, 94, 0.12);
     --success-border: rgba(34, 197, 94, 0.35);
@@ -258,18 +258,18 @@
     --error-soft: rgba(239, 68, 68, 0.12);
     --error-border: rgba(239, 68, 68, 0.35);
     --error-text: #FCA5A5;
-    --info-soft: rgba(59, 130, 246, 0.14);
-    --info-text: #93C5FD;
-    --neutral-soft: #182338;
-    --neutral-text: #CBD5E1;
+    --info-soft: rgba(108, 196, 222, 0.14);
+    --info-text: #9AD8EA;
+    --neutral-soft: #12303C;
+    --neutral-text: #C9D8DC;
 
-    --header-bg: rgba(11, 18, 32, 0.85);
-    --header-bg-scrolled: rgba(11, 18, 32, 0.95);
-    --header-border: rgba(34, 48, 73, 0.7);
-    --hero-input-bg: rgba(11, 18, 32, 0.92);
+    --header-bg: rgba(7, 26, 34, 0.85);
+    --header-bg-scrolled: rgba(7, 26, 34, 0.95);
+    --header-border: rgba(27, 58, 71, 0.7);
+    --hero-input-bg: rgba(7, 26, 34, 0.92);
     /* Portada: fondo sin fotos y capa sobre las fotos (iguales en ambos temas) */
-    --hero-bg: #0F172A;
-    --hero-overlay: rgba(15, 23, 42, 0.6);
+    --hero-bg: #073B50;
+    --hero-overlay: rgba(4, 30, 41, 0.62);
     --overlay: rgba(0, 0, 0, 0.65);
     --logo: url('/assets/logo-elysio-dark.svg');
     --placeholder: url('/assets/placeholder-dark.svg');
