@@ -121,7 +121,7 @@ const EditPropertyPage = {
 
             <div class="form-section">
               <h2>${t('propertyForm.imagesSection')}</h2>
-              <p style="color:var(--text-light);margin-bottom:15px;font-size:0.9rem;">${t('propertyForm.imagesHintEdit')}</p>
+              <p style="color:var(--text-light);margin-bottom:15px;font-size:var(--fs-sm);">${t('propertyForm.imagesHintEdit')}</p>
 
               <div id="image-inputs"></div>
               <button type="button" id="add-image-btn" class="btn btn-outline btn-sm" style="margin-top:10px;">${t('propertyForm.addAnotherImage')}</button>

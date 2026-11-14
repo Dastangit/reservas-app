@@ -100,7 +100,7 @@ const CreateExperiencePage = {
 
             <div class="form-section">
               <h2>${t('createExperience.pricingSection')}</h2>
-              <p style="color:var(--text-light);font-size:0.9rem;">${t('createExperience.pricingHint')}</p>
+              <p style="color:var(--text-light);font-size:var(--fs-sm);">${t('createExperience.pricingHint')}</p>
 
               <div id="pricing-rows">
                 ${(existing?.pricing?.length ? existing.pricing : [{ audience: 'tourist', amount: '' }]).map((p) => this.pricingRowHtml(p, existing?.location?.country)).join('')}

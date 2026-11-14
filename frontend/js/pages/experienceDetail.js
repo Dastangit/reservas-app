@@ -167,7 +167,7 @@ const ExperienceDetailPage = {
                   </a>
                 `}
 
-                <p style="font-size:0.8rem;color:var(--text-light);margin-top:10px;">
+                <p style="font-size:var(--fs-sm);color:var(--text-light);margin-top:10px;">
                   ${t('experience.feeNotice')}
                 </p>
               </div>

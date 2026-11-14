@@ -99,7 +99,7 @@ const AdminFeedbackPage = {
             <h3>${f.category === 'complaint' ? i18n.t('admin.complaintLabel') : escapeHtml(f.category)}</h3>
             <p>${escapeHtml(f.message)}</p>
             ${f.category === 'complaint' && f.booking_id ? this.complaintBookingHtml(f.booking_id) : ''}
-            <p style="font-size:0.85rem;color:var(--text-light);">${i18n.t('admin.fromLabel')} ${escapeHtml(f.user_id?.name || i18n.t('admin.unknownFallback'))} - ${new Date(f.created_at).toLocaleDateString(i18n.currentLang)}</p>
+            <p style="font-size:var(--fs-sm);color:var(--text-light);">${i18n.t('admin.fromLabel')} ${escapeHtml(f.user_id?.name || i18n.t('admin.unknownFallback'))} - ${new Date(f.created_at).toLocaleDateString(i18n.currentLang)}</p>
             ${f.admin_response ? `<p><strong>${i18n.t('admin.adminResponseLabel')}</strong> ${escapeHtml(f.admin_response)}</p>` : ''}
           </div>
           <div class="property-actions">

@@ -816,7 +816,7 @@
       "q2Question": "Que se passe-t-il si ma réservation est rejetée?",
       "q2Answer": "Si l'admin rejette votre réservation, nous vous préviendrons par WhatsApp ou email avec le motif (si fourni), et vous le verrez aussi dans Mes réservations. Si le rejet est dû à <strong>une erreur de notre part</strong>, nous organiserons un remboursement des frais de 7 $ USD. Dans tout autre cas, les <strong>frais de réservation de 7 $ USD ne sont pas remboursables</strong>.",
       "q2Contact": "Vous pouvez contacter notre équipe d'administration si vous avez des questions sur le rejet.",
-      "q3Question": "Puis-je annuler ma réservation? Obtiens-je un remboursement?",
+      "q3Question": "Puis-je annuler ma réservation ?",
       "q3Answer": "Vous pouvez annuler votre réservation avant qu'elle ne soit approuvée par l'admin. Les <strong>frais de réservation de 7 $ USD</strong> ne sont remboursés que si le problème relève de la responsabilité de la plateforme (par exemple une erreur du système ou un double paiement).",
       "q3Approved": "Une fois votre réservation approuvée, les conditions d'annulation sont entre vous et l'hôte. Nous recommandons de communiquer directement avec l'hôte pour discuter de tout changement.",
       "q4Question": "Comment puis-je payer ma réservation?",

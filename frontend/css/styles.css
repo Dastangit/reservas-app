@@ -348,10 +348,10 @@ img[src="/assets/placeholder.svg"] {
   right: -2px;
   background: var(--error-fill);
   color: var(--on-color);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  min-width: 16px;
-  height: 16px;
+  min-width: 18px;
+  height: 18px;
   border-radius: 999px;
   display: none;
   align-items: center;
@@ -1779,7 +1779,7 @@ img[src="/assets/placeholder.svg"] {
 .payment-split-row small {
   display: block;
   margin-top: 2px;
-  font-size: 13px;
+  font-size: var(--fs-sm);
   color: var(--text-light);
 }
 
@@ -1789,7 +1789,7 @@ img[src="/assets/placeholder.svg"] {
 }
 
 .fee-note {
-  font-size: 13px;
+  font-size: var(--fs-sm);
   color: var(--text-light);
   margin-top: var(--space-sm);
 }
@@ -1913,7 +1913,7 @@ img[src="/assets/placeholder.svg"] {
   display: inline-block;
   padding: 2px 10px;
   border-radius: var(--radius-full);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   font-weight: 600;
   letter-spacing: 0.3px;
 }
@@ -3205,7 +3205,7 @@ img[src="/assets/placeholder.svg"] {
 
 .checkout-method small {
   display: block;
-  font-size: 13px;
+  font-size: var(--fs-sm);
   color: var(--text-light);
 }
 
@@ -4174,15 +4174,17 @@ p.offer-no {
 
 /* Mobile (768px and below) */
 @media (max-width: 768px) {
-  /* En el movil el texto secundario sube un punto (14 -> 15, 12 -> 13 px):
-     a 14 px las descripciones y respuestas se leian pequenas. */
+  /* En el movil el texto es mas grande que en el escritorio (17 px el
+     normal, 16 el secundario, 14 el minimo): a 15 px y menos se leia
+     pequeno, sobre todo para quien no ve bien. */
   :root {
     --section-py: 60px;
     --fs-hero: 36px;
     --fs-section: 28px;
-    --fs-body: 16px;
-    --fs-sm: 15px;
-    --fs-xs: 13px;
+    --fs-body: 17px;
+    --fs-base: 17px;
+    --fs-sm: 16px;
+    --fs-xs: 14px;
     --header-height: 70px;
   }
 
@@ -4211,7 +4213,7 @@ p.offer-no {
   }
 
   .logo-img {
-    height: 40px;
+    height: 46px;
   }
 
   .hero {
@@ -4606,7 +4608,7 @@ p.offer-no {
 .location-picker-status {
   margin-top: var(--space-xs);
   color: var(--text-light);
-  font-size: 0.9rem;
+  font-size: var(--fs-sm);
 }
 
 .location-picker-status.error {
@@ -4842,7 +4844,7 @@ p.offer-no {
 }
 
 .drawer-logo .logo-img {
-  height: 36px;
+  height: 42px;
 }
 
 .drawer-close {
