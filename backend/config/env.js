@@ -35,6 +35,12 @@ module.exports = {
   // Buscador de direcciones (OpenStreetMap). Su politica pide un User-Agent
   // propio y como maximo 1 peticion por segundo (utils/nominatim.js).
   nominatimUrl: process.env.NOMINATIM_URL || 'https://nominatim.openstreetmap.org',
+  // Lugares de interes (OpenStreetMap). Uno o varios servidores separados por
+  // comas: si uno falla se prueba el siguiente. Una consulta a la vez,
+  // separadas por este intervalo (utils/overpass.js).
+  overpassUrls: (process.env.OVERPASS_URL || 'https://overpass-api.de/api/interpreter')
+    .split(',').map((u) => u.trim()).filter(Boolean),
+  overpassMinIntervalMs: Number(process.env.OVERPASS_MIN_INTERVAL_MS ?? 5000),
   // Dominio del tenant por defecto cuando el hostname no coincide con ninguno.
   defaultTenantDomain: process.env.DEFAULT_TENANT_DOMAIN || 'elysioexperiences.com',
 };

@@ -5,3 +5,6 @@ process.env.TELEGRAM_BOT_TOKEN = '';
 process.env.TELEGRAM_CHAT_ID = '';
 // Las pruebas nunca llaman al Nominatim real (geo.test.js simula fetch).
 process.env.NOMINATIM_URL = 'http://127.0.0.1:9';
+// Ni al Overpass real (lugares de interes); sin esperar entre consultas.
+process.env.OVERPASS_URL = 'http://127.0.0.1:9';
+process.env.OVERPASS_MIN_INTERVAL_MS = '0';

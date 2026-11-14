@@ -36,6 +36,7 @@ import AdminOrphanedPaymentsPage from './pages/adminOrphanedPayments.js';
 import AdminHostCommissionsPage from './pages/adminHostCommissions.js';
 import AdminPasswordResetsPage from './pages/adminPasswordResets.js';
 import AdminAuditLogPage from './pages/adminAuditLog.js';
+import AdminPlacesPage from './pages/adminPlaces.js';
 import ExperiencesPage from './pages/experiences.js';
 import ExperienceDetailPage from './pages/experienceDetail.js';
 import ExperienceBookingPage from './pages/experienceBooking.js';
@@ -258,6 +259,11 @@ router
     if (!guard(['admin'])) return;
     AdminAuditLogPage._params = params;
     await renderPage(AdminAuditLogPage);
+  })
+  .addRoute('/admin/places', async (params) => {
+    if (!guard(['admin'])) return;
+    AdminPlacesPage._params = params;
+    await renderPage(AdminPlacesPage);
   })
   .addRoute('/experiences', routeHandler(ExperiencesPage))
   .addRoute('/experiences/:id', routeHandler(ExperienceDetailPage))

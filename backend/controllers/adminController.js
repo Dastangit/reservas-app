@@ -14,6 +14,7 @@ const { promoteNextWaitlistEntry } = require('../utils/experienceWaitlist');
 const { normalizeServices, hasCompleteServices } = require('../utils/propertyServices');
 const { flagOfferChanges } = require('../utils/offerChanges');
 const { isValidPoint, prepareLocation } = require('../utils/geo');
+const { ensurePlacesAround } = require('../utils/placeImport');
 const { sendEmail } = require('../utils/email');
 const { buildWhatsAppLink } = require('../utils/whatsapp');
 const { buildMailtoLink } = require('../utils/mailto');
@@ -133,6 +134,14 @@ exports.approveProperty = async (req, res, next) => {
     await property.save();
 
     res.json({ success: true, data: { property_id: property._id, status: 'active' } });
+
+    // Lugares de interes de la zona para el mapa de la ficha (en segundo plano;
+    // nunca falla la aprobacion). Alrededor de la zona aproximada, que es desde
+    // donde se miden las distancias; nunca del punto exacto, que es privado
+    // (sin `approx` no se importa nada).
+    ensurePlacesAround(req.tenantId, property.location.approx, {
+      city: property.location.city, country: property.location.country,
+    });
 
     logAdminAction({
       tenant_id: req.tenantId,
@@ -1325,6 +1334,10 @@ exports.approveExperience = async (req, res, next) => {
     await experience.save();
 
     res.json({ success: true, data: { experience_id: experience._id, status: 'active' } });
+
+    ensurePlacesAround(req.tenantId, experience.location?.geo, {
+      city: experience.location?.city, country: experience.location?.country,
+    });
 
     logAdminAction({
       tenant_id: req.tenantId,

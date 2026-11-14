@@ -7,6 +7,7 @@ import { formatPlace } from '../utils/places.js';
 import { propertyTypeLabel } from '../utils/propertyTypes.js';
 import { servicesDetailHtml } from '../utils/propertyServices.js';
 import { isPoint, showAreaMap } from '../utils/map.js';
+import { nearPlacesButtonHtml, nearPlacesListHtml, bindNearPlaces } from '../utils/nearPlaces.js';
 import { paymentSplitHtml } from '../utils/paymentSplit.js';
 
 const PropertyDetailPage = {
@@ -128,8 +129,12 @@ const PropertyDetailPage = {
                 <h2>${t('property.whereTitle')}</h2>
                 <p>${escapeHtml([p.location?.neighborhood, formatPlace(p.location)].filter(Boolean).join(', '))}</p>
                 ${isPoint(p.location?.approx) ? `
-                  <button type="button" class="btn btn-outline btn-sm" id="show-area-map">${t('property.showAreaMap')}</button>
+                  <div class="area-actions">
+                    <button type="button" class="btn btn-outline btn-sm" id="show-area-map">${t('property.showAreaMap')}</button>
+                    ${p.status === 'active' ? nearPlacesButtonHtml() : ''}
+                  </div>
                   <div class="area-map" id="area-map" hidden role="img" aria-label="${t('property.areaMapLabel')}"></div>
+                  ${p.status === 'active' ? nearPlacesListHtml() : ''}
                 ` : ''}
                 <p class="field-hint">${t('property.exactAddressNotice')}</p>
               </div>
@@ -189,14 +194,22 @@ const PropertyDetailPage = {
 
   init() {
     // El mapa solo se descarga si el turista lo pide (ahorra datos en el movil).
-    document.getElementById('show-area-map')?.addEventListener('click', (e) => {
-      const container = document.getElementById('area-map');
-      e.currentTarget.remove();
-      container.hidden = false;
-      showAreaMap(container, this.property.location.approx).catch(() => {
-        container.outerHTML = `<p class="error">${i18n.t('locationPicker.mapFailed')}</p>`;
-      });
-    });
+    let mapPromise = null;
+    const openMap = () => {
+      if (!mapPromise) {
+        const container = document.getElementById('area-map');
+        document.getElementById('show-area-map')?.remove();
+        container.hidden = false;
+        mapPromise = showAreaMap(container, this.property.location.approx);
+        mapPromise.catch(() => {
+          container.outerHTML = `<p class="error">${i18n.t('locationPicker.mapFailed')}</p>`;
+        });
+      }
+      return mapPromise;
+    };
+    document.getElementById('show-area-map')?.addEventListener('click', () => openMap().catch(() => {}));
+    // Los lugares de interes, igual: solo si los pide.
+    bindNearPlaces({ query: `property=${encodeURIComponent(this.property._id)}`, openMap });
 
     const form = document.getElementById('booking-form');
     if (form) {

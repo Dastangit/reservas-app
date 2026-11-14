@@ -86,6 +86,7 @@ const Header = {
               <a href="/admin/organizer-commissions" data-link>${t('header.organizerCommissions')}</a>
             ` : ''}
             <a href="/admin/password-resets" data-link>${t('header.passwordResets')}</a>
+            <a href="/admin/places" data-link>${t('header.places')}</a>
             <a href="/admin/audit-log" data-link>${t('header.auditLog')}</a>
             <a href="/admin/feedback" data-link>${t('nav.feedback')}</a>
             <a href="/admin/reports" data-link>${t('nav.reports')}</a>
