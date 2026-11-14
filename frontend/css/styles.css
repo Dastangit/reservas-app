@@ -858,7 +858,10 @@ img[src="/assets/placeholder.svg"] {
   padding: 80px var(--section-px);
   position: relative;
   overflow: hidden;
-  min-height: 560px;
+  /* Ocupa la primera pantalla entera (svh: sin saltos al ocultarse la barra
+     del navegador del movil). 560px como minimo en pantallas bajas. */
+  min-height: max(560px, calc(100vh - var(--header-height)));
+  min-height: max(560px, calc(100svh - var(--header-height)));
   display: flex;
   align-items: center;
 }
@@ -1037,6 +1040,281 @@ img[src="/assets/placeholder.svg"] {
 }
 
 .payment-info {
+/* ===== PORTADA: TITULO, LUZ DE CADA HORA Y FAROL ===== */
+/* El h1 lleva el lema (en ingles en todos los idiomas) y debajo la frase con
+   las palabras que la gente busca. */
+.hero h1 {
+  margin-bottom: var(--space-xl);
+}
+
+.hero-slogan,
+.hero-tagline {
+  display: block;
+}
+
+.hero-tagline {
+  margin-top: var(--space-md);
+  font-family: var(--font-body);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+/* data-time lo pone HeroLantern: dawn, day, dusk o night */
+.hero {
+  --lantern-w: 66px;
+  --lantern-right: 6%;
+  --tod-ring: var(--tod-day-ring);
+  --tod-fill: var(--cta-fill);
+}
+
+.hero[data-time="dawn"] { --tod-ring: var(--tod-dawn-ring); --tod-fill: var(--tod-dawn-fill); }
+.hero[data-time="dusk"] { --tod-ring: var(--tod-dusk-ring); --tod-fill: var(--tod-dusk-fill); }
+.hero[data-time="night"] { --tod-ring: var(--tod-night-ring); --tod-fill: var(--tod-night-fill); }
+
+.hero-carousel {
+  transition: filter 1.4s ease;
+}
+
+.hero[data-time="dawn"] .hero-carousel { filter: saturate(1.1) brightness(1.05); }
+.hero[data-time="dusk"] .hero-carousel { filter: saturate(1.35) sepia(0.25) contrast(1.05); }
+.hero[data-time="night"] .hero-carousel { filter: brightness(0.65) saturate(0.65) contrast(1.1); }
+
+.hero-tod,
+.hero-lantern-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.4s ease;
+}
+
+.hero-tod--dawn { background: var(--tod-dawn-tint); mix-blend-mode: soft-light; }
+.hero-tod--dusk { background: var(--tod-dusk-tint); mix-blend-mode: overlay; }
+.hero-tod--night { background: var(--tod-night-tint); mix-blend-mode: multiply; }
+
+.hero-lantern-glow {
+  background: radial-gradient(circle 320px at calc(100% - var(--lantern-right) - var(--lantern-w) / 2) calc(var(--lantern-w) * 1.4), var(--lantern-glow), transparent);
+  mix-blend-mode: screen;
+}
+
+.hero[data-time="dawn"] .hero-tod--dawn,
+.hero[data-time="dusk"] .hero-tod--dusk,
+.hero[data-time="night"] .hero-tod--night,
+.hero[data-time="dusk"] .hero-lantern-glow,
+.hero[data-time="night"] .hero-lantern-glow {
+  opacity: 1;
+}
+
+.hero .search-box {
+  box-shadow: 0 0 0 4px var(--tod-ring), var(--shadow-xl);
+  transition: box-shadow 1s ease;
+}
+
+/* El boton toma el color de la luz; un brillo lo cruza de vez en cuando. */
+.hero .search-box .btn-cta,
+.hero .search-box .btn-cta:hover {
+  background: var(--tod-fill);
+  border-color: var(--tod-fill);
+}
+
+.hero .search-box .btn-cta {
+  position: relative;
+  overflow: hidden;
+  transition: background 1s ease, border-color 1s ease, filter var(--transition-fast);
+}
+
+.hero .search-box .btn-cta:hover {
+  filter: brightness(0.9);
+}
+
+.hero .search-box .btn-cta::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -60%;
+  width: 40%;
+  background: linear-gradient(100deg, transparent, var(--hero-shine), transparent);
+  animation: hero-shine 7s 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes hero-shine {
+  0% { left: -60%; }
+  18%, 100% { left: 130%; }
+}
+
+/* Soporte en el borde de la cabecera fija y farol colgado de el. Van dentro
+   del hero: al bajar suben con la portada y se esconden bajo la cabecera. */
+.hero-lantern-mount {
+  position: absolute;
+  top: 0;
+  right: calc(var(--lantern-right) + var(--lantern-w) / 2 - 11px);
+  z-index: 3;
+  width: 22px;
+  height: 7px;
+  border-radius: 0 0 5px 5px;
+  background: linear-gradient(90deg, var(--lantern-metal), var(--lantern-metal-light) 45%, var(--lantern-metal));
+  box-shadow: 0 2px 3px var(--lantern-shadow);
+}
+
+.hero-lantern {
+  position: absolute;
+  top: 4px;
+  right: var(--lantern-right);
+  z-index: 2;
+  width: var(--lantern-w);
+  height: calc(var(--lantern-w) * 112 / 52);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transform-origin: 50% 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hero-lantern:focus-visible {
+  outline: 2px solid var(--on-color);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+
+.hero-lantern svg {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 3px 4px var(--lantern-shadow));
+}
+
+.hero-lantern__halo {
+  position: absolute;
+  left: 50%;
+  top: 65%;
+  width: calc(var(--lantern-w) * 2.4);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--lantern-halo), transparent 65%);
+  pointer-events: none;
+}
+
+.hero-lantern__stop-dark { stop-color: var(--lantern-metal); }
+.hero-lantern__stop-light { stop-color: var(--lantern-metal-light); }
+.hero-lantern__chain { fill: none; stroke: var(--lantern-chain); stroke-width: 1.6; }
+.hero-lantern__ring { fill: none; stroke: url(#hero-lantern-metal); stroke-width: 2.4; }
+.hero-lantern__metal { fill: url(#hero-lantern-metal); }
+.hero-lantern__frame-fill { fill: var(--lantern-frame); }
+.hero-lantern__light { fill: var(--lantern-light); }
+.hero-lantern__flame { fill: var(--lantern-flame); }
+.hero-lantern__glass { fill: var(--lantern-glass); }
+.hero-lantern__frame { fill: none; stroke: var(--lantern-frame); stroke-width: 2.4; stroke-linejoin: round; }
+.hero-lantern__frame--thin { stroke-width: 1.4; opacity: 0.7; }
+
+/* Hasta el primer toque la luz respira; despues queda encendida y la llama titila. */
+.hero-lantern:not(.is-lit) .hero-lantern__halo,
+.hero-lantern:not(.is-lit) .hero-lantern__light,
+.hero-lantern:not(.is-lit) .hero-lantern__flame {
+  animation: lantern-breathe 2.8s ease-in-out infinite;
+}
+
+.hero-lantern.is-lit .hero-lantern__flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: lantern-flicker 2.2s ease-in-out infinite;
+}
+
+.hero-lantern.is-swinging {
+  animation: lantern-swing 1.4s cubic-bezier(0.3, 0.1, 0.3, 1);
+}
+
+@keyframes lantern-breathe {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+@keyframes lantern-flicker {
+  30% { transform: scale(0.94, 1.04); }
+  60% { transform: scale(1.03, 0.96); }
+}
+
+@keyframes lantern-swing {
+  15% { transform: rotate(9deg); }
+  40% { transform: rotate(-6deg); }
+  62% { transform: rotate(3deg); }
+  82% { transform: rotate(-1deg); }
+}
+
+/* La hora inicial se pone sin animar */
+.hero--instant,
+.hero--instant * {
+  transition: none !important;
+}
+
+/* El texto no pasa por debajo del farol */
+@media (max-width: 1100px) {
+  .hero h1 {
+    padding-right: calc(var(--lantern-w) + 16px);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    --lantern-w: 52px;
+    --lantern-right: 16px;
+  }
+
+  .hero-tagline {
+    font-size: 16px;
+  }
+}
+
+/* Tarjetas que aparecen una tras otra (la clase .reveal la pone JS). Con
+   animation y fill backwards: al terminar, el hover de la tarjeta sigue igual. */
+.reveal:not(.is-revealed) > * {
+  opacity: 0;
+}
+
+.reveal.is-revealed > * {
+  animation: reveal-up 0.6s ease backwards;
+}
+
+.reveal.is-revealed > :nth-child(2) { animation-delay: 0.1s; }
+.reveal.is-revealed > :nth-child(3) { animation-delay: 0.2s; }
+.reveal.is-revealed > :nth-child(4) { animation-delay: 0.3s; }
+.reveal.is-revealed > :nth-child(5) { animation-delay: 0.4s; }
+.reveal.is-revealed > :nth-child(n+6) { animation-delay: 0.5s; }
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-lantern,
+  .hero-lantern *,
+  .hero .search-box .btn-cta::after {
+    animation: none !important;
+  }
+
+  .hero .search-box .btn-cta::after {
+    display: none;
+  }
+
+  .hero-carousel,
+  .hero-tod,
+  .hero-lantern-glow,
+  .hero .search-box,
+  .hero .search-box .btn-cta {
+    transition: none;
+  }
+}
+
   padding: var(--section-py) var(--section-px);
   background: var(--background);
 }
@@ -3896,7 +4174,6 @@ p.offer-no {
 
   .hero {
     padding: 64px var(--section-px);
-    min-height: auto;
   }
 
   .hero h1 {

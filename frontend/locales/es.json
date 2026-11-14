@@ -35,10 +35,17 @@
     "reports": "Reportes"
   },
   "hero": {
-    "title": "Viaja con confianza",
-    "subtitle": "Donde la hospitalidad se encuentra con la exploración",
+    "title": "Wander Freely",
+    "subtitle": "Alquileres vacacionales y experiencias en todo el mundo",
     "searchPlaceholder": "¿A dónde vas?",
-    "searchBtn": "Buscar"
+    "searchBtn": "Buscar",
+    "lantern": {
+      "label": "Cambiar la luz de la foto",
+      "dawn": "amanecer",
+      "day": "día",
+      "dusk": "atardecer",
+      "night": "noche"
+    }
   },
   "howItWorks": {
     "title": "Cómo funciona",
@@ -603,19 +610,17 @@
   },
   "footer": {
     "brand": "Elysio Experiences",
-    "tagline": "Viaja con confianza",
+    "tagline": "Wander Freely",
     "contact": "Contacto",
     "quickLinks": "Enlaces",
     "legal": "Legal",
     "terms": "Términos del servicio",
     "privacy": "Política de privacidad",
     "followUs": "Síguenos",
-    "copyright": "Todos los derechos reservados.",
     "searchProperties": "Buscar alojamientos",
     "howItWorks": "Cómo funciona",
     "faq": "Preguntas frecuentes",
-    "sendFeedback": "Enviar comentarios",
-    "rights": "Todos los derechos reservados."
+    "sendFeedback": "Enviar comentarios"
   },
   "pages": {
     "howItWorks": {

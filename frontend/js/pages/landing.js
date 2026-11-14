@@ -1,6 +1,7 @@
 import api from '../api.js';
 import PropertyCard from '../components/PropertyCard.js';
 import HeroCarousel from '../components/HeroCarousel.js';
+import HeroLantern from '../components/HeroLantern.js';
 import i18n from '../i18n.js';
 
 const LandingPage = {
@@ -22,11 +23,15 @@ const LandingPage = {
     const destinations = await HeroCarousel.fetchDestinations();
 
     return `
-      <section class="hero">
+      <section class="hero" data-time="${HeroLantern.defaultTime}">
         ${HeroCarousel.render(destinations)}
+        ${HeroLantern.renderLayers()}
+        ${HeroLantern.render()}
         <div class="container">
-          <h1>${t('hero.title')}</h1>
-          <p>${t('hero.subtitle')}</p>
+          <h1>
+            <span class="hero-slogan" lang="en">${t('hero.title')}</span>
+            <span class="hero-tagline">${t('hero.subtitle')}</span>
+          </h1>
           <div class="search-box">
             <input type="text" id="search-city" placeholder="${t('hero.searchPlaceholder')}" aria-label="${t('hero.searchPlaceholder')}">
             <div class="search-date-field">
@@ -67,6 +72,8 @@ const LandingPage = {
 
   init() {
     HeroCarousel.init();
+    HeroLantern.init();
+    revealOnScroll(document.getElementById('properties-grid'));
 
     window.handleSearch = () => {
       const city = document.getElementById('search-city')?.value;
@@ -82,5 +89,20 @@ const LandingPage = {
     };
   }
 };
+
+// Las tarjetas aparecen una tras otra al llegar a ellas. La clase la pone JS:
+// sin JS (portada prerenderizada) o con movimiento reducido se ven sin mas.
+function revealOnScroll(grid) {
+  if (!grid || !('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  grid.classList.add('reveal');
+  const observer = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    grid.classList.add('is-revealed');
+    observer.disconnect();
+  }, { threshold: 0.15 });
+  observer.observe(grid);
+}
 
 export default LandingPage;
