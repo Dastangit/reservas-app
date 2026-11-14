@@ -98,13 +98,75 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             </button>
           </nav>
-          <button type="button" class="mobile-menu-btn" data-action="toggleMobileMenu" aria-controls="site-nav" aria-expanded="false" aria-label="Menú">
+          <button type="button" class="mobile-menu-btn" data-action="toggleMobileMenu" aria-controls="mobile-drawer" aria-expanded="false" aria-label="Menú">
             <span></span>
             <span></span>
             <span></span>
           </button>
         </div>
       </header>
+      
+    <div class="drawer-backdrop" hidden></div>
+    <nav class="drawer" id="mobile-drawer" aria-label="Menú" hidden>
+      <div class="drawer-top">
+        <a href="/es" data-link class="drawer-logo"><img src="/assets/logo-elysio.svg" alt="Elysio Experiences" class="logo-img"></a>
+        <button type="button" class="drawer-close" data-action="closeMobileMenu" aria-label="Cerrar menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="drawer-body">
+        
+    <div class="drawer-welcome">
+      <p class="drawer-welcome-title">Bienvenido a Elysio</p>
+      <p class="drawer-welcome-text">Entra para reservar, guardar tus viajes y hablar con el anfitrión.</p>
+      <a href="/es/register" data-link class="btn btn-cta">Registrarse</a>
+      <a href="/es/login" data-link class="btn btn-outline">Iniciar sesión</a>
+    </div>
+        
+  <p class="drawer-group-title">Explorar</p>
+  <div class="drawer-group">
+  <a href="/es" data-link class="drawer-item">
+    <span class="drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg></span>
+    <span class="drawer-label">Inicio</span>
+    
+    <span class="drawer-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span>
+  </a>
+  <a href="/es/experiences" data-link class="drawer-item">
+    <span class="drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z"/></svg></span>
+    <span class="drawer-label">Excursiones</span>
+    
+    <span class="drawer-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span>
+  </a>
+  <a href="/es/how-it-works" data-link class="drawer-item">
+    <span class="drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+    <span class="drawer-label">Cómo funciona</span>
+    
+    <span class="drawer-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span>
+  </a>
+  <a href="/es/faq" data-link class="drawer-item">
+    <span class="drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg></span>
+    <span class="drawer-label">Preguntas frecuentes</span>
+    
+    <span class="drawer-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span>
+  </a></div><a href="/es/register?role=host" data-link class="drawer-host-card">
+          <span class="drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/></svg></span>
+          <span><strong>¿Tienes un alojamiento?</strong><span>Publícalo con nosotros</span></span>
+        </a>
+      </div>
+      <div class="drawer-foot">
+        <div class="drawer-prefs">
+          <div class="drawer-langs" role="group" aria-label="Idioma">
+    <button type="button" data-action="changeLang" data-arg="en" lang="en"
+      aria-pressed="false" aria-label="English">EN</button>
+    <button type="button" data-action="changeLang" data-arg="es" lang="es"
+      aria-pressed="true" aria-label="Español">ES</button>
+    <button type="button" data-action="changeLang" data-arg="fr" lang="fr"
+      aria-pressed="false" aria-label="Français">FR</button></div>
+          <button type="button" class="theme-toggle" data-action="toggleTheme" aria-label="Cambiar a modo oscuro">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
+        
+      </div>
+    </nav>
     </header>
   <main id="app">
       <div class="how-it-works-page">

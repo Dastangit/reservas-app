@@ -1536,5 +1536,29 @@
       "done": "Imported",
       "failed": "Failed (will retry)"
     }
+  },
+  "drawer": {
+    "close": "Close menu",
+    "welcomeTitle": "Welcome to Elysio",
+    "welcomeText": "Sign in to book, keep your trips and talk to your host.",
+    "explore": "Explore",
+    "account": "My account",
+    "hosting": "Hosting",
+    "organizing": "Organizing",
+    "manage": "Management",
+    "moreOptions": "More options",
+    "payments": "Payments and commissions",
+    "system": "System",
+    "viewProfile": "View profile",
+    "help": "Help and FAQ",
+    "searchStays": "Search stays",
+    "hostCardTitle": "Do you have a place?",
+    "hostCardText": "List it with us",
+    "role": {
+      "tourist": "Traveler",
+      "host": "Host",
+      "organizer": "Organizer",
+      "admin": "Administrator"
+    }
   }
 }

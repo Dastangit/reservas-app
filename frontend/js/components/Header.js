@@ -10,6 +10,159 @@ import { escapeHtml } from '../utils/escape.js';
 const SUN_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
 const MOON_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
 
+// Iconos de trazo para el menu del movil (24x24, estilo Lucide).
+const ICONS = {
+  home: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  compass: '<circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z"/>',
+  calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  book: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+  help: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/>',
+  dash: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
+  building: '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  wallet: '<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+  repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  more: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>',
+  close: '<path d="M18 6 6 18M6 6l12 12"/>',
+  chevron: '<path d="m9 18 6-6-6-6"/>',
+};
+const icon = (name) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
+
+// Fila del menu movil: enlace con icono, texto, contador opcional y flecha.
+// `count` es la clave de /admin/pending-counts que pone el numero (admin).
+const drawerLink = (href, iconName, label, { count } = {}) => `
+  <a href="${href}" data-link class="drawer-item">
+    <span class="drawer-icon">${icon(iconName)}</span>
+    <span class="drawer-label">${label}</span>
+    ${count ? `<span class="drawer-badge" data-count="${count}" hidden></span>` : ''}
+    <span class="drawer-chevron">${icon('chevron')}</span>
+  </a>`;
+
+// Fila que abre o cierra una seccion dentro de su tarjeta (Mas, Notificaciones).
+const drawerToggle = (panelId, iconName, label, { count } = {}) => `
+  <button type="button" class="drawer-item" data-action="toggleDrawerSection" aria-expanded="false" aria-controls="${panelId}">
+    <span class="drawer-icon">${icon(iconName)}</span>
+    <span class="drawer-label">${label}</span>
+    ${count ? `<span class="drawer-badge" data-count="${count}" hidden></span>` : ''}
+    <span class="drawer-chevron">${icon('chevron')}</span>
+  </button>`;
+
+const drawerGroup = (title, content) => `
+  <p class="drawer-group-title">${title}</p>
+  <div class="drawer-group">${content}</div>`;
+
+const initials = (name) => (name || '?').trim().split(/\s+/).slice(0, 2)
+  .map((word) => word[0]).join('').toUpperCase();
+
+// Menu del movil: panel lateral con la cuenta arriba, los enlaces agrupados
+// en tarjetas y, abajo, idioma, tema y salir. En el ordenador se usa .nav.
+function drawerHtml({ role, user, t, experiencesEnabled }) {
+  const isLoggedIn = Boolean(role);
+  const experiences = experiencesEnabled ? drawerLink('/experiences', 'compass', t('header.experiences')) : '';
+  const profileHref = role === 'host' ? '/host/profile' : '/profile';
+  const account = isLoggedIn ? `
+    <a href="${profileHref}" data-link class="drawer-account">
+      <span class="drawer-avatar" aria-hidden="true">${escapeHtml(initials(user?.name))}</span>
+      <span class="drawer-account-text">
+        <span class="drawer-account-name">${escapeHtml(user?.name || t('common.profile'))}</span>
+        <span class="drawer-account-sub">${t(`drawer.role.${role}`)} · ${t('drawer.viewProfile')}</span>
+      </span>
+      <span class="drawer-chevron">${icon('chevron')}</span>
+    </a>` : `
+    <div class="drawer-welcome">
+      <p class="drawer-welcome-title">${t('drawer.welcomeTitle')}</p>
+      <p class="drawer-welcome-text">${t('drawer.welcomeText')}</p>
+      <a href="/register" data-link class="btn btn-cta">${t('common.register')}</a>
+      <a href="/login" data-link class="btn btn-outline">${t('common.login')}</a>
+    </div>`;
+
+  let groups = '';
+  if (!isLoggedIn) {
+    groups = drawerGroup(t('drawer.explore'), drawerLink('/', 'home', t('common.home')) + experiences
+      + drawerLink('/how-it-works', 'book', t('footer.howItWorks')) + drawerLink('/faq', 'help', t('footer.faq')))
+      + `<a href="/register?role=host" data-link class="drawer-host-card">
+          <span class="drawer-icon">${icon('building')}</span>
+          <span><strong>${t('drawer.hostCardTitle')}</strong><span>${t('drawer.hostCardText')}</span></span>
+        </a>`;
+  } else if (role === 'tourist') {
+    groups = drawerGroup(t('drawer.explore'), drawerLink('/', 'home', t('common.home'))
+      + drawerLink('/search', 'search', t('drawer.searchStays')) + experiences)
+      + drawerGroup(t('drawer.account'), drawerLink('/dashboard', 'calendar', t('nav.myBookings'))
+      + drawerLink('/faq', 'help', t('drawer.help')));
+  } else if (role === 'host') {
+    groups = drawerGroup(t('drawer.hosting'), drawerLink('/host/dashboard', 'dash', t('host.dashboard'))
+      + drawerLink('/host/properties', 'building', t('host.myProperties'))
+      + drawerLink('/host/bookings', 'calendar', t('nav.myBookings'))
+      + drawerLink('/host/earnings', 'wallet', t('host.earnings')))
+      + drawerGroup(t('drawer.account'), drawerLink('/faq', 'help', t('drawer.help')));
+  } else if (role === 'organizer') {
+    groups = drawerGroup(t('drawer.organizing'), drawerLink('/organizer/dashboard', 'dash', t('header.organizerDashboard'))
+      + drawerLink('/organizer/experiences', 'compass', t('header.myExperiences'))
+      + drawerLink('/organizer/recurrences', 'repeat', t('header.recurrences'))
+      + drawerLink('/organizer/bookings', 'calendar', t('header.bookings')))
+      + drawerGroup(t('drawer.account'), drawerLink('/faq', 'help', t('drawer.help')));
+  } else if (role === 'admin') {
+    const sub = (href, label) => `<a href="${href}" data-link>${label}</a>`;
+    groups = drawerGroup(t('drawer.manage'), drawerLink('/admin/dashboard', 'dash', t('admin.dashboard'))
+      + drawerLink('/admin/bookings', 'calendar', t('header.bookings'), { count: 'bookings' })
+      + drawerLink('/admin/properties', 'building', t('header.properties'), { count: 'properties' })
+      + drawerLink('/admin/users', 'users', t('header.hosts'))
+      + drawerToggle('drawer-notif', 'bell', t('header.notifications'), { count: 'total' })
+      + `<div class="drawer-sub" id="drawer-notif" hidden><p class="drawer-sub-note">${t('common.loading')}</p></div>`)
+      + drawerGroup(t('header.more'), drawerToggle('drawer-more', 'more', t('drawer.moreOptions'))
+      + `<div class="drawer-sub" id="drawer-more" hidden>
+          <p class="drawer-sub-title">${t('drawer.payments')}</p>
+          ${sub('/admin/orphaned-payments', t('header.orphanedPayments'))}
+          ${sub('/admin/host-commissions', t('header.hostCommissions'))}
+          ${experiencesEnabled ? sub('/admin/organizer-commissions', t('header.organizerCommissions')) : ''}
+          ${experiencesEnabled ? `
+            <p class="drawer-sub-title">${t('header.experiences')}</p>
+            ${sub('/admin/organizers', t('header.organizers'))}
+            ${sub('/admin/experiences', t('header.pendingExperiences'))}
+            ${sub('/admin/experience-bookings', t('header.experienceBookings'))}
+          ` : ''}
+          <p class="drawer-sub-title">${t('drawer.system')}</p>
+          ${sub('/admin/availability', t('header.availability'))}
+          ${sub('/admin/places', t('header.places'))}
+          ${sub('/admin/password-resets', t('header.passwordResets'))}
+          ${sub('/admin/audit-log', t('header.auditLog'))}
+          ${sub('/admin/feedback', t('nav.feedback'))}
+          ${sub('/admin/reports', t('nav.reports'))}
+          ${sub('/admin/settings', t('nav.settings'))}
+        </div>`);
+  }
+
+  const langs = i18n.getLangs().map((lang) => `
+    <button type="button" data-action="changeLang" data-arg="${escapeHtml(lang.code)}" lang="${escapeHtml(lang.code)}"
+      aria-pressed="${lang.code === i18n.currentLang}" aria-label="${escapeHtml(lang.label)}">${escapeHtml(lang.code.toUpperCase())}</button>`).join('');
+  const dark = isDarkTheme();
+
+  return `
+    <div class="drawer-backdrop" hidden></div>
+    <nav class="drawer" id="mobile-drawer" aria-label="${t('header.menu')}" hidden>
+      <div class="drawer-top">
+        <a href="/" data-link class="drawer-logo"><img src="/assets/logo-elysio.svg" alt="Elysio Experiences" class="logo-img"></a>
+        <button type="button" class="drawer-close" data-action="closeMobileMenu" aria-label="${t('drawer.close')}">${icon('close')}</button>
+      </div>
+      <div class="drawer-body">
+        ${account}
+        ${groups}
+      </div>
+      <div class="drawer-foot">
+        <div class="drawer-prefs">
+          <div class="drawer-langs" role="group" aria-label="${t('common.language')}">${langs}</div>
+          <button type="button" class="theme-toggle" data-action="toggleTheme" aria-label="${t(dark ? 'common.themeToLight' : 'common.themeToDark')}">
+            ${dark ? SUN_ICON : MOON_ICON}
+          </button>
+        </div>
+        ${isLoggedIn ? `<button type="button" class="drawer-logout" data-action="logout">${icon('logout')} ${t('common.logout')}</button>` : ''}
+      </div>
+    </nav>`;
+}
+
 const Header = {
   render() {
     const isLoggedIn = auth.isLoggedIn();
@@ -117,22 +270,26 @@ const Header = {
               ${isDarkTheme() ? SUN_ICON : MOON_ICON}
             </button>
           </nav>
-          <button type="button" class="mobile-menu-btn" data-action="toggleMobileMenu" aria-controls="site-nav" aria-expanded="false" aria-label="${t('header.menu')}">
+          <button type="button" class="mobile-menu-btn" data-action="toggleMobileMenu" aria-controls="mobile-drawer" aria-expanded="false" aria-label="${t('header.menu')}">
             <span></span>
             <span></span>
             <span></span>
           </button>
         </div>
       </header>
+      ${drawerHtml({ role: isLoggedIn ? role : null, user, t, experiencesEnabled })}
     `;
   },
 
   init() {
     const headerEl = document.getElementById('header');
     if (headerEl) {
+      // Cambiar idioma o tema vuelve a pintar el encabezado: si el menu
+      // estaba abierto, sigue abierto (sin animacion).
+      const wasOpen = document.body.classList.contains('menu-open');
       headerEl.innerHTML = this.render();
-      document.body.classList.remove('menu-open');
       markCurrentLink(headerEl);
+      setMobileMenu(wasOpen, { instant: true });
 
       const header = headerEl.querySelector('.header');
       if (header) {
@@ -185,37 +342,64 @@ window.changeLang = function (lang) {
 // Marca el enlace de la pagina actual (en el menu movil se resalta).
 function markCurrentLink(root) {
   const path = i18n.stripLocaleFromPath(window.location.pathname);
-  root.querySelectorAll('.nav a[data-link]').forEach((a) => {
+  root.querySelectorAll('.nav a[data-link], .drawer a[data-link]').forEach((a) => {
     if (a.getAttribute('href') === path) a.setAttribute('aria-current', 'page');
   });
 }
 
-// Menu movil: el boton lo abre y cierra; tambien se cierra al tocar un
-// enlace (sin esperar a que cargue la pagina), fuera del menu o con Escape.
-function setMobileMenu(open) {
-  const nav = document.querySelector('.nav');
+// Menu movil: el boton lo abre; se cierra con la X, al tocar un enlace (sin
+// esperar a que cargue la pagina), fuera del panel o con Escape.
+function setMobileMenu(open, { instant = false } = {}) {
+  const drawer = document.getElementById('mobile-drawer');
+  const backdrop = document.querySelector('.drawer-backdrop');
   const btn = document.querySelector('.mobile-menu-btn');
-  if (!nav || !btn) return;
-  nav.classList.toggle('active', open);
+  if (!drawer || !backdrop || !btn) return;
   btn.setAttribute('aria-expanded', String(open));
   document.body.classList.toggle('menu-open', open);
+  drawer.classList.toggle('no-anim', instant);
+  if (open) {
+    drawer.hidden = false;
+    backdrop.hidden = false;
+    // Un fotograma con el panel fuera de la pantalla para que entre deslizandose.
+    requestAnimationFrame(() => {
+      drawer.classList.add('open');
+      backdrop.classList.add('open');
+    });
+    if (!instant) drawer.querySelector('.drawer-close')?.focus({ preventScroll: true });
+  } else {
+    drawer.classList.remove('open');
+    backdrop.classList.remove('open');
+    drawer.hidden = true;
+    backdrop.hidden = true;
+  }
 }
 
 window.toggleMobileMenu = function () {
-  setMobileMenu(!document.querySelector('.nav')?.classList.contains('active'));
+  setMobileMenu(!document.body.classList.contains('menu-open'));
+};
+
+window.closeMobileMenu = function () {
+  setMobileMenu(false);
+  document.querySelector('.mobile-menu-btn')?.focus();
+};
+
+// Abre o cierra una seccion del menu movil (Mas, Notificaciones).
+window.toggleDrawerSection = function () {
+  const panel = document.getElementById(this.getAttribute('aria-controls'));
+  if (!panel) return;
+  const open = this.getAttribute('aria-expanded') !== 'true';
+  this.setAttribute('aria-expanded', String(open));
+  panel.hidden = !open;
+  if (open && this.getAttribute('aria-controls') === 'drawer-notif') loadPendingCounts();
 };
 
 document.addEventListener('click', (event) => {
   if (!document.body.classList.contains('menu-open')) return;
-  if (event.target.closest('.mobile-menu-btn')) return;
-  if (event.target.closest('.nav a') || !event.target.closest('.nav')) setMobileMenu(false);
+  if (event.target.closest('.drawer a[href], .drawer-backdrop')) setMobileMenu(false);
 });
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && document.body.classList.contains('menu-open')) {
-    setMobileMenu(false);
-    document.querySelector('.mobile-menu-btn')?.focus();
-  }
+  if (event.key === 'Escape' && document.body.classList.contains('menu-open')) window.closeMobileMenu();
 });
 
 window.toggleNavDropdown = function () {
@@ -273,6 +457,17 @@ async function loadPendingCounts() {
       : '';
 
     menu.innerHTML = (items || `<p class="no-results" style="padding:8px 12px;">${i18n.t('header.nothingPending')}</p>`) + subscribeRow;
+
+    // Lo mismo en el menu del movil: contadores en sus filas y la lista.
+    document.querySelectorAll('.drawer-badge[data-count]').forEach((el) => {
+      const n = counts[el.dataset.count] || 0;
+      el.textContent = n > 99 ? '99+' : n;
+      el.hidden = n === 0;
+    });
+    const drawerNotif = document.getElementById('drawer-notif');
+    if (drawerNotif) {
+      drawerNotif.innerHTML = (items || `<p class="drawer-sub-note">${i18n.t('header.nothingPending')}</p>`) + subscribeRow;
+    }
   } catch (error) {
     menu.innerHTML = `<p class="error" style="padding:8px 12px;">${i18n.t('header.notifError')}</p>`;
   }

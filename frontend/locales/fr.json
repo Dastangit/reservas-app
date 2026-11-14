@@ -1536,5 +1536,29 @@
       "done": "Importée",
       "failed": "Échec (nouvel essai prévu)"
     }
+  },
+  "drawer": {
+    "close": "Fermer le menu",
+    "welcomeTitle": "Bienvenue sur Elysio",
+    "welcomeText": "Connectez-vous pour réserver, garder vos voyages et parler à votre hôte.",
+    "explore": "Explorer",
+    "account": "Mon compte",
+    "hosting": "Hôte",
+    "organizing": "Organisateur",
+    "manage": "Gestion",
+    "moreOptions": "Plus d'options",
+    "payments": "Paiements et commissions",
+    "system": "Système",
+    "viewProfile": "Voir mon profil",
+    "help": "Aide et FAQ",
+    "searchStays": "Chercher un logement",
+    "hostCardTitle": "Vous avez un logement ?",
+    "hostCardText": "Publiez-le chez nous",
+    "role": {
+      "tourist": "Voyageur",
+      "host": "Hôte",
+      "organizer": "Organisateur",
+      "admin": "Administrateur"
+    }
   }
 }
