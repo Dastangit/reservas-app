@@ -407,11 +407,6 @@ window.historyBack = function () {
   window.history.back();
 };
 
-window.toggleMobileMenu = function () {
-  const nav = document.querySelector('.nav');
-  if (nav) nav.classList.toggle('active');
-};
-
 window.rerenderCurrentPage = function () {
   router.resolve();
 };
