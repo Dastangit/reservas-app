@@ -1,4 +1,5 @@
 const express = require('express');
+const { body } = require('express-validator');
 const {
   getDashboard, getPendingProperties, approveProperty,
   rejectProperty, getAllBookings, getSettings, updateSettings,
@@ -17,7 +18,13 @@ const {
   getOrganizerCommissions, markOrganizerCommissionPaid, markOrganizerCommissionWaived, getOrganizerCommissionWhatsAppLink,
   getPendingCounts,
 } = require('../controllers/adminController');
+const {
+  getPlaces, createPlace, updatePlace, deletePlace, reimportArea,
+} = require('../controllers/placeController');
+const { PLACE_TYPES } = require('../models/Place');
 const { protect, authorize } = require('../middleware/auth');
+const validate = require('../middleware/validate');
+const { isValidPoint } = require('../utils/geo');
 const { setTenant } = require('../middleware/tenant');
 
 const router = express.Router();
@@ -82,6 +89,21 @@ router.get('/organizer-commissions', getOrganizerCommissions);
 router.post('/organizer-commissions/:id/paid', markOrganizerCommissionPaid);
 router.post('/organizer-commissions/:id/waive', markOrganizerCommissionWaived);
 router.get('/organizer-commissions/:id/whatsapp-link', getOrganizerCommissionWhatsAppLink);
+
+// Lugares de interes de los mapas (importados de OpenStreetMap o anadidos a mano)
+router.get('/places', getPlaces);
+router.post('/places', [
+  body('name').isString().trim().isLength({ min: 1, max: 200 }).withMessage('Name is required'),
+  body('type').isIn(PLACE_TYPES).withMessage(`Type must be one of: ${PLACE_TYPES.join(', ')}`),
+  body('geo').custom(isValidPoint).withMessage('Mark the place on the map'),
+], validate, createPlace);
+router.put('/places/:id', [
+  body('type').optional().isIn(PLACE_TYPES).withMessage(`Type must be one of: ${PLACE_TYPES.join(', ')}`),
+  body('geo').optional().custom(isValidPoint).withMessage('Invalid point'),
+  body('hidden').optional().isBoolean().withMessage('hidden must be true or false'),
+], validate, updatePlace);
+router.delete('/places/:id', deletePlace);
+router.post('/place-areas/:id/import', reimportArea);
 
 router.get('/pending-counts', getPendingCounts);
 router.get('/settings', getSettings);

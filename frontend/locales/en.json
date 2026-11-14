@@ -250,7 +250,10 @@
     "claimNumSpotsHint": "Must match what you requested on the waitlist.",
     "confirmSpotBtn": "Confirm my spot",
     "claimFailed": "Could not confirm the spot — the time window may have expired",
-    "localTime": "local time"
+    "localTime": "local time",
+    "meetingPointTitle": "Meeting point",
+    "showMeetingMap": "See on the map",
+    "meetingMapLabel": "Map with the experience's meeting point"
   },
   "search": {
     "title": "Search Properties",
@@ -1294,14 +1297,37 @@
       "pending_experience_bookings": "Pending experience bookings",
       "overdue_organizer_commissions": "Overdue organizer commissions",
       "manual_payments_pending": "Manual PayPal payments to confirm"
-    }
+    },
+    "places": "Points of interest"
   },
   "places": {
     "countryLabel": "Country",
     "selectCountry": "Select a country",
     "allCountries": "All countries",
     "timeZoneLabel": "Local time zone",
-    "timeZoneHint": "The time you enter is the local time at this place. Every visitor sees the same time."
+    "timeZoneHint": "The time you enter is the local time at this place. Every visitor sees the same time.",
+    "show": "See places nearby",
+    "title": "Nearby",
+    "walk": "≈ {distance} · {min} min walk",
+    "hint": "Approximate walking distances from the area. Data © OpenStreetMap; opening hours may change.",
+    "none": "There are no points of interest listed within 1 km.",
+    "pending": "We're gathering the places in this area. Try again in a few minutes.",
+    "loadError": "Nearby places couldn't load. Please try again.",
+    "types": {
+      "museum": "Museum",
+      "monument": "Monument",
+      "beach": "Beach",
+      "park": "Park",
+      "restaurant": "Restaurant",
+      "cafe": "Café",
+      "bar": "Bar",
+      "cinema": "Cinema",
+      "barber": "Barber or hairdresser",
+      "pharmacy": "Pharmacy",
+      "money": "Bank, ATM or currency exchange",
+      "clinic": "Clinic or hospital"
+    },
+    "unavailable": "Places for this area aren't available yet. Please check again later."
   },
   "propertyTypes": {
     "apartment": "Apartment",
@@ -1428,6 +1454,14 @@
       "noPoint": "You haven't marked the meeting point yet.",
       "adjust": "Check the pin and drag it to the exact spot if needed.",
       "required": "Mark the meeting point on the map."
+    },
+    "place": {
+      "label": "Location on the map",
+      "hint": "Mark where the place is. It is public: it shows on the maps of nearby listings.",
+      "here": "I'm at the place",
+      "noPoint": "You haven't marked the place yet.",
+      "adjust": "Check the pin and drag it to the exact spot if needed.",
+      "required": "Mark the place on the map."
     }
   },
   "onboarding": {
@@ -1458,6 +1492,49 @@
       "active": "Active",
       "inactive": "Inactive",
       "suspended": "Suspended"
+    }
+  },
+  "adminPlaces": {
+    "title": "Points of interest",
+    "subtitle": "They're imported automatically from OpenStreetMap (2 km around) when a property or experience is approved. Here you can hide, correct or add missing ones.",
+    "searchPlaceholder": "Search by name",
+    "city": "City",
+    "country": "Country",
+    "type": "Type",
+    "allTypes": "All types",
+    "visibility": "Visibility",
+    "allVisibility": "Visible and hidden",
+    "visible": "Visible",
+    "hiddenPlural": "Hidden",
+    "hidden": "Hidden",
+    "filter": "Filter",
+    "add": "Add place",
+    "addTitle": "Add a place",
+    "editTitle": "Correct the place",
+    "editOsmHint": "It comes from OpenStreetMap. What you correct here is kept even if the area is imported again.",
+    "name": "Name",
+    "hours": "Opening hours",
+    "note": "Note for the tourist",
+    "fromOsm": "From OpenStreetMap",
+    "fromAdmin": "Added by the admin",
+    "edited": "corrected",
+    "show": "Show",
+    "hide": "Hide",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this place?",
+    "empty": "No places match these filters.",
+    "loadError": "Places couldn't load.",
+    "areasTitle": "Imported areas",
+    "areasHint": "Each area is refreshed once a month; failed ones are retried automatically.",
+    "noAreas": "No areas imported yet.",
+    "placesCount": "{count} places",
+    "importedAt": "Last import",
+    "reimport": "Import again",
+    "importing": "Importing…",
+    "status": {
+      "pending": "Importing",
+      "done": "Imported",
+      "failed": "Failed (will retry)"
     }
   }
 }

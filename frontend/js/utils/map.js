@@ -90,3 +90,65 @@ export async function showAreaMap(container, point) {
   });
   return map;
 }
+
+// Mapa de solo lectura con un punto publico (el punto de encuentro de una
+// excursion): aqui si va un marcador.
+export async function showPointMap(container, point) {
+  const maplibregl = await loadMapLibre();
+  const color = getComputedStyle(document.documentElement).getPropertyValue('--accent-fill').trim();
+  const map = new maplibregl.Map({
+    container,
+    style: MAP_STYLE,
+    center: point.coordinates,
+    zoom: 15.5,
+    cooperativeGestures: true,
+  });
+  map.addControl(new maplibregl.NavigationControl({ showCompass: false }));
+  new maplibregl.Marker({ ...(color && { color }) }).setLngLat(point.coordinates).addTo(map);
+  return map;
+}
+
+// Lugares de interes sobre un mapa ya abierto: un circulo por lugar y, al
+// tocarlo, su nombre. `label(place)` da el texto (nombre, tipo y distancia).
+// El texto va con textContent: los nombres vienen de OpenStreetMap.
+export function addPlacesToMap(map, places, label) {
+  const style = getComputedStyle(document.documentElement);
+  const color = style.getPropertyValue('--cta-fill').trim();
+  const ring = style.getPropertyValue('--on-color').trim();
+  const data = {
+    type: 'FeatureCollection',
+    features: places.map((p, i) => ({ type: 'Feature', geometry: p.geo, properties: { i } })),
+  };
+  const add = () => {
+    if (map.getSource('places')) {
+      map.getSource('places').setData(data);
+      return;
+    }
+    map.addSource('places', { type: 'geojson', data });
+    map.addLayer({
+      id: 'places',
+      type: 'circle',
+      source: 'places',
+      paint: {
+        'circle-radius': 7, 'circle-color': color, 'circle-stroke-width': 2, 'circle-stroke-color': ring,
+      },
+    });
+    map.on('click', 'places', (e) => {
+      const place = places[e.features[0].properties.i];
+      const text = document.createElement('span');
+      text.textContent = label(place);
+      new window.maplibregl.Popup({ closeButton: false, offset: 8 })
+        .setLngLat(place.geo.coordinates).setDOMContent(text).addTo(map);
+    });
+    map.on('mouseenter', 'places', () => { map.getCanvas().style.cursor = 'pointer'; });
+    map.on('mouseleave', 'places', () => { map.getCanvas().style.cursor = ''; });
+  };
+  if (map.isStyleLoaded()) add();
+  else map.once('load', add);
+  if (places.length) {
+    const bounds = new window.maplibregl.LngLatBounds();
+    places.forEach((p) => bounds.extend(p.geo.coordinates));
+    bounds.extend(map.getCenter());
+    map.fitBounds(bounds, { padding: 40, maxZoom: 16, duration: 0 });
+  }
+}

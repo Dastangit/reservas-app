@@ -4,6 +4,8 @@ import { formatExperiencePrice, formatExperienceDate, formatExperienceTime } fro
 import auth from '../auth.js';
 import { escapeHtml } from '../utils/escape.js';
 import { formatPlace } from '../utils/places.js';
+import { isPoint, showPointMap, directionsUrl } from '../utils/map.js';
+import { nearPlacesButtonHtml, nearPlacesListHtml, bindNearPlaces } from '../utils/nearPlaces.js';
 
 const ExperienceDetailPage = {
   experience: null,
@@ -108,6 +110,20 @@ const ExperienceDetailPage = {
                 <p>${escapeHtml(exp.description)}</p>
               </div>
 
+              ${isPoint(exp.location?.geo) ? `
+                <div class="property-area">
+                  <h2>${t('experience.meetingPointTitle')}</h2>
+                  ${exp.location?.address ? `<p>${escapeHtml(exp.location.address)}</p>` : ''}
+                  <div class="area-actions">
+                    <button type="button" class="btn btn-outline btn-sm" id="show-meeting-map">${t('experience.showMeetingMap')}</button>
+                    ${exp.status === 'active' ? nearPlacesButtonHtml() : ''}
+                    <a class="btn btn-outline btn-sm" href="${escapeHtml(directionsUrl(exp.location.geo))}" target="_blank" rel="noopener">${t('bookingCard.directions')}</a>
+                  </div>
+                  <div class="area-map" id="area-map" hidden role="img" aria-label="${t('experience.meetingMapLabel')}"></div>
+                  ${exp.status === 'active' ? nearPlacesListHtml() : ''}
+                </div>
+              ` : ''}
+
               ${exp.includes?.length ? `
                 <div class="property-amenities">
                   <h2>${t('experience.includesHeading')}</h2>
@@ -162,7 +178,25 @@ const ExperienceDetailPage = {
     `;
   },
 
-  init() {},
+  init() {
+    if (!isPoint(this.experience?.location?.geo)) return;
+    // El mapa solo se descarga si el turista lo pide (ahorra datos en el movil).
+    let mapPromise = null;
+    const openMap = () => {
+      if (!mapPromise) {
+        const container = document.getElementById('area-map');
+        document.getElementById('show-meeting-map')?.remove();
+        container.hidden = false;
+        mapPromise = showPointMap(container, this.experience.location.geo);
+        mapPromise.catch(() => {
+          container.outerHTML = `<p class="error">${i18n.t('locationPicker.mapFailed')}</p>`;
+        });
+      }
+      return mapPromise;
+    };
+    document.getElementById('show-meeting-map')?.addEventListener('click', () => openMap().catch(() => {}));
+    bindNearPlaces({ query: `experience=${encodeURIComponent(this.experience._id)}`, openMap });
+  },
 };
 
 export default ExperienceDetailPage;

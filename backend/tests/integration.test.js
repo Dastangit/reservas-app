@@ -659,6 +659,243 @@ describe('buscador de direcciones', () => {
   });
 });
 
+describe('lugares de interes', () => {
+  const Place = require('../models/Place');
+  const PlaceArea = require('../models/PlaceArea');
+  const { resetForTests, toPlace } = require('../utils/overpass');
+  const { refreshPlaceAreas } = require('../jobs/placeImport');
+  const { walkingDistance } = require('../controllers/placeController');
+
+  // Respuesta de Overpass armada alrededor del centro que se le pide, porque
+  // la zona aproximada (el centro) se elige al azar.
+  const overpassAround = (body) => {
+    const [, , lat, lng] = body.get('data').match(/around:(\d+),([-\d.]+),([-\d.]+)/).map(Number);
+    // Los ids de OpenStreetMap son unicos en el mundo: cada zona, los suyos.
+    const base = Math.abs(Math.round(lat * 100)) * 100;
+    return {
+      elements: [
+        { type: 'node', id: base + 1, lat: lat + 0.002, lon: lng, tags: { amenity: 'restaurant', name: 'Taqueria', opening_hours: 'Mo-Su 09:00-22:00' } },
+        { type: 'way', id: base + 2, center: { lat: lat + 0.004, lon: lng }, tags: { tourism: 'museum', name: 'Museo' } },
+        { type: 'node', id: base + 3, lat: lat + 0.001, lon: lng, tags: { amenity: 'restaurant' } },
+        { type: 'node', id: base + 4, lat, lon: lng + 0.001, tags: { amenity: 'atm' } },
+        { type: 'node', id: base + 5, lat, lon: lng + 0.003, tags: { amenity: 'restaurant', tourism: 'attraction', name: 'Famoso' } },
+        { type: 'node', id: base + 6, lat: lat + 0.015, lon: lng, tags: { amenity: 'cafe', name: 'Lejos' } },
+        { type: 'node', id: base + 1, lat: lat + 0.002, lon: lng, tags: { amenity: 'restaurant', name: 'Taqueria' } },
+        { type: 'node', id: base + 7, lat, lon: lng, tags: { shop: 'supermarket', name: 'Super' } },
+      ],
+    };
+  };
+  const overpassOk = (url, options) => Promise.resolve({ ok: true, json: async () => overpassAround(options.body) });
+
+  const waitFor = async (check) => {
+    for (let i = 0; i < 100; i += 1) {
+      if (await check()) return;
+      await new Promise((resolve) => { setTimeout(resolve, 30); });
+    }
+    throw new Error('waitFor: timeout');
+  };
+  const areaDone = (id) => waitFor(async () => (await PlaceArea.findById(id))?.status !== 'pending');
+
+  let fetchSpy;
+  let h;
+  let propertyId;
+  beforeAll(async () => {
+    h = await makeUser('host');
+    // Otras pruebas aprueban anuncios en Ciudad de Mexico y su importacion falla
+    // (Overpass apunta a ninguna parte): se empieza sin zonas.
+    await waitFor(async () => !(await PlaceArea.exists({ status: 'pending' })));
+    await PlaceArea.deleteMany({});
+    await Place.deleteMany({});
+  });
+  beforeEach(() => {
+    resetForTests();
+    fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(overpassOk);
+  });
+  afterEach(() => fetchSpy.mockRestore());
+
+  const publish = async (name, geo, city = 'Ciudad de Mexico', country = 'MX') => {
+    const res = await request(app).post('/api/properties').set(auth(h)).send({
+      name, type: 'apartment', description: 'd', max_guests: 2, price_per_night: 40,
+      services: demoServices(), location: {
+        city, country, neighborhood: 'Centro', geo,
+      },
+    });
+    expect(res.status).toBe(201);
+    return res.body.data.property_id;
+  };
+
+  test('clasifica los lugares de OpenStreetMap', () => {
+    expect(toPlace({ type: 'node', id: 9, lat: 1, lon: 2, tags: { amenity: 'restaurant', tourism: 'attraction', name: 'X' } }).type).toBe('restaurant');
+    expect(toPlace({ type: 'node', id: 9, lat: 1, lon: 2, tags: { historic: 'castle', name: 'Morro' } }).type).toBe('monument');
+    expect(toPlace({ type: 'node', id: 9, lat: 1, lon: 2, tags: { shop: 'barber', name: 'B' } }).type).toBe('barber');
+    expect(toPlace({ type: 'node', id: 9, lat: 1, lon: 2, tags: { amenity: 'pharmacy' } })).toBeNull();
+    expect(walkingDistance(300)).toEqual({ walk_m: 400, walk_min: 5 });
+    expect(walkingDistance(10)).toEqual({ walk_m: 50, walk_min: 1 });
+    expect(walkingDistance(1000)).toEqual({ walk_m: 1300, walk_min: 16 });
+  });
+
+  test('al aprobar un alojamiento se importan los lugares de su zona', async () => {
+    propertyId = await publish('Depto Zocalo', pt(-99.1332, 19.4326));
+    const res = await request(app).post(`/api/admin/properties/${propertyId}/approve`).set(auth(admin));
+    expect(res.status).toBe(200);
+
+    await waitFor(async () => (await PlaceArea.findOne({ tenant_id: tenant._id, status: 'done' })));
+    const area = await PlaceArea.findOne({ tenant_id: tenant._id, status: 'done' });
+    const property = await Property.findById(propertyId).lean();
+    expect(area.center.coordinates).toEqual(property.location.approx.coordinates);
+    expect(area.city).toBe('Ciudad de Mexico');
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    const [, options] = fetchSpy.mock.calls[0];
+    expect(options.method).toBe('POST');
+    expect(options.headers['User-Agent']).toMatch(/^ElysioExperiences\//);
+    expect(options.body.get('data')).toMatch(/around:2000,/);
+
+    const places = await Place.find({ tenant_id: tenant._id }).lean();
+    expect(places.map((p) => p.name).sort()).toEqual([undefined, 'Famoso', 'Lejos', 'Museo', 'Taqueria'].sort());
+    expect(places.find((p) => p.name === 'Famoso').type).toBe('restaurant');
+    expect(places.find((p) => p.type === 'money')).toMatchObject({ type: 'money', source: 'osm', country: 'MX' });
+    expect('name' in places.find((p) => p.type === 'money')).toBe(false);
+  });
+
+  test('la ficha recibe los lugares a 1 km, con distancia a pie redondeada', async () => {
+    const res = await request(app).get(`/api/places/near?property=${propertyId}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.pending).toBe(false);
+    const { places } = res.body.data;
+    expect(places.map((p) => p.name || p.type)).toEqual(['money', 'Taqueria', 'Famoso', 'Museo']);
+    for (const p of places) {
+      expect(p.walk_m % 50).toBe(0);
+      expect(p.walk_min).toBeGreaterThan(0);
+      expect(p.distance).toBeUndefined();
+      expect(p.tenant_id).toBeUndefined();
+    }
+    expect(places[1]).toMatchObject({ walk_m: 300, walk_min: 4, opening_hours: 'Mo-Su 09:00-22:00' });
+  });
+
+  test('otro anuncio de la misma zona no vuelve a consultar Overpass', async () => {
+    const other = await publish('Depto Vecino', pt(-99.1340, 19.4330));
+    await request(app).post(`/api/admin/properties/${other}/approve`).set(auth(admin));
+    const res = await request(app).get(`/api/places/near?property=${other}`);
+    expect(res.body.data.places.length).toBeGreaterThan(0);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(await PlaceArea.countDocuments({ tenant_id: tenant._id })).toBe(1);
+  });
+
+  test('el admin oculta y corrige; reimportar no pisa lo corregido', async () => {
+    const taqueria = await Place.findOne({ tenant_id: tenant._id, name: 'Taqueria' });
+    const museo = await Place.findOne({ tenant_id: tenant._id, name: 'Museo' });
+    const hide = await request(app).put(`/api/admin/places/${museo._id}`).set(auth(admin)).send({ hidden: true });
+    expect(hide.status).toBe(200);
+    expect(hide.body.data.place.admin_edited).toBe(false);
+    const fix = await request(app).put(`/api/admin/places/${taqueria._id}`).set(auth(admin))
+      .send({ name: 'Taqueria El Paisa', note: 'Cierra los lunes' });
+    expect(fix.body.data.place.admin_edited).toBe(true);
+
+    const area = await PlaceArea.findOne({ tenant_id: tenant._id });
+    const again = await request(app).post(`/api/admin/place-areas/${area._id}/import`).set(auth(admin));
+    expect(again.status).toBe(200);
+    expect((await Place.findById(taqueria._id)).name).toBe('Taqueria El Paisa');
+    expect((await Place.findById(museo._id)).hidden).toBe(true);
+
+    const near = (await request(app).get(`/api/places/near?property=${propertyId}`)).body.data.places;
+    expect(near.map((p) => p.name)).not.toContain('Museo');
+    expect(near.find((p) => p._id === String(taqueria._id))).toMatchObject({ name: 'Taqueria El Paisa', note: 'Cierra los lunes' });
+
+    // Los de OpenStreetMap se ocultan, no se borran (volverian al reimportar).
+    expect((await request(app).delete(`/api/admin/places/${museo._id}`).set(auth(admin))).status).toBe(400);
+  });
+
+  test('el admin anade un lugar que OpenStreetMap no tiene', async () => {
+    const property = await Property.findById(propertyId).lean();
+    const [lng, lat] = property.location.approx.coordinates;
+    const bad = await request(app).post('/api/admin/places').set(auth(admin)).send({ name: 'X', type: 'cafe' });
+    expect(bad.status).toBe(400);
+    const res = await request(app).post('/api/admin/places').set(auth(admin))
+      .send({ name: 'Cafe de la esquina', type: 'cafe', geo: pt(lng, lat + 0.0005), city: 'Ciudad de Mexico', country: 'mx' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.place).toMatchObject({ source: 'admin', country: 'MX', hidden: false });
+    const near = (await request(app).get(`/api/places/near?property=${propertyId}`)).body.data.places;
+    expect(near[0].name).toBe('Cafe de la esquina');
+
+    const list = await request(app).get('/api/admin/places?type=cafe').set(auth(admin));
+    expect(list.body.data.places.map((p) => p.name).sort()).toEqual(['Cafe de la esquina', 'Lejos']);
+    expect(list.body.data.areas).toHaveLength(1);
+
+    expect((await request(app).delete(`/api/admin/places/${res.body.data.place._id}`).set(auth(admin))).status).toBe(200);
+    const t = await makeUser('tourist');
+    expect((await request(app).get('/api/admin/places').set(auth(t))).status).toBe(403);
+  });
+
+  test('como mucho 6 lugares de cada tipo, los mas cercanos', async () => {
+    const property = await Property.findById(propertyId).lean();
+    const [lng, lat] = property.location.approx.coordinates;
+    const extra = await Place.insertMany(Array.from({ length: 8 }, (_, i) => ({
+      tenant_id: tenant._id, name: `Bar ${i}`, type: 'bar', geo: pt(lng, lat + 0.0002 * (i + 1)), source: 'admin',
+    })));
+    const near = (await request(app).get(`/api/places/near?property=${propertyId}`)).body.data.places;
+    const bars = near.filter((p) => p.type === 'bar').map((p) => p.name);
+    expect(bars).toEqual(['Bar 0', 'Bar 1', 'Bar 2', 'Bar 3', 'Bar 4', 'Bar 5']);
+    expect(near.map((p) => p.name)).toContain('Taqueria El Paisa');
+    await Place.deleteMany({ _id: { $in: extra.map((p) => p._id) } });
+  });
+
+  test('solo por anuncio publicado, nunca por coordenadas sueltas', async () => {
+    expect((await request(app).get('/api/places/near')).status).toBe(400);
+    expect((await request(app).get('/api/places/near?lat=19.4&lng=-99.1')).status).toBe(400);
+    const pending = await publish('Sin aprobar', pt(-99.2, 19.5));
+    expect((await request(app).get(`/api/places/near?property=${pending}`)).status).toBe(404);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  test('un anuncio sin zona la importa al pedirla; si Overpass falla, se reintenta', async () => {
+    fetchSpy.mockResolvedValue({ ok: false, status: 504 });
+    const id = await publish('Casa Lima', pt(-77.0428, -12.0464), 'Lima', 'PE');
+    await Property.updateOne({ _id: id }, { status: 'active' });
+
+    const first = await request(app).get(`/api/places/near?property=${id}`);
+    expect(first.status).toBe(200);
+    expect(first.body.data).toEqual({ places: [], pending: true, unavailable: false });
+    const area = await PlaceArea.findOne({ city: 'Lima' });
+    await areaDone(area._id);
+    expect(await PlaceArea.findById(area._id)).toMatchObject({ status: 'failed', attempts: 1 });
+
+    // Otra visita no dispara otra consulta: espera al cron.
+    const second = await request(app).get(`/api/places/near?property=${id}`);
+    expect(second.body.data).toMatchObject({ pending: false, unavailable: true });
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    fetchSpy.mockImplementation(overpassOk);
+    expect(await refreshPlaceAreas()).toBe(0); // menos de 1 h desde el fallo
+    // Agotados los reintentos rapidos, sigue con uno al dia.
+    await PlaceArea.collection.updateOne({ _id: area._id }, { $set: { attempts: 5, updated_at: new Date(Date.now() - 2 * 3600e3) } });
+    expect(await refreshPlaceAreas()).toBe(0);
+    await PlaceArea.collection.updateOne({ _id: area._id }, { $set: { updated_at: new Date(Date.now() - 25 * 3600e3) } });
+    expect(await refreshPlaceAreas()).toBe(1);
+
+    const after = await request(app).get(`/api/places/near?property=${id}`);
+    expect(after.body.data).toMatchObject({ pending: false, unavailable: false });
+    expect(after.body.data.places.length).toBe(4);
+  });
+
+  test('las excursiones usan su punto de encuentro', async () => {
+    const org = await makeUser('organizer');
+    const exp = await Experience.create({
+      tenant_id: tenant._id, organizer_id: org._id, title: 'Tour Bogota', description: 'd',
+      location: { city: 'Bogota', country: 'CO', geo: pt(-74.0721, 4.711) },
+      date: new Date(Date.now() + 7 * 864e5), timezone: 'America/Bogota', max_participants: 10,
+      pricing: [{ audience: 'tourist', currency: 'COP', amount: 20000 }], status: 'pending_approval',
+    });
+    expect((await request(app).get(`/api/places/near?experience=${exp._id}`)).status).toBe(404);
+    await request(app).post(`/api/admin/experiences/${exp._id}/approve`).set(auth(admin));
+    const area = await waitFor(async () => PlaceArea.findOne({ city: 'Bogota', status: 'done' }))
+      .then(() => PlaceArea.findOne({ city: 'Bogota' }));
+    expect(area.center.coordinates).toEqual([-74.0721, 4.711]);
+    const res = await request(app).get(`/api/places/near?experience=${exp._id}`);
+    expect(res.body.data.places.map((p) => p.name || p.type)).toEqual(['money', 'Taqueria', 'Famoso', 'Museo']);
+  });
+});
+
 describe('sesion', () => {
   test('dos renovaciones seguidas dan tokens distintos y el viejo queda revocado', async () => {
     const u = await makeUser('tourist');

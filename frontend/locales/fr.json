@@ -250,7 +250,10 @@
     "claimNumSpotsHint": "Doit correspondre à ce que vous avez demandé sur la liste d'attente.",
     "confirmSpotBtn": "Confirmer ma place",
     "claimFailed": "Impossible de confirmer la place — la fenêtre de temps a peut-être expiré",
-    "localTime": "heure locale"
+    "localTime": "heure locale",
+    "meetingPointTitle": "Point de rendez-vous",
+    "showMeetingMap": "Voir sur la carte",
+    "meetingMapLabel": "Carte avec le point de rendez-vous de l'excursion"
   },
   "search": {
     "title": "Rechercher des propriétés",
@@ -1294,14 +1297,37 @@
       "pending_experience_bookings": "Réservations d’excursions en attente",
       "overdue_organizer_commissions": "Commissions d’organisateurs en retard",
       "manual_payments_pending": "Paiements PayPal manuels à confirmer"
-    }
+    },
+    "places": "Lieux d'intérêt"
   },
   "places": {
     "countryLabel": "Pays",
     "selectCountry": "Choisissez un pays",
     "allCountries": "Tous les pays",
     "timeZoneLabel": "Fuseau horaire du lieu",
-    "timeZoneHint": "L'heure indiquée est l'heure locale de ce lieu. Tous les visiteurs voient la même heure."
+    "timeZoneHint": "L'heure indiquée est l'heure locale de ce lieu. Tous les visiteurs voient la même heure.",
+    "show": "Voir les lieux à proximité",
+    "title": "À proximité",
+    "walk": "≈ {distance} · {min} min à pied",
+    "hint": "Distances à pied approximatives depuis la zone. Données © OpenStreetMap ; les horaires peuvent changer.",
+    "none": "Aucun lieu d'intérêt répertorié à moins de 1 km.",
+    "pending": "Nous rassemblons les lieux de cette zone. Réessayez dans quelques minutes.",
+    "loadError": "Impossible de charger les lieux à proximité. Veuillez réessayer.",
+    "types": {
+      "museum": "Musée",
+      "monument": "Monument",
+      "beach": "Plage",
+      "park": "Parc",
+      "restaurant": "Restaurant",
+      "cafe": "Café",
+      "bar": "Bar",
+      "cinema": "Cinéma",
+      "barber": "Barbier ou coiffeur",
+      "pharmacy": "Pharmacie",
+      "money": "Banque, distributeur ou bureau de change",
+      "clinic": "Clinique ou hôpital"
+    },
+    "unavailable": "Les lieux de cette zone ne sont pas encore disponibles. Revenez plus tard."
   },
   "propertyTypes": {
     "apartment": "Appartement",
@@ -1428,6 +1454,14 @@
       "noPoint": "Vous n'avez pas encore indiqué le point de rendez-vous.",
       "adjust": "Vérifiez le repère et faites-le glisser jusqu'au point exact si nécessaire.",
       "required": "Indiquez le point de rendez-vous sur la carte."
+    },
+    "place": {
+      "label": "Emplacement sur la carte",
+      "hint": "Indiquez où se trouve le lieu. Il est public : il apparaît sur les cartes des annonces proches.",
+      "here": "Je suis sur place",
+      "noPoint": "Vous n'avez pas encore indiqué le lieu.",
+      "adjust": "Vérifiez le repère et faites-le glisser jusqu'au point exact si nécessaire.",
+      "required": "Indiquez le lieu sur la carte."
     }
   },
   "onboarding": {
@@ -1458,6 +1492,49 @@
       "active": "Active",
       "inactive": "Inactive",
       "suspended": "Suspendue"
+    }
+  },
+  "adminPlaces": {
+    "title": "Lieux d'intérêt",
+    "subtitle": "Ils sont importés automatiquement depuis OpenStreetMap (2 km autour) lors de l'approbation d'un logement ou d'une excursion. Ici, vous pouvez les masquer, les corriger ou ajouter ceux qui manquent.",
+    "searchPlaceholder": "Rechercher par nom",
+    "city": "Ville",
+    "country": "Pays",
+    "type": "Type",
+    "allTypes": "Tous les types",
+    "visibility": "Visibilité",
+    "allVisibility": "Visibles et masqués",
+    "visible": "Visibles",
+    "hiddenPlural": "Masqués",
+    "hidden": "Masqué",
+    "filter": "Filtrer",
+    "add": "Ajouter un lieu",
+    "addTitle": "Ajouter un lieu",
+    "editTitle": "Corriger le lieu",
+    "editOsmHint": "Il provient d'OpenStreetMap. Vos corrections sont conservées même si la zone est réimportée.",
+    "name": "Nom",
+    "hours": "Horaires",
+    "note": "Note pour le touriste",
+    "fromOsm": "D'OpenStreetMap",
+    "fromAdmin": "Ajouté par l'admin",
+    "edited": "corrigé",
+    "show": "Afficher",
+    "hide": "Masquer",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer ce lieu ?",
+    "empty": "Aucun lieu ne correspond à ces filtres.",
+    "loadError": "Impossible de charger les lieux.",
+    "areasTitle": "Zones importées",
+    "areasHint": "Chaque zone est mise à jour une fois par mois ; celles qui échouent sont réessayées automatiquement.",
+    "noAreas": "Aucune zone importée pour l'instant.",
+    "placesCount": "{count} lieux",
+    "importedAt": "Dernière importation",
+    "reimport": "Réimporter",
+    "importing": "Importation…",
+    "status": {
+      "pending": "Importation en cours",
+      "done": "Importée",
+      "failed": "Échec (nouvel essai prévu)"
     }
   }
 }

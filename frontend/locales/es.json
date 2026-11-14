@@ -250,7 +250,10 @@
     "claimNumSpotsHint": "Debe coincidir con lo que pediste en la lista de espera.",
     "confirmSpotBtn": "Confirmar mi cupo",
     "claimFailed": "No se pudo confirmar el cupo -- puede que la ventana de tiempo haya vencido",
-    "localTime": "hora local"
+    "localTime": "hora local",
+    "meetingPointTitle": "Punto de encuentro",
+    "showMeetingMap": "Ver en el mapa",
+    "meetingMapLabel": "Mapa con el punto de encuentro de la excursión"
   },
   "search": {
     "title": "Buscar alojamientos",
@@ -1294,14 +1297,37 @@
       "pending_experience_bookings": "Reservas de excursiones pendientes",
       "overdue_organizer_commissions": "Comisiones de organizadores vencidas",
       "manual_payments_pending": "Pagos manuales de PayPal por confirmar"
-    }
+    },
+    "places": "Lugares de interés"
   },
   "places": {
     "countryLabel": "País",
     "selectCountry": "Elige un país",
     "allCountries": "Todos los países",
     "timeZoneLabel": "Zona horaria del lugar",
-    "timeZoneHint": "La hora que indiques es la hora local de este lugar. Todos los visitantes la verán igual."
+    "timeZoneHint": "La hora que indiques es la hora local de este lugar. Todos los visitantes la verán igual.",
+    "show": "Ver lugares cerca",
+    "title": "Cerca",
+    "walk": "≈ {distance} · {min} min a pie",
+    "hint": "Distancias aproximadas a pie desde la zona. Datos de © OpenStreetMap; los horarios pueden cambiar.",
+    "none": "No hay lugares de interés registrados a menos de 1 km.",
+    "pending": "Estamos reuniendo los lugares de esta zona. Vuelve a intentarlo en unos minutos.",
+    "loadError": "No se pudieron cargar los lugares cercanos. Inténtalo de nuevo.",
+    "types": {
+      "museum": "Museo",
+      "monument": "Monumento",
+      "beach": "Playa",
+      "park": "Parque",
+      "restaurant": "Restaurante",
+      "cafe": "Café",
+      "bar": "Bar",
+      "cinema": "Cine",
+      "barber": "Barbería o peluquería",
+      "pharmacy": "Farmacia",
+      "money": "Banco, cajero o casa de cambio",
+      "clinic": "Clínica u hospital"
+    },
+    "unavailable": "Los lugares de esta zona aún no están disponibles. Vuelve a mirarlo más tarde."
   },
   "propertyTypes": {
     "apartment": "Apartamento",
@@ -1428,6 +1454,14 @@
       "noPoint": "Aún no has marcado el punto de encuentro.",
       "adjust": "Revisa el marcador y arrástralo hasta el punto exacto si hace falta.",
       "required": "Marca en el mapa el punto de encuentro."
+    },
+    "place": {
+      "label": "Ubicación en el mapa",
+      "hint": "Marca dónde está el lugar. Es público: sale en los mapas de las fichas cercanas.",
+      "here": "Estoy en el lugar",
+      "noPoint": "Aún no has marcado el lugar.",
+      "adjust": "Revisa el marcador y arrástralo hasta el punto exacto si hace falta.",
+      "required": "Marca el lugar en el mapa."
     }
   },
   "onboarding": {
@@ -1458,6 +1492,49 @@
       "active": "Activa",
       "inactive": "Inactiva",
       "suspended": "Suspendida"
+    }
+  },
+  "adminPlaces": {
+    "title": "Lugares de interés",
+    "subtitle": "Se importan solos de OpenStreetMap (2 km a la redonda) al aprobar un alojamiento o una excursión. Aquí puedes ocultarlos, corregirlos o añadir los que falten.",
+    "searchPlaceholder": "Buscar por nombre",
+    "city": "Ciudad",
+    "country": "País",
+    "type": "Tipo",
+    "allTypes": "Todos los tipos",
+    "visibility": "Visibilidad",
+    "allVisibility": "Visibles y ocultos",
+    "visible": "Visibles",
+    "hiddenPlural": "Ocultos",
+    "hidden": "Oculto",
+    "filter": "Filtrar",
+    "add": "Añadir lugar",
+    "addTitle": "Añadir un lugar",
+    "editTitle": "Corregir el lugar",
+    "editOsmHint": "Viene de OpenStreetMap. Lo que corrijas aquí se conserva aunque la zona se vuelva a importar.",
+    "name": "Nombre",
+    "hours": "Horario",
+    "note": "Nota para el turista",
+    "fromOsm": "De OpenStreetMap",
+    "fromAdmin": "Añadido por el admin",
+    "edited": "corregido",
+    "show": "Mostrar",
+    "hide": "Ocultar",
+    "delete": "Borrar",
+    "deleteConfirm": "¿Borrar este lugar?",
+    "empty": "No hay lugares con estos filtros.",
+    "loadError": "No se pudieron cargar los lugares.",
+    "areasTitle": "Zonas importadas",
+    "areasHint": "Cada zona se actualiza una vez al mes; las que fallan se reintentan solas.",
+    "noAreas": "Aún no hay zonas importadas.",
+    "placesCount": "{count} lugares",
+    "importedAt": "Última importación",
+    "reimport": "Importar de nuevo",
+    "importing": "Importando…",
+    "status": {
+      "pending": "Importando",
+      "done": "Importada",
+      "failed": "Falló (se reintentará)"
     }
   }
 }
