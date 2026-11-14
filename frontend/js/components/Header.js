@@ -67,7 +67,7 @@ const Header = {
         <a href="/admin/users" data-link>${t('header.hosts')}</a>
         <div class="nav-dropdown">
           <button type="button" class="nav-bell" data-action="toggleNotifBell" aria-label="${t('header.notifications')}">
-            🔔<span class="notif-badge" id="notif-badge" style="display:none;">0</span>
+            🔔<span class="nav-bell-label">${t('header.notifications')}</span><span class="notif-badge" id="notif-badge" style="display:none;">0</span>
           </button>
           <div class="nav-dropdown-menu notif-menu" id="notif-menu">
             <p class="loading">${t('common.loading')}</p>
@@ -107,7 +107,7 @@ const Header = {
               <img src="/assets/logo-elysio.svg" alt="Elysio Experiences" class="logo-img">
             </a>
           </div>
-          <nav class="nav">
+          <nav class="nav" id="site-nav">
             ${navLinks}
             <select class="lang-select" data-change-action="changeLang" aria-label="${t('common.language')}">
               ${langOptions}
@@ -116,7 +116,7 @@ const Header = {
               ${isDarkTheme() ? SUN_ICON : MOON_ICON}
             </button>
           </nav>
-          <button class="mobile-menu-btn" data-action="toggleMobileMenu">
+          <button type="button" class="mobile-menu-btn" data-action="toggleMobileMenu" aria-controls="site-nav" aria-expanded="false" aria-label="${t('header.menu')}">
             <span></span>
             <span></span>
             <span></span>
@@ -130,6 +130,8 @@ const Header = {
     const headerEl = document.getElementById('header');
     if (headerEl) {
       headerEl.innerHTML = this.render();
+      document.body.classList.remove('menu-open');
+      markCurrentLink(headerEl);
 
       const header = headerEl.querySelector('.header');
       if (header) {
@@ -178,6 +180,42 @@ window.changeLang = function (lang) {
     window.rerenderCurrentPage();
   }
 };
+
+// Marca el enlace de la pagina actual (en el menu movil se resalta).
+function markCurrentLink(root) {
+  const path = i18n.stripLocaleFromPath(window.location.pathname);
+  root.querySelectorAll('.nav a[data-link]').forEach((a) => {
+    if (a.getAttribute('href') === path) a.setAttribute('aria-current', 'page');
+  });
+}
+
+// Menu movil: el boton lo abre y cierra; tambien se cierra al tocar un
+// enlace (sin esperar a que cargue la pagina), fuera del menu o con Escape.
+function setMobileMenu(open) {
+  const nav = document.querySelector('.nav');
+  const btn = document.querySelector('.mobile-menu-btn');
+  if (!nav || !btn) return;
+  nav.classList.toggle('active', open);
+  btn.setAttribute('aria-expanded', String(open));
+  document.body.classList.toggle('menu-open', open);
+}
+
+window.toggleMobileMenu = function () {
+  setMobileMenu(!document.querySelector('.nav')?.classList.contains('active'));
+};
+
+document.addEventListener('click', (event) => {
+  if (!document.body.classList.contains('menu-open')) return;
+  if (event.target.closest('.mobile-menu-btn')) return;
+  if (event.target.closest('.nav a') || !event.target.closest('.nav')) setMobileMenu(false);
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && document.body.classList.contains('menu-open')) {
+    setMobileMenu(false);
+    document.querySelector('.mobile-menu-btn')?.focus();
+  }
+});
 
 window.toggleNavDropdown = function () {
   // `this` es el boton (eventos delegados desde app.js, ver data-action).

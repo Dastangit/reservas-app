@@ -338,6 +338,10 @@ img[src="/assets/placeholder.svg"] {
   line-height: 1;
 }
 
+.nav-bell-label {
+  display: none;
+}
+
 .notif-badge {
   position: absolute;
   top: 2px;
@@ -866,8 +870,9 @@ img[src="/assets/placeholder.svg"] {
 }
 
 /* ===== HERO SECTION ===== */
-/* Sin fotos de destinos: marino liso. Con fotos, HeroCarousel pone las fotos
-   y .hero-overlay las oscurece en neutro para que el texto se lea. */
+/* Foto de playa propia (assets/hero, CC0) desde el primer momento, tambien en
+   la pagina prerenderizada. Cuando ya hay destinos con fotos, HeroCarousel la
+   tapa con ellas y .hero-overlay las oscurece para que el texto se lea. */
 .hero {
   background: var(--hero-bg);
   color: var(--on-color);
@@ -887,6 +892,23 @@ img[src="/assets/placeholder.svg"] {
   position: relative;
   z-index: 1;
   width: 100%;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(var(--hero-overlay), var(--hero-overlay)),
+    url('/assets/hero/hero-1440.webp') center / cover no-repeat;
+}
+
+@media (max-width: 768px) {
+  .hero::before {
+    background:
+      linear-gradient(var(--hero-overlay), var(--hero-overlay)),
+      url('/assets/hero/hero-movil.webp') center / cover no-repeat;
+  }
 }
 
 .hero h1 {
@@ -4146,14 +4168,27 @@ p.offer-no {
 
 /* Mobile (768px and below) */
 @media (max-width: 768px) {
+  /* En el movil el texto secundario sube un punto (14 -> 15, 12 -> 13 px):
+     a 14 px las descripciones y respuestas se leian pequenas. */
   :root {
     --section-py: 60px;
     --fs-hero: 36px;
     --fs-section: 28px;
     --fs-body: 16px;
+    --fs-sm: 15px;
+    --fs-xs: 13px;
     --header-height: 70px;
   }
 
+  /* Con menos de 16 px, Safari en iPhone amplia la pagina al tocar un campo. */
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Menu movil: lista a todo el ancho, alineada a la izquierda, con texto de
+     16 px y filas de 48 px. Idioma y tema comparten la ultima fila. */
   .nav {
     display: none;
     position: absolute;
@@ -4161,52 +4196,187 @@ p.offer-no {
     left: 0;
     right: 0;
     background: var(--background);
-    flex-direction: column;
-    padding: var(--space-lg);
-    box-shadow: var(--shadow-lg);
-    gap: var(--space-sm);
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: var(--space-sm);
+    padding: var(--space-sm) var(--section-px) var(--space-lg);
     border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
     z-index: 1050;
     max-height: calc(100vh - var(--header-height));
+    max-height: calc(100svh - var(--header-height));
     overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .nav.active {
-    display: flex;
+    display: grid;
+  }
+
+  .nav > * {
+    grid-column: 1 / -1;
   }
 
   .nav a::after {
     display: none;
   }
 
+  .nav > a:not(.btn),
+  .nav-dropdown-toggle,
+  .nav-bell {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    min-height: 48px;
+    padding: 0 var(--space-sm);
+    font-size: var(--fs-base);
+    text-align: left;
+    border-bottom: 1px solid var(--border-light);
+    border-radius: 0;
+  }
+
+  .nav a[aria-current="page"] {
+    color: var(--accent);
+    font-weight: 600;
+    background: var(--accent-soft);
+    border-radius: var(--radius-sm);
+  }
+
+  .nav-user::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    margin-right: var(--space-sm);
+    border-radius: 50%;
+    background: currentColor;
+  }
+
   .nav-dropdown {
     width: 100%;
-    text-align: center;
   }
 
   .nav-dropdown-toggle {
-    width: 100%;
-    text-align: center;
-    padding: 8px 0;
+    justify-content: space-between;
+  }
+
+  .nav-bell {
+    gap: var(--space-sm);
+    font-size: 18px;
+  }
+
+  .nav-bell-label {
+    display: inline;
+    font-family: var(--font-body);
+    font-size: var(--fs-base);
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .notif-badge {
+    position: static;
+    margin-left: auto;
+    font-size: var(--fs-xs);
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
   }
 
   .nav-dropdown-menu {
     position: static;
     box-shadow: none;
     border: none;
+    border-bottom: 1px solid var(--border-light);
+    border-radius: 0;
     margin-top: 0;
-    padding: 0 0 0 var(--space-md);
+    padding: var(--space-xs) 0 var(--space-sm) var(--space-md);
     min-width: 0;
     text-align: left;
   }
 
-  .nav .btn {
+  .nav .nav-dropdown-menu a {
+    justify-content: flex-start;
+    white-space: normal;
+    font-size: var(--fs-sm);
+    color: var(--text-light);
+  }
+
+  /* Entrar / registrarse / salir: botones de verdad a todo el ancho. */
+  .nav a.btn,
+  .nav button.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    text-align: center;
+    min-height: 48px;
+    margin-top: var(--space-md);
+    font-size: var(--fs-base);
+    font-weight: 600;
+    border-radius: var(--radius-btn);
+    border: 1.5px solid var(--border);
+  }
+
+  .nav a.btn + a.btn {
+    margin-top: var(--space-sm);
+  }
+
+  .nav a.btn-primary {
+    background: var(--cta-fill);
+    border-color: var(--cta-fill);
+    color: var(--on-color);
+  }
+
+  .nav a.btn-primary:hover {
+    color: var(--on-color);
+  }
+
+  .nav .lang-select {
+    grid-column: 1;
+    width: 100%;
+    min-height: 48px;
+    margin-top: var(--space-md);
+    font-size: var(--fs-base);
+  }
+
+  .nav .theme-toggle {
+    grid-column: 2;
+    width: 48px;
+    height: 48px;
+    margin-top: var(--space-md);
   }
 
   .mobile-menu-btn {
     display: flex;
+  }
+
+  /* El boton de menu se convierte en una X mientras esta abierto. */
+  .mobile-menu-btn[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .mobile-menu-btn[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .mobile-menu-btn[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  body.menu-open {
+    overflow: hidden;
+  }
+
+  /* Oscurece la pagina bajo el menu (no la cabecera); tocarla lo cierra. */
+  body.menu-open::before {
+    content: '';
+    position: fixed;
+    inset: var(--header-height) 0 0;
+    background: var(--menu-backdrop);
+    z-index: 999;
+  }
+
+  body.menu-open .pwa-install-banner {
+    display: none;
   }
 
   .logo-img {
