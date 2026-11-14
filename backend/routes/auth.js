@@ -8,7 +8,7 @@ const {
 const { protect, authorize } = require('../middleware/auth');
 const validate = require('../middleware/validate');
 const {
-  loginLimiter, passwordResetLimiter, twoFactorLimiter, registerLimiter, registerIpLimiter,
+  loginLimiter, loginIpLimiter, passwordResetLimiter, twoFactorLimiter, registerLimiter, registerIpLimiter,
 } = require('../middleware/rateLimiter');
 
 const MIN_PASSWORD = 8;
@@ -23,7 +23,7 @@ router.post('/register', registerIpLimiter, registerLimiter, [
   body('role').optional().isIn(['tourist', 'host', 'organizer']).withMessage('Role must be tourist, host or organizer'),
 ], validate, register);
 
-router.post('/login', loginLimiter, [
+router.post('/login', loginIpLimiter, loginLimiter, [
   body('email').trim().toLowerCase().isEmail().withMessage('Valid email is required'),
   body('password').notEmpty().withMessage('Password is required'),
 ], validate, login);

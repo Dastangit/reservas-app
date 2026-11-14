@@ -19,6 +19,20 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Login fallido solo por IP: el limite de arriba es por cuenta, y probar una
+// contrasena comun contra muchos emails desde una IP solo lo frenaba el
+// limite general. Los logins correctos no cuentan, para no bloquear a quienes
+// comparten IP (CGNAT, wifi de un hotel).
+const loginIpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  keyGenerator: ipKey,
+  skipSuccessfulRequests: true,
+  message: { success: false, error: 'Too many failed login attempts from this network, please try again after 15 minutes' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Bucket separado del de login -- probar el reset de contraseña varias
 // veces no debe consumir los intentos de login de la misma IP, ni viceversa.
 const passwordResetLimiter = rateLimit({
@@ -110,5 +124,13 @@ const registerIpLimiter = rateLimit({
 });
 
 module.exports = {
-  loginLimiter, passwordResetLimiter, apiLimiter, uploadLimiter, webhookLimiter, twoFactorLimiter, registerLimiter, registerIpLimiter,
+  loginLimiter,
+  loginIpLimiter,
+  passwordResetLimiter,
+  apiLimiter,
+  uploadLimiter,
+  webhookLimiter,
+  twoFactorLimiter,
+  registerLimiter,
+  registerIpLimiter,
 };

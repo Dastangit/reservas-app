@@ -9,6 +9,7 @@ const HostMonthlyCommission = require('../models/HostMonthlyCommission');
 const Experience = require('../models/Experience');
 const ExperienceBooking = require('../models/ExperienceBooking');
 const OrganizerMonthlyCommission = require('../models/OrganizerMonthlyCommission');
+const Tenant = require('../models/Tenant');
 const { promoteNextWaitlistEntry } = require('../utils/experienceWaitlist');
 const { normalizeServices, hasCompleteServices } = require('../utils/propertyServices');
 const { flagOfferChanges } = require('../utils/offerChanges');
@@ -422,7 +423,7 @@ exports.rejectHost = async (req, res, next) => {
 
     host.host_status = 'rejected';
     host.host_status_reason = req.body.reason;
-    host.refresh_token = null; // cierra la sesion al vencer el token de acceso
+    host.revokeSessions(); // cierra su sesion al momento
     await host.save();
 
     logAdminAction({
@@ -849,15 +850,21 @@ exports.getBookingTouristContactLinks = async (req, res, next) => {
   }
 };
 
-// Lista los IPN de NOWPayments que no se pudieron asociar a ninguna reserva,
-// para revisión manual del admin (en vez de que se pierdan en el log).
+// Los pagos huerfanos pueden no tener tenant_id (un pago sin reserva no dice
+// de que tenant es). Esos solo los ve el admin del tenant principal (el de
+// DEFAULT_TENANT_DOMAIN), no el de cualquier tenant.
+async function orphanTenantFilter(tenantId) {
+  const main = await Tenant.findOne({ domain: env.defaultTenantDomain }).select('_id').lean();
+  if (!main || String(main._id) !== String(tenantId)) return { tenant_id: tenantId };
+  return { $or: [{ tenant_id: tenantId }, { tenant_id: { $exists: false } }, { tenant_id: null }] };
+}
+
+// Lista los pagos que no se pudieron asociar a ninguna reserva, para revision
+// manual del admin (en vez de que se pierdan en el log).
 exports.getOrphanedPayments = async (req, res, next) => {
   try {
     const { reviewed } = req.query;
-    // Los pagos huérfanos pueden no tener tenant_id (un IPN sin order_id válido
-    // no tiene forma de saber a qué tenant pertenece) -- se incluyen igual,
-    // ya que hoy solo existe un tenant en el sistema.
-    const filter = { $or: [{ tenant_id: req.tenantId }, { tenant_id: { $exists: false } }, { tenant_id: null }] };
+    const filter = await orphanTenantFilter(req.tenantId);
     if (reviewed === 'true') filter.reviewed = true;
     if (reviewed === 'false') filter.reviewed = false;
 
@@ -875,7 +882,7 @@ exports.reviewOrphanedPayment = async (req, res, next) => {
   try {
     const orphan = await OrphanedPayment.findOne({
       _id: req.params.id,
-      $or: [{ tenant_id: req.tenantId }, { tenant_id: { $exists: false } }, { tenant_id: null }],
+      ...(await orphanTenantFilter(req.tenantId)),
     });
     if (!orphan) {
       return res.status(404).json({ success: false, error: 'Orphaned payment not found' });
@@ -1164,7 +1171,7 @@ exports.rejectOrganizer = async (req, res, next) => {
 
     organizer.organizer_status = 'rejected';
     organizer.organizer_status_reason = req.body.reason;
-    organizer.refresh_token = null; // cierra la sesion al vencer el token de acceso
+    organizer.revokeSessions(); // cierra su sesion al momento
     await organizer.save();
 
     logAdminAction({
@@ -1702,10 +1709,7 @@ exports.getPendingCounts = async (req, res, next) => {
         password_reset_token: { $exists: true, $ne: null },
         password_reset_expires: { $gt: new Date() },
       }),
-      OrphanedPayment.countDocuments({
-        $or: [{ tenant_id: tenantId }, { tenant_id: { $exists: false } }, { tenant_id: null }],
-        reviewed: false,
-      }),
+      orphanTenantFilter(tenantId).then((filter) => OrphanedPayment.countDocuments({ ...filter, reviewed: false })),
       HostMonthlyCommission.countDocuments({ tenant_id: tenantId, status: 'overdue' }),
       Experience.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),
       ExperienceBooking.countDocuments({ tenant_id: tenantId, status: 'pending_approval' }),

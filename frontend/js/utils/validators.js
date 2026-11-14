@@ -24,6 +24,10 @@ export const validateInternationalPhone = (phone) => {
   return re.test(sanitizePhone(phone));
 };
 
+// Atributos para el campo de URL de una foto nueva: solo se aceptan las que
+// sube nuestro boton (Cloudinary); el backend descarta cualquier otra.
+export const uploadedImageAttrs = (title) => `pattern="https://res\\.cloudinary\\.com/.+" title="${title}"`;
+
 export const validateRequired = (value) => {
   return value && value.trim().length > 0;
 };

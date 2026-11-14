@@ -3,12 +3,20 @@
 // solo se acepta si esta en la carpeta del propio usuario (o si ya estaba en
 // el documento, para no romper fotos antiguas). Antes se aceptaba cualquiera,
 // y copiar el public_id de otra propiedad permitia borrar fotos ajenas.
+// Las fotos nuevas solo pueden ser de nuestro Cloudinary (las que sube la
+// ruta /api/uploads). Con una URL propia, el dueno de ese servidor veia la IP
+// de cada turista que abria la ficha. Las que ya estaban en el documento se
+// conservan para no romper anuncios antiguos.
+const env = require('../config/env');
+
 const MAX_IMAGES = 20;
 
-const isHttpUrl = (value) => {
+const isOwnCloudinaryUrl = (value) => {
   try {
     const u = new URL(String(value));
-    return u.protocol === 'https:' || u.protocol === 'http:';
+    if (u.protocol !== 'https:' || u.hostname !== 'res.cloudinary.com') return false;
+    const cloudName = env.cloudinary?.cloudName;
+    return !cloudName || u.pathname.startsWith(`/${cloudName}/`);
   } catch {
     return false;
   }
@@ -18,9 +26,10 @@ function sanitizeImages(images, userId, existingImages = []) {
   if (!Array.isArray(images)) return [];
   const ownPrefix = `reservas-app/uploads/${userId}/`;
   const existingIds = new Set((existingImages || []).map((img) => img?.public_id).filter(Boolean));
+  const existingUrls = new Set((existingImages || []).map((img) => img?.url).filter(Boolean));
 
   return images
-    .filter((img) => img && isHttpUrl(img.url))
+    .filter((img) => img && (isOwnCloudinaryUrl(img.url) || existingUrls.has(img.url)))
     .slice(0, MAX_IMAGES)
     .map((img, index) => {
       const publicId = typeof img.public_id === 'string' ? img.public_id : '';

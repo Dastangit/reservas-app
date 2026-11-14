@@ -381,7 +381,7 @@ exports.refreshToken = async (req, res, _next) => {
       return res.status(401).json({ success: false, error: 'Invalid refresh token' });
     }
 
-    if (user.refresh_token !== refresh_token) {
+    if (user.refresh_token !== refresh_token || user.tokenRevoked(decoded)) {
       return res.status(401).json({ success: false, error: 'Refresh token has been revoked' });
     }
 

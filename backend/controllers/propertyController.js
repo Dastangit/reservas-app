@@ -48,7 +48,15 @@ const INTERNAL_FIELDS = ['admin_notes', 'rejection_reason', 'suspension_reason',
 // Direccion y punto exactos: en publico solo la zona aproximada (`approx`).
 // El turista los recibe con la reserva aprobada (bookingController).
 const PRIVATE_LOCATION_FIELDS = ['location.address', 'location.geo'];
-const PUBLIC_PROPERTY_SELECT = [...INTERNAL_FIELDS, ...PRIVATE_LOCATION_FIELDS].map((f) => `-${f}`).join(' ');
+// Los listados no necesitan los bloqueos (el calendario los pide aparte).
+const PUBLIC_PROPERTY_SELECT = [...INTERNAL_FIELDS, ...PRIVATE_LOCATION_FIELDS, 'blocked_dates']
+  .map((f) => `-${f}`).join(' ');
+
+// En publico, de un bloqueo solo se dan las fechas: el motivo ("familia de
+// visita") y quien lo puso son del anfitrion.
+const publicBlockedDates = (blocks = []) => blocks.map((b) => ({ start_date: b.start_date, end_date: b.end_date }));
+
+const isPublicProperty = (property) => property.status === 'active' && !property.suspended;
 
 const canSeeInternal = (req, hostId) => Boolean(req.user)
   && (req.user.role === 'admin' || String(req.user._id) === String(hostId?._id || hostId));
@@ -127,7 +135,7 @@ exports.getPropertyById = async (req, res, next) => {
     }
 
     const privileged = canSeeInternal(req, property.host_id);
-    const isPublic = property.status === 'active' && !property.suspended;
+    const isPublic = isPublicProperty(property);
     // Las propiedades pendientes, rechazadas o suspendidas solo las ve su host o el admin.
     if (!isPublic && !privileged) {
       return res.status(404).json({ success: false, error: 'Property not found' });
@@ -136,6 +144,7 @@ exports.getPropertyById = async (req, res, next) => {
     const data = property.toObject();
     if (!privileged) {
       INTERNAL_FIELDS.forEach((f) => delete data[f]);
+      data.blocked_dates = publicBlockedDates(data.blocked_dates);
       if (data.location) {
         delete data.location.address;
         delete data.location.geo;
@@ -328,11 +337,8 @@ exports.unblockDates = async (req, res, next) => {
 exports.getAvailabilityCalendar = async (req, res, next) => {
   try {
     const property = await Property.findOne({ _id: req.params.id, tenant_id: req.tenantId });
-    if (property && property.status !== 'active' && !canSeeInternal(req, property.host_id)) {
-      return res.status(404).json({ success: false, error: 'Property not found' });
-    }
-
-    if (!property) {
+    const privileged = Boolean(property) && canSeeInternal(req, property.host_id);
+    if (!property || (!isPublicProperty(property) && !privileged)) {
       return res.status(404).json({ success: false, error: 'Property not found' });
     }
 
@@ -351,7 +357,7 @@ exports.getAvailabilityCalendar = async (req, res, next) => {
     res.json({
       success: true,
       data: {
-        blocked_dates: property.blocked_dates,
+        blocked_dates: privileged ? property.blocked_dates : publicBlockedDates(property.blocked_dates),
         bookings: bookings.map((b) => ({
           check_in: b.check_in,
           check_out: b.check_out,
@@ -373,7 +379,8 @@ exports.checkAvailability = async (req, res, next) => {
       tenant_id: req.tenantId,
     });
 
-    if (!property) {
+    // Una propiedad pendiente, rechazada o suspendida no se anuncia como libre.
+    if (!property || (!isPublicProperty(property) && !canSeeInternal(req, property.host_id))) {
       return res.status(404).json({ success: false, error: 'Property not found' });
     }
 
@@ -389,7 +396,7 @@ exports.checkAvailability = async (req, res, next) => {
     if (isBlocked) {
       return res.json({
         success: true,
-        data: { available: false, blocked_dates: property.blocked_dates },
+        data: { available: false, blocked_dates: publicBlockedDates(property.blocked_dates) },
       });
     }
 
@@ -405,7 +412,7 @@ exports.checkAvailability = async (req, res, next) => {
       success: true,
       data: {
         available: !existingBooking,
-        blocked_dates: property.blocked_dates,
+        blocked_dates: publicBlockedDates(property.blocked_dates),
       },
     });
   } catch (error) {

@@ -42,10 +42,11 @@ describe('timezone de excursiones (America/Havana)', () => {
 
 describe('sanitizeImages', () => {
   const user = 'u1';
+  const cdn = (file) => `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME || 'x'}/${file}`;
 
   test('descarta public_id de la carpeta de otro usuario', () => {
     const [img] = sanitizeImages(
-      [{ url: 'https://res.cloudinary.com/x/a.jpg', public_id: 'reservas-app/uploads/otro/a' }],
+      [{ url: cdn('a.jpg'), public_id: 'reservas-app/uploads/otro/a' }],
       user,
     );
     expect(img.public_id).toBeUndefined();
@@ -53,14 +54,24 @@ describe('sanitizeImages', () => {
 
   test('conserva public_id propio o ya existente en el documento', () => {
     const images = sanitizeImages([
-      { url: 'https://x/a.jpg', public_id: 'reservas-app/uploads/u1/a' },
-      { url: 'https://x/b.jpg', public_id: 'reservas-app/properties/legacy' },
+      { url: cdn('a.jpg'), public_id: 'reservas-app/uploads/u1/a' },
+      { url: cdn('b.jpg'), public_id: 'reservas-app/properties/legacy' },
     ], user, [{ public_id: 'reservas-app/properties/legacy' }]);
     expect(images.map((i) => i.public_id)).toEqual(['reservas-app/uploads/u1/a', 'reservas-app/properties/legacy']);
   });
 
   test('descarta URLs que no son http(s)', () => {
     expect(sanitizeImages([{ url: 'javascript:alert(1)' }], user)).toEqual([]);
+  });
+
+  test('solo acepta fotos nuevas de Cloudinary; las que ya estaban se conservan', () => {
+    const images = sanitizeImages([
+      { url: 'https://tracker.example/foto.jpg' },
+      { url: 'http://res.cloudinary.com/x/a.jpg' },
+      { url: 'https://images.unsplash.com/antigua.jpg' },
+      { url: cdn('nueva.jpg') },
+    ], user, [{ url: 'https://images.unsplash.com/antigua.jpg' }]);
+    expect(images.map((i) => i.url)).toEqual(['https://images.unsplash.com/antigua.jpg', cdn('nueva.jpg')]);
   });
 });
 

@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { uploadedImageAttrs } from '../utils/validators.js';
 import { countryOptions } from '../utils/places.js';
 import { escapeHtml } from '../utils/escape.js';
 import { propertyTypeOptions } from '../utils/propertyTypes.js';
@@ -202,7 +203,7 @@ const EditPropertyPage = {
       container.innerHTML = `
         <div class="form-group image-entry">
           <label>${t('propertyForm.mainImageUrlLabel')}</label>
-          <input type="url" class="image-url" aria-label="${t('propertyForm.mainImageUrlLabel')}" required placeholder="${t('propertyForm.imageUrlPlaceholder')}">
+          <input type="url" class="image-url" aria-label="${t('propertyForm.mainImageUrlLabel')}" required placeholder="${t('propertyForm.imageUrlPlaceholder')}" ${uploadedImageAttrs(t('propertyForm.imageUploadOnly'))}>
           <div class="image-upload-row">
             <input type="file" class="image-file-input" aria-label="${t('propertyForm.mainImageUrlLabel')}" accept="image/*">
             <span class="image-upload-status"></span>
@@ -236,7 +237,7 @@ const EditPropertyPage = {
       div.innerHTML = `
         <div style="flex:1">
           <label>${t('propertyForm.imageLabel')}</label>
-          <input type="url" class="image-url" aria-label="${t('propertyForm.imageLabel')}" placeholder="${t('propertyForm.imageUrlPlaceholder')}">
+          <input type="url" class="image-url" aria-label="${t('propertyForm.imageLabel')}" placeholder="${t('propertyForm.imageUrlPlaceholder')}" ${uploadedImageAttrs(t('propertyForm.imageUploadOnly'))}>
           <div class="image-upload-row">
             <input type="file" class="image-file-input" aria-label="${t('propertyForm.imageLabel')}" accept="image/*">
             <span class="image-upload-status"></span>
