@@ -1,6 +1,6 @@
 const APP_CONFIG = {
   app_name: 'Elysio Experiences',
-  app_tagline: 'Viaja con confianza',
+  app_tagline: 'Wander Freely',
   app_logo: '/assets/logo-elysio.svg',
 
   // Contacto publico (footer, confirmaciones). Cambiar aqui cuando haya

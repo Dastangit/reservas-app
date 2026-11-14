@@ -169,6 +169,9 @@ window.changeLang = function (lang) {
   const currentPath = window.location.pathname;
   const strippedPath = i18n.stripLocaleFromPath(currentPath);
   if (i18n.isLocalizablePath(strippedPath)) {
+    // Primero se guarda el idioma: el ingles va sin prefijo y, si no, el
+    // router veria "/" con es/fr guardado y volveria a llevar a /es o /fr.
+    i18n.setLang(lang);
     router.navigateRaw(i18n.localizePath(currentPath, lang));
   } else {
     i18n.setLang(lang);

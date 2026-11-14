@@ -17,7 +17,7 @@ const Footer = {
               <div class="footer-logo-row">
                 <img loading="lazy" src="/assets/logo-elysio.svg" alt="Elysio Experiences" class="footer-logo-img">
               </div>
-              <p>${t('footer.tagline')}</p>
+              <p lang="en">${t('footer.tagline')}</p>
               <p class="footer-contact">
                 <strong>${t('footer.contact')}:</strong><br>
                 Email: <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a><br>
@@ -38,7 +38,7 @@ const Footer = {
             </div>
           </div>
           <div class="footer-bottom">
-            <p>&copy; ${new Date().getFullYear()} Elysio Experiences. ${t('footer.rights')}</p>
+            <p>&copy; ${new Date().getFullYear()} Elysio Experiences · <span lang="en">${t('footer.tagline')}</span></p>
           </div>
         </div>
       </footer>

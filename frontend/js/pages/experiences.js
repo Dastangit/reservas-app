@@ -129,13 +129,17 @@ const ExperiencesPage = {
           : i18n.t('experience.inquirePrice');
 
         return `
-          <a href="/experiences/${exp._id}" data-link class="property-card">
-            <img loading="lazy" src="${escapeHtml(exp.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(exp.title)}">
-            <div class="property-card-body">
-              <h3>${escapeHtml(exp.title)}</h3>
-              <p>${escapeHtml(formatPlace(exp.location))} · ${formatExperienceDate(exp.date, exp.timezone)} ${formatExperienceTime(exp.date, exp.timezone)}</p>
-              <p>${escapeHtml(priceLabel)}</p>
-              <p style="font-size:0.85rem;color:var(--text-light);">${spotsLeft} ${i18n.t('experience.spotsAvailable')}</p>
+          <a href="/experiences/${exp._id}" data-link class="property-card property-card--link">
+            <div class="property-card-image">
+              <img loading="lazy" src="${escapeHtml(exp.images?.[0]?.url || '/assets/placeholder.svg')}" alt="${escapeHtml(exp.title)}">
+            </div>
+            <div class="property-card-content">
+              <h3 class="property-card-title">${escapeHtml(exp.title)}</h3>
+              <p class="property-card-location">${escapeHtml(formatPlace(exp.location))} · ${formatExperienceDate(exp.date, exp.timezone)} ${formatExperienceTime(exp.date, exp.timezone)}</p>
+              <div class="property-card-footer">
+                <span class="property-price">${escapeHtml(priceLabel)}</span>
+                <span class="property-card-spots">${spotsLeft} ${i18n.t('experience.spotsAvailable')}</span>
+              </div>
             </div>
           </a>
         `;

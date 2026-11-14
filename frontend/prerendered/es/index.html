@@ -106,11 +106,48 @@
       </header>
     </header>
   <main id="app">
-      <section class="hero">
+      <section class="hero" data-time="day">
         
+        
+      <div class="hero-tod hero-tod--dawn" aria-hidden="true"></div>
+      <div class="hero-tod hero-tod--dusk" aria-hidden="true"></div>
+      <div class="hero-tod hero-tod--night" aria-hidden="true"></div>
+      <div class="hero-lantern-glow" aria-hidden="true"></div>
+    
+        
+      <span class="hero-lantern-mount" aria-hidden="true"></span>
+      <button type="button" class="hero-lantern" aria-label="Cambiar la luz de la foto (día)">
+        <span class="hero-lantern__halo"></span>
+        <svg viewBox="0 0 52 112" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="hero-lantern-metal" x1="0" x2="1">
+              <stop offset="0" class="hero-lantern__stop-dark"/>
+              <stop offset=".45" class="hero-lantern__stop-light"/>
+              <stop offset="1" class="hero-lantern__stop-dark"/>
+            </linearGradient>
+          </defs>
+          <g class="hero-lantern__chain">
+            <ellipse cx="26" cy="5" rx="2.2" ry="4"/><ellipse cx="26" cy="13" rx="1.4" ry="4"/>
+            <ellipse cx="26" cy="21" rx="2.2" ry="4"/><ellipse cx="26" cy="29" rx="1.4" ry="4"/>
+          </g>
+          <circle class="hero-lantern__ring" cx="26" cy="37" r="3.5"/>
+          <path class="hero-lantern__metal" d="M26 40 L44 52 H8 Z"/>
+          <rect class="hero-lantern__frame-fill" x="6" y="51" width="40" height="4" rx="1.5"/>
+          <path class="hero-lantern__light" d="M11 55 H41 L38 92 H14 Z"/>
+          <ellipse class="hero-lantern__flame" cx="26" cy="78" rx="4" ry="8.5"/>
+          <path class="hero-lantern__glass" d="M11 55 H41 L38 92 H14 Z"/>
+          <path class="hero-lantern__frame" d="M11 55 H41 L38 92 H14 Z M20.5 55 L19.5 92 M31.5 55 L32.5 92"/>
+          <path class="hero-lantern__frame hero-lantern__frame--thin" d="M13 66 H39"/>
+          <path class="hero-lantern__metal" d="M12 92 H40 L36 99 H16 Z"/>
+          <path class="hero-lantern__frame-fill" d="M22 99 H30 L28 104 H24 Z"/>
+        </svg>
+      </button>
+    
         <div class="container">
-          <h1>Viaja con confianza</h1>
-          <p>Donde la hospitalidad se encuentra con la exploración</p>
+          <h1>
+            <span class="hero-slogan" lang="en">Wander Freely</span>
+            <span class="hero-tagline">Alquileres vacacionales y experiencias en todo el mundo</span>
+          </h1>
           <div class="search-box">
             <input type="text" id="search-city" placeholder="¿A dónde vas?" aria-label="¿A dónde vas?">
             <div class="search-date-field">
@@ -129,7 +166,7 @@
 
       <section class="featured">
         <div class="container">
-          <h2>Propiedades destacadas</h2>
+          <h2>Alojamientos destacados</h2>
           <div id="properties-grid" class="properties-grid">
             
           </div>
@@ -155,7 +192,7 @@
               <div class="footer-logo-row">
                 <img loading="lazy" src="/assets/logo-elysio.svg" alt="Elysio Experiences" class="footer-logo-img">
               </div>
-              <p>Viaja con confianza</p>
+              <p lang="en">Wander Freely</p>
               <p class="footer-contact">
                 <strong>Contacto:</strong><br>
                 Email: <a href="mailto:elysio.support@gmail.com">elysio.support@gmail.com</a><br>
@@ -176,7 +213,7 @@
             </div>
           </div>
           <div class="footer-bottom">
-            <p>&copy; 2026 Elysio Experiences. Todos los derechos reservados.</p>
+            <p>&copy; 2026 Elysio Experiences · <span lang="en">Wander Freely</span></p>
           </div>
         </div>
       </footer>
