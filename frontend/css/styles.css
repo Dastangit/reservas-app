@@ -4193,192 +4193,17 @@ p.offer-no {
     font-size: 16px;
   }
 
-  /* Menu movil: lista a todo el ancho, alineada a la izquierda, con texto de
-     16 px y filas de 48 px. Idioma y tema comparten la ultima fila. */
+  /* En el movil el menu es el panel lateral (.drawer, abajo). */
   .nav {
     display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: var(--background);
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    column-gap: var(--space-sm);
-    padding: var(--space-sm) var(--section-px) var(--space-lg);
-    border-bottom: 1px solid var(--border);
-    box-shadow: var(--shadow-lg);
-    z-index: 1050;
-    max-height: calc(100vh - var(--header-height));
-    max-height: calc(100svh - var(--header-height));
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-
-  .nav.active {
-    display: grid;
-  }
-
-  .nav > * {
-    grid-column: 1 / -1;
-  }
-
-  .nav a::after {
-    display: none;
-  }
-
-  .nav > a:not(.btn),
-  .nav-dropdown-toggle,
-  .nav-bell {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    width: 100%;
-    min-height: 48px;
-    padding: 0 var(--space-sm);
-    font-size: var(--fs-base);
-    text-align: left;
-    border-bottom: 1px solid var(--border-light);
-    border-radius: 0;
-  }
-
-  .nav a[aria-current="page"] {
-    color: var(--accent);
-    font-weight: 600;
-    background: var(--accent-soft);
-    border-radius: var(--radius-sm);
-  }
-
-  .nav-user::before {
-    content: '';
-    width: 8px;
-    height: 8px;
-    margin-right: var(--space-sm);
-    border-radius: 50%;
-    background: currentColor;
-  }
-
-  .nav-dropdown {
-    width: 100%;
-  }
-
-  .nav-dropdown-toggle {
-    justify-content: space-between;
-  }
-
-  .nav-bell {
-    gap: var(--space-sm);
-    font-size: 18px;
-  }
-
-  .nav-bell-label {
-    display: inline;
-    font-family: var(--font-body);
-    font-size: var(--fs-base);
-    font-weight: 500;
-    color: var(--text);
-  }
-
-  .notif-badge {
-    position: static;
-    margin-left: auto;
-    font-size: var(--fs-xs);
-    min-width: 22px;
-    height: 22px;
-    padding: 0 6px;
-  }
-
-  .nav-dropdown-menu {
-    position: static;
-    box-shadow: none;
-    border: none;
-    border-bottom: 1px solid var(--border-light);
-    border-radius: 0;
-    margin-top: 0;
-    padding: var(--space-xs) 0 var(--space-sm) var(--space-md);
-    min-width: 0;
-    text-align: left;
-  }
-
-  .nav .nav-dropdown-menu a {
-    justify-content: flex-start;
-    white-space: normal;
-    font-size: var(--fs-sm);
-    color: var(--text-light);
-  }
-
-  /* Entrar / registrarse / salir: botones de verdad a todo el ancho. */
-  .nav a.btn,
-  .nav button.btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    min-height: 48px;
-    margin-top: var(--space-md);
-    font-size: var(--fs-base);
-    font-weight: 600;
-    border-radius: var(--radius-btn);
-    border: 1.5px solid var(--border);
-  }
-
-  .nav a.btn + a.btn {
-    margin-top: var(--space-sm);
-  }
-
-  .nav a.btn-primary {
-    background: var(--cta-fill);
-    border-color: var(--cta-fill);
-    color: var(--on-color);
-  }
-
-  .nav a.btn-primary:hover {
-    color: var(--on-color);
-  }
-
-  .nav .lang-select {
-    grid-column: 1;
-    width: 100%;
-    min-height: 48px;
-    margin-top: var(--space-md);
-    font-size: var(--fs-base);
-  }
-
-  .nav .theme-toggle {
-    grid-column: 2;
-    width: 48px;
-    height: 48px;
-    margin-top: var(--space-md);
   }
 
   .mobile-menu-btn {
     display: flex;
   }
 
-  /* El boton de menu se convierte en una X mientras esta abierto. */
-  .mobile-menu-btn[aria-expanded="true"] span:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
-  }
-
-  .mobile-menu-btn[aria-expanded="true"] span:nth-child(2) {
-    opacity: 0;
-  }
-
-  .mobile-menu-btn[aria-expanded="true"] span:nth-child(3) {
-    transform: translateY(-7px) rotate(-45deg);
-  }
-
   body.menu-open {
     overflow: hidden;
-  }
-
-  /* Oscurece la pagina bajo el menu (no la cabecera); tocarla lo cierra. */
-  body.menu-open::before {
-    content: '';
-    position: fixed;
-    inset: var(--header-height) 0 0;
-    background: var(--menu-backdrop);
-    z-index: 999;
   }
 
   body.menu-open .pwa-install-banner {
@@ -4950,4 +4775,423 @@ p.offer-no {
 
 .admin-places-areas-title {
   margin-top: var(--space-xl);
+}
+
+/* ===== MENU DEL MOVIL: panel lateral =====
+   La cuenta arriba, los enlaces en tarjetas agrupadas y, abajo, idioma, tema y
+   salir. Va fuera de .header (su backdrop-filter encerraria al panel fijo). */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1090;
+  background: var(--menu-backdrop);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.drawer-backdrop.open {
+  opacity: 1;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1100;
+  width: min(88vw, 380px);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 24px 0 0 24px;
+  box-shadow: var(--shadow-xl);
+  transform: translateX(100%);
+  transition: transform var(--transition-base);
+}
+
+.drawer.open {
+  transform: none;
+}
+
+.drawer.no-anim {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer,
+  .drawer-backdrop {
+    transition: none;
+  }
+}
+
+/* Solo en el movil: si la ventana crece con el menu abierto, se esconde. */
+@media (min-width: 769px) {
+  .drawer,
+  .drawer-backdrop {
+    display: none;
+  }
+}
+
+.drawer-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-md) var(--space-sm) var(--space-lg);
+  flex-shrink: 0;
+}
+
+.drawer-logo .logo-img {
+  height: 36px;
+}
+
+.drawer-close {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--background);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.drawer-close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+}
+
+/* Cuenta (con sesion) */
+.drawer-account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--background);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.drawer-avatar {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-fill);
+  color: var(--on-color);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--fs-base);
+}
+
+.drawer-account-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-account-name {
+  font-weight: 600;
+  font-size: var(--fs-base);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drawer-account-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-light);
+}
+
+/* Bienvenida (sin sesion) */
+.drawer-welcome {
+  padding: var(--space-xs) var(--space-xs) 0;
+}
+
+.drawer-welcome-title {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: var(--space-xs);
+}
+
+.drawer-welcome-text {
+  color: var(--text-light);
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  margin-bottom: 14px;
+}
+
+.drawer-welcome .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  font-size: var(--fs-base);
+}
+
+.drawer-welcome .btn + .btn {
+  margin-top: var(--space-sm);
+}
+
+/* Grupos de enlaces */
+.drawer-group-title {
+  margin: 22px 6px var(--space-sm);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-light);
+}
+
+.drawer-group {
+  background: var(--background);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.drawer-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.drawer-item + .drawer-item::before,
+.drawer-sub + .drawer-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 60px;
+  right: 0;
+  border-top: 1px solid var(--border-light);
+}
+
+.drawer-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--info-soft);
+  color: var(--info-text);
+}
+
+.drawer-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.drawer-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.drawer-chevron {
+  display: flex;
+  color: var(--text-light);
+}
+
+.drawer-chevron svg {
+  width: 18px;
+  height: 18px;
+  transition: transform var(--transition-fast);
+}
+
+.drawer-item[aria-expanded="true"] .drawer-chevron svg {
+  transform: rotate(90deg);
+}
+
+.drawer-item[aria-current="page"] {
+  background: var(--info-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.drawer-item[aria-current="page"] .drawer-icon {
+  background: var(--accent-fill);
+  color: var(--on-color);
+}
+
+.drawer-badge {
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  background: var(--error-fill);
+  color: var(--on-color);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.drawer-badge[hidden] {
+  display: none;
+}
+
+/* Seccion desplegada dentro de su tarjeta (Mas, Notificaciones) */
+.drawer-sub {
+  padding: 0 12px 6px 60px;
+}
+
+.drawer-sub a,
+.drawer-sub .notif-enable-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  border-top: 1px solid var(--border-light);
+  color: var(--text-light);
+  font-size: var(--fs-sm);
+  text-decoration: none;
+}
+
+.drawer-sub a[aria-current="page"] {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.drawer-sub-title {
+  padding: 10px 0 2px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-light);
+}
+
+.drawer-sub-note {
+  padding: 10px 0;
+  color: var(--text-light);
+  font-size: var(--fs-sm);
+}
+
+/* Tarjeta para quien tiene un alojamiento (visitante) */
+.drawer-host-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+  padding: var(--space-md);
+  border-radius: var(--radius-card);
+  background: var(--hero-bg);
+  color: var(--on-color);
+  text-decoration: none;
+}
+
+.drawer-host-card .drawer-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--on-photo-soft);
+  color: var(--on-color);
+}
+
+.drawer-host-card strong {
+  display: block;
+  font-size: var(--fs-sm);
+}
+
+.drawer-host-card span span {
+  font-size: var(--fs-sm);
+  opacity: 0.85;
+}
+
+/* Pie: idioma, tema y salir */
+.drawer-foot {
+  flex-shrink: 0;
+  padding: 12px var(--space-md) max(18px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+}
+
+.drawer-prefs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drawer-langs {
+  flex: 1;
+  display: flex;
+  padding: 3px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.drawer-langs button {
+  flex: 1;
+  min-height: 40px;
+  border: none;
+  border-radius: 9px;
+  background: none;
+  color: var(--text-light);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.drawer-langs button[aria-pressed="true"] {
+  background: var(--accent-fill);
+  color: var(--on-color);
+}
+
+.drawer-prefs .theme-toggle {
+  width: 48px;
+  height: 48px;
+}
+
+.drawer-logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  width: 100%;
+  min-height: 44px;
+  margin-top: 10px;
+  border: none;
+  background: none;
+  color: var(--error-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.drawer-logout svg {
+  width: 18px;
+  height: 18px;
 }

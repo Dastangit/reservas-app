@@ -61,6 +61,8 @@
   --hero-bg: #073B50;
   --hero-overlay: rgba(4, 30, 41, 0.62);
   --menu-backdrop: rgba(4, 30, 41, 0.45);
+  /* Fondo translucido sobre un relleno de color (tarjeta de anfitrion del menu) */
+  --on-photo-soft: rgba(255, 255, 255, 0.14);
   --overlay: rgba(4, 30, 41, 0.5);
   /* Farol de la portada y luz de cada hora (iguales en ambos temas; el modo
      oscuro no los redefine). Los rellenos llevan texto blanco: >= 4.5:1. */
@@ -204,6 +206,8 @@
   --hero-bg: #073B50;
   --hero-overlay: rgba(4, 30, 41, 0.62);
   --menu-backdrop: rgba(0, 0, 0, 0.6);
+  /* Fondo translucido sobre un relleno de color (tarjeta de anfitrion del menu) */
+  --on-photo-soft: rgba(255, 255, 255, 0.14);
   --overlay: rgba(0, 0, 0, 0.65);
   --logo: url('/assets/logo-elysio-dark.svg');
   --placeholder: url('/assets/placeholder-dark.svg');
@@ -273,6 +277,8 @@
     --hero-bg: #073B50;
     --hero-overlay: rgba(4, 30, 41, 0.62);
     --menu-backdrop: rgba(0, 0, 0, 0.6);
+    /* Fondo translucido sobre un relleno de color (tarjeta de anfitrion del menu) */
+    --on-photo-soft: rgba(255, 255, 255, 0.14);
     --overlay: rgba(0, 0, 0, 0.65);
     --logo: url('/assets/logo-elysio-dark.svg');
     --placeholder: url('/assets/placeholder-dark.svg');
