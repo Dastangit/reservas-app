@@ -40,14 +40,22 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
+  const url = new URL(event.request.url);
+
+  // Lo de otros origenes (fotos de Cloudinary, Google Fonts, teselas del mapa)
+  // lo pide el navegador directamente. Un fetch() desde el service worker se
+  // rige por connect-src de la CSP, que no incluye Cloudinary: el fetch fallaba,
+  // el catch devolvia app.html y la foto salia rota en todas las paginas.
+  if (url.origin !== self.location.origin) return;
+
   // No cachear la API: contiene datos autenticados (reservas, perfil) que no
   // deben quedar en disco tras cerrar sesion ni servirse obsoletos offline.
-  if (new URL(event.request.url).pathname.startsWith('/api/')) return;
+  if (url.pathname.startsWith('/api/')) return;
 
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        if (response.ok && event.request.url.startsWith(self.location.origin)) {
+        if (response.ok) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
@@ -57,8 +65,10 @@ self.addEventListener('fetch', (event) => {
         // Si falla la red, busca en caché esa URL exacta. Si tampoco está
         // (ej. una ruta de SPA como /host/properties/new, que nunca se
         // cachea individualmente), sirve la carcasa app.html como respaldo -- así
-        // siempre se devuelve una Response válida, nunca undefined.
-        caches.match(event.request).then((cached) => cached || caches.match('/app.html'))
+        // siempre se devuelve una Response válida, nunca undefined. Solo para
+        // navegaciones: a una imagen o un CSS no se les puede responder con HTML.
+        caches.match(event.request).then((cached) => cached
+          || (event.request.mode === 'navigate' ? caches.match('/app.html') : Response.error()))
       )
   );
 });
