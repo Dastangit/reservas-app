@@ -24,7 +24,7 @@ export const config = {
 };
 
 const SITE = 'https://reservas-app-blue.vercel.app';
-const API_BASE = 'https://booking-platform-f8co.onrender.com/api';
+const API_BASE = 'https://reservas.179-66-134-238.sslip.io/api';
 
 // Known AI/agent crawlers that generally do NOT execute JavaScript.
 // These get markdown even without an explicit Accept: text/markdown header.

@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/health",
-      "destination": "https://booking-platform-f8co.onrender.com/health"
+      "destination": "https://reservas.179-66-134-238.sslip.io/health"
     },
     {
       "source": "/api/:path*",
-      "destination": "https://booking-platform-f8co.onrender.com/api/:path*"
+      "destination": "https://reservas.179-66-134-238.sslip.io/api/:path*"
     },
     {
       "source": "/:page(how-it-works|faq|terms|privacy)",
