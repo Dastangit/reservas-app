@@ -8,3 +8,5 @@ process.env.NOMINATIM_URL = 'http://127.0.0.1:9';
 // Ni al Overpass real (lugares de interes); sin esperar entre consultas.
 process.env.OVERPASS_URL = 'http://127.0.0.1:9';
 process.env.OVERPASS_MIN_INTERVAL_MS = '0';
+// Ni a R2: el respaldo no sube nada desde las pruebas.
+process.env.R2_ENDPOINT = '';

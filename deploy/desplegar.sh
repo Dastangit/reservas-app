@@ -6,6 +6,7 @@
 #     deploy/desplegar.sh --ip 31.97.10.20 --usuario root --llave ~/.ssh/up_vps
 #     deploy/desplegar.sh logs                              # registro del backend en vivo (Ctrl+C para salir)
 #     deploy/desplegar.sh estado                            # si el contenedor esta sano y cuanta memoria usa
+#     deploy/desplegar.sh respaldar                         # respaldo de la base ahora (el cron lo hace a diario)
 #
 # La IP, el usuario y la llave se toman de Up (../Up-Project/infra/.destino.json, o UP_PROYECTO).
 # Lo que indiques aqui se recuerda en deploy/.destino.json (no se sube a git).
@@ -22,7 +23,7 @@ REMOTO=/opt/reservas
 
 fallar() { echo "Error: $*" >&2; exit 1; }
 paso() { printf '\033[36m== %s\033[0m\n' "$*"; }
-ayuda() { sed -n '2,14p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+ayuda() { sed -n '2,15p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 
 accion=desplegar arg_ip="" arg_usuario="" arg_llave="" arg_dominio=""
 while [[ $# -gt 0 ]]; do
@@ -31,7 +32,7 @@ while [[ $# -gt 0 ]]; do
 	--usuario) arg_usuario=${2:?falta el usuario}; shift ;;
 	--llave) arg_llave=${2:?falta la llave}; shift ;;
 	--dominio) arg_dominio=${2:?falta el dominio}; shift ;;
-	logs | estado) accion=$1 ;;
+	logs | estado | respaldar) accion=$1 ;;
 	-h | --help) ayuda ;;
 	*) echo "Opcion desconocida: $1" >&2; ayuda 1 ;;
 	esac
@@ -55,7 +56,15 @@ SSH_OPC=(-i "$LLAVE" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 -o
 ANFITRION="$USUARIO@$IP"
 remoto() { ssh "${SSH_OPC[@]}" "$ANFITRION" "$1" || fallar "fallo en el servidor: $1"; }
 
+# Respaldo de la base dentro del contenedor (scripts/backup.js): los ultimos 14
+# en $REMOTO/respaldos (volumen /respaldos) y una copia en R2 si estan las R2_* del .env.
+RESPALDO="docker exec -e BACKUP_DIR=/respaldos -e BACKUP_KEEP=14 -e 'BACKUP_ORIGEN=VPS ($REMOTO/respaldos.log)' reservas node scripts/backup.js >> $REMOTO/respaldos.log 2>&1"
+
 case $accion in
+respaldar)
+	remoto "$RESPALDO; s=\$?; tail -n 25 $REMOTO/respaldos.log; exit \$s"
+	exit 0
+	;;
 logs) exec ssh -t "${SSH_OPC[@]}" "$ANFITRION" "docker logs -f --tail 100 reservas" ;;
 estado)
 	remoto "docker inspect -f 'Estado: {{.State.Status}}, salud: {{.State.Health.Status}}, desde {{.State.StartedAt}}' reservas && docker stats --no-stream reservas"
@@ -82,11 +91,12 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 git -C "$RAIZ" archive --format=tar.gz -o "$tmp/app.tar.gz" HEAD:backend
 sed -e '/^#/d' -e "s/^DOMINIO_API {/$DOMINIO {/" "$DEPLOY/reservas.caddy" >"$tmp/reservas.caddy"
+printf '%s\n' '# Respaldo diario de la base de reservas (lo instala deploy/desplegar.sh)' "45 2 * * * root $RESPALDO" >"$tmp/respaldo.cron"
 
 paso "Subiendo la version $version"
 remoto "mkdir -p $REMOTO"
 scp "${SSH_OPC[@]}" -q "$tmp/app.tar.gz" "$DEPLOY/docker-compose.yml" "$DEPLOY/env.produccion.example" \
-	"$tmp/reservas.caddy" "$ANFITRION:$REMOTO/" || fallar "no se pudieron subir los archivos"
+	"$tmp/reservas.caddy" "$tmp/respaldo.cron" "$ANFITRION:$REMOTO/" || fallar "no se pudieron subir los archivos"
 
 # El .env se crea una sola vez, con los secretos de JWT al azar; despues solo cambia API_URL.
 if ! ssh "${SSH_OPC[@]}" "$ANFITRION" "test -f $REMOTO/.env"; then
@@ -108,6 +118,7 @@ remoto "sed -i 's|^API_URL=.*|API_URL=https://$DOMINIO|' $REMOTO/.env"
 paso "Armando y arrancando el contenedor"
 remoto "cd $REMOTO && rm -rf app.nuevo && mkdir app.nuevo && tar -xzf app.tar.gz -C app.nuevo && rm app.tar.gz \
 	&& rm -rf app.anterior && { [ ! -d app ] || mv app app.anterior; } && mv app.nuevo app \
+	&& mkdir -p respaldos && chown 1000:1000 respaldos && chmod 700 respaldos \
 	&& docker compose up -d --build --remove-orphans && docker image prune -f >/dev/null"
 
 paso "Esperando a que el backend responda"
@@ -121,6 +132,9 @@ if [[ $salud != healthy ]]; then
 	ssh "${SSH_OPC[@]}" "$ANFITRION" "docker logs --tail 40 reservas" || true
 	fallar "el backend no quedo sano ($salud). Si dice que no conecta a Mongo: agrega la IP $IP en Atlas -> Network Access."
 fi
+
+# Respaldo diario a las 2:45 (hora del servidor, Ciudad de Mexico), antes del de Up (3:30).
+remoto "install -m 644 $REMOTO/respaldo.cron /etc/cron.d/reservas-respaldo"
 
 # Solo se toca Caddy si el sitio cambio. revisar-sitios.sh aparta un .caddy roto para no tumbar Up.
 if ! ssh "${SSH_OPC[@]}" "$ANFITRION" "cmp -s $REMOTO/reservas.caddy /opt/up/sitios/reservas.caddy"; then
