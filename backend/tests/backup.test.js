@@ -6,7 +6,8 @@ const os = require('os');
 const path = require('path');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { backupDatabase, pruneBackups, hideCredentials } = require('../scripts/backup');
+const { backupDatabase, pruneBackups, uploadBackup, hideCredentials } = require('../scripts/backup');
+const { signV4, encodeSegment } = require('../utils/r2');
 const { restoreDatabase } = require('../scripts/restore');
 
 jest.setTimeout(60000);
@@ -105,4 +106,45 @@ test('los errores no muestran la contrasena de la base', () => {
   // Host de ejemplo (no *.mongodb.net) para que el escaneo de secretos de GitHub no lo tome por real.
   expect(hideCredentials('fallo en mongodb://usuario:clave@base.example.com/db'))
     .toBe('fallo en mongodb://***@base.example.com/db');
+});
+
+test('sube a R2 cada coleccion y el manifest al final', async () => {
+  const { dir } = await backupDatabase(db, root);
+  const subidas = [];
+  const total = await uploadBackup(dir, 'respaldos', async (key, body, { contentType }) => {
+    subidas.push({ key, size: body.length, contentType });
+  });
+
+  const stamp = path.basename(dir);
+  expect(total).toBe(subidas.length);
+  expect(subidas.map((s) => s.key)).toEqual([
+    `respaldos/${stamp}/bookings.jsonl.gz`,
+    `respaldos/${stamp}/users.jsonl.gz`,
+    `respaldos/${stamp}/manifest.json`,
+  ]);
+  expect(subidas.at(-1).contentType).toBe('application/json');
+  expect(subidas.every((s) => s.size > 0)).toBe(true);
+});
+
+test('la firma SigV4 coincide con el ejemplo oficial de AWS (GET Object)', () => {
+  // docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html
+  const vacio = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+  const authorization = signV4({
+    method: 'GET',
+    path: '/test.txt',
+    headers: {
+      host: 'examplebucket.s3.amazonaws.com',
+      range: 'bytes=0-9',
+      'x-amz-content-sha256': vacio,
+      'x-amz-date': '20130524T000000Z',
+    },
+    payloadHash: vacio,
+    accessKeyId: 'AKIAIOSFODNN7EXAMPLE',
+    secretAccessKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
+    region: 'us-east-1',
+  });
+  expect(authorization).toBe('AWS4-HMAC-SHA256 Credential=AKIAIOSFODNN7EXAMPLE/20130524/us-east-1/s3/aws4_request, '
+    + 'SignedHeaders=host;range;x-amz-content-sha256;x-amz-date, '
+    + 'Signature=f0e8bdb87c964420e857bd35b5d6ed310bd44f0170aba48dd91039c6036bdb41');
+  expect(encodeSegment("a b(1)*!'")).toBe('a%20b%281%29%2A%21%27');
 });

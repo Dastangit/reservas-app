@@ -7,11 +7,13 @@
 //   BACKUP_DIR=~/Dastan/respaldos/reservas BACKUP_KEEP=14 npm run backup
 //
 // Conserva los ultimos BACKUP_KEEP respaldos completos (14 por defecto) y
-// borra los mas viejos. Si falla, avisa por Telegram (si esta configurado).
+// borra los mas viejos. Con las R2_* (utils/r2.js) sube ademas una copia a R2,
+// bajo R2_PREFIJO (por defecto "respaldos"). Si falla, avisa por Telegram (si
+// esta configurado).
 // Restaurar: scripts/restore.js.
 //
-// Atlas M0 (gratis) no tiene backups automaticos: en la PC lo corre un
-// temporizador de systemd (ver docs/RESPALDOS.md). Contiene datos personales
+// Atlas M0 (gratis) no tiene backups automaticos: en el VPS lo corre un cron
+// dentro del contenedor y en la PC un temporizador de systemd (ver docs/RESPALDOS.md). Contiene datos personales
 // y hashes de contrasenas: carpetas 700 y archivos 600, nunca en el repo.
 const fs = require('fs');
 const os = require('os');
@@ -20,6 +22,7 @@ const zlib = require('zlib');
 const { pipeline } = require('stream/promises');
 const { Readable } = require('stream');
 const mongoose = require('mongoose');
+const { isR2Configured, putObject } = require('../utils/r2');
 
 const { EJSON } = mongoose.mongo.BSON;
 const STAMP_RE = /^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z$/;
@@ -67,6 +70,19 @@ function pruneBackups(root, keep) {
   return old;
 }
 
+// Copia del respaldo en R2 bajo <prefijo>/<fecha>/. El manifest va al final:
+// igual que en disco, una carpeta sin manifest.json es una subida a medias.
+// Lo viejo lo borra la regla de ciclo de vida del bucket (docs/RESPALDOS.md).
+async function uploadBackup(dir, prefix, put = putObject) {
+  const stamp = path.basename(dir);
+  const files = fs.readdirSync(dir).filter((name) => name !== 'manifest.json').sort();
+  for (const name of [...files, 'manifest.json']) {
+    const type = name.endsWith('.json') ? 'application/json' : 'application/gzip';
+    await put(`${prefix}/${stamp}/${name}`, fs.readFileSync(path.join(dir, name)), { contentType: type });
+  }
+  return files.length + 1;
+}
+
 const hideCredentials = (text) => String(text).replace(/\/\/[^@/\s]*@/g, '//***@');
 
 async function main() {
@@ -83,6 +99,11 @@ async function main() {
     console.log(`\nBackup en ${dir}`);
     const removed = pruneBackups(root, keep);
     if (removed.length) console.log(`Borrados ${removed.length} respaldo(s) viejo(s); quedan los ultimos ${keep}.`);
+    if (isR2Configured()) {
+      const prefix = process.env.R2_PREFIJO || 'respaldos';
+      const count = await uploadBackup(dir, prefix);
+      console.log(`Copia en R2: ${count} archivos en ${process.env.R2_BUCKET}/${prefix}/${path.basename(dir)}/`);
+    }
   } finally {
     await mongoose.disconnect();
   }
@@ -93,9 +114,10 @@ if (require.main === module) {
     const message = hideCredentials(error.message);
     console.error('Error en backup:', message);
     const { sendTelegram } = require('../utils/telegram');
-    await sendTelegram(`Respaldo de la base de reservas FALLO\n${message}\nRevisa: journalctl --user -u reservas-respaldo`);
+    const where = process.env.BACKUP_ORIGEN || 'PC (journalctl --user -u reservas-respaldo)';
+    await sendTelegram(`Respaldo de la base de reservas FALLO en ${where}\n${message}`);
     process.exit(1);
   });
 }
 
-module.exports = { backupDatabase, pruneBackups, hideCredentials };
+module.exports = { backupDatabase, pruneBackups, uploadBackup, hideCredentials };

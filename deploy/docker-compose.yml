@@ -9,6 +9,10 @@ services:
     container_name: reservas
     restart: unless-stopped
     env_file: .env
+    # Respaldos diarios de la base (cron de desplegar.sh): quedan en el disco del
+    # VPS, fuera del contenedor, y ademas en R2 si estan las R2_* del .env.
+    volumes:
+      - ./respaldos:/respaldos
     environment:
       NODE_ENV: production
       PORT: "3000"
