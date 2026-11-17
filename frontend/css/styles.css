@@ -5181,3 +5181,80 @@ p.offer-no {
   width: 18px;
   height: 18px;
 }
+
+/* ===== ADMIN: FOTOS DE LA PORTADA ===== */
+.hero-photo-city {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.hero-photo-city__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+
+.hero-photo-city__head h2 {
+  font-size: var(--fs-body);
+  margin: 0;
+}
+
+.hero-photo-city__head .btn {
+  margin-left: auto;
+}
+
+/* Miniaturas con la forma de la pantalla del movil (como saldran en la home). */
+.hero-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.hero-photo-option {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: 4px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--background);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.hero-photo-option img {
+  width: 100%;
+  aspect-ratio: 9 / 19;
+  object-fit: cover;
+  border-radius: calc(var(--radius-sm) - 2px);
+  display: block;
+}
+
+.hero-photo-option__name {
+  font-size: var(--fs-xs);
+  color: var(--text-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hero-photo-option:hover {
+  border-color: var(--accent);
+}
+
+.hero-photo-option.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.hero-photo-option:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}

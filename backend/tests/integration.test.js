@@ -1359,3 +1359,74 @@ describe('auditoria de seguridad (2026-11-14)', () => {
     expect(theirs.body.data.payments.map((p) => p.order_id)).not.toContain('sin-tenant-1');
   });
 });
+
+describe('fotos de la portada', () => {
+  const IMG = (n) => `https://res.cloudinary.com/demo/image/upload/v1/portada-${n}.jpg`;
+  let casa;
+
+  beforeAll(async () => {
+    casa = await Property.create({
+      tenant_id: tenant._id, host_id: host._id, name: 'Casa Portada', type: 'casa_particular', description: 'd',
+      location: { city: 'Trinidad ', country: 'CU' }, max_guests: 2, price_per_night: 30, status: 'active',
+      services: demoServices(), images: [{ url: IMG('logo') }, { url: IMG('fachada') }],
+    });
+  });
+
+  const destinos = async () => (await request(app).get('/api/search/destinations')).body.data.destinations;
+
+  test('una ciudad no sale en la portada hasta que el admin elige su foto', async () => {
+    expect((await destinos()).map((d) => d.city)).not.toContain('Trinidad');
+
+    const opciones = await request(app).get('/api/admin/hero-photos').set(auth(admin));
+    expect(opciones.status).toBe(200);
+    const trinidad = opciones.body.data.cities.find((c) => c.city === 'Trinidad' && c.country === 'CU');
+    expect(trinidad.chosen).toBeNull();
+    expect(trinidad.photos.map((p) => p.url)).toEqual([IMG('logo'), IMG('fachada')]);
+
+    const elegir = await request(app).put('/api/admin/hero-photos').set(auth(admin))
+      .send({ source_type: 'Property', source_id: casa._id, url: IMG('fachada') });
+    expect(elegir.status).toBe(200);
+    expect(await destinos()).toContainEqual({ city: 'Trinidad', image_url: IMG('fachada') });
+
+    // Cambiar de foto reemplaza la anterior (una por ciudad).
+    await request(app).put('/api/admin/hero-photos').set(auth(admin))
+      .send({ source_type: 'Property', source_id: casa._id, url: IMG('logo') });
+    expect((await destinos()).filter((d) => d.city === 'Trinidad')).toEqual([{ city: 'Trinidad', image_url: IMG('logo') }]);
+
+    const quitar = await request(app).delete(`/api/admin/hero-photos/${elegir.body.data.hero_photo._id}`).set(auth(admin));
+    expect(quitar.status).toBe(200);
+    expect((await destinos()).map((d) => d.city)).not.toContain('Trinidad');
+  });
+
+  test('solo se elige una foto del propio anuncio, y solo el admin', async () => {
+    const ajena = await request(app).put('/api/admin/hero-photos').set(auth(admin))
+      .send({ source_type: 'Property', source_id: casa._id, url: 'https://example.com/otra.jpg' });
+    expect(ajena.status).toBe(400);
+
+    const comoHost = await request(app).put('/api/admin/hero-photos').set(auth(host))
+      .send({ source_type: 'Property', source_id: casa._id, url: IMG('fachada') });
+    expect(comoHost.status).toBe(403);
+
+    const other = await Tenant.create({ name: 'Otro portada', domain: 'portada.test', admin_email: 'a@portada.test' });
+    const otherAdmin = await User.create({
+      tenant_id: other._id, email: 'admin@portada.test', password_hash: 'password123', name: 'Otro', role: 'admin',
+    });
+    const otroTenant = await request(app).put('/api/admin/hero-photos').set(auth(otherAdmin))
+      .send({ source_type: 'Property', source_id: casa._id, url: IMG('fachada') });
+    expect(otroTenant.status).toBe(404);
+  });
+
+  test('si el anuncio deja de estar activo o quita la foto, la ciudad deja de salir', async () => {
+    await request(app).put('/api/admin/hero-photos').set(auth(admin))
+      .send({ source_type: 'Property', source_id: casa._id, url: IMG('fachada') });
+    expect((await destinos()).map((d) => d.city)).toContain('Trinidad');
+
+    await Property.updateOne({ _id: casa._id }, { suspended: true });
+    expect((await destinos()).map((d) => d.city)).not.toContain('Trinidad');
+    const opciones = await request(app).get('/api/admin/hero-photos').set(auth(admin));
+    expect(opciones.body.data.cities.find((c) => c.city === 'Trinidad').chosen.valid).toBe(false);
+
+    await Property.updateOne({ _id: casa._id }, { suspended: false, images: [{ url: IMG('logo') }] });
+    expect((await destinos()).map((d) => d.city)).not.toContain('Trinidad');
+  });
+});

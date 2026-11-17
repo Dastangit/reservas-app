@@ -37,6 +37,7 @@ import AdminHostCommissionsPage from './pages/adminHostCommissions.js';
 import AdminPasswordResetsPage from './pages/adminPasswordResets.js';
 import AdminAuditLogPage from './pages/adminAuditLog.js';
 import AdminPlacesPage from './pages/adminPlaces.js';
+import AdminHeroPhotosPage from './pages/adminHeroPhotos.js';
 import ExperiencesPage from './pages/experiences.js';
 import ExperienceDetailPage from './pages/experienceDetail.js';
 import ExperienceBookingPage from './pages/experienceBooking.js';
@@ -264,6 +265,11 @@ router
     if (!guard(['admin'])) return;
     AdminPlacesPage._params = params;
     await renderPage(AdminPlacesPage);
+  })
+  .addRoute('/admin/hero-photos', async (params) => {
+    if (!guard(['admin'])) return;
+    AdminHeroPhotosPage._params = params;
+    await renderPage(AdminHeroPhotosPage);
   })
   .addRoute('/experiences', routeHandler(ExperiencesPage))
   .addRoute('/experiences/:id', routeHandler(ExperienceDetailPage))

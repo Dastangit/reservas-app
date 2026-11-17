@@ -1,6 +1,6 @@
 const Property = require('../models/Property');
 const Booking = require('../models/Booking');
-const Experience = require('../models/Experience');
+const { heroPhotosWithStatus } = require('./heroPhotoController');
 const { escapeRegex, parsePagination } = require('../utils/helpers');
 const { normalizeCountry } = require('../utils/countries');
 
@@ -89,56 +89,16 @@ exports.search = async (req, res, next) => {
   }
 };
 
-// Destinos para el carrusel de la home: ciudades donde ya hay al menos una
-// propiedad o excursion activa, con una foto real de esa ciudad. Nunca
-// muestra lugares a los que la plataforma no pueda llevar al cliente.
+// Destinos para el carrusel de la home: solo las ciudades cuya foto eligio el
+// admin (HeroPhoto), y solo mientras su anuncio siga activo y conserve la foto.
+// Nunca muestra lugares a los que la plataforma no pueda llevar al cliente.
 exports.getDestinations = async (req, res, next) => {
   try {
     const limit = Math.min(Number(req.query.limit) || 8, 20);
-    const tenantMatch = { tenant_id: req.tenantId };
 
-    const pickImage = {
-      $let: {
-        vars: {
-          primary: {
-            $arrayElemAt: [
-              { $filter: { input: '$images', cond: { $eq: ['$$this.is_primary', true] } } },
-              0,
-            ],
-          },
-          first: { $arrayElemAt: ['$images', 0] },
-        },
-        in: { $ifNull: ['$$primary', '$$first'] },
-      },
-    };
-
-    const byCity = (Model, matchExtra) => Model.aggregate([
-      {
-        $match: {
-          ...tenantMatch,
-          ...matchExtra,
-          images: { $exists: true, $ne: [] },
-          'location.city': { $exists: true, $ne: '' },
-        },
-      },
-      { $sort: { created_at: -1 } },
-      { $group: { _id: '$location.city', image: { $first: pickImage } } },
-      { $project: { _id: 0, city: '$_id', image_url: '$image.url' } },
-    ]);
-
-    const [fromProperties, fromExperiences] = await Promise.all([
-      byCity(Property, { status: 'active', suspended: { $ne: true } }),
-      byCity(Experience, { status: 'active', date: { $gte: new Date() } }),
-    ]);
-
-    const seen = new Map();
-    [...fromProperties, ...fromExperiences].forEach((d) => {
-      if (d.city && d.image_url && !seen.has(d.city)) {
-        seen.set(d.city, { city: d.city, image_url: d.image_url });
-      }
-    });
-
-    const destinations = Array.from(seen.values())
+    const destinations = (await heroPhotosWithStatus(req.tenantId))
+      .filter((h) => h.valid)
+      .map((h) => ({ city: h.city, image_url: h.url }))
       .sort(() => Math.random() - 0.5)
       .slice(0, limit);
 

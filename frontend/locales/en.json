@@ -1218,7 +1218,9 @@
       "generate_password_reset_link": "Generated password reset link",
       "update_settings": "Updated settings",
       "2fa_enabled": "Enabled 2FA",
-      "2fa_disabled": "Disabled 2FA"
+      "2fa_disabled": "Disabled 2FA",
+      "set_hero_photo": "Chose a home page photo",
+      "remove_hero_photo": "Removed a city from the home page"
     }
   },
   "adminAvailability": {
@@ -1302,7 +1304,8 @@
       "overdue_organizer_commissions": "Overdue organizer commissions",
       "manual_payments_pending": "Manual PayPal payments to confirm"
     },
-    "places": "Points of interest"
+    "places": "Points of interest",
+    "heroPhotos": "Home page photos"
   },
   "places": {
     "countryLabel": "Country",
@@ -1564,5 +1567,20 @@
       "organizer": "Organizer",
       "admin": "Administrator"
     }
+  },
+  "adminHeroPhotos": {
+    "title": "Home page photos",
+    "subtitle": "A city appears in the home page background only once you choose its photo. Until one is chosen, the beach photo is shown. Thumbnails have the shape of a phone screen, with the same crop the home page will use.",
+    "shown": "On the home page",
+    "notShown": "Not on the home page",
+    "invalid": "No longer shown: the listing is not active or removed that photo",
+    "remove": "Remove from the home page",
+    "chooseHint": "Tap a photo to put it on the home page.",
+    "noActivePhotos": "This city no longer has active listings with photos.",
+    "empty": "There are no active listings with photos yet.",
+    "saved": "Home page photo saved.",
+    "removed": "The city is no longer on the home page.",
+    "saveFailed": "Could not save. Please try again.",
+    "loadFailed": "Could not load the photos."
   }
 }

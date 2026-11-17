@@ -1218,7 +1218,9 @@
       "generate_password_reset_link": "Generó link de restablecimiento",
       "update_settings": "Cambió los ajustes",
       "2fa_enabled": "Activó 2FA",
-      "2fa_disabled": "Desactivó 2FA"
+      "2fa_disabled": "Desactivó 2FA",
+      "set_hero_photo": "Eligió una foto de la portada",
+      "remove_hero_photo": "Quitó una ciudad de la portada"
     }
   },
   "adminAvailability": {
@@ -1302,7 +1304,8 @@
       "overdue_organizer_commissions": "Comisiones de organizadores vencidas",
       "manual_payments_pending": "Pagos manuales de PayPal por confirmar"
     },
-    "places": "Lugares de interés"
+    "places": "Lugares de interés",
+    "heroPhotos": "Fotos de la portada"
   },
   "places": {
     "countryLabel": "País",
@@ -1564,5 +1567,20 @@
       "organizer": "Organizador",
       "admin": "Administrador"
     }
+  },
+  "adminHeroPhotos": {
+    "title": "Fotos de la portada",
+    "subtitle": "Una ciudad sale en el fondo de la página de inicio solo cuando eliges su foto. Mientras no haya ninguna elegida, se ve la foto de playa. Las miniaturas tienen la forma de la pantalla de un celular, con el mismo recorte que se verá en la portada.",
+    "shown": "En la portada",
+    "notShown": "No sale en la portada",
+    "invalid": "Ya no sale: el anuncio no está activo o quitó esa foto",
+    "remove": "Quitar de la portada",
+    "chooseHint": "Toca una foto para ponerla en la portada.",
+    "noActivePhotos": "Esta ciudad ya no tiene anuncios activos con fotos.",
+    "empty": "Todavía no hay anuncios activos con fotos.",
+    "saved": "Foto de la portada guardada.",
+    "removed": "La ciudad ya no sale en la portada.",
+    "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+    "loadFailed": "No se pudieron cargar las fotos."
   }
 }

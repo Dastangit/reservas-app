@@ -1218,7 +1218,9 @@
       "generate_password_reset_link": "A généré un lien de réinitialisation",
       "update_settings": "A modifié les paramètres",
       "2fa_enabled": "A activé la 2FA",
-      "2fa_disabled": "A désactivé la 2FA"
+      "2fa_disabled": "A désactivé la 2FA",
+      "set_hero_photo": "A choisi une photo de l’accueil",
+      "remove_hero_photo": "A retiré une ville de l’accueil"
     }
   },
   "adminAvailability": {
@@ -1302,7 +1304,8 @@
       "overdue_organizer_commissions": "Commissions d’organisateurs en retard",
       "manual_payments_pending": "Paiements PayPal manuels à confirmer"
     },
-    "places": "Lieux d'intérêt"
+    "places": "Lieux d'intérêt",
+    "heroPhotos": "Photos de l’accueil"
   },
   "places": {
     "countryLabel": "Pays",
@@ -1564,5 +1567,20 @@
       "organizer": "Organisateur",
       "admin": "Administrateur"
     }
+  },
+  "adminHeroPhotos": {
+    "title": "Photos de l’accueil",
+    "subtitle": "Une ville apparaît en fond de la page d’accueil seulement quand vous choisissez sa photo. Tant qu’aucune n’est choisie, la photo de plage s’affiche. Les vignettes ont la forme d’un écran de téléphone, avec le même recadrage que sur l’accueil.",
+    "shown": "Sur l’accueil",
+    "notShown": "Pas sur l’accueil",
+    "invalid": "N’apparaît plus : l’annonce n’est plus active ou a retiré cette photo",
+    "remove": "Retirer de l’accueil",
+    "chooseHint": "Touchez une photo pour la mettre sur l’accueil.",
+    "noActivePhotos": "Cette ville n’a plus d’annonces actives avec photos.",
+    "empty": "Il n’y a pas encore d’annonces actives avec photos.",
+    "saved": "Photo de l’accueil enregistrée.",
+    "removed": "La ville n’apparaît plus sur l’accueil.",
+    "saveFailed": "Impossible d’enregistrer. Réessayez.",
+    "loadFailed": "Impossible de charger les photos."
   }
 }
