@@ -302,7 +302,7 @@
     "invalidCode": "Código inválido",
     "showPassword": "Mostrar contraseña",
     "organizeExcursions": "Organizar excursiones y viajes locales",
-    "phoneHint": "Obligatorio para organizadores de excursiones -- incluye el código de país.",
+    "phoneHint": "Para poder contactarte si hace falta. Incluye el código de país, ej. +1, +34, +52.",
     "registrationFailed": "No se pudo completar el registro",
     "forgotPasswordTitle": "¿Olvidaste tu contraseña?",
     "forgotPasswordSubtitle": "Ingresa tu email. Un administrador se pondrá en contacto contigo con instrucciones para restablecerla.",
@@ -323,7 +323,9 @@
     "resetLinkExpired": "El enlace puede haber expirado. Solicita uno nuevo.",
     "repeatPassword": "Repite la contraseña",
     "pendingApprovalRegistered": "¡Cuenta creada! Nuestro equipo la revisará y te contactará cuando esté aprobada. Podrás iniciar sesión después de la aprobación.",
-    "accountPendingApproval": "Tu cuenta está pendiente de aprobación. Te avisaremos por WhatsApp o correo cuando esté aprobada."
+    "accountPendingApproval": "Tu cuenta está pendiente de aprobación. Te avisaremos por WhatsApp o correo cuando esté aprobada.",
+    "phoneWhatsapp": "Este número tiene WhatsApp",
+    "phoneInvalid": "Escribe tu teléfono con el código de país, ej. +34 600 000 000."
   },
   "dashboard": {
     "myBookings": "Mis reservas",
@@ -871,7 +873,9 @@
     "loginPromptAfter": "para ver tu perfil.",
     "email": "Correo electrónico",
     "phone": "Teléfono",
-    "role": "Rol"
+    "role": "Rol",
+    "phoneRequiredNotice": "Agrega tu teléfono (con el código de país) para que podamos contactarte sobre tus reservas y publicaciones.",
+    "addPhone": "Agregar mi teléfono"
   },
   "review": {
     "loginPromptBefore": "Por favor",

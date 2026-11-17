@@ -302,7 +302,7 @@
     "invalidCode": "Invalid code",
     "showPassword": "Show password",
     "organizeExcursions": "Organize excursions and local trips",
-    "phoneHint": "Required for excursion organizers -- include country code.",
+    "phoneHint": "So we can reach you if needed. Include the country code, e.g. +1, +34, +52.",
     "registrationFailed": "Registration failed",
     "forgotPasswordTitle": "Forgot your password?",
     "forgotPasswordSubtitle": "Enter your email. An administrator will contact you with instructions to reset it.",
@@ -323,7 +323,9 @@
     "resetLinkExpired": "The link may have expired. Please request a new one.",
     "repeatPassword": "Repeat password",
     "pendingApprovalRegistered": "Account created! Our team will review it and contact you once it is approved. You will be able to log in after approval.",
-    "accountPendingApproval": "Your account is pending approval. We'll let you know by WhatsApp or email once it's approved."
+    "accountPendingApproval": "Your account is pending approval. We'll let you know by WhatsApp or email once it's approved.",
+    "phoneWhatsapp": "This number has WhatsApp",
+    "phoneInvalid": "Enter your phone with the country code, e.g. +34 600 000 000."
   },
   "dashboard": {
     "myBookings": "My Bookings",
@@ -871,7 +873,9 @@
     "loginPromptAfter": "to view your profile.",
     "email": "Email",
     "phone": "Phone",
-    "role": "Role"
+    "role": "Role",
+    "phoneRequiredNotice": "Add your phone number (with country code) so we can reach you about your bookings and listings.",
+    "addPhone": "Add my phone"
   },
   "review": {
     "loginPromptBefore": "Please",

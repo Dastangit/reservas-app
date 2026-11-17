@@ -54,11 +54,7 @@ const generatePendingTwoFactorToken = (id) => {
 
 exports.register = async (req, res, next) => {
   try {
-    const { email, password, name, phone, role } = req.body;
-
-    if (role === 'organizer' && !phone) {
-      return res.status(400).json({ success: false, error: 'Phone number is required to register as an organizer' });
-    }
+    const { email, password, name, phone, phone_whatsapp: phoneWhatsapp, role } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -80,6 +76,7 @@ exports.register = async (req, res, next) => {
         password_hash: password,
         name,
         phone,
+        phone_whatsapp: phoneWhatsapp === true,
         role: userRole,
         tenant_id: tenant._id,
       });
@@ -106,6 +103,7 @@ exports.register = async (req, res, next) => {
       password_hash: password,
       name,
       phone,
+      phone_whatsapp: phoneWhatsapp === true,
       role: userRole,
       tenant_id: tenant._id,
       refresh_token: refreshToken,
@@ -185,6 +183,7 @@ exports.login = async (req, res, next) => {
         role: user.role,
         name: user.name,
         tourist_onboarding: user.tourist_onboarding,
+        phone_missing: user.role !== 'admin' && !user.phone,
       },
     });
   } catch (error) {
@@ -256,6 +255,7 @@ exports.verifyTwoFactor = async (req, res, next) => {
         role: user.role,
         name: user.name,
         tourist_onboarding: user.tourist_onboarding,
+        phone_missing: user.role !== 'admin' && !user.phone,
         used_backup_code: usedBackupCode,
       },
     });

@@ -85,4 +85,13 @@ const requireApproved = (req, res, next) => {
   next();
 };
 
-module.exports = { protect, optionalAuth, authorize, requireApproved };
+// Cuentas creadas antes de que el telefono fuera obligatorio: no publican
+// hasta agregarlo en su perfil (el frontend las lleva ahi con este code).
+const requirePhone = (req, res, next) => {
+  if (!req.user.phone) {
+    return res.status(400).json({ success: false, error: 'Add a phone number to your profile first', code: 'phone_required' });
+  }
+  next();
+};
+
+module.exports = { protect, optionalAuth, authorize, requireApproved, requirePhone };

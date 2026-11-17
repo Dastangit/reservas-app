@@ -1,6 +1,7 @@
 import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
+import { phoneRequiredPath } from '../utils/contactPhone.js';
 
 const LoginPage = {
   meta() {
@@ -91,7 +92,8 @@ const LoginPage = {
     // Solo rutas internas (/algo). Evita open redirect (//evil.com) y javascript: URLs.
     const rawRedirect = params.get('redirect') || HOME_BY_ROLE[data.role] || '/';
     const redirect = /^\/(?!\/)[^\\\s]*$/.test(rawRedirect) ? rawRedirect : '/';
-    window.location.href = redirect;
+    // Cuentas creadas antes de que el telefono fuera obligatorio: primero lo agregan.
+    window.location.href = data.phone_missing ? phoneRequiredPath(data.role) : redirect;
   },
 
   async handleLogin() {

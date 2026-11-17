@@ -815,7 +815,8 @@ img[src="/assets/placeholder.svg"] {
   flex-wrap: wrap;
 }
 
-.onboarding-reminder-banner {
+.onboarding-reminder-banner,
+.phone-required-notice {
   background: var(--warning-soft);
   border: 1px solid var(--warning-border);
   color: var(--warning-text);
@@ -825,7 +826,8 @@ img[src="/assets/placeholder.svg"] {
   font-size: var(--fs-sm);
 }
 
-.onboarding-reminder-banner a {
+.onboarding-reminder-banner a,
+.phone-required-notice a {
   color: var(--warning-text);
   text-decoration: underline;
   font-weight: 600;

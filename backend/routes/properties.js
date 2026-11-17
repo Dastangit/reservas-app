@@ -6,7 +6,7 @@ const {
   blockDates, unblockDates, getAvailabilityCalendar,
 } = require('../controllers/propertyController');
 const {
-  protect, authorize, optionalAuth, requireApproved,
+  protect, authorize, optionalAuth, requireApproved, requirePhone,
 } = require('../middleware/auth');
 const { setTenant } = require('../middleware/tenant');
 const validate = require('../middleware/validate');
@@ -34,7 +34,7 @@ router.get('/:id', getPropertyById);
 router.get('/:id/availability', checkAvailability);
 router.get('/:id/availability/calendar', getAvailabilityCalendar);
 
-router.post('/', protect, authorize('host'), requireApproved, [
+router.post('/', protect, authorize('host'), requireApproved, requirePhone, [
   body('name').notEmpty().withMessage('Name is required'),
   body('type').isIn(PROPERTY_TYPES).withMessage(`Type must be one of: ${PROPERTY_TYPES.join(', ')}`),
   body('description').notEmpty().withMessage('Description is required'),

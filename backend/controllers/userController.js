@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const { parsePagination } = require('../utils/helpers');
+const { normalizePhone, isValidPhone, PHONE_FORMAT_ERROR } = require('../utils/phone');
 
 const MIN_PASSWORD = 8;
 const asTrimmedString = (value, max) => String(value ?? '').trim().slice(0, max);
@@ -17,11 +18,20 @@ exports.updateProfile = async (req, res, next) => {
   try {
     const { name, phone, whatsapp_phone, phone_whatsapp, bio } = req.body;
 
+    // El telefono es la via de contacto del admin: no se puede borrar (salvo
+    // el admin) y debe ir con codigo de pais. El WhatsApp aparte es opcional.
+    if (phone !== undefined && !isValidPhone(phone) && !(req.user.role === 'admin' && !normalizePhone(phone))) {
+      return res.status(400).json({ success: false, error: PHONE_FORMAT_ERROR });
+    }
+    if (whatsapp_phone !== undefined && normalizePhone(whatsapp_phone) && !isValidPhone(whatsapp_phone)) {
+      return res.status(400).json({ success: false, error: PHONE_FORMAT_ERROR });
+    }
+
     const user = await User.findById(req.user._id);
 
     if (name && String(name).trim()) user.name = asTrimmedString(name, 100);
-    if (phone !== undefined) user.phone = asTrimmedString(phone, 30);
-    if (whatsapp_phone !== undefined) user.whatsapp_phone = asTrimmedString(whatsapp_phone, 30);
+    if (phone !== undefined) user.phone = normalizePhone(phone);
+    if (whatsapp_phone !== undefined) user.whatsapp_phone = normalizePhone(whatsapp_phone);
     if (phone_whatsapp !== undefined) user.phone_whatsapp = Boolean(phone_whatsapp);
     if (bio !== undefined) user.profile.bio = asTrimmedString(bio, 2000);
 
