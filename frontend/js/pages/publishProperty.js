@@ -6,6 +6,7 @@ import { countryOptions } from '../utils/places.js';
 import { propertyTypeOptions } from '../utils/propertyTypes.js';
 import { servicesFormHtml, bindServicesForm, readServicesForm } from '../utils/propertyServices.js';
 import { locationPickerHtml, bindLocationPicker, fillEmptyFields } from '../utils/locationPicker.js';
+import { fetchProfile, phoneRequiredNotice } from '../utils/contactPhone.js';
 
 const PublishPropertyPage = {
   async render() {
@@ -13,6 +14,19 @@ const PublishPropertyPage = {
 
     if (!auth.isLoggedIn() || !auth.isHost()) {
       return `<div class="container"><p>${t('host.accessDenied')}</p></div>`;
+    }
+
+    // Sin telefono el backend no deja publicar: se pide antes de llenar todo.
+    const profile = await fetchProfile();
+    if (profile && !profile.phone) {
+      return `
+        <div class="publish-property-page">
+          <div class="container">
+            <h1>${t('propertyForm.publishTitle')}</h1>
+            ${phoneRequiredNotice('host')}
+          </div>
+        </div>
+      `;
     }
 
     return `
@@ -142,12 +156,11 @@ const PublishPropertyPage = {
   init() {
     const t = (key) => i18n.t(key);
     const form = document.getElementById('property-form');
-    if (form) {
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await this.handleSubmit();
-      });
-    }
+    if (!form) return;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await this.handleSubmit();
+    });
 
     this.attachImageUploadHandlers(document.getElementById('image-inputs'));
     bindServicesForm();

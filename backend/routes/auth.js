@@ -7,6 +7,7 @@ const {
 } = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/auth');
 const validate = require('../middleware/validate');
+const { normalizePhone, INTL_PHONE, PHONE_FORMAT_ERROR } = require('../utils/phone');
 const {
   loginLimiter, loginIpLimiter, passwordResetLimiter, twoFactorLimiter, registerLimiter, registerIpLimiter,
 } = require('../middleware/rateLimiter');
@@ -19,7 +20,8 @@ router.post('/register', registerIpLimiter, registerLimiter, [
   body('email').trim().toLowerCase().isEmail().withMessage('Valid email is required'),
   body('password').isString().isLength({ min: MIN_PASSWORD, max: 128 }).withMessage(`Password must be at least ${MIN_PASSWORD} characters`),
   body('name').isString().trim().isLength({ min: 1, max: 100 }).withMessage('Name is required'),
-  body('phone').optional({ values: 'falsy' }).isString().trim().isLength({ max: 30 }).withMessage('Invalid phone'),
+  body('phone').customSanitizer(normalizePhone).matches(INTL_PHONE).withMessage(PHONE_FORMAT_ERROR),
+  body('phone_whatsapp').optional().isBoolean().toBoolean(),
   body('role').optional().isIn(['tourist', 'host', 'organizer']).withMessage('Role must be tourist, host or organizer'),
 ], validate, register);
 

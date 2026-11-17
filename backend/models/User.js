@@ -17,7 +17,10 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    // Obligatorio solo para organizadores -- hosts/turistas no lo requieren hoy.
+    // Obligatorio al registrarse para todos (routes/auth.js) y no se puede
+    // borrar del perfil. El modelo solo lo exige a organizadores para no romper
+    // cuentas antiguas sin telefono: el login las manda a su perfil
+    // (phone_missing) y requirePhone no las deja publicar hasta agregarlo.
     required: function () { return this.role === 'organizer'; },
   },
   phone_whatsapp: {

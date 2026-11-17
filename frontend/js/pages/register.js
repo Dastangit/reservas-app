@@ -2,6 +2,7 @@ import api from '../api.js';
 import auth from '../auth.js';
 import i18n from '../i18n.js';
 import { passwordToggleButton } from '../utils/passwordToggle.js';
+import { sanitizePhone, validateInternationalPhone } from '../utils/validators.js';
 
 const RegisterPage = {
   meta() {
@@ -41,8 +42,11 @@ const RegisterPage = {
 
               <div class="form-group">
                 <label for="phone">${t('auth.phone')}</label>
-                <input type="tel" id="phone" placeholder="${t('auth.phonePlaceholder')}">
-                <small class="field-hint" id="phone-hint" style="display:none;">${t('auth.phoneHint')}</small>
+                <input type="tel" id="phone" required autocomplete="tel" placeholder="${t('auth.phonePlaceholder')}">
+                <small class="field-hint">${t('auth.phoneHint')}</small>
+                <div class="checkbox-group">
+                  <label><input type="checkbox" id="phone-whatsapp" checked> ${t('auth.phoneWhatsapp')}</label>
+                </div>
               </div>
 
               <div class="form-group">
@@ -76,28 +80,23 @@ const RegisterPage = {
         await this.handleRegister();
       });
     }
-
-    const roleSelect = document.getElementById('role');
-    const phoneInput = document.getElementById('phone');
-    const phoneHint = document.getElementById('phone-hint');
-    const toggleOrganizerPhone = () => {
-      const isOrganizer = roleSelect?.value === 'organizer';
-      if (phoneInput) phoneInput.required = isOrganizer;
-      if (phoneHint) phoneHint.style.display = isOrganizer ? 'block' : 'none';
-    };
-    if (roleSelect) {
-      roleSelect.addEventListener('change', toggleOrganizerPhone);
-      toggleOrganizerPhone();
-    }
   },
 
   async handleRegister() {
     const name = document.getElementById('name')?.value;
     const email = document.getElementById('email')?.value;
     const password = document.getElementById('password')?.value;
-    const phone = document.getElementById('phone')?.value;
+    const phone = sanitizePhone(document.getElementById('phone')?.value?.trim());
+    const phoneWhatsapp = document.getElementById('phone-whatsapp')?.checked === true;
     const role = document.getElementById('role')?.value;
     const errorEl = document.getElementById('error-message');
+
+    if (!validateInternationalPhone(phone)) {
+      errorEl.textContent = i18n.t('auth.phoneInvalid');
+      errorEl.style.display = 'block';
+      document.getElementById('phone')?.focus();
+      return;
+    }
 
     try {
       const response = await api.post('/auth/register', {
@@ -105,6 +104,7 @@ const RegisterPage = {
         email,
         password,
         phone,
+        phone_whatsapp: phoneWhatsapp,
         role,
       });
 
@@ -126,6 +126,7 @@ const RegisterPage = {
           id: response.data.user_id,
           role: response.data.role,
           name,
+          phone,
           tourist_onboarding: response.data.tourist_onboarding,
         });
 

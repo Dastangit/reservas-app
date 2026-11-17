@@ -302,7 +302,7 @@
     "invalidCode": "Code invalide",
     "showPassword": "Afficher le mot de passe",
     "organizeExcursions": "Organiser des excursions et voyages locaux",
-    "phoneHint": "Obligatoire pour les organisateurs d'excursions -- inclure l'indicatif du pays.",
+    "phoneHint": "Pour pouvoir vous contacter si besoin. Indiquez l’indicatif du pays, ex. +1, +34, +52.",
     "registrationFailed": "Échec de l'inscription",
     "forgotPasswordTitle": "Mot de passe oublié ?",
     "forgotPasswordSubtitle": "Entrez votre email. Un administrateur vous contactera avec les instructions de réinitialisation.",
@@ -323,7 +323,9 @@
     "resetLinkExpired": "Le lien a peut-être expiré. Veuillez en demander un nouveau.",
     "repeatPassword": "Répétez le mot de passe",
     "pendingApprovalRegistered": "Compte créé ! Notre équipe va l’examiner et vous contactera une fois approuvé. Vous pourrez vous connecter après l’approbation.",
-    "accountPendingApproval": "Votre compte est en attente d'approbation. Nous vous préviendrons par WhatsApp ou email une fois approuvé."
+    "accountPendingApproval": "Votre compte est en attente d'approbation. Nous vous préviendrons par WhatsApp ou email une fois approuvé.",
+    "phoneWhatsapp": "Ce numéro a WhatsApp",
+    "phoneInvalid": "Saisissez votre téléphone avec l’indicatif du pays, ex. +34 600 000 000."
   },
   "dashboard": {
     "myBookings": "Mes réservations",
@@ -871,7 +873,9 @@
     "loginPromptAfter": "pour voir votre profil.",
     "email": "E-mail",
     "phone": "Téléphone",
-    "role": "Rôle"
+    "role": "Rôle",
+    "phoneRequiredNotice": "Ajoutez votre numéro de téléphone (avec l’indicatif du pays) pour que nous puissions vous contacter au sujet de vos réservations et annonces.",
+    "addPhone": "Ajouter mon téléphone"
   },
   "review": {
     "loginPromptBefore": "Veuillez vous",

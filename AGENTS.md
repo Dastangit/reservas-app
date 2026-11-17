@@ -79,7 +79,7 @@ CI (`.github/workflows/ci.yml`) runs lint, tests and `npm audit` for the backend
 - **Inline handlers are not allowed** (CSP `script-src 'self'`): use `data-action="fnName" data-arg="..."` (+ `data-arg2`...) and define `window.fnName`; `this` is the element and the event is the last argument. For `<select>` use `data-change-action`.
 - **i18n.t()**: Returns key itself if translation missing (uses `??` not `||` to preserve empty strings).
 - **changeLang**: Calls `i18n.setLang()` + `window.rerenderCurrentPage()` — never `location.reload()`.
-- **User model**: Has both `phone` and `whatsapp_phone` as separate fields.
+- **User model**: Has both `phone` and `whatsapp_phone` as separate fields. `phone` (E.164, `utils/phone.js`) is required on register for every role and cannot be cleared from the profile; older accounts without it get `phone_missing` on login (sent to their profile) and `requirePhone` blocks publishing a property.
 - **Host properties**: Hosts see only their own properties via `GET /api/properties/my` (authenticated). Never modify the public `GET /api/properties` to expose host-only data.
 - **BookingCard**: Takes `mode` string param (`'admin'`/`'host'`/`'tourist'`), not boolean `showActions`.
 - **deleteHost**: Validates no active bookings before deleting. Required by business logic.

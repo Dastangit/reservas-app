@@ -116,6 +116,45 @@ describe('auth', () => {
     expect(res.body.data.token).toBeUndefined();
   });
 
+  test('el telefono es obligatorio al registrarse, para cualquier rol', async () => {
+    for (const role of ['tourist', 'host']) {
+      const sin = await request(app).post('/api/auth/register')
+        .send({ email: `sintel-${role}@test.dev`, password: 'password123', name: 'Sin tel', role });
+      expect(sin.status).toBe(400);
+      expect(sin.body.error).toMatch(/phone/i);
+    }
+    const local = await request(app).post('/api/auth/register')
+      .send({ email: 'local@test.dev', password: 'password123', name: 'Local', phone: '55512345' });
+    expect(local.status).toBe(400);
+
+    const ok = await request(app).post('/api/auth/register')
+      .send({ email: 'contel@test.dev', password: 'password123', name: 'Con tel', phone: '+53 555-12 345', phone_whatsapp: true });
+    expect(ok.status).toBe(201);
+    const user = await User.findOne({ email: 'contel@test.dev' });
+    expect(user.phone).toBe('+5355512345');
+    expect(user.phone_whatsapp).toBe(true);
+  });
+
+  test('el login avisa si a la cuenta le falta el telefono', async () => {
+    const u = await makeUser('tourist', { phone: undefined });
+    const res = await request(app).post('/api/auth/login').send({ email: u.email, password: 'password123' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.phone_missing).toBe(true);
+  });
+
+  test('el perfil no deja borrar el telefono ni guardarlo sin codigo de pais', async () => {
+    const u = await makeUser('host');
+    for (const phone of ['', '55512345']) {
+      const res = await request(app).put('/api/users/profile').set(auth(u)).send({ phone });
+      expect(res.status).toBe(400);
+    }
+    const bad = await request(app).put('/api/users/profile').set(auth(u)).send({ whatsapp_phone: '123' });
+    expect(bad.status).toBe(400);
+    const ok = await request(app).put('/api/users/profile').set(auth(u)).send({ phone: '+34 600 000 000', whatsapp_phone: '' });
+    expect(ok.status).toBe(200);
+    expect((await User.findById(u._id)).phone).toBe('+34600000000');
+  });
+
   test('errores de validacion traen `error` legible', async () => {
     const res = await request(app).post('/api/auth/register').send({ email: 'x', password: '1', name: '' });
     expect(res.status).toBe(400);
@@ -239,6 +278,16 @@ describe('propiedades', () => {
     }
     const bad = await request(app).post('/api/properties').set(auth(h)).send(body('castle'));
     expect(bad.status).toBe(400);
+  });
+
+  test('un anfitrion sin telefono no puede publicar hasta agregarlo', async () => {
+    const h = await makeUser('host', { phone: undefined });
+    const res = await request(app).post('/api/properties').set(auth(h)).send({
+      name: 'Sin tel', type: 'apartment', description: 'd', max_guests: 2, price_per_night: 50,
+      location: { city: 'Madrid', country: 'ES', neighborhood: 'Sol', geo: pt(-3.7038, 40.4168) }, services: demoServices(),
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.code).toBe('phone_required');
   });
 
   test('publicar exige pais y la busqueda filtra por pais', async () => {
@@ -1138,11 +1187,11 @@ describe('auditoria de seguridad (2026-11-14)', () => {
     try {
       for (let i = 0; i < 10; i += 1) {
         const ok = await request(app).post('/api/auth/register').set(from)
-          .send({ email: `bot${i}@test.dev`, password: 'password123', name: 'Bot' });
+          .send({ email: `bot${i}@test.dev`, password: 'password123', name: 'Bot', phone: '+5355500000' });
         expect(ok.status).toBe(201);
       }
       const blocked = await request(app).post('/api/auth/register').set(from)
-        .send({ email: 'bot10@test.dev', password: 'password123', name: 'Bot' });
+        .send({ email: 'bot10@test.dev', password: 'password123', name: 'Bot', phone: '+5355500000' });
       expect(blocked.status).toBe(429);
     } finally {
       process.env.PROXY_SECRET = prev;
