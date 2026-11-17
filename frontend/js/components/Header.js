@@ -250,13 +250,20 @@ const Header = {
       `;
     }
 
+    // Atras va con el gesto o el boton del telefono y del navegador (el router
+    // escucha popstate). Solo la app instalada en iPhone (navigator.standalone)
+    // no tiene ni barra ni boton de atras, asi que solo ahi se muestra la flecha.
+    const showBackButton = window.navigator?.standalone === true;
+
     return `
       <header class="header">
         <div class="container">
           <div class="header-left">
+            ${showBackButton ? `
             <button type="button" class="nav-back-btn" data-action="historyBack" aria-label="${t('common.back')}" title="${t('common.back')}">
               ←
             </button>
+            ` : ''}
             <a href="/" data-link class="logo">
               <img src="/assets/logo-elysio.svg" alt="Elysio Experiences" class="logo-img">
             </a>
