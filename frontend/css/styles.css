@@ -1029,30 +1029,12 @@ img[src="/assets/placeholder.svg"] {
   opacity: 1;
 }
 
-.hero-carousel__slide-blur {
-  position: absolute;
-  inset: -20px;
-  background-size: cover;
-  background-position: center;
-  filter: blur(30px) brightness(0.75);
-  transform: scale(1.15);
-}
-
 .hero-carousel__slide-img {
   position: absolute;
   inset: 0;
-  background-size: contain;
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-}
-
-@media (min-width: 768px) {
-  .hero-carousel__slide-img {
-    background-size: cover;
-  }
-  .hero-carousel__slide-blur {
-    display: none;
-  }
 }
 
 .hero-overlay {
