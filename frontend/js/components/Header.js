@@ -127,6 +127,7 @@ function drawerHtml({ role, user, t, experiencesEnabled }) {
           <p class="drawer-sub-title">${t('drawer.system')}</p>
           ${sub('/admin/availability', t('header.availability'))}
           ${sub('/admin/places', t('header.places'))}
+          ${sub('/admin/hero-photos', t('header.heroPhotos'))}
           ${sub('/admin/password-resets', t('header.passwordResets'))}
           ${sub('/admin/audit-log', t('header.auditLog'))}
           ${sub('/admin/feedback', t('nav.feedback'))}
@@ -240,6 +241,7 @@ const Header = {
             ` : ''}
             <a href="/admin/password-resets" data-link>${t('header.passwordResets')}</a>
             <a href="/admin/places" data-link>${t('header.places')}</a>
+            <a href="/admin/hero-photos" data-link>${t('header.heroPhotos')}</a>
             <a href="/admin/audit-log" data-link>${t('header.auditLog')}</a>
             <a href="/admin/feedback" data-link>${t('nav.feedback')}</a>
             <a href="/admin/reports" data-link>${t('nav.reports')}</a>

@@ -1,5 +1,5 @@
 const express = require('express');
-const { body } = require('express-validator');
+const { body, param } = require('express-validator');
 const {
   getDashboard, getPendingProperties, approveProperty,
   rejectProperty, getAllBookings, getSettings, updateSettings,
@@ -21,6 +21,9 @@ const {
 const {
   getPlaces, createPlace, updatePlace, deletePlace, reimportArea,
 } = require('../controllers/placeController');
+const {
+  getHeroPhotoOptions, setHeroPhoto, removeHeroPhoto,
+} = require('../controllers/heroPhotoController');
 const { PLACE_TYPES } = require('../models/Place');
 const { protect, authorize } = require('../middleware/auth');
 const validate = require('../middleware/validate');
@@ -104,6 +107,15 @@ router.put('/places/:id', [
 ], validate, updatePlace);
 router.delete('/places/:id', deletePlace);
 router.post('/place-areas/:id/import', reimportArea);
+router.get('/hero-photos', getHeroPhotoOptions);
+router.put('/hero-photos', [
+  body('source_type').isIn(['Property', 'Experience']).withMessage('source_type must be Property or Experience'),
+  body('source_id').isMongoId().withMessage('Invalid listing'),
+  body('url').isString().isLength({ min: 1, max: 2000 }).withMessage('Choose a photo'),
+], validate, setHeroPhoto);
+router.delete('/hero-photos/:id', [
+  param('id').isMongoId().withMessage('Invalid id'),
+], validate, removeHeroPhoto);
 
 router.get('/pending-counts', getPendingCounts);
 router.get('/settings', getSettings);
