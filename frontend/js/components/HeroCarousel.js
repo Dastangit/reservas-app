@@ -5,6 +5,15 @@ import { escapeHtml } from '../utils/escape.js';
 // hay propiedades o excursiones activas (ver GET /search/destinations).
 // Si aun no hay destinos, render() devuelve '' y el hero se ve como antes
 // (sin espacios rotos ni placeholders).
+// Las fotos que suben los anfitriones pueden pesar mas de 1 MB (PNG). Cloudinary
+// las entrega en el formato y la calidad que mejor carga en cada navegador, con
+// el ancho de la pantalla, para que no tarden en aparecer sobre la playa.
+const heroImageUrl = (url) => {
+  if (!/^https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\//.test(url)) return url;
+  const width = window.innerWidth <= 768 ? 900 : 1920;
+  return url.replace('/image/upload/', `/image/upload/f_auto,q_auto,c_limit,w_${width}/`);
+};
+
 const HeroCarousel = {
   _destinations: [],
   _intervalId: null,
@@ -25,8 +34,7 @@ const HeroCarousel = {
 
     const slides = this._destinations.map((d, i) => `
       <div class="hero-carousel__slide${i === 0 ? ' is-active' : ''}" role="img" aria-label="${escapeHtml(d.city)}">
-        <div class="hero-carousel__slide-blur" style="background-image:url('${escapeHtml(d.image_url)}')"></div>
-        <div class="hero-carousel__slide-img" style="background-image:url('${escapeHtml(d.image_url)}')"></div>
+        <div class="hero-carousel__slide-img" style="background-image:url('${escapeHtml(heroImageUrl(d.image_url))}')"></div>
       </div>
     `).join('');
 
